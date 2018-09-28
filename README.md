@@ -34,3 +34,5 @@ Testing Frameworks
 - [CoverageBase](https://github.com/JuliaCI/CoverageBase.jl): Measure internal test coverage of the Julia programming language. Does not support Julia v1.0.
 - [Dagger](https://github.com/JuliaParallel/Dagger.jl): Framework for out-of-core and parallel execution (inspired in [Dask](http://dask.pydata.org/en/latest/) for Python).
 - [JulieTest](https://github.com/arypurnomoz/JulieTest.jl): A Julia testing framework inspired by javascript's Mocha.
+- [Memento](https://github.com/invenia/Memento.jl): Memento is flexible hierarchical logging library for Julia.
+- [Mocking](https://github.com/invenia/Mocking.jl): Julia package that allows function calls to be temporarily overloaded for purpose of testing.

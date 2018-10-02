@@ -5,7 +5,7 @@
 **/*.log
 **/*.lot
 **/*.fls
-**/*.out
+**/*.outgit 
 **/*.toc
 **/*.fmt
 **/*.fot
@@ -147,7 +147,7 @@ acs-*.bib
 # minitoc
 **/*.maf
 **/*.mlf[0-9]*
-**/*.mlt
+**/*.mlt[0-9]*
 **/*.mtc[0-9]*
 **/*.slf[0-9]*
 **/*.slt[0-9]*

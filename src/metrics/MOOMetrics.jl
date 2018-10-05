@@ -14,9 +14,26 @@ end
 addpareto!(v::Vector, PF::ParetoFront) =
     begin
         deletedominated!(v, PF)
-        PF.values = [PF.values v]
+        PF.values = order([v PF.values])
     end
 
+assertDimensions(a::AbstractVector, A::ParetoFront) =
+    if length(a) != nrows(A)
+        throw(DimensionMismatch("Different objective-space dimensions:
+                                    $(length(a)) != $(nrows(A))."))
+    end
+contains(P::ParetoFront, v::AbstractVector) = contains(P.values, v)
+contains(V::AbstractMatrix, v::AbstractVector) =
+    any([v == V[:,j] for j in 1:ncols(V)])
+
+order(V::AbstractMatrix) =
+    begin
+        let indices = Vector(1:ncols(V))
+            lt_f = (i0, i1) -> V[:, i0] < V[:, i1]
+            sort!(indices,lt=lt_f)
+            V[:,indices]
+        end
+    end
 """
     isnondominated(v, V) -> bool
     Given a set of vectors `V`, returns whether `v` is a non-dominated or
@@ -73,9 +90,6 @@ isparetoOptimal(v::AbstractVector, P::AbstractMatrix) =
 dominates(v0::AbstractVector, v1::AbstractVector) =
     all(v0 .<= v1)
 
-
-
-
 # Public
 """
     add!(v, PF)
@@ -96,29 +110,58 @@ deletedominated!(v::Vector, PF::ParetoFront) =
         nd_ix = [j for j in 1:j if !dominates(v, PF[:, j])]
         PF.values = Pf.values[:, nd_ix]
     end
+Base.show(io::IO, pf::ParetoFront) =
+    print(io, [pf[:,j] for j in 1:ncols(pf.values)]
 
 # Multi-Objective Optimization Metrics
+
+# Independent Metrics
+"""
+    hypervolumeIndicator(r, A) -> F
+
+    Returns the hypervolume of the multi-dimensional region enclosed by `A` and a
+    reference point `r`, i.e., computes the size of the region dominated by `A` [1].
+    It is an independent metric, that induces a complete ordering, and it is
+    non-cardinal. Different values of `r` might lead to potentially
+    different scores [2].
+
+    Due to the computational impact, this metric is often infeasible for
+    problems with many objectives or for problems with large data sets.
+"""
+# TODO - Make a compilaton of images explaining the algorithm described.
+hypervolumeIndicator(r::AbstractVector, A::ParetoFront) =
+    begin
+        assertDimensions(r, A)
+        let hvol = 0
+            for j in 1:ncols(A)
+                # Compute Hypervolume
+                hvol += abs(A[1, j] - r[1]) * abs(A[2, j] - r[2])
+                # Update reference point to prevent overlapping volumes.
+                r[2] = A[2, j]
+            end
+        end
+    end
 
 # Reference Metrics
 # Reference metrics require the existence of a True Pareto Front set in order
 # to compare the quality of the proposed (the approximation) Pareto Front.
 
-# More information on:
-#     - Veldhuizen, D. V. (1999). Multi Objective evolutionary algorithms: Classifications, Analysis, New Innovations. Multi Objective evolutionary algorithms. Air Force Institute of Technology, Wright Patterson, Ohio.
-#     - Knowles, J., & Corne, D. (2002). On Metrics for Comparing Nondominated Sets. In Proceedings of the 2002 Congress on Evolutionary Computation, CEC 2002 (pp. 711–716).
-
-
 # Error Ratio (ER)
-
 """
-    errorRatio(T, A) -> e
-    Given the true Pareto Front `T`, returns the proportion of non true Pareto points in A.
+    errorRatio(T, A) -> r
+    Given a reference set `T` representing the true Pareto Front, returns the
+    proportion of non true Pareto points in A. The lower the value of Error
+    Ratio (ER) the better the non-dominated set. It induces order and accounts
+    for cardinality.
 """
 errorRatio(T::ParetoFront, A::ParetoFront) =
-    error("Metric ER is not implemented yet.")
+    let n = ncols(A)
+        errors = [1 for j in 1:n if !contains(T, A[:, j])]
+        sum(errors) / n
+    end
 
 maxPFError(T::ParetoFront, A::ParetoFront) =
-    error("Metric MPFE is not implemented yet.")
+
 
 """
 """
@@ -130,6 +173,38 @@ overallnondominatedvectorgeneration(T::ParetoFront, A::ParetoFront) =
     error("Metric ONVG is not implemented yet.")
 
 
+cmetric(T::ParetoFront, A::ParetoFront) =
+    error("Metric c is not implemented yet.")
 
+
+
+d1r(T::ParetoFront, A::ParetoFront) =
+    error("Metric d1r is not implemented yet.")
+
+
+r1r(T::ParetoFront, A::ParetoFront) =
+    error("Metric r1r is not implemented yet.")
+
+r2r(T::ParetoFront, A::ParetoFront) =
+    error("Metric r2r is not implemented yet.")
+
+
+r3r(T::ParetoFront, A::ParetoFront) =
+    error("Metric r3r is not implemented yet.")
+
+
+
+# References
+
+# [1] - Zitzler, E. (1999). Evolutionary Algorithms for Multiobjective
+# Optimization: Methods and Applications. Swiss Federal Institute of Technology.
+
+# [2] - Knowles, J., and Corne, D. (2002). On Metrics for Comparing Nondominated
+# Sets. In Proceedings of the 2002 Congress on Evolutionary Computation,
+# CEC 2002 (pp. 711–716).
+
+# [3] - Veldhuizen, D. V. (1999). Multi Objective evolutionary algorithms:
+# Classifications, Analysis, New Innovations. Multi Objective evolutionary
+# algorithms. Air Force Institute of Technology, Wright Patterson, Ohio.
 
 end

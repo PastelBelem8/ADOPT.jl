@@ -1,5 +1,5 @@
 using Test
 
-println("Testing...")
+include(moometrics)
 
 @test 1 == 1

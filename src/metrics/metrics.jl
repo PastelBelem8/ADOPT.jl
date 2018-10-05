@@ -15,10 +15,13 @@ end
 
 inverse_generational_distance(T) = print(T)
 
-error_ratio(T, A) = 1 - sum(mapslices(a -> count(in2(a,T)), A, dims=2)) / size(A)[1]
+error_ratio(T, A) = 1 - sum(mapslices(a -> numberIntersections(a, T), A, dims=2)) / size(A)[1]
 
 # FIXME - Especializar p/ Arrays/Vectors vs Matrizes..
-in2(a, A) = iszero.(sum(abs.(reshape(a, 1, length(a)) .- A), dims=2))
+intersections(a, A) = mapslices(v -> v == a, A, dims=2)
+numberIntersections(a, A) = count(numberIntersections())
+
+
 
 
 
@@ -45,7 +48,7 @@ generational_distance(M, A1, Distances.euclidean)
 generational_distance(M, A2, Distances.euclidean)
 generational_distance(M, A3, Distances.euclidean)
 
-M2 = [0 2; 0.5 2; 3 4; 5 -2]
-A = [4 4; 3 4; 0 2]
+M2 = [3 4; 0.5 2; 3 4; 5 -2]
+A = [4 4; 3 4; 5 -2]
 error_ratio(M2, A)
 end

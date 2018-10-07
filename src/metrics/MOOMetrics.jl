@@ -1,4 +1,4 @@
-module MooMetrics
+module MOOMetrics
 
 # Define the type ParetoFront
 
@@ -37,7 +37,9 @@ order(V::AbstractMatrix) =
 
 @inline ndim(P::ParetoFront) = nrows(P.values)
 @inline nsols(P::ParetoFront) = ncols(P.values)
-
+@inline solution_obj(P::ParetoFront, i::Int, j::Int) = P.values[i,j]
+@inline solution(P::ParetoFront, j::Int) = P.values[:,j]
+@inline solutions(P::ParetoFront, js::AbstractMatrix{Int}) = P.values[:,j]
 """
     isnondominated(v, V) -> bool
     Given a set of vectors `V`, returns whether `v` is a non-dominated or
@@ -56,7 +58,7 @@ order(V::AbstractMatrix) =
     ```
 """
 isnondominated(v::AbstractVector, V::AbstractMatrix) =
-    all([dominates(V[:,j], v) for j in 1:ncols(V)])
+    all([weaklyDominates(V[:,j], v) for j in 1:ncols(V)])
 isparetoOptimal(v::AbstractVector, P::AbstractMatrix) =
     try:
         isnondominated(v, P)
@@ -67,32 +69,14 @@ isparetoOptimal(v::AbstractVector, P::AbstractMatrix) =
         false
     end
 
-"""
-    dominates(v0, v1) -> bool
-    Returns whether `v0` dominates `v1`. `v0` is said to dominate `v1` if `v1` does
-    not improve any of the values of `v0`. In other words, if for every i-th
-    dimension of `v0`, the value of i-th dimension of `v1` is greater than or equal
-    to the value in `v0`.
+"Returns whether there is a v1 belonging to `V`, that is weakly dominated by v."
+weaklyDominatesAny(v::AbstractVector, V::AbstractArray) =
+    any([weaklyDominates(v, V[:, j]) for j in 1:ncols(V)])
 
-    # Examples
-    ```jldoctest
-    julia> a = [4, 2]; A = [1 3 4; 3 2 1];
+"Returns whether `v0` is never worse than v1 and has an objective value that is
+at least better than v1."
+weaklyDominates(v0::AbstractVector, v1::AbstractVector) = v0 <= v1 && v0 < v1
 
-    julia> dominates(a, A[:,1])
-    false
-
-    julia> dominates(A[:,1], a)
-    true
-
-    julia> dominates([1, 3], [4, 2])
-    false
-
-    julia> dominates([4, 2], [1, 3])
-    false
-    ```
-"""
-dominates(v0::AbstractVector, v1::AbstractVector) =
-    all(v0 .<= v1)
 
 # Public -----------------------------------------------------------------
 """
@@ -111,12 +95,11 @@ add!(v::Vector, PF::ParetoFront) =
 """
 deletedominated!(v::Vector, PF::ParetoFront) =
     begin
-        nd_ix = [j for j in 1:j if !dominates(v, PF[:, j])]
-        PF.values = Pf.values[:, nd_ix]
+        nd_ix = [j for j in 1:j if !weaklyDominates(v, solution(PF, j))]
+        PF.values = solutions([:, nd_ix])
     end
 Base.show(io::IO, pf::ParetoFront) =
-    print(io, [pf[:,j] for j in 1:nsols(pf)]
-
+    print(io, [solution(pf, j) for j in 1:nsols(pf)]
 
 # ------------------------------------------------------------------------
 # Multi-Objective Optimization Metrics
@@ -144,7 +127,7 @@ using Statistics
     Moreover, also known as S-metric or Lebesgue measure, the hypervolume
     indicator (HV or HVI) is classified as NP-hard in the number of objectives,
     evidencing the complexity of the metric (unless P=NP, no polynomial
-    algorithm for HV exists) [].
+    algorithm for HV exists).
 
     We provide a current state-of-the art implementation based on Badstreet's
     Phd Thesis [6]. Motivated by the bad performance of currently available
@@ -153,12 +136,8 @@ using Statistics
     optimisation:
         (1) IHSO (Incremental Hypervolume by Slicing Objectives)
         (2) IIHSO (Iterated IHSO)
-        (3) WFG ()
     Due to the high computational impact, this metric is often infeasible for
     problems with many objectives or for problems with large data sets.
-
-    ![Hypervolume Computation Algorithm Schematics](https://github.com/PastelBelem8/Msc-thesis/blob/metrics/images/HVI-algorithm.jpg)
-
 """
 hypervolumeIndicator(r::AbstractVector, A::ParetoFront) =
     begin
@@ -166,13 +145,13 @@ hypervolumeIndicator(r::AbstractVector, A::ParetoFront) =
         let hvol = 0
             for j in 1:nsols(A)
                 # Compute Hypervolume
-                hvol += abs(A[1, j] - r[1]) * abs(A[2, j] - r[2])
+                hvol += abs(solution_obj(A, 1, j) - r[1]) *
+                        abs(solution_obj(A, 2, j) - r[2])
                 # Update reference point to prevent overlapping volumes.
-                r[2] = A[2, j] # FIXME - It won't probably work for 3D+ (must generalize)
+                r[2] = solution_obj(A,2, j) # FIXME - It won't probably work for 3D+ (must generalize)
             end
         end
     end
-
 
 
 """
@@ -226,7 +205,7 @@ onvgr(A) = overallNDvectorgenerationRatio(A)
 """
 spacing(A::ParetoFront, norm::bool=false) =
     let nsols = nsols(A)
-        min_ds = [minimum_distance(A[:, j], A[:, 1:end .!=j],
+        min_ds = [minimum_distance(solution(A, j), solution(A, 1:end .!=j),
                                     norm ? Distances.euclidean : Distances.cityblock)
                         for j in 1:nsols]
         Statistics.var(min_ds)
@@ -250,7 +229,7 @@ spacing(A::ParetoFront, norm::bool=false) =
 """
 errorRatio(T::ParetoFront, A::ParetoFront) =
     let n = nsols(A)
-        errors = [1 for j in 1:n if !contains(T, A[:, j])]
+        errors = [1 for j in 1:n if !contains(T, solution(A, j))]
         sum(errors) / n
     end
 
@@ -266,7 +245,7 @@ errorRatio(T::ParetoFront, A::ParetoFront) =
     The lowest the value of `e` the better the approximation set.
 """
 maxPFError(T::ParetoFront, A::ParetoFront) =
-    let min_ds = [minimum_distance(A[:, j], T, Distances.euclidean)
+    let min_ds = [minimum_distance(solution(A, j), T, Distances.euclidean)
                     for j in 1:nsols(A)]
         maximum(min_ds)
     end
@@ -274,8 +253,9 @@ maxPFError(T::ParetoFront, A::ParetoFront) =
 minimum_distance(v::AbstractVector, V::AbstractMatrix,
                     metric::Function=Distances.euclidean) =
     minimum(distances(v, V, metric))
+
 @inline distances(v::AbstractVector, V::AbstractMatrix, metric::Function) =
-    [metric(V[:,j], v) for j in 1:ncols(V)]
+    [metric(solution(V,j), v) for j in 1:ncols(V)]
 
 """
     generationalDistance(T, A) -> s
@@ -294,21 +274,60 @@ minimum_distance(v::AbstractVector, V::AbstractMatrix,
 #        associated to the GD metric that should be accounted for. [2], [3]
 generationalDistance(T::ParetoFront, A::ParetoFront) =
     let nsols = nsols(A)
-        squared_min_dists = [minimum_distance(A[:, j], T, Distances.euclidean)^2
+        squared_min_dists = [minimum_distance(solution(A, j), T, Distances.euclidean)^2
                                 for j in 1:nsols]
         √_sum = √(sum(squared_min_dists))
         √_sum / nsols
     end
 
 
-cmetric(T::ParetoFront, A::ParetoFront) =
-    error("Metric c is not implemented yet.")
+"""
+    d1(T, A) -> s
 
+    Measures the mean distance, over the points in the reference set `T`, of
+    the nearest point in an approximation set `A`.
+
+    Can be used to measure diversity and convergence.
+"""
 
 
 d1r(T::ParetoFront, A::ParetoFront) =
-    error("Metric d1r is not implemented yet.")
+    let nsols = nsols(T)
+        Λ = objs_range(T)
+        d = (a, t) -> maximum((t - a) * Λ)
+        min_dists = [minimum_distance(solution(T, j), solutions(A, 1:end), d)
+                        for j in 1:nsols(T)]
+        sum(min_dists) / nsols
+    end
 
+objs_range(P::ParetoFront) =
+    let solutions = solutions(P, 1:end)
+        ranges = abs(maximum(solutions, dims = 2) - minimum(solutions, dims=2))
+        Λ = 1 ./ ranges
+    end
+
+
+# ------------------------------------------------------------------------
+# Direct Comparative Metrics
+# ------------------------------------------------------------------------
+"""
+    coverage(A, B) -> s
+
+Returns the fraction of solutions in `B` that is dominated at least by one
+solution in `A`.
+
+If `C(A, B) = 1`, then every solution in `B` is dominated
+by a solution in `A`, while `C(A, B) = 0` means that no solution in `B` is
+dominated by a solution in `A`.
+
+This metric, also known as C-metric, is a non-symmetric, cycle-inducing
+metric. Compared to the S-metric has lower computational overhead, and scale
+and reference point indepedent. If the approximation sets are not evenly
+distributed, the results are unreliable [2].
+"""
+coverage(A::ParetoFront, B::ParetoFront) =
+    sum([1 for j in nsols(A)
+              if weaklyDominatesAny(solution(A, j), B)]) / nsols(B)
 
 r1r(T::ParetoFront, A::ParetoFront) =
     error("Metric r1r is not implemented yet.")

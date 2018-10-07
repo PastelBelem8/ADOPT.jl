@@ -63,6 +63,14 @@ Ideas to elaborate:
     complete outperformance).
   - [2] Metrics may be considered acording to if they induce total ordering or
   according to its cardinality.
+  - Consider researching the PISA framework that is stated by Lucas Badstreet as
+  being widely used for benchmarking MOOs and new test problems
+  (also providing a few references to applications of the PISA framework).
+
+  - Consider reading [6] for a better classification of the properties of each algorithm
+  and to get a sense of the mostly used metrics.
+
+  - [7] Efficient implementation for HV indicator.
 /
 
 When evaluating the performance of the result of two MOOAs, one can use a
@@ -95,6 +103,12 @@ to properties that do not depend on any other set.
  [5] Hansen, M. P., and Jaszkiewicz, A. (1998). Evaluating the quality of
  approximations to the non-dominated set. IMM Technical Report IMM-REP-1998-7,
  31.
+
+ [6] Riquelme, N., Von Lucken, C., and Baran, B. (2015). Performance metrics
+ in multi-objective optimization. 2015 Latin American Computing Conference
+ (CLEI), 1, 1–11.
+
+ [7] Russo, M. S., and Francisco, A. P. (2013). Quick Hypervolume, 6(1), 1–22.
 
 #### Initial Overview over the Julia dependencies (last updated October, 2nd, 2019):
 

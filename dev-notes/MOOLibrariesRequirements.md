@@ -28,6 +28,9 @@ Platypus also provides a module called Experimenter that allows to easily compar
 
 This framework is available both for Python 2 and Python 3 and has been developed since 2015 and its first release dates April 2018, which means that it is a very recent library. Regarding the maintenance of the library, the most recent commit dates from three months ago, which seems to suggest that the library is still being maintained. Moreover, a testing environment is setup, the tests in the repository do not seem to cover the whole library's functionality, therefore being a drawback of Platypus.
 
+## [PyGMO](http://esa.github.io/pygmo/)
+
+
 
 
 # Conclusions

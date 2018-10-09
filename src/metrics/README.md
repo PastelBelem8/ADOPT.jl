@@ -15,7 +15,7 @@ problems are often addressed considering the Pareto optimality (or Pareto
 Efficiency) concept [1]. This concept, named after the economist Vilfredo
 Pareto, defines an optimal solution as being a solution for which it is
 impossible to improve an objective value without deteriorating others.
-Such a solution is also said to be non-dominated or noninferior. The set of
+Such a solution is also said to be non-dominated or non-inferior. The set of
 non-dominated solutions is called the Pareto Front (or Pareto Frontier).
 
 Although there has been an increasing interest in MOO, there is a lack of
@@ -61,7 +61,7 @@ Ideas to elaborate:
     front. They define outperformance relations that express the relationships
     between two sets of internally nondominated objective vectors (weak, strong,
     complete outperformance).
-  - [2] Metrics may be considered acording to if they induce total ordering or
+  - [2] Metrics may be considered according to if they induce total ordering or
   according to its cardinality.
   - Consider researching the PISA framework that is stated by Lucas Badstreet as
   being widely used for benchmarking MOOs and new test problems

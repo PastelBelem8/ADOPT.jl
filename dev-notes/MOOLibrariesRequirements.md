@@ -1,19 +1,19 @@
-# Multi-Objective Optimization Frameworks
+MOEAFramework# Multi-Objective Optimization Frameworks
 
-In order to fulfill with the goal of providing a broader set of optimization algorithms, we reviewed the most reputed Multi-Objective Optimization (MOO) open-source libraries. After a general overview, we narrowed them to six fundamental libraries that provide wider sets of Multi Objective Optimization Algorithms (MOOAs), while also providing a few Single Objective Algorithms. Other key points for the selection of these libraries were their ease of integration, the reputation of the algorithms, i.e., if they are actively used and widely known by optimization practitioners, and whether they are being actively maintained. Additionally, to further narrow down the number of optimization libraries to integrate with, a more extensive research was done. The following sections present the results for the six studied libraries: Platypus, and OTL/PyOptimization in Python, MOEA Framework and jMetal, in Java, and, Paradiseo and PaGMO in C++.
+In order to fulfill with the goal of providing a broader set of optimization algorithms, we reviewed the most reputed Multi-Objective Optimization (MOO) open-source libraries. After a general overview, we narrowed them to six fundamental libraries that provide wider sets of Multi Objective Optimization Algorithms (MOOAs), while also providing a few Single Objective Algorithms. Other key points for the selection of these libraries were their ease of integration, the reputation of the algorithms, i.e., if they are actively used and widely known by optimization practitioners, and whether they are being actively maintained. Additionally, to further narrow down the number of optimization libraries to integrate with, a more extensive research was done. The following sections present the results for the six studied libraries: Platypus, and OTL/PyOptimization in Python, MOEAFramework and jMetal, in Java, and, Paradiseo and PaGMO in C++.
 
 Although the developed framework is being developed in Julia, at the time of the research no relevant MOO frameworks were provided.
 
 | Language  | Frameworks |
 |:---------:|:----------:|
 | Python    | Platypus, PyOTL, DEAP, Inspyred, PyOMO, Sci-py, skopt, NLopt, pySOT, RBFOpt, Py.earth, CNVXOpt |
-| Java      | ECJ, Opt4J, jMetal, MOEA Framework |
+| Java      | ECJ, Opt4J, jMetal, MOEAFramework |
 | C++       | Paradiseo, PaGMO  |
 
 
 ## [Platypus](https://platypus.readthedocs.io/en/latest/)
 
-Platypus, implemented in Python, is presented as an open-source libary focused on Multi-Objective Evolutionary Algorithms (MOEAs). Besides providing a vast number of algorithms, Platypus also provides a set of standard benchmark problems and indicators to assess the performance of the algorithms.
+Platypus, implemented in Python, is presented as an open-source library focused on Multi-Objective Evolutionary Algorithms (MOEAs). Besides providing a vast number of algorithms, Platypus also provides a set of standard benchmark problems and indicators to assess the performance of the algorithms.
 
 Despite not being extensively documented on the official pages, Platypus' API is rather logical and intuitive, hence facilitating its usage. Additionally, further information regarding the provided data structures of the API might be found next to its implementation on the [Github repository](https://github.com/Project-Platypus/Platypus). Its implementation is clear and understandable, modular, easily extensible, and with a single dependency.
 
@@ -25,7 +25,7 @@ Regarding the performance indicators, it seems to support the most widely used i
 
 Platypus also provides a module called Experimenter that allows to easily compare the performance of multiple algorithms with different parameters in various test problems. In general, this module, which supports the parallelization of different runs, returns the results of every algorithm run for every problem that was specified.
 
-This framework is available both for Python 2 and Python 3 and has been developed since 2015 and its first release dates April 2018, which means that it is a very recent library. Regarding the maintenance of the library, the most recent commit dates from three months ago, which seems to suggest that the library is still being maintained. Moreover, a testing environment is setup, the tests in the repository do not seem to cover the whole library's functionality, therefore being a drawback of Platypus.
+This framework is available both for Python 2 and Python 3 and has been developed since 2015 and its first release dates April 2018, which means that it is a very recent library. However, the main developer of Platypus, is also the main developer of MOEAFramework, an older MOEAFramework being developed since 2012. Regarding the maintenance of the library, the most recent commit dates from three months ago, which seems to suggest that the library is still being maintained. Moreover, a testing environment is setup, the tests in the repository do not seem to cover the whole library's functionality, therefore being a drawback of Platypus.
 
 ## [PaGMO/PyGMO](https://esa.github.io/pagmo2/index.html)
 
@@ -90,95 +90,150 @@ Although PaGMO is fully implemented in C++ for performance reasons, we have said
 
 PaGMO'S API is strongly influenced by the evolutionary and population concepts, and differs from the traditional thinking in which the optimization run is controlled by the algorithm itself. Instead, PaGMO delegates that functionality to the island component that is responsible for asynchronously migrating solutions within islands and evolving populations. For that reason, this API is less intuitive and, necessarily, more verbose.
 
-Moreover, PyGMO's optimization algorithms comprises the ones provided by SciPy, NLopt, GSL, SNOPT and Ipopt frameworks.
+Moreover, PyGMO's optimization algorithms comprises the ones provided by SciPy, NLopt, GSL, SNOPT and Ipopt frameworks. On the one hand, these extra dependencies enlarge the available set of algorithms and enable the application of algorithms of different categories which can, sometimes, be more appropriate to address some types of problems. For example, PyGMO allows to easily apply model-based (e.g., BOBYQA, COBYLA, NEWUOA) and direct search algorithms (e.g. NMS, Subplex, Praxis), which are provided by NLopt. Other than optimization packages, PyGMO also relies on several advanced visualization packages.
 
-On the one hand, these extra dependencies enlarge the available set of algorithms and enable the application of algorithms of different categories which can, sometimes, be more appropriate to address some types of problems. For example, PyGMO allows to easily apply model-based (e.g., BOBYQA, COBYLA, NEWUOA) and direct search algorithms (e.g. NMS, Subplex, Praxis), which are provided by NLopt. Other than optimization packages, PyGMO also relies on several advanced visualization packages.
+
+## [MOEAFramework](https://github.com/MOEAFramework/MOEAFramework)
+
+Developed since 2009, the MOEAFramework is a Java framework focused on MOEAs and general purpose optimization algorithms. MOEAFramework also provides tools for the assessment of the algorithms' performance, including tools for performing statistical tests and for identifying an algorithm's key parameters.  
+
+The MOEAFramework focus on providing an extensible API that allows the creation of new algorithms, operators, and problems. This This framework allows their parallel execution in multiple cores.   
+
+To evaluate the performance of the algorithms, MOEAFramework provides quality indicators with different qualities allowing to measure different properties of the Pareto Fronts. These metrics are HV, GD, IGD, MPFE, R-family and the ϵ-indicator.
+
+This framework is very rich in terms of MOEAs, providing thirty-three multi-objective and four single-objective algorithms. MOEAFramework integrates in a single framework the implementations provided by the [Platform and Programming Language Independent Interface for Search Algorithms (PISA)](https://sop.tik.ee.ethz.ch/pisa/?page=pisa.php), by [jMetal](http://jmetal.sourceforge.net/index.html) - another Java framework.
+
+Despite not being documented on the official pages, MOEAFramework's API is elegant and logical. However, the lack of tutorials and information about the dependencies and architecture of the framework, make it more difficult to extend and use this API. Moreover, the available documentation is not up-to-date and the information is not easily extracted from the existing documentation. Notwithstanding its modularity, MOEAFramework severely lacks documentation and application guides, since the guides available are not free.
+
+```Java
+NondominatedPopulation result = new Executor()
+     .withAlgorithm("NSGAII")
+     .withProblem("DTLZ2_2")
+     .withMaxEvaluations(10000)
+     .withProperty("populationSize", 100)
+     .withProperty("sbx.rate", 1.0)
+     .withProperty("sbx.distributionIndex", 15.0)
+     .withProperty("pm.rate", 0.05)
+     .withProperty("pm.distributionIndex", 20.0)
+     .run();
+```
+
+Regarding the conceptualization of the framework, it is organized in main components: (1) Executor, (2) Problem, (3) Algorithm, (4) Population, (5) Solution. The executor component is the starting point for an optimization process, being responsible for the construction and execution of MOEAs to solve optimization problems. Similarly to the other frameworks, the Problem component exposes two methods, one for evaluating the fitness values and the constraints and other for obtaining new solution to the specified problem. The evaluation methods is then called by each algorithm component, when searching for the optimal solutions in a population. The population is the component representing the set of individual solutions, each of which maintains its unique identifier, decision variables, objectives, constraints, and its attributes. Interestingly, in order to maintain a dynamic feedback of the evolution of the optimization process, MOEAFramework uses an event-based approach to update the information about an optimization run.  
+
+Although there are no reports about the code coverage, after a slight overview of the tests available in the repository, this framework seems to be well tested.
+
+From the integration perspective, the integration of this Java framework with a Julia component is likely to be difficult. Not only the documentation lacks details and tutorials to introduce new users to the framework, but there are also major caveats regarding the functionalities of the interfacing packages provided in Julia. In fact, JavaCall is a Julia package that provides means to call Java programs from Julia code. However, JavaCall has been reported to have some caveats regarding the support of multidimensional arrays and the management of the memory system, which suggest that besides the possibility of having memory leaks, we would also have to deal with type incompatibility issues.
 
 
 # Conclusions
 
-| Properties    | Platypus          | PaGMO |
-|:------------- |:-----------------:|:-----:|
-| API           | ✓                | ✖     |
-| Parallel      | ✖                | ✓     |
-| Modular       | ✓                | ✓     |
-| Documentation | ✖                | ✓     |
-| Integration   | ✓                | ✓     |
-| Maintenance   | ✓ (Seasonal)     | ✓     |
-| Tests         | ✖                | ✓     |
-| Popularity/Use| ⍰ (Unknown)      | ✓     |
-| Discrete/Continuous | ✓          | ✓     |
-| Constrained/Unconstrained | ✓    | ✓     |
-| Model-Based Methods  |  ✖        | Local |
-| Direct-Search Methods| ✖         | Local |
-| Minimization  | Max/Min          | Min    |
+| Properties    | Platypus          | PaGMO/PyGMO | MOEAFramework |
+|:------------- |:-----------------:|:-----------:|:--------------:|
+| API           | ✓                | ✖           | ✓              |
+| Parallel      | ✖                | ✓           | ✓              |
+| Modular       | ✓                | ✓           | ✓              |
+| Documentation | ✖                | ✓           | ✖              |
+| Integration   | ✓                | ✓           | ✖              |
+| Maintenance   | ✓ (Seasonal)     | ✓           | ✓              |
+| Tests         | ✖                | ✓           | ✓              |
+| Popularity/Use| ⍰ (Unknown)      | ✓           | ⍰ (Unknown)   |
+| Discrete/Continuous | ✓          | ✓           | ✓              |
+| Constrained/Unconstrained | ✓    | ✓           | ✓              |
+| Model-Based Methods  |            | Local - S   | M              |
+| Direct-Search Methods|            | Local - S   |               |
+| Minimization  | Max/Min           | Min          | Min           |
+| Events        |                   |              | ✓             |
 
 
 ### Multi-Objective Algorithms (MOOAs)
-| Algorithm    | Platypus |
-|:------------ |:--------:|
-| SGA          | ✓ |   |
-| ES           | ✓ |   |
-| CMAES        | ✓ |   |
-| Epsilon-MOEA | ✓ |   |
-| GDE3         | ✓ |   |
-| IBEA         | ✓ |   |
-| MOEA/D       | ✓ | ✓ |
-| NSGA-II      | ✓ | ✓ |
-| NSGA-III     | ✓ |   |
-| PAES         | ✓ |   |
-| PESA2        | ✓ |   |
-| SPEA2        | ✓ | ✓ |
-| OMOPSO       | ✓ |   |
-| SMPSO        | ✓ |   |
-| NSPSO        |   | ✓ |
-| VEGA         |   | ✓ |
-| PADE         |   | ✓ |
-| HS           |   | ✓ |
-|
+| Algorithm    | Platypus | PaGMO/PyGMO | MOEAFramework |
+|:------------ |:--------:|:-----------:|:--------------:|
+| ES           | ✓ |   |   |
+| CMA-ES       | ✓ | ✓ | ✓ |
+| ϵ-MOEA       | ✓ |   | ✓ |
+| GDE3         | ✓ |   | ✓ |
+| IBEA         | ✓ |   | ✓ |
+| MOEA/D       | ✓ | ✓ | ✓ |
+| NSGA-II      | ✓ | ✓ | ✓ |
+| NSGA-III     | ✓ |   | ✓ |
+| PAES         | ✓ |   | ✓ |
+| PESA2        | ✓ |   | ✓ |
+| SPEA2        | ✓ | ✓ | ✓ |
+| OMOPSO       | ✓ |   | ✓ |
+| SMPSO        | ✓ |   | ✓ |
+| NSPSO        |   | ✓ |   |
+| VEGA         |   | ✓ | ✓ |
+| PADE         |   | ✓ |   |
+| HS           |   | ✓ |   |
+| AbYSS        |   |    | ✓ |
+| Borg MOEA    |   |    | ✓ |
+| CellDe       |   |    | ✓ |
+| DBEA         |   |    | ✓ |
+| DENSEA       |   |    | ✓ |
+| ϵCEA         |   |    | ✓ |
+| ϵ-NSGA-II    |   |    | ✓ |
+| FastPGA      |   |    | ✓ |
+| FEMO         |   |    | ✓ |
+| HypE         |   |    | ✓ |
+| MOCell       |   |    | ✓ |
+| MOCHC        |   |    | ✓ |
+| MSOPS        |   |    | ✓ |
+| Random Search|   |    | ✓ |
+| RVEA         |   |    | ✓ |
+| SEMO2        |   |    | ✓ |
+| SHV          |   |    | ✓ |
+| SIBEA        |   |    | ✓ |
+| SMS-EMOA     |   |    | ✓ |
+| SPAM         |   |    | ✓ |
+
 
 ### Single-Objective Algorithms (SOAs)
-| Algorithm    | Platypus           | PaGMO  |
-|:------------ |:------------------:|:------:|
-| SGA          | ✓                  | ✓     |
-| DE           |                     | ✓     |
-| Self-Adaptive pDE |                | ✓     |
-| Self-Adaptive jDE |                | ✓     |
-| Self-Adaptive iDE |                | ✓     |
-| HS           |                     | ✓     |
-| PSO          |                     | ✓     |
-| GPSO         |                     | ✓     |
-| (N+1) ES SEA |                     | ✓     |
-| SA           |                     | ✓     |
-| ABC          |                     | ✓     |
-| CMA-ES       |                     | ✓     |
-| xNES         |                     | ✓     |
-| CS           |                     | ✓     |
-| COBYLA       |                     | ✓     |
-| BOBYQA       |                     | ✓     |
-| NEWUOA       |                     | ✓     |
-| PRAXIS       |                     | ✓     |
-| NMS          |                     | ✓     |
-| SUBPLEX      |                     | ✓     |
-| MMA          |                     | ✓     |
-| SLSQP        |                     | ✓     |
-| CCSA         |                     | ✓     |
-| LS-BFGS      |                     | ✓     |
-| Preconditioned truncated Newton  | | ✓     |
-| Shifted limited memory var-metric| | ✓     |
-| Ipopt ?      |                     | ✓     |
-| SNOPT ?      |                     | ✓     |
-| WORHP ?      |                     | ✓     |
+| Algorithm    | Platypus           | PaGMO/PyGMO  | MOEAFramework :|
+|:------------ |:------------------:|:------:|:----------------:|
+| SGA          | ✓                   | ✓     | ✓ |
+| DE           |                     | ✓     | ✓ |
+| Self-Adaptive pDE |                | ✓     |   |
+| Self-Adaptive jDE |                | ✓     |   |
+| Self-Adaptive iDE |                | ✓     |   |
+| HS           |                     | ✓     |   |
+| PSO          |                     | ✓     |   |
+| GPSO         |                     | ✓     |   |
+| (N+1) ES SEA |                     | ✓     |   |
+| SA           |                     | ✓     |   |
+| ABC          |                     | ✓     |   |
+| xNES         |                     | ✓     |   |
+| CS           |                     | ✓     |   |
+| COBYLA       |                     | ✓     |   |
+| BOBYQA       |                     | ✓     |   |
+| NEWUOA       |                     | ✓     |   |
+| PRAXIS       |                     | ✓     |   |
+| NMS          |                     | ✓     |   |
+| SUBPLEX      |                     | ✓     |   |
+| MMA          |                     | ✓     |   |
+| SLSQP        |                     | ✓     |   |
+| CCSA         |                     | ✓     |   |
+| LS-BFGS      |                     | ✓     |   |
+| Preconditioned truncated Newton  | | ✓     |   |
+| Shifted limited memory var-metric| | ✓     |   |
+| Ipopt ?      |                     | ✓     |   |
+| SNOPT ?      |                     | ✓     |   |
+| WORHP ?      |                     | ✓     |   |
+| ES           |                     |       | ✓ |
+| RSO          |                     |       | ✓ |
+
 
 
 ### Metrics
 
-| Indicator | Platypus | PaGMO |
-|:--------- |:--------:|:-----:|
-| GD        | ✓       |        |
-| IGD       | ✓       |        |
-| HV        | ✓       | ✓      |  
-| Epsilon   | ✓       |        |
+| Indicator | Platypus | PaGMO/PyGMO | MOEAFramework |
+|:--------- |:--------:|:-----:|:------:|
+| GD        | ✓       |        | ✓ |
+| IGD       | ✓       |        | ✓ |
+| HV        | ✓       | ✓      | ✓ |
+| ϵ-Indicator | ✓     |        | ✓ |
+| MPFE      |          |        | ✓ |
+| R-Family  |          |        | ✓ |
+| Spacing   |          |        | ✓ |
 
 
 

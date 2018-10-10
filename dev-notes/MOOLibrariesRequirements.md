@@ -1,8 +1,8 @@
 # Multi-Objective Optimization Frameworks
 
-In order to fulfill with the goal of providing a broader set of optimization algorithms, we reviewed the most reputed Multi-Objective Optimization (MOO) open-source libraries. After a general overview, we narrowed them to six fundamental libraries that provide wider sets of Multi Objective Optimization Algorithms (MOOAs), while also providing a few Single Objective Algorithms. Other key points for the selection of these libraries were their ease of integration, the reputation of the algorithms, i.e., if they are actively used and widely known by optimization practitioners, and whether they are being actively maintained. Additionally, to further narrow down the number of optimization libraries to integrate with, a more extensive research was done. The following sections present the results for the six studied libraries: Platypus, and OTL/PyOptimization in Python, MOEAFramework and jMetal, in Java, and, Paradiseo and PaGMO in C++.
+In order to fulfill with the goal of providing a broader set of optimization algorithms, we reviewed the most reputed Multi-Objective Optimization (MOO) open-source libraries. After a general overview, we narrowed them to four fundamental libraries that provide wider sets of Multi Objective Optimization Algorithms (MOOAs), while also providing a few Single Objective Algorithms. Other key points for the selection of these libraries were their ease of integration, the reputation of the libraries, i.e., if they are actively used and widely known, and whether they are being actively maintained. Additionally, to further narrow down the number of optimization libraries to integrate with, a more extensive research was done. The following sections present the results for the four studied libraries: Platypus in Python, MOEAFramework and jMetal, in Java, and PaGMO in C++.
 
-Although the developed framework is being developed in Julia, at the time of the research no relevant MOO frameworks were provided.
+Although the developed framework is being developed in Julia, at the time of the research no relevant MOO frameworks were provided and, therefore, no Julia package appears in the following sections.
 
 | Language  | Frameworks |
 |:---------:|:----------:|
@@ -138,7 +138,7 @@ From the integration perspective, the integration of this Java framework with a 
 
 ## [jMetal](http://jmetal.github.io/jMetal/)
 
-jMetal is a Java framework focused on providing multi-objective optimization with metaheuristics. Its last release dates back to September 2018, which seems to suggest that it is currently being maintained. Interestingly, not only does jMetal support the parallel execution of algorithms, but it also supports the live interaction with running algorithms. Similarly to MOEAFramework, jMetal follows an event-based approach for asynchronously receiving information about the evolution of the optimization run.
+jMetal is a Java framework focused on providing multi-objective optimization with metaheuristics [2]. Its last release dates back to September 2018, which seems to suggest that it is currently being maintained. Interestingly, not only does jMetal support the parallel execution of algorithms, but it also supports the live interaction with running algorithms. Similarly to MOEAFramework, jMetal follows an event-based approach for asynchronously receiving information about the evolution of the optimization run.
 
 Being developed since 2006, jMetal comprises four main components: (1) Algorithm, (2) Problem, (3) Solution, and (4) Operators. An algorithm uses several operators to manipulate a set of potential Solutions to solve a particular Problem. Each solution is either binary, integer, or real, and it supports the addition of attributes. Problems can create new solutions and evaluate them.
 
@@ -146,17 +146,34 @@ Documentation about the algorithms and the inner workings of the framework are n
 
 In what concerns the integration with a Julia, this framework is as complicated as the MOEAFramework. Even though there have been other jMetal interfaces for C# and C++ they are not maintained anymore and, therefore, they are not reliable options for integration.
 
+
 # Conclusions
+
+- Java Frameworks are more difficult to integrate with vs C++ vs Python. [Platypus wins]
+- Parallelization of the execution is not necessarily a concern given the limitations on the machines and the fact that simulation engines are already multi-threaded. Even though in the future enabling parallel execution of optimization algorithms is something to have, it is not crucial to have it now (since we are mostly aiming at Architectural Design Optimization (ADO) problems.)
+- Elegant/Cleaner APIs are easier to integrate [MOEAFramework and Platypus]
+- All APIs are modular and extensible in their own languages, but we are not exploring that in Julia. We are focused in integrating optimization frameworks in order to provide a richer set of MOOAs.
+- Maintenance, Platypus seems to be the less maintained framework. Its main developer, Dave Hadka, is also the one responsible for developing the MOEAFramework and therefore the lessons learnt from one might be used to improve the other.
+- Regarding tests, only PaGMO and MOEAFramework exhibited fairly good testing environment, establishing a good confidence support for the usage of such frameworks.
+- Regarding its popularity, in general we found it hard to discover such data and therefore this won't be considered.
+- Regarding the mathematical properties of the problems that are solvable by each library, all libraries seem to handle continuous, discrete and mixed combinations of decision variables, as well as to solve constrained problems.
+- Regarding other types of optimization algorithms, only PaGMO presents other alternatives. However, all these algorithms are local and single-objective based. Additionally, these algorithms are a mere subset of those provided by NLopt.
+- Regarding the formulation of optimization problems almost all libraries assume that all the objectives are to minimize and, consequently, do not keep state about the optimization type. However, platypus does keep a state regarding that information. This is not very important, as it is possible to compute the minimization problem equivalent to a maximization one and still obtain the same results.
+- Regarding the events, only the Java frameworks provided such features. THis allows to interactive feedback about the evolution of the optimization process, which is very important.
+- Only MOEA framework provided sensitivity analysis techniques. These are important as they can be used not only to assert which are the most important variables, but also might be explored as explanation techniques.
+- Regarding the MOOAs, the Java frameworks are undoubtedly more complete. Nevertheless, Platypus also provides a fairly good subset of algorithms with some of the most important ones being provided as well.
+
+We will choose **Platypus** as a first platform for integration, given its ease of integration with Python and its intuitive API.
 
 | Properties    | Platypus          | PaGMO/PyGMO | MOEAFramework  | jMetal |
 |:------------- |:-----------------:|:-----------:|:--------------:|:------:|
-| API           | ✓                | ✖           | ✓              |        |
+| API           | ✓                | ✖           | ✓              |  ✖      |
 | Parallel      | ✖                | ✓           | ✓              |  ✓     |
 | Modular       | ✓                | ✓           | ✓              |  ✓     |
 | Documentation | ✖                | ✓           | ✖              |  ✖     |
 | Integration   | ✓                | ✓           | ✖              |  ✖     |
 | Maintenance   | ✓ (Seasonal)     | ✓           | ✓              |  ✓     |
-| Tests         | ✖                | ✓           | ✓              |        |
+| Tests         |                  | ✓           | ✓              |        |
 | Popularity/Use| ⍰ (Unknown)      | ✓           | ⍰ (Unknown)   | ✓      |
 | Discrete/Continuous | ✓          | ✓           | ✓              | ✓      |
 | Constrained/Unconstrained | ✓    | ✓           | ✓              | ✓      |

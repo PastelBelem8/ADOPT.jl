@@ -1,8 +1,14 @@
-# Unit tests to module MOOMetrics
+# Unit tests to module MOOIndicators
+
 
 # 1. Test dominates function
 #    - Wrong types
 #    - Mismatching dimensions
+@testset "Dominance relations" begin
+    M =
+
+
+end
 
 # 2. Test isnondominated function
 #    - Wrong types
@@ -12,6 +18,9 @@
 
 # 4. Test structure ParetoFront
 #     - Creation of ParetoFront
+#     - Order of Pareto Front
+#     - isEmpty
+#     - ...
 
 # 5. Test `addPareto!` function
 

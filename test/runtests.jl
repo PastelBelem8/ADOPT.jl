@@ -1,5 +1,5 @@
 using Test
 
-include(moometrics)
+include(MOOIndicators)
 
 @test 1 == 1

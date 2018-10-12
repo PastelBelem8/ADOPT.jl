@@ -1,4 +1,4 @@
-module MOOMetrics
+module MOOIndicators
 
 # Define the type ParetoFront
 
@@ -118,7 +118,7 @@ Base.show(io::IO, pf::ParetoFront) =
     print(io, [solution(pf, j) for j in 1:nsols(pf)]
 
 # ------------------------------------------------------------------------
-# Multi-Objective Optimization Metrics
+# Multi-Objective Optimization Indicators
 # ------------------------------------------------------------------------
 
 # Depedencies ------------------------------------------------------------
@@ -127,14 +127,14 @@ using Statistics
 using LinearAlgebra
 
 # ------------------------------------------------------------------------
-# Independent Metrics
+# Independent Indicators
 # ------------------------------------------------------------------------
 """
     hypervolumeIndicator(r, A) -> s
 
 Returns the hypervolume of the multi-dimensional region enclosed by `A` and a
 reference point `r`, i.e., computes the size of the region dominated by `A`
-[1]. It is an independent metric, that induces a complete ordering, and it
+[1]. It is an independent Indicator, that induces a complete ordering, and it
 is non-cardinal. Different values of `r` might influence differently the
 scores [2, 5]. By default the reference point will be determined based on
 the worst known value in each objective and shift it by a small amount. A
@@ -143,7 +143,7 @@ than sets with lower hypervolume.
 
 Moreover, also known as S-metric or Lebesgue measure, the hypervolume
 indicator (HV or HVI) is classified as NP-hard in the number of objectives,
-evidencing the complexity of the metric (unless P=NP, no polynomial
+evidencing the complexity of the Indicator (unless P=NP, no polynomial
 algorithm for HV exists).
 
 We provide a current state-of-the art implementation based on Badstreet's
@@ -153,7 +153,7 @@ algorithms aimed at improving the feasibility of HV in multi-objective
 optimisation:
     (1) IHSO (Incremental Hypervolume by Slicing Objectives)
     (2) IIHSO (Iterated IHSO)
-Due to the high computational impact, this metric is often infeasible for
+Due to the high computational impact, this Indicator is often infeasible for
 problems with many objectives or for problems with large data sets.
 """
 function hypervolumeIndicator(r::AbstractVector, A::ParetoFront)
@@ -168,6 +168,7 @@ function hypervolumeIndicator(r::AbstractVector, A::ParetoFront)
     end
 end
 
+
 """
     onvg(A) -> s
     overallNDvectorgeneration(A) -> s
@@ -178,9 +179,9 @@ uses the cardinality of the approximation sets to induce a complete
 ordering on the sets of approxmation, hence being scale independent.
 
 While being very easy to compute, it is very easy to mis-classify
-approximation sets using exclusively this metric (e.g. approximation sets
+approximation sets using exclusively this Indicator (e.g. approximation sets
 with many points will always be better than sets with fewer points that
-dominate all the points of the first metric). For more information, refer
+dominate all the points of the first Indicator). For more information, refer
 to [3].
 
 Optionally, if the true Pareto Front `T` is known, you might opt to
@@ -210,8 +211,8 @@ defined by Schott [5]. However, it is also possible to use the Euclidean
 distance as proposed by Deb. et al [4] by calling [`Δ`](@ref) instead.
 
 While inducing complete ordering and being based on the cardinality of `A`,
-this metric has low computational overhead. The original proposed
-non-normalized version of the metric [5] might be problematic as the
+this Indicator has low computational overhead. The original proposed
+non-normalized version of the Indicator [5] might be problematic as the
 distances are not properly normalized. Consider the normalized version
 spacing as proposed in [4] by specifying by using [`Δ`](@ref) or
 [`debSpacing`](@ref).
@@ -228,7 +229,7 @@ end
     Δ(A) -> s
     Spread(A) -> s
 
-Computes the Deb's spacing metric using the Euclidean distance, which
+Computes the Deb's spacing Indicator using the Euclidean distance, which
 measures the consecutive distances among the solutions in `A`.
 """
 function Δ(A::ParetoFront)
@@ -247,7 +248,7 @@ spread(A::ParetoFront) = Δ(A)
 
 Computes the euclidean distance between the bounds of each objective dimension.
 
-The Maximum Spread metric measures the extent of the search space in each
+The Maximum Spread Indicator measures the extent of the search space in each
 dimension, by calculating the Euclidean distance between the maximum and
 minimum of each objective. A greater value of Maximum Spread indicates a
 larger coverage of the search space [10].
@@ -265,23 +266,23 @@ overallParetoSpread(A::ParetoFront) = maximumSpread(A)
 
 
 """
-DM [15] are two very related diversity metrics that apply an entropy concept
-to calculate the diversity of solutions. DM is based on the entropy metric.
+DM [15] are two very related diversity indicators that apply an entropy concept
+to calculate the diversity of solutions. DM is based on the entropy indicator.
 Both of them basically attempt to project the solutions of an approximation
 set on a suitable hyperplane assigning them entropy functions that later will
 be added together to compose a normalized entropy function.
 """
 entropy(A::ParetoFront) =
-    error("Metric entropy is not implemented yet.")
+    error("Entropy Indicator is not implemented yet.")
 
-diversityMetric(A::ParetoFront) =
-    error("Metric Dversity Metric is not implemented yet.")
+diversityMeasure(A::ParetoFront) =
+    error("Indicator Dversity Measure is not implemented yet.")
 
 
 
 # ------------------------------------------------------------------------
-# Reference Metrics
-# Reference metrics require the existence of a True Pareto Front set in order
+# Reference Indicators
+# Reference Indicators require the existence of a True Pareto Front set in order
 # to compare the quality of the proposed (the approximation) Pareto Front.
 # ------------------------------------------------------------------------
 
@@ -305,10 +306,10 @@ errorRatio(T::ParetoFront, A::ParetoFront) =
 
 Given a reference set `T` representing the true Pareto Front, determines a
 maximum error band `e` which is the largest minimum distance between each
-vector in `A` and the corresponding closest vector in `T`. This metric is
+vector in `A` and the corresponding closest vector in `T`. This Indicator is
 called Maximum Pareto Front Error (MPFE) and it was first introduced by
-Veldhuizen [3] in 1999. It is a reference metric that induces ordering and
-it is a non-cardinal metric.
+Veldhuizen [3] in 1999. It is a reference Indicator that induces ordering and
+it is a non-cardinal Indicator.
 
 The lowest the value of `e` the better the approximation set.
 """
@@ -339,7 +340,7 @@ are not closer on average than the first one [2]. Unlike the
 [`hypervolumeIndicator`](@ref), GD is very cheap to compute.
 """
 # TODO - Complement description of GD. There are several disadvantages
-#        associated to the GD metric that should be accounted for. [2], [3]
+#        associated to the GD Indicator that should be accounted for. [2], [3]
 generationalDistance(T::ParetoFront, A::ParetoFront) =
     let nsols = nsols(A)
         squared_min_dists = [minimum_distance(solution(A, j), T)^2
@@ -357,7 +358,7 @@ Returns the average distance from each reference point in `T` to the nearest
 solution in `A`.
 
 When a well distributed true Pareto Front `T` is given, smaller values for this
-metric suggest the good convergence of solutions of `A`.
+Indicator suggest the good convergence of solutions of `A`.
 
 See also: [`generationalDistance`](@ref)
 """
@@ -397,7 +398,7 @@ objs_range(P::ParetoFront) =
 Returns the average distance of the approximation set `A` to the reference
 set `T`.
 
-M1*, here denoted as M1, is a reference metric that computes an averaged
+M1*, here denoted as M1, is a reference Indicator that computes an averaged
 approximation of the solutions in the approximation set to the nearest points
 in a reference set `T` (ideally representing the true Pareto Front). For
 further information refer to [11].
@@ -410,7 +411,7 @@ M1(T::ParetoFront, A::ParetoFront) =
 averageDistance(T::ParetoFront, A::ParetoFront) = M1(T, A)
 
 # ------------------------------------------------------------------------
-# Direct Comparative Metrics
+# Direct Comparative Indicators
 # ------------------------------------------------------------------------
 """
     coverage(A, B) -> s
@@ -422,8 +423,8 @@ If `C(A, B) = 1`, then every solution in `B` is dominated
 by a solution in `A`, while `C(A, B) = 0` means that no solution in `B` is
 dominated by a solution in `A`.
 
-This metric, also known as C-metric, is a non-symmetric, cycle-inducing
-metric. Compared to the S-metric has lower computational overhead, and scale
+This Indicator, also known as C-metric, is a non-symmetric, cycle-inducing
+Indicator. Compared to the S-metric has lower computational overhead, and scale
 and reference point indepedent. If the approximation sets are not evenly
 distributed, the results are unreliable [2].
 """
@@ -454,7 +455,7 @@ representing the largest error in the objective space between a solution in `A`
 and a solution in `B`. In other words, it computes the largest difference by
 which an approximation set is worse than another with respect to all objectives.
 
-A small value on this metric indicates that the solutions in `A` are close to
+A small value on this Indicator indicates that the solutions in `A` are close to
 the reference set `T`, which ideally would be the True Pareto Front.
 
 See also: [`epsilonIndicator`](@ref)
@@ -507,13 +508,13 @@ approximation `A` with another one `T`.
 [`R3`](@ref) calculates the ratio of the differences in the utility of an
 approximation `A` with another one `T`.
 
-All the R-metrics are non-cardinal metrics that might be direct comparative or
-reference metrics, depending whether `T` represents the true Pareto Front or
+All the R-metrics are non-cardinal Indicators that might be direct comparative or
+reference Indicators, depending whether `T` represents the true Pareto Front or
 just an approximation. When passing the true Pareto Front, R-metrics induce
-order. Additionally, these metrics are scaling independent and have lower
+order. Additionally, these Indicators are scaling independent and have lower
 computational overhead than the [`hypervolumeIndicator`](@ref).
 """
-# Refine description of R metrics.
+# Refine description of R Indicators.
 function Rmetric(A::ParetoFront, B::ParetoFront,
                     U::Vector{Function}, P::Vector{Float64}, λ::Function)
     assertDimensions(U, P)

@@ -2,62 +2,53 @@ module Sampling
 
 using Random
 
-# To avoid writing boilerplate code, while controlling the thrown exceptions
-# macro verifyArg(expr, err)
-#     :(if !$(expr) throw($err) end)
-# end
-
-# a = [1, 2]
-# @macroexpand @verifyArg(ndims(a) == 2, "")
-
-function checkBounds(bounds::AbstractArray)
-    if isempty(bounds)
-        throw(ArgumentError("empty array is not valid."))
-    end
-    if ndims(bounds) != 2 || size(bounds, 2) == 0 || size(bounds, 1) != 2
-        throw(ArgumentError("dimension mismatch: $(size(bounds)) instead of (2,N) was given."))
-    end
+# Macros ---------------------------------------------------------------------
+"Generates the `levels` combinations."
+macro stratify(levels)
+    return :( (Iterators.product($(esc(levels))...)) )
 end
 
+# Auxiliar Functions --------------------------------------------------------
+"Generate random number between [`min`, `max`)"
 rand_range(min, max) = rand() * (max - min) + min
 
+"Sets the seed of the default random pseudogenerator to be `s`"
+set_seed!(s::Int) = Random.seed!(seed)
 
-"Generates new sample point within the dimensions specified"
-function random_sample(bounds::AbstractMatrix)
-    checkBounds(bounds)
-    # Generate the sample and transpose it to be a column vector
-    mapslices(b -> rand_range(b[1], b[2]), bounds, dims=1)'
+# Public --------------------------------------------------------------------
+# All the methods provided in this module generate samples in [0, 1]^n.
+# We opt by limiting the samples to the range [0, 1] so that each dimension
+# gets scaled according to its properties, i.e., whether it is a discrete, a
+# real or a categorical variable, each dimension will be scaled properly.
+# The sampling methods should not be responsible for scaling/unscaling the
+# variables.
+
+"Generate a new random sample with `ndims` dimensions."
+function random_sample(ndims::Int)
+    [rand() for j in 1:ndims]
 end
 
-function random_samples(bounds::AbstractMatrix, n::Int)
-    checkBounds(bounds)
-    # Reshape bounds' dimensions to be 2xn
-    bounds = size(bounds, 1) == 2 ? bounds : bounds'
-    samples = fill(0.0, (size(bounds, 2), n))
+"Generate `n` random samples with `ndims` dimensions."
+function random_samples(ndims::Int, n::Int)
+    samples = zeros(ndims, n)
     for j in 1:n
-        samples[:, j] = random_sample(bounds)
+        samples[:, j] = random_sample(ndims)
     end
     samples
 end
 
-function random_samples(bounds::AbstractMatrix, n::Int, seed::Int)
-    Random.seed!(seed)
-    random_samples(bounds, n)
-end
+"Generate one random sample with `ndims` dimensions for each bin."
+function stratifiedMC(ndims, bins)
+    if ndims != length(bins)
+        throw(DimensionMismatch("ndims $(ndims) != bins $(length(bins))"))
+    end
 
-macro strats(nbs)
-    return :( (Iterators.product($(esc(nbs))...)) )
-end
-
-function stratifiedMC(ndims, nbins)
-    if ndims != length(nbins)
-        throw(ArgumentError("dimension mismatch. ndims $(ndims) != nbins $(length(nbins))")) end
-    steps = 1 ./ nbins
+    steps = 1 ./ bins
     bin = (b, step) -> rand_range(step*(b-1), b*step)
 
-    samples = fill(0.0, (ndims, prod(nbins)))
-    for (n, bins) in enumerate(@strats(map(n-> 1:n, nbins)))
-        samples[:, n] = [bin(b, steps[i]) for (i, b) in enumerate(bins)]
+    samples = fill(0.0, (ndims, prod(bins)))
+    for (n, bs) in enumerate(@stratify(map(n-> 1:n, bins)))
+        samples[:, n] = [bin(b, steps[i]) for (i, b) in enumerate(bs)]
     end
     samples
 end
@@ -82,7 +73,7 @@ function fullfactorial(ndims, level::Int=2)
     step = 1 / (level - 1)
     nbins = [0:step:1 for _ in 1:ndims]
     samples = fill(0.0, (ndims, level^ndims))
-    for (n, bins) in enumerate(@strats(nbins))
+    for (n, bins) in enumerate(@stratify(nbins))
         samples[:,n] = [b for b in bins]
     end
     samples
@@ -108,38 +99,18 @@ function boxbehnken(ndims)
          end
     end
     # Append center
-    vcat(X, [0.5 for _ in 1:ndims]')
+    vcat(X, [0.5 for _ in 1:ndims]')'
 end
 
-# Tests
 
+# Tests ---------------------------------------------------------------------
 rand_range(0.45, 0.5)
 
-
-A = [5 9]
-random_sample(A)
-random_sample(A')
-B = [0 0.25; 1 3; 6 25]
-random_sample(B)
-random_sample(B')
-C = [-10 10; -1 1; -3 2]
-random_sample(C)
-random_sample(C')
-D = [-1 -1 -1 -1 -1 -1;
-      1  1  1  1  1  1]
-random_sample(D)
-random_sample(D')
-E = Array{Float64}(undef, 0, 0)
-random_sample(E)
-F = Array{Float64}(undef, 2, 0)
-random_sample(F)
-G = [-1 -1 -1 -1 -1 -1;
-     -1 -1 -1 -1 -1 -1;
-      1  1  1  1  1  1]
-random_sample(G)
-random_samples(D, 3)
-random_samples(A', 30)
-random_samples(A', 30, 101)
+random_sample(0)
+random_sample(3)
+random_samples(3, 0)
+random_samples(3, 1)
+random_samples(3, 3)
 
 latinHypercube(1, 4)
 latinHypercube(2, 4)
@@ -164,10 +135,10 @@ boxbehnken(4)
 boxbehnken(5)
 
 
-end
-
 # References
 # [1] - Giunta, A. A., Wojtkiewicz, S., & Eldred, M. S. (2003).
 # Overview of modern design of experiments methods for computational
 # simulations. Aiaa, 649(July 2014), 6–9.
 # [2] - Box Behnken based on PyDOE2 implementation
+
+end

@@ -74,9 +74,14 @@ function latinHypercube(ndims, n)
     samples
 end
 
-function fullfactorial(ndims)
-    nbins = [0:1 for _ in 1:ndims]
-    samples = fill(0.0, (ndims, 2^ndims))
+function fullfactorial(ndims, level::Int=2)
+    if ndims <= 0
+        throw(ArgumentError("invalid argument value: ndims $(ndims)")) end
+    if level < 2
+        throw(ArgumentError("invalid argument value: level $level must be greater than 2")) end
+    step = 1 / (level - 1)
+    nbins = [0:step:1 for _ in 1:ndims]
+    samples = fill(0.0, (ndims, level^ndims))
     for (n, bins) in enumerate(@strats(nbins))
         samples[:, n] = [b for b in bins]
     end
@@ -122,6 +127,13 @@ stratifiedMC(2, [3, 4])
 
 fullfactorial(3)
 fullfactorial(9)
+
+fullfactorial(2)
+fullfactorial(2, 2)
+fullfactorial(2, 3)
+fullfactorial(0, 3)
+fullfactorial(1, 3)
+fullfactorial(1, 1)
 
 
 end

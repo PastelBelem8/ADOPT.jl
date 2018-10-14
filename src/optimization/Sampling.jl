@@ -46,7 +46,7 @@ function random_samples(bounds::AbstractMatrix, n::Int, seed::Int)
 end
 
 macro strats(nbs)
-    return :( (Iterators.product((map(n-> 1:n, $(esc(nbs)))...))) )
+    return :( (Iterators.product($(esc(nbs))...)) )
 end
 
 function stratifiedMC(ndims, nbins)
@@ -56,7 +56,7 @@ function stratifiedMC(ndims, nbins)
     bin = (b, step) -> rand_range(step*(b-1), b*step)
 
     samples = fill(0.0, (ndims, prod(nbins)))
-    for (n, bins) in enumerate(@strats(nbins))
+    for (n, bins) in enumerate(@strats(map(n-> 1:n, nbins)))
         samples[:, n] = [bin(b, steps[i]) for (i, b) in enumerate(bins)]
     end
     samples
@@ -74,6 +74,14 @@ function latinHypercube(ndims, n)
     samples
 end
 
+function fullfactorial(ndims)
+    nbins = [0:1 for _ in 1:ndims]
+    samples = fill(0.0, (ndims, 2^ndims))
+    for (n, bins) in enumerate(@strats(nbins))
+        samples[:, n] = [b for b in bins]
+    end
+    samples
+end
 
 # Tests
 
@@ -111,6 +119,10 @@ latinHypercube(3, 4)
 
 stratifiedMC(3, [1, 2])
 stratifiedMC(2, [3, 4])
+
+fullfactorial(3)
+fullfactorial(9)
+
 
 end
 

@@ -19,6 +19,9 @@ function checkBounds(bounds::AbstractArray)
     end
 end
 
+rand_range(min, max) = rand() * (max - min) + min
+
+
 "Generates new sample point within the dimensions specified"
 function random_sample(bounds::AbstractMatrix)
     checkBounds(bounds)
@@ -26,18 +29,35 @@ function random_sample(bounds::AbstractMatrix)
     mapslices(b -> rand_range(b[1], b[2]), bounds, dims=1)'
 end
 
-function random_samples(bounds::AbstractMatrix, n::Int, seed::Int=missing)
-    !ismissing(seed) ? Random.seed!(seed) : Nothing
-    random_samples(bounds, n)
-end
-
 function random_samples(bounds::AbstractMatrix, n::Int)
     checkBounds(bounds)
-    # Reshape the bounds to be 2 x n
+    # Reshape bounds' dimensions to be 2xn
     bounds = size(bounds, 1) == 2 ? bounds : bounds'
     samples = fill(0.0, (size(bounds, 2), n))
     for j in 1:n
         samples[:, j] = random_sample(bounds)
+    end
+    samples
+end
+
+function random_samples(bounds::AbstractMatrix, n::Int, seed::Int)
+    Random.seed!(seed)
+    random_samples(bounds, n)
+end
+
+macro strats(nbs)
+    return :( (Iterators.product((map(n-> 1:n, $(esc(nbs)))...))) )
+end
+
+function stratifiedMC(ndims, nbins)
+    if ndims != length(nbins)
+        throw(ArgumentError("dimension mismatch. ndims $(ndims) != nbins $(length(nbins))")) end
+    steps = 1 ./ nbins
+    bin = (b, step) -> rand_range(step*(b-1), b*step)
+
+    samples = fill(0.0, (ndims, prod(nbins)))
+    for (n, bins) in enumerate(@strats(nbins))
+        samples[:, n] = [bin(b, steps[i]) for (i, b) in enumerate(bins)]
     end
     samples
 end
@@ -54,8 +74,6 @@ function latinHypercube(ndims, n)
     samples
 end
 
-
-rand_range(min, max) = rand() * (max - min) + min
 
 # Tests
 
@@ -91,6 +109,12 @@ latinHypercube(1, 4)
 latinHypercube(2, 4)
 latinHypercube(3, 4)
 
-
+stratifiedMC(3, [1, 2])
+stratifiedMC(2, [3, 4])
 
 end
+
+# References
+# [1] - Giunta, A. A., Wojtkiewicz, S., & Eldred, M. S. (2003).
+# Overview of modern design of experiments methods for computational
+# simulations. Aiaa, 649(July 2014), 6–9.

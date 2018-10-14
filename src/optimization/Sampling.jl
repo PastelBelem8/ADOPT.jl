@@ -23,7 +23,7 @@ end
 function random_sample(bounds::AbstractMatrix)
     checkBounds(bounds)
     # Generate the sample and transpose it to be a column vector
-    mapslices(b -> rand() * (b[2] - b[1]) + b[1], bounds, dims=1)'
+    mapslices(b -> rand_range(b[1], b[2]), bounds, dims=1)'
 end
 
 function random_samples(bounds::AbstractMatrix, n::Int, seed::Int=missing)
@@ -42,9 +42,26 @@ function random_samples(bounds::AbstractMatrix, n::Int)
     samples
 end
 
+function latinHypercube(ndims, n)
+    step = 1 / n
+    bin = (i) -> rand_range(step*(i-1), i*step)
 
+    samples = fill(0.0, (ndims, n))
+    Sdims = [Set(1:n) for _ in 1:ndims]
+    for j in 1:n
+        samples[:,j] = map(bin, [pop!(Sdims[d], rand(Sdims[d])) for d in 1:ndims])
+    end
+    samples
+end
+
+
+rand_range(min, max) = rand() * (max - min) + min
 
 # Tests
+
+rand_range(0.45, 0.5)
+
+
 A = [5 9]
 random_sample(A)
 random_sample(A')
@@ -69,5 +86,11 @@ random_sample(G)
 random_samples(D, 3)
 random_samples(A', 30)
 random_samples(A', 30, 101)
+
+latinHypercube(1, 4)
+latinHypercube(2, 4)
+latinHypercube(3, 4)
+
+
 
 end

@@ -9,9 +9,8 @@ end
 
 # Private ----------------------------------------------------------------
 ParetoFront(dim::Int64) =
-    dim > 0 ? ParetoFront(Array{Float64}(undef, dim, 0))
-            : thow(ArgumentError("Invalid value for dim argument: $dim.
-                Consider specifying a value ≥0."))
+    dim > 0 ? ParetoFront(Array{Float64}(undef, dim, 0)) : thow(
+    ArgumentError("Invalid value for dim argument: $dim. Consider specifying a value ≥0."))
 
 "Modifies a Pareto Optimal solution `v` to the ParetoFront `PF`."
 function addpareto!(v::AbstractVector, PF::ParetoFront)
@@ -39,8 +38,6 @@ assertDimensions(a::AbstractVector, b::AbstractVector) =
 contains(P::ParetoFront, v::AbstractVector) = contains(P.values, v)
 contains(V::AbstractMatrix, v::AbstractVector) =
     any([v == V[:,j] for j in 1:ncols(V)])
-
-empty(P::ParetoFront) = isempty(P.values)
 
 function order(V::AbstractMatrix)
     indices = Vector(1:ncols(V))
@@ -78,7 +75,7 @@ isnondominated(v::AbstractVector, V::AbstractMatrix) =
     all([weaklyDominates(V[:,j], v) for j in 1:ncols(V)])
 
 isparetoOptimal(v::AbstractVector, P::AbstractMatrix) =
-    try:
+    try
         isnondominated(v, P)
     catch e
         @warn "An unexpected error was thrown when verifying Pareto
@@ -105,8 +102,7 @@ Adds the `v` to the set of optimal vectors `PF` if `v` is Pareto Efficient.
 Before adding `v` to `PF`, it is necessary to remove dominated solutions.
 If `v` is not Pareto Efficient, then `PF` will not be changed.
 """
-add!(v::Vector, PF::ParetoFront) = isparetoOptimal(v, PF) ?
-                                        addpareto!(v, PF) : PF
+add!(v::Vector, PF::ParetoFront) = isparetoOptimal(v, PF) ? addpareto!(v, PF) : PF
 
 "Deletes the vectors in `PF` dominated by `v`."
 deletedominated!(v::Vector, PF::ParetoFront) =
@@ -114,8 +110,11 @@ deletedominated!(v::Vector, PF::ParetoFront) =
         nd_ix = [j for j in 1:j if !weaklyDominates(v, solution(PF, j))]
         PF.values = solutions([:, nd_ix])
     end
+
 Base.show(io::IO, pf::ParetoFront) =
-    print(io, [solution(pf, j) for j in 1:nsols(pf)]
+    println(io, [solution(pf, j) for j in 1:nsols(pf)])
+
+
 
 # ------------------------------------------------------------------------
 # Multi-Objective Optimization Indicators
@@ -123,8 +122,8 @@ Base.show(io::IO, pf::ParetoFront) =
 
 # Depedencies ------------------------------------------------------------
 using Distances
-using Statistics
 using LinearAlgebra
+using Statistics
 
 # ------------------------------------------------------------------------
 # Independent Indicators
@@ -144,30 +143,41 @@ than sets with lower hypervolume.
 Moreover, also known as S-metric or Lebesgue measure, the hypervolume
 indicator (HV or HVI) is classified as NP-hard in the number of objectives,
 evidencing the complexity of the Indicator (unless P=NP, no polynomial
-algorithm for HV exists).
+algorithm for HV exists). Due to the high computational impact, this Indicator
+is often infeasible for problems with many objectives or for problems with
+large data sets.
 
-We provide a current state-of-the art implementation based on Badstreet's
-Phd Thesis [6]. Motivated by the bad performance of currently available
-algorithms, as well as the high complexity of HV, Badstreet proposed two
-algorithms aimed at improving the feasibility of HV in multi-objective
-optimisation:
-    (1) IHSO (Incremental Hypervolume by Slicing Objectives)
-    (2) IIHSO (Iterated IHSO)
-Due to the high computational impact, this Indicator is often infeasible for
-problems with many objectives or for problems with large data sets.
+We provide a current state-of-the art implementation called QuickHypervolume [6].
+Motivated by the bad performance of currently available algorithms, as well as
+the high complexity of HV, Russo and Franscisco proposed an algorithm based on
+the idea of QuickSort which iteratively subdivide the HV computation to smaller
+subproblems. When reaching smaller dimensions (ndims < 12) they use other
+algorithms which are more efficient: HSO (Hypervolume Slicing Objects) or
+the IEX (Inclusion Exclusion) algorithms. In their algorithm, Russo and
+Franscico consider the **hypervolume** in [0, 1]^n and in their implementation
+they perform several optimizations such as aligning the bytes for maximizing the
+cache-hits.
 """
-function hypervolumeIndicator(r::AbstractVector, A::ParetoFront)
-    assertDimensions(r, A)
-    hvol = 0
-    for j in 1:nsols(A)
-        # Compute Hypervolume
-        hvol += abs(solution_obj(A, 1, j) - r[1]) *
-                abs(solution_obj(A, 2, j) - r[2])
-        # Update reference point to prevent overlapping volumes.
-        r[2] = solution_obj(A,2, j) # FIXME - It won't probably work for 3D+ (must generalize)
-    end
+function hypervolumeIndicator(A::ParetoFront)
+    ndims = ndim(A)
+    @assert 1 < ndims <= QHV_MAX_DIM MethodError("hypervolume indicator is not available for dimensions > $QHV_MAX_DIM.")
+
+    # Write PF to temp file
+    tempFile = createTempFile("$QHV_TEMP_DIR", ".in")
+    @withOutputFile "$tempFile" io -> write(io, dumpQHV(A))
+
+    # QHV assumes maximization problem
+    1 - runWSL(QHV_EXECUTABLE*ndims, tempFile)
 end
 
+dumpQHV(a::AbstractVector) =
+    let res = ""
+        for v in a res *= "$v " end
+        res
+    end
+dumpQHV(A::AbstractMatrix) =
+    "#\n$(join(mapslices(dumpQHV, A, dims=1), "\n", "\n"))\n#"
+dumpQHV(P::ParetoFront) = dumpQHV(solutions(P))
 
 """
     onvg(A) -> s
@@ -277,7 +287,6 @@ entropy(A::ParetoFront) =
 
 diversityMeasure(A::ParetoFront) =
     error("Indicator Dversity Measure is not implemented yet.")
-
 
 
 # ------------------------------------------------------------------------
@@ -584,6 +593,9 @@ end
 # Multicriteria Genetic Algorithm Optimization. Massachusetts Institute of
 # Technology, Boston, MA.
 
+# Russo, L. M. S., & Francisco, A. P. (2014). Extending quick hypervolume.
+# Journal of Heuristics, 22(3), 245–271.
+
 # [7] - Hansen, M. P., and Jaszkiewicz, A. (1998). Evaluating the quality of
 # approximations to the non-dominated set. IMM Technical Report IMM-REP-1998-7.
 
@@ -606,3 +618,10 @@ end
 # Computation, 8(2), 173–195.
 
 end
+
+
+# A = [1 2 3; 4 5 6.0]
+# mn, mx = [-1, -1], [10, 10]
+# A = unitScale(A, mn, mx)
+# PFA = ParetoFront(A)
+# hypervolumeIndicator(PFA)

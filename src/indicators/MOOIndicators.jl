@@ -1,4 +1,4 @@
-module MOOIndicators
+# module MOOIndicators
 
 # Define the type ParetoFront
 
@@ -49,7 +49,7 @@ end
 @inline ndim(P::ParetoFront) = nrows(P.values)
 @inline nsols(P::ParetoFront) = ncols(P.values)
 @inline solution_obj(P::ParetoFront, i::Int, j::Int) = P.values[i,j]
-@inline solution(P::ParetoFront, j::Int) = P.values[:,j]
+@inline solution(P::ParetoFront, j) = P.values[:,j]
 @inline solutions(P::ParetoFront) = P.values
 @inline solutions(P::ParetoFront, js::AbstractMatrix{Int}) = P.values[:,j]
 
@@ -121,9 +121,12 @@ Base.show(io::IO, pf::ParetoFront) =
 # ------------------------------------------------------------------------
 
 # Depedencies ------------------------------------------------------------
+
+# System dependencies
 using Distances
 using LinearAlgebra
 using Statistics
+
 
 # ------------------------------------------------------------------------
 # Independent Indicators
@@ -164,10 +167,10 @@ function hypervolumeIndicator(A::ParetoFront)
 
     # Write PF to temp file
     tempFile = createTempFile("$QHV_TEMP_DIR", ".in")
-    @withOutputFile "$tempFile" io -> write(io, dumpQHV(A))
+    withOutputFile("$tempFile", io -> write(io, dumpQHV(A)))
 
     # QHV assumes maximization problem
-    1 - runWSL(QHV_EXECUTABLE*ndims, tempFile)
+    1 - runWSL(QHV_EXECUTABLE*ndims, tempFile) # FIX - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -228,10 +231,11 @@ spacing as proposed in [4] by specifying by using [`Δ`](@ref) or
 [`debSpacing`](@ref).
 """
 function spacing(A::ParetoFront)
+    nsols = nsols(A)
     min_ds = [ minimum_distance(solution(A, j),
-                                solution(A, 1:end .!=j),
+                                solution(A, [1:nsols.!=j]),
                                 Distances.cityblock)
-                    for j in 1:nsols(A)]
+                    for j in 1:nsols]
     Statistics.var(min_ds)
 end
 
@@ -244,7 +248,7 @@ measures the consecutive distances among the solutions in `A`.
 """
 function Δ(A::ParetoFront)
     nsols = nsols(A)
-    min_ds = [minimum_distance(solution(A, j), solution(A, 1:end .!=j))
+    min_ds = [minimum_distance(solution(A, j), solution(A, [1:nsols.!=j]))
                     for j in 1:nsols]
     mean_d = Statistics.mean(min_ds)
     sum(abs.(mean_d .- min_ds)) / (nsols-1)
@@ -617,11 +621,12 @@ end
 # multiobjective evolutionary algorithms: empirical results. Evolutionary
 # Computation, 8(2), 173–195.
 
-end
+
+A = [1 2 3; 4 5 6.0]
+mn, mx = [-1, -1], [10, 10]
+A = unitScale(A, mn, mx)
+PFA = ParetoFront(A)
+hypervolumeIndicator(PFA)
 
 
-# A = [1 2 3; 4 5 6.0]
-# mn, mx = [-1, -1], [10, 10]
-# A = unitScale(A, mn, mx)
-# PFA = ParetoFront(A)
-# hypervolumeIndicator(PFA)
+# end

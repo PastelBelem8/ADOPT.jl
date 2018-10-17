@@ -1,14 +1,16 @@
-module utils
+# module utils
 
-using Dates
-
-export nrows, ncols
-
+export nrows,
+       ncols
 @inline nrows(A::AbstractMatrix) = size(A, 1)
 @inline ncols(A::AbstractMatrix) = size(A, 2)
 
 # Scaling -------------------------------------------------------------------
-"
+
+export  featureScale,
+        minMaxScale,
+        unitScale
+"""
     unitScale(a0[, min, max]) -> a1
     featureScale(a0[, min, max]) -> a1
 
@@ -89,32 +91,34 @@ minMaxScale(nmin::Number, nmax::Number, A::AbstractMatrix, dim::Int) =
     mapslices(a -> min_max_scale(nmin, nmax, a), A, dims=dim)
 
 # File ---------------------------------------------------------------------
-macro withOutputFile(filename::String, do_f::Function)
-    return quote
-            @info "Opening file $filename in writing mode..."
-            open($(esc(filename)), "w") do f
-                $(esc(do_f))(f)
-            end
-            @info "Closing file $filename..."
-    end
-end
+export  createTempFile,
+        withOutputFile
 
-macro runWSL
+function withOutputFile(filename::String, do_f::Function)
+    @info "Opening file $filename in writing mode..."
+    open(filename), "w") do f
+        do_f(f)
+    end
+    @info "Closing file $filename..."
+end
 
 createTempFile(dir::String, ext::String) =
     joinpath(dir, "$(Dates.format(Dates.now(), "yyyymmddHHMMSS"))") * ext
 
-
-
 # Command Line -------------------------------------------------------------
 
+export  makeWSLcompatible,
+        runWSL
+
+
 function runWSL(executable, args...)
-    @debug "Running WSL command. Using file $args"
+    @debug "Running WSL command. Using file $args."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
     res = chomp(read(`wsl ./$executable $args`, String))
     res = parse(Float64, res)
 end
 
-# TODO - FIX DRIVE
 makeWSLcompatible(filepath) =
     replace(filepath, "\\" => "/") |> x -> replace(x, "C:" => "/mnt/c")
+
+# end # Module

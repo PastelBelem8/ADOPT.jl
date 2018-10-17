@@ -1,9 +1,3 @@
-using Logging
-
-# io = open("log.txt", "w+")
-# logger = SimpleLogger(io)
-# global_logger(logger)
-
 # ------------------------------------------------------------------------
 #  Configurations
 # ------------------------------------------------------------------------
@@ -14,12 +8,12 @@ export  DEPENDENCY_DIR,
         TEMP_DIR
 
 # Folders
-DEPENDENCY_DIR = "deps"
-TEMP_DIR = tempdir()
+DEPENDENCY_DIR = "deps";
+TEMP_DIR = tempdir();
 
 # Algorithms -------------------------------------------------------------
 
 # Quick HyperVolume
-QHV_TEMP_DIR = mktempdir(TEMP_DIR)
-QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
-QHV_MAX_DIM = 15
+QHV_TEMP_DIR = mktempdir(TEMP_DIR);
+QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d";
+QHV_MAX_DIM = 15;

@@ -23,19 +23,26 @@ set_seed!(s::Int) = Random.seed!(seed)
 # The sampling methods should not be responsible for scaling/unscaling the
 # variables.
 
+export  randomMC,
+        stratifiedMC,
+        latinHypercube,
+        fullfactorial,
+        boxbehnken
+
 "Generate a new random sample with `ndims` dimensions."
-function random_sample(ndims::Int)
+function randomSample(ndims::Int)
     [rand() for j in 1:ndims]
 end
 
 "Generate `n` random samples with `ndims` dimensions."
-function random_samples(ndims::Int, n::Int)
+function randomSamples(ndims::Int, n::Int)
     samples = zeros(ndims, n)
     for j in 1:n
-        samples[:, j] = random_sample(ndims)
+        samples[:, j] = randomSample(ndims)
     end
     samples
 end
+randomMC = randomSamples
 
 "Generate one random sample with `ndims` dimensions for each bin."
 function stratifiedMC(ndims, bins)
@@ -101,39 +108,6 @@ function boxbehnken(ndims)
     # Append center
     vcat(X, [0.5 for _ in 1:ndims]')'
 end
-
-
-# Tests ---------------------------------------------------------------------
-rand_range(0.45, 0.5)
-
-random_sample(0)
-random_sample(3)
-random_samples(3, 0)
-random_samples(3, 1)
-random_samples(3, 3)
-
-latinHypercube(1, 4)
-latinHypercube(2, 4)
-latinHypercube(3, 4)
-
-stratifiedMC(3, [1, 2])
-stratifiedMC(2, [3, 4])
-
-fullfactorial(3)
-fullfactorial(9)
-
-fullfactorial(2)
-fullfactorial(2, 2)
-fullfactorial(2, 3)
-fullfactorial(0, 3)
-fullfactorial(1, 3)
-fullfactorial(1, 1)
-
-boxbehnken(2)
-boxbehnken(3)
-boxbehnken(4)
-boxbehnken(5)
-
 
 # References
 # [1] - Giunta, A. A., Wojtkiewicz, S., & Eldred, M. S. (2003).

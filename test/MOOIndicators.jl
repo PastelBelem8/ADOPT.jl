@@ -1,12 +1,12 @@
 # Unit tests to module MOOIndicators
 
+@testset "Pareto Front" begin
 
+end
 # 1. Test dominates function
 #    - Wrong types
 #    - Mismatching dimensions
 @testset "Dominance relations" begin
-    M =
-
 
 end
 

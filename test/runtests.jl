@@ -1,5 +1,4 @@
 using Test
 
-include(MOOIndicators)
-
-@test 1 == 1
+# include("MOOIndicators.jl")
+# include("utils.jl")

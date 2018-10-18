@@ -1,7 +1,12 @@
 # module utils
 
+using Dates
+
+# Matrix  -------------------------------------------------------------------
+
 export nrows,
        ncols
+
 @inline nrows(A::AbstractMatrix) = size(A, 1)
 @inline ncols(A::AbstractMatrix) = size(A, 2)
 
@@ -26,7 +31,7 @@ unitScale(A::AbstractMatrix, min::Number, max::Number) =
     mapslices(a -> unitScale(a, min, max), A, dims=dim)
 unitScale(A::AbstractMatrix, min::AbstractVector, max::AbstractVector) = begin
     if size(A, 1) != length(min) || length(min) != length(max)
-        throw(DimensionMismatch("Number of rows in A $(size(A,1)) should be
+        throw(DimensionMismatch("number of rows in A $(size(A,1)) should be
         equal to length both vectors min and max: $min $max, respectively."))
     end
 
@@ -96,7 +101,7 @@ export  createTempFile,
 
 function withOutputFile(filename::String, do_f::Function)
     @info "Opening file $filename in writing mode..."
-    open(filename), "w") do f
+    open(filename, "w") do f
         do_f(f)
     end
     @info "Closing file $filename..."

@@ -127,7 +127,6 @@ using Distances
 using LinearAlgebra
 using Statistics
 
-
 # ------------------------------------------------------------------------
 # Independent Indicators
 # ------------------------------------------------------------------------
@@ -170,7 +169,7 @@ function hypervolumeIndicator(A::ParetoFront)
     withOutputFile("$tempFile", io -> write(io, dumpQHV(A)))
 
     # QHV assumes maximization problem
-    1 - runWSL(QHV_EXECUTABLE*ndims, tempFile) # FIX - Use DOCKER Image
+    1 - runWSL(QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -475,7 +474,6 @@ See also: [`epsilonIndicator`](@ref)
 """
 additiveEpsilonIndicator(T::ParetoFront, A::ParetoFront) =
     epsilon_aux(T, A, (x, y) -> abs.(x .- y))
-end
 
 # Works as the pattern template method
 "Computes the epsilon indicator of two sets using the `eps_f`. It is an
@@ -498,7 +496,7 @@ pairwiseDifferences(A::AbstractVector, f::Function) =
     let length = length(A) - 1
         results = Vector(length)
         for i in 1:length
-            results[i] = f(abs(A[i] .- A[(i+1):end])
+            results[i] = f(abs(A[i] .- A[(i+1):end]))
         end
         f(results)
     end

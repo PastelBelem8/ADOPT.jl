@@ -124,6 +124,7 @@ function runWSL(executable, args...)
 end
 
 makeWSLcompatible(filepath) =
-    replace(filepath, "\\" => "/") |> x -> replace(x, "C:" => "/mnt/c")
+    replace(filepath, "\\" => "/") |> x -> replace(x, r"(\w+)?:" => lowercase) |> x ->
+    replace(x, r"(\w+)?:" => s"/mnt/\1")
 
 # end # Module

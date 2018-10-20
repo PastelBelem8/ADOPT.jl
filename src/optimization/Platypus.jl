@@ -1,7 +1,6 @@
 module Platypus
 
 using PyCall 
-using Base: show
 
 const platypus = PyNULL()
 
@@ -42,7 +41,7 @@ macro pytype(name, class)
       end
     end
     # Associate PyObject <name> with the Julia Type <name>
-    push!(pre_type_map
+    push!(pre_type_map, ($class, $name))
   end
 end
 
@@ -70,16 +69,18 @@ platypus_wrap(pyo) = pyo
 
  Uses Python's reflection capabilities to add methods to Python classes.
 """
-function pyattr(class, jl_method, py_meth)
+function pyattr(class, jl_method, py_method)
   quote
     function $(esc(jl_method))(pyt::$class, args...;kwargs...;)
       #TODO - Fix the arguments (conversion to Python)
       n_args = args 
       method = pyt.pyo[$(string(py_method))]
-      pyo = pycall(method, PyObject, n_args...; kwargs...;)
+      pyo = pycall(method, PyObject, n_args...;kwargs...;)
       wrapped = platypus_wrap(pyo)
     end
+  end
 end
+
 
 pyattr(class, method) = pyattr(class, method, method)
 
@@ -107,9 +108,14 @@ function pyattr_set(classes, methods...)
 end
 
 # Redefine custom printing methods
-function show(io::IO, pyv::PlatypusWrapped)
+function Base.show(io::IO, pyv::PlatypusWrapped)
   s = pyv.pyo[:__str__]()
   println(io, s)
 end
 
+@pytype Problem ()->platypus[:Problem]
+@pytype NSGAII ()->platypus[:NSGAII]
+@pytype Solution ()->platypus[:Solution]
+
+pyattr_set([NSGAII], :run)
 end # Module

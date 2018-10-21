@@ -1,18 +1,21 @@
 module Platypus
 
-using PyCall 
+using PyCall
 
 const platypus = PyNULL()
 
 function __init__()
    copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
+   for (platypus_expr, julia_type) in pre_type_map
+        type_map[platypus_expr()] = julia_type
+    end
 end
 
 
 # Platypus Wrappers ---------------------------------------------------------
-# This implementation is inspired in Pandas.jl implementation. Using Python's 
-# metaprogramming capabilities we are able to mimic the existing data 
-# structures in Julia and provide a similar interface. 
+# This implementation is inspired in Pandas.jl implementation. Using Python's
+# metaprogramming capabilities we are able to mimic the existing data
+# structures in Julia and provide a similar interface.
 # ---------------------------------------------------------------------------
 
 # Wrapper type that gathers the behavior of Platypus entities
@@ -30,13 +33,13 @@ const type_map = Dict{PyObject,Type}()
 Creates the corresponding mutable Julia class and its constructors.
 """
 macro pytype(name, class)
-  quote 
+  quote
     struct $(esc(name)) <: PlatypusWrapped
       pyo::PyObject
       $(esc(name))(pyo::PyObject) = new(pyo)
-  
+
       # Create Constructor
-      function $(esc(name))(args...; kwargs...)                             
+      function $(esc(name))(args...; kwargs...)
         new(pycall(platypus[$(QuoteNode(name))], PyObject, args...;kwargs...))
       end
     end
@@ -49,11 +52,11 @@ end
 """
   platypus_wrap(pyo::PyObject)
 
-Wraps an instance of platypus python class in the Julia type which corresponds 
-to that class. 
+Wraps an instance of platypus' Python class in the Julia type which corresponds
+to that class.
 """
 function platypus_wrap(pyo::PyObject)
-  for (pyt, pyv) in type_map 
+  for (pyt, pyv) in type_map
     if pyisinstance(pyo, pyt)
       return pyv(pyo)
     end
@@ -71,16 +74,15 @@ platypus_wrap(pyo) = pyo
 """
 function pyattr(class, jl_method, py_method)
   quote
-    function $(esc(jl_method))(pyt::$class, args...;kwargs...;)
+    function $(esc(jl_method))(pyt::$class, args...; kwargs...)
       #TODO - Fix the arguments (conversion to Python)
-      n_args = args 
+      n_args = args
       method = pyt.pyo[$(string(py_method))]
-      pyo = pycall(method, PyObject, n_args...;kwargs...;)
+      pyo = pycall(method, PyObject, n_args...; kwargs...)
       wrapped = platypus_wrap(pyo)
     end
   end
 end
-
 
 pyattr(class, method) = pyattr(class, method, method)
 
@@ -95,9 +97,9 @@ end
 """
   pyattr_set(types, methods...)
 
-For each Julia Type `T<:PlatypusWrapped` in `types` and each method `m` 
-in `methods`, define a new function `m(t::T, args...)` that delegates 
-to the underlying pyobject wrapped by `t`. 
+For each Julia Type `T<:PlatypusWrapped` in `types` and each method `m`
+in `methods`, define a new function `m(t::T, args...)` that delegates
+to the underlying pyobject wrapped by `t`.
 """
 function pyattr_set(classes, methods...)
   for class in classes
@@ -113,9 +115,17 @@ function Base.show(io::IO, pyv::PlatypusWrapped)
   println(io, s)
 end
 
+@pytype NSGAII ()->platypus[:NSGAII]
 @pytype Problem ()->platypus[:Problem]
 @pytype NSGAII ()->platypus[:NSGAII]
 @pytype Solution ()->platypus[:Solution]
 
+import Base.run
 pyattr_set([NSGAII], :run)
+
+# Tests
+# p = Problem(1, 2, 0, (x) -> [x[1]^2, (x[2]-2)^2])
+# a = NSGAII(p)
+# run(a, 1000)
+
 end # Module

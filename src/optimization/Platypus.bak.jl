@@ -1,121 +1,131 @@
 module Platypus
 
+using PyCall
 
-import Base: run
-
-export  CMAES,
-        EpsMOEA,
-        EvolutionaryStrategy,
-        GDE3,
-        GeneticAlgorithm,
-        IBEA,
-        MOEAD,
-        NSGAII,
-        NSGAIII,
-        OMOPSO,
-        PAES,
-        PESA2,
-        SMPSO,
-        SPEA2
-
-# Dependencies -----------------------------------------------------------
-using PyCall: PyObject, pycall, PyNULL
-
-# ------------------------------------------------------------------------
-# Initialization
-# ------------------------------------------------------------------------
 const platypus = PyNULL()
 
 function __init__()
-    copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
-end
-
-# ------------------------------------------------------------------------
-# 1. Define Problem
-# ------------------------------------------------------------------------
-# We need to define the Problem because the Python Algorithm receives a
-# Problem object. That must be produced.
-#
-#  Receives:
-#   - nvars
-#   - nobjs
-#   - nconstrs
-#   - function
-#   - contraints list of functions
-#   - continuous list of lower bounds and upper bounds
-#   - integer list of lower bounds and upper bounds
-#
-# Inherits from Platypus.Problem (has to call super)
-
-abstract type Problem end
-
-struct PlatypusProblem
-    pyo::PyObject
-end
-
-
-# ------------------------------------------------------------------------
-# 2. Define the Algorithm
-# ------------------------------------------------------------------------
-# We can export the algorithms methods
-abstract type PlatypusAlgorithm end
-
-PyCall.PyObject(x::PlatypusAlgorithm) = x.pyo
-
-macro pyAlgorithm(name)
-    quote
-        struct $(name) <: PlatypusAlgorithm
-            pyo::PyObject
-            $(esc(name))(pyo::PyObject) = new(pyo)
-            # Create the constructor
-            function $(esc(name))(args...; kwargs...)
-                new(pycall(platypus[$(QuoteNode(name))], PyObject, args...;kwargs...))
-            end
-        end
+   copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
+   for (platypus_expr, julia_type) in pre_type_map
+        type_map[platypus_expr()] = julia_type
     end
 end
 
 
-@macroexpand @pyAlgorithm CMAES
-@pyAlgorithm EpsMOEA
-@pyAlgorithm EvolutionaryStrategy
-@pyAlgorithm GDE3
-@pyAlgorithm GeneticAlgorithm
-@pyAlgorithm IBEA
-@pyAlgorithm MOEAD
-@pyAlgorithm NSGAII
-@pyAlgorithm NSGAIII
-@pyAlgorithm OMOPSO
-@pyAlgorithm PAES
-@pyAlgorithm PESA2
-@pyAlgorithm SMPSO
-@pyAlgorithm SPEA2
+# Platypus Wrappers ---------------------------------------------------------
+# This implementation is inspired in Pandas.jl implementation. Using Python's
+# metaprogramming capabilities we are able to mimic the existing data
+# structures in Julia and provide a similar interface.
+# ---------------------------------------------------------------------------
 
+# Wrapper type that gathers the behavior of Platypus entities
+abstract type PlatypusWrapped end
 
-# TODO - Platypus Allows to define condition objects (MaxEvaluations and MaxTime)
-Base.run(a::PlatypusAlgorithm, condition::Int) = a.pyo[:run](condition)
+PyCall.PyObject(x::PlatypusWrapped) = x.pyo
 
-# FIXME - Update this when solution is wrapped
-function results(a::PlatypusAlgorithm)::AbstractMatrix
-    sols = a.pyo[:result]
-    nsols, ndims = length(sols), a.pyo[:problem][:nobjs]
+# Create a dictionary to contain the PyObject->Julia_Wrapper type associations
+const pre_type_map = []
+const type_map = Dict{PyObject,Type}()
 
-    res = zeros(Real, ndims, nsols)
-    feasible = fill(false, (nsols, 1))
+"""
+  @pytype <name> <class>
 
-    for (j, sol) in enumerate(sols)
-        pyVector = convert(PyVector, sol[:objectives])
+Creates the corresponding mutable Julia class and its constructors.
+"""
+macro pytype(name, class)
+  quote
+    struct $(esc(name)) <: PlatypusWrapped
+      pyo::PyObject
+      $(esc(name))(pyo::PyObject) = new(pyo)
 
-        res[:,j] = Vector{Real}(pyvector)
-        feasible[j] = sol[:feasible]
+      # Create Constructor
+      function $(esc(name))(args...; kwargs...)
+        new(pycall(platypus[$(QuoteNode(name))], PyObject, args...;kwargs...))
+      end
     end
-
-    res, feasible
+    # Associate PyObject <name> with the Julia Type <name>
+    push!(pre_type_map, ($class, $name))
+  end
 end
 
-function feasibleResults(a::PlatypusAlgorithm)::AbstractMatrix
-    results, feasibility = results(a)
-    results[feasibility]
+
+"""
+  platypus_wrap(pyo::PyObject)
+
+Wraps an instance of platypus' Python class in the Julia type which corresponds
+to that class.
+"""
+function platypus_wrap(pyo::PyObject)
+  for (pyt, pyv) in type_map
+    if pyisinstance(pyo, pyt)
+      return pyv(pyo)
+    end
+  end
+  convert(PyAny, pyo)
 end
+
+platypus_wrap(x::Union{AbstractArray, Tuple}) = [platypus_wrap(_) for _ in x]
+platypus_wrap(pyo) = pyo
+
+"""
+  pyattr(class, jl_method, py_method)
+
+ Uses Python's reflection capabilities to add methods to Python classes.
+"""
+function pyattr(class, jl_method, py_method)
+  quote
+    function $(esc(jl_method))(pyt::$class, args...; kwargs...)
+      #TODO - Fix the arguments (conversion to Python)
+      n_args = args
+      method = pyt.pyo[$(string(py_method))]
+      pyo = pycall(method, PyObject, n_args...; kwargs...)
+      wrapped = platypus_wrap(pyo)
+    end
+  end
+end
+
+pyattr(class, method) = pyattr(class, method, method)
+
+macro pyattr(class,  method)
+  pyattr(class, method)
+end
+
+macro pyattr(class, method, orig_method)
+  pyattr(class, method, orig_method)
+end
+
+"""
+  pyattr_set(types, methods...)
+
+For each Julia Type `T<:PlatypusWrapped` in `types` and each method `m`
+in `methods`, define a new function `m(t::T, args...)` that delegates
+to the underlying pyobject wrapped by `t`.
+"""
+function pyattr_set(classes, methods...)
+  for class in classes
+    for method in methods
+      @eval @pyattr($class, $method)
+    end
+  end
+end
+
+# Redefine custom printing methods
+function Base.show(io::IO, pyv::PlatypusWrapped)
+  s = pyv.pyo[:__str__]()
+  println(io, s)
+end
+
+@pytype NSGAII ()->platypus[:NSGAII]
+@pytype Problem ()->platypus[:Problem]
+@pytype NSGAII ()->platypus[:NSGAII]
+@pytype Solution ()->platypus[:Solution]
+
+import Base.run
+pyattr_set([NSGAII], :run)
+
+# Tests
+# p = Problem(1, 2, 0, (x) -> [x[1]^2, (x[2]-2)^2])
+# a = NSGAII(p)
+# run(a, 1000)
 
 end # Module

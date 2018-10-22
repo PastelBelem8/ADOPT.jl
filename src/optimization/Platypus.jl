@@ -6,6 +6,7 @@ const platypus_raw = PyNULL()
 
 const types_map = []
 
+platypus_raw[:co]
 # Only called once, and only after all statements in the module have been executed
 function __init__()
   copy!(platypus_raw, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
@@ -37,7 +38,7 @@ The conversion mentioned in the previous paragraph relies on the mapping
 existing in an external data structure.
 """
 macro deftype(name, supertype, fields...)
-  name_str = string(name) |> lowercase
+  name_str = name |> string |> lowercase
   rename_str = "platypus_$(name_str)"
 
   python_constructor = platypus_raw[name]
@@ -86,7 +87,7 @@ end
 
 
 # # #
-# @macroexpand @deftype Problem PlatypusWrapped types constraints
+@macroexpand @deftype Problem PlatypusWrapped types constraints
 @deftype Problem PlatypusWrapped types #constraints
 @deftype Solution PlatypusWrapped
 @deftype NSGAII PlatypusWrapped types #constraints

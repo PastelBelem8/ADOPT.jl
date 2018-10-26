@@ -24,22 +24,25 @@ solve(m, method = :NBI) # method = :WS or method = :EPS
 using JuMP, MultiJuMP
 using NLopt
 
-m = MultiModel(solver = NLoptSolver(maxeval=100))
-a(z...) = 2 + sum([(z[i]-0.5)^2 - cos(20 * 3.14 *(z[i]-0.5)) for i in 1:length(z)])
-JuMP.register(m, :a, 2, a; autodiff=true)
+m = MultiModel(solver = NLoptSolver(algorithm=:GN_CRS2_LM, maxeval=100))
+f(z...) = 2 + sum([(z[i]-0.5)^2 - cos(20 * 3.14 *(z[i]-0.5)) for i in 1:length(z)])
+JuMP.register(m, :f, 2, f; autodiff=true)
 
 @variable(m, 0 <= x <= 1)
 @variable(m, 0 <= y <= 1)
-@NLexpression(m, f1, 0.5*x*(1+a(x, y)))
-@NLexpression(m, f2, 0.5*(1-x)*(1+a(x, y)))
+@NLexpression(m, f2, 0.5*(1-x)*(1+f(x, y)))
+@NLexpression(m, f1, 0.5*x*(1+f(x, y)))
 
 obj1 = SingleObjective(f1, sense = :Min)
 obj2 = SingleObjective(f2, sense = :Min)
 
 md = getMultiData(m)
-md.objectives = [obj1, obj2]
-md.pointsperdim = 5
-solve(m, method = :WS) #
+md.objectives = [obj1,obj2]
+md.pointsperdim = 50
+solve(m, method = :NBI) #
 
 using Plots
 pltnbi = plot(md)
+
+results = getMultiData(m)
+results.paretofront

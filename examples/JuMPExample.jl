@@ -76,3 +76,41 @@ println("y = ", getvalue(y))
 # @macroexpand @variable(m, 0 <= x <= 2)
 # @macroexpand @objective(m, Max, 5x + 3y)
 # @macroexpand @constraint(m, 1x + 5y <= 3.00)
+
+# Simple Example -------------------------------------------------------
+using JuMP
+using Clp
+
+m = Model(solver=ClpSolver())
+@variable(m, 0 <= x <= 2)
+@variable(m, 0 <= y <= 30)
+@variable(m, x[i=1:10,j=1:10; isodd(i+j)] >= 0)
+
+@objective(m, Max, 5x + 3y)
+@objective(m, Max, 2x-2y)
+@constraint(m, 1x + 5y <= 3.00)
+
+print(m)
+
+status = solve(m)
+println("Objective value: ", getobjectivevalue(m))
+println("x = ", getvalue(x))
+println("y = ", getvalue(y))
+
+# User-Defined functions ------------------------------------------------
+mysquare(x) = x^2
+myf(x,y) = (x-1)^2+(y-2)^2
+
+m = Model(solver=IpoptSolver())
+
+JuMP.register(m, :myf, 2, myf, autodiff=true)
+JuMP.register(m, :mysquare, 1, mysquare, autodiff=true)
+
+@variable(m, x[1:2] >= 0.5)
+@NLobjective(m, Min, myf(x[1],mysquare(x[2])))
+
+
+
+status = solve(m)
+println("Objective value: ", getobjectivevalue(m))
+println("x = ", getvalue(x))

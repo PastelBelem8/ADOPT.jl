@@ -331,3 +331,25 @@ function check_arguments(t::Type{Solution}, vars::Vector{T}) where {T<:Real}
         throw(ArgumentError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
     end
 end
+
+
+# ---------------------------------------------------------------------
+# Solvers
+# ---------------------------------------------------------------------
+abstract type AbstractSolver end
+
+const solvers = Dict{Symbol, AbstractSolver}(:Platypus => PlatypusSolver)
+
+
+"""
+    SolverFactory(s)
+
+Returns the [`Solver`](@ref) associated with `s` if it exists, else it throws
+an exception.
+"""
+SolverFactory(solver::Symbol)::T where {T<:AbstractSolver} =
+    haskey(solvers, solver)
+    ? solvers[solver]
+    : throw(ArgumentError("invalid solver $solver was specified"))
+SolverFactory(solver::AbstractString)::T where {T<:AbstractSolver} =
+    SolverFactory(Symbol(solver))

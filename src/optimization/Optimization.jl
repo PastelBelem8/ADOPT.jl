@@ -1,3 +1,6 @@
+# Imports --------------------------------------------------------------
+import Base: show
+
 # ----------------------------------------------------------------------
 # Utils
 # ----------------------------------------------------------------------
@@ -13,23 +16,6 @@ function getbasefields(t::Type{Any}, typ::Type) end
 "Throws an error if the arguments of a certain type `T` are invalid."
 function checkArguments(t::Type{Any}, args...; kwargs...) end
 
-"""
-    Variable Types
-"""
-abstract type  VarType end
-struct INT  <: VarType end
-struct SET  <: VarType end
-struct REAL <: VarType end
-
-const vartypes_map = Dict(  :INT => Int,
-                            :SET => Real,
-                            :REAL => Real )
-
-getVarType(v::Symbol) = haskey(vartypes_map, v) ? vartypes_map[v] : throw(ArgumentError("unexpected type ($v) does not have a matching Julia type."))
-getVarType(v::Type{T}) where T<:VarType = getVarType(Symbol(v))
-
-const sym2vartype_map = Dict( :INT => INT, :SET => SET, :REAL => REAL)
-
 # ---------------------------------------------------------------------
 # Variables
 # ---------------------------------------------------------------------
@@ -40,6 +26,24 @@ const sym2vartype_map = Dict( :INT => INT, :SET => SET, :REAL => REAL)
 # and in that case it might be a range of integers or a set of discrete
 # (real) numbers, or it might be continuous.
 
+"""
+Variable Types
+"""
+abstract type  VarType end
+struct INT  <: VarType end
+struct SET  <: VarType end
+struct REAL <: VarType end
+
+const vartypes_map = Dict(  :INT => Int,
+:SET => Real,
+:REAL => Real )
+
+getVarType(v::Symbol) = haskey(vartypes_map, v) ? vartypes_map[v] : throw(ArgumentError("unexpected type ($v) does not have a matching Julia type."))
+getVarType(v::Type{T}) where T<:VarType = getVarType(Symbol(v))
+
+const sym2vartype_map = Dict( :INT => INT, :SET => SET, :REAL => REAL) # FIXME
+
+# Variables -----------------------------------------------------------
 abstract type AbstractVariable end
 
 getbasefields(t::Symbol, typ::Type) = [  esc(:(domain::$(Type{sym2vartype_map[t]}))), #FIXME
@@ -87,9 +91,11 @@ macro defvariable(domain::Symbol, optional_fields...)
             end
         end
 
-        $(predicate_name)(v::AbstractVariable) = v.domain == $(esc(domain)) ? true : false
-        $(predicate_name)(v::Any) = false
+        $(predicate_name)(v::AbstractVariable)::Bool = v.domain == $(esc(domain)) ? true : false
+        $(predicate_name)(v::Any)::Bool = false
+        function Base.show(io::IO, v::AbstractVariable)
 
+        end
     end
 end
 
@@ -97,6 +103,67 @@ end
 @defvariable SET
 @defvariable REAL
 
+
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------
+
+struct Objective
+    func::Function
+    coefficient::Real
+    sense::Symbol
+
+    function Objective(f::Function, coefficient::Real=1, sense::Symbol=:MIN)
+        checkArguments(Objective, f, coefficient, sense)
+        new(f, coefficient, sense)
+    end
+end
+
+# Constructor
+Objective(f::Function, sense::Symbol) = Objective(f, 1, sense)
+
+# Selectors
+coefficient(o::Objective) = o.coefficient
+func(o::Objective) = o.func
+
+# Predicates
+isObjective(o::Objective)::Bool = true
+isObjective(o::Any)::Bool = false
+
+isminimization(o::Objective) = o.sense == :MIN
+
+# Representation
+function Base.show(io::IO, o::Objective)
+    sense = isminimization(o) ? "minimize" : "maximize"
+    print("[Objective]:\nSense:\t\t$sense\nFunction:\t$(o.func)\nCoefficient:\t$(o.coefficient)\n")
+end
+
+# Argument Validations
+function checkArguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
+    if !(sense in (:MIN, :MAX))
+        throw(ArgumentError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
+    end
+end
+
+# Evaluators
+"Applies the objective's function to provided arguments"
+apply(o::Objective, args...) = o.func(args...)
+
+"Evaluates the true value of the objective"
+evaluate(o::Objective, args...) = coefficient(o) * apply(o, args...)
+
+
+# Tests
+Objective(identity, 1, :MIN)
+Objective(identity, 1, :MAX)
+Objective(identity, 1, :X)
+Objective(identity, 1)
+Objective(identity, :MIN)
+
+o = Objective(identity, 1)
+
+apply(o, 2)
+coefficient(o) # Should be 1
+
+evaluate(o) # MethodError
+evaluate(o, 2)

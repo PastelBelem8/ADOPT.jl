@@ -125,3 +125,27 @@ isModel(m)
 isModel(Objective(identity))
 isModel(2)
 isModel(nothing)
+
+
+# Test Solution
+Solution([1,2])
+
+Solution(nothing)
+Solution(Vector{Real}())
+
+s = Solution([1,2])
+variables(s)
+constraints(s)
+objectives(s)
+constraint_violation(s)
+
+nvariables(s)
+nobjectives(s)
+nconstraints(s)
+
+isevaluated(s)
+isfeasible(s)
+
+isSolution(s)
+isSolution(nothing)
+isSolution(2)

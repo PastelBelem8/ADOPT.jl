@@ -14,7 +14,7 @@ parsefield(v::Symbol, typ=nothing) = :($v::$typ)
 function getbasefields(t::Type{Any}, typ::Type) end
 
 "Throws an error if the arguments of a certain type `T` are invalid."
-function checkArguments(t::Type{Any}, args...; kwargs...) end
+function check_arguments(t::Type{Any}, args...; kwargs...) end
 
 # ---------------------------------------------------------------------
 # Variables
@@ -51,7 +51,7 @@ getbasefields(t::Symbol, typ::Type) = [  esc(:(domain::$(Type{sym2vartype_map[t]
                                          esc(:(upper_bound::$typ)),
                                          esc(:(initial_value::$typ))]
 
-function checkArguments(d, lb::T, ub::T, ival::T) where {T}
+function check_arguments(d, lb::T, ub::T, ival::T) where {T}
     if !(typeof(lb) <: getVarType(d))
         throw(TypeError("variable's domain type $d is not compliant with $T"))
     elseif lb > ub
@@ -86,7 +86,7 @@ macro defvariable(domain::Symbol, optional_fields...)
             $(optional_fields...)
 
             function $(constructor_name)($(params...);$(kw_params...))
-                checkArguments($(esc(domain)), $(params_names...))
+                check_arguments($(esc(domain)), $(params_names...))
                 new($(esc(domain)), $(params_names...))
             end
         end
@@ -114,7 +114,7 @@ struct Objective
     sense::Symbol
 
     function Objective(f::Function, coefficient::Real=1, sense::Symbol=:MIN)
-        checkArguments(Objective, f, coefficient, sense)
+        check_arguments(Objective, f, coefficient, sense)
         new(f, coefficient, sense)
     end
 end
@@ -125,45 +125,85 @@ Objective(f::Function, sense::Symbol) = Objective(f, 1, sense)
 # Selectors
 coefficient(o::Objective) = o.coefficient
 func(o::Objective) = o.func
+sense(o::Objective) = o.sense
 
 # Predicates
 isObjective(o::Objective)::Bool = true
 isObjective(o::Any)::Bool = false
 
-isminimization(o::Objective) = o.sense == :MIN
+isminimization(o::Objective) = sense(o) == :MIN
 
 # Representation
 function Base.show(io::IO, o::Objective)
     sense = isminimization(o) ? "minimize" : "maximize"
-    print("[Objective]:\nSense:\t\t$sense\nFunction:\t$(o.func)\nCoefficient:\t$(o.coefficient)\n")
+    print("[Objective]:\nSense:\t\t$(sense(o))\nFunction:\t$(func(o))\nCoefficient:\t$(coefficient(o))\n")
 end
 
 # Argument Validations
-function checkArguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
+function check_arguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
     if !(sense in (:MIN, :MAX))
         throw(ArgumentError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
     end
 end
 
-# Evaluators
+# Application
 "Applies the objective's function to provided arguments"
-apply(o::Objective, args...) = o.func(args...)
+apply(o::Objective, args...) = func(o)(args...)
 
 "Evaluates the true value of the objective"
 evaluate(o::Objective, args...) = coefficient(o) * apply(o, args...)
 
 
-# Tests
-Objective(identity, 1, :MIN)
-Objective(identity, 1, :MAX)
-Objective(identity, 1, :X)
-Objective(identity, 1)
-Objective(identity, :MIN)
+# ---------------------------------------------------------------------
+# Constraints
+# ---------------------------------------------------------------------
 
-o = Objective(identity, 1)
+struct Constraint
+    func::Function
+    coefficient::Real
+    operator::Function
 
-apply(o, 2)
-coefficient(o) # Should be 1
+    function Constraint(f::Function, coefficient::Real=1, operator::Function=(==))
+        check_arguments(Constraint, f, coefficient, operator)
+        new(f, coefficient, operator)
+    end
+end
+# Constructor
+Constraint(f::Function, operator::Function) = Constraint(f, 1, operator)
 
-evaluate(o) # MethodError
-evaluate(o, 2)
+
+# Selectors
+coefficient(c::Constraint)::Real = c.coefficient
+func(c::Constraint)::Function = c.func
+operator(c::Constraint)::Function = c.operator
+
+# Predicates
+isConstraint(c::Constraint)::Bool = true
+isConstraint(c::Any)::Bool = false
+
+# Representation
+function Base.show(io::IO, c::Constraint)
+    print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
+end
+
+# Argument Validations
+function check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Function)
+    if !(Symbol(op) in (:(==), :(!=), :(>=), :(>), :(<=), :(<)))
+        throw(ArgumentError("unrecognized operator $op. Valid operators are {==, !=, =>, >, <=, <}"))
+    end
+end
+
+
+"Applies the constraint's function to provided arguments"
+apply(c::Constraint, args...) = func(c)(args...)
+
+"Evaluates the true value of the constraint relative to 0"
+evaluate(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
+
+"Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
+function evaluate_penalty(c::Constraint, args...)::Real
+    if Symbol(operator(c)) == :(!=)
+        throw(MethodError("penalty constraint for symbol $op is not defined"))
+    end
+    evaluate(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
+end

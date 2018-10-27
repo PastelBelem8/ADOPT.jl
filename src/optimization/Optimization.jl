@@ -99,6 +99,12 @@ end
 # @defvariable SET values=[1, 3, 7, 9, 11]
 @defvariable REAL
 
+# Selectors
+lower_bound(var::AbstractVariable) = var.lower_bound
+upper_bound(var::AbstractVariable) = var.upper_bound
+domain(var::AbstractVariable) = var.domain
+initial_value(var::AbstractVariable) = var.initial_value
+
 
 # ---------------------------------------------------------------------
 # Objectives
@@ -122,6 +128,8 @@ Objective(f::Function, sense::Symbol) = Objective(f, 1, sense)
 coefficient(o::Objective) = o.coefficient
 func(o::Objective) = o.func
 sense(o::Objective) = o.sense
+direction(o::Objective) = o.sense == :MIN ? -1 : 1
+directions(v::Vector{Objective}) = [direction(o) for o in v]
 
 # Predicates
 isObjective(o::Objective)::Bool = true
@@ -338,8 +346,7 @@ end
 # ---------------------------------------------------------------------
 abstract type AbstractSolver end
 
-const solvers = Dict{Symbol, AbstractSolver}(:Platypus => PlatypusSolver)
-
+const solvers = Dict{Symbol, <:AbstractSolver}(:Platypus => PlatypusSolver) 
 
 """
     SolverFactory(s)
@@ -353,3 +360,6 @@ SolverFactory(solver::Symbol)::T where {T<:AbstractSolver} =
     : throw(ArgumentError("invalid solver $solver was specified"))
 SolverFactory(solver::AbstractString)::T where {T<:AbstractSolver} =
     SolverFactory(Symbol(solver))
+
+"Solves the modeled problem using the given solver"
+function solve(solver, model) end

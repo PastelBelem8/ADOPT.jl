@@ -67,3 +67,61 @@ evaluate_penalty(c1, 0)
 evaluate_penalty(c1, 2)
 evaluate_penalty(c1, -2)
 evaluate_penalty(c1, 100.2)
+
+
+# Test Model
+Model(1,2,3)
+Model(1,2)
+Model(1)
+Model(1,2,-1)
+Model(1,0)
+Model(0,2,3)
+Model(-1,2,3)
+Model(2,-2,3)
+
+Model([IntVariable(0, 3, 3)],[Objective(identity)])
+
+Model([IntVariable(0, 3, 3)],[Objective(identity)])
+Model([ IntVariable(0, 30, 3),
+        RealVariable(0, 3, 3),
+        RealVariable(0, 3, 3),
+        RealVariable(0, 3, 3),
+        RealVariable(0, 3, 3),
+        RealVariable(0, 3, 3)],
+      [Objective(identity), Objective(identity), Objective(identity), Objective(identity)])
+Model([],[])
+Model([IntVariable(0, 3, 3)])
+Model([Objective(identity)])
+
+Model([IntVariable(0, 3, 3)],[Objective(identity)], [Constraint(identity)])
+Model([Objective(identity)], [Constraint(identity)])
+Model([IntVariable(0, 3, 3)],[Constraint(identity)])
+Model([IntVariable(0, 3, 3), Objective(identity)], [Objective(identity)])
+
+
+# Selectors
+m = Model(1,2,3)
+
+nconstraints(m)
+nobjectives(m)
+nvariables(m)
+
+constraints(m)
+objectives(m)
+variables(m)
+
+m1 = Model([IntVariable(0, 3, 3), RealVariable(2, 3, 2.33)],
+[Objective(identity)])
+
+constraints(m1)
+objectives(m1)
+variables(m1)
+
+nconstraints(m1)
+nobjectives(m1)
+nvariables(m1)
+
+isModel(m)
+isModel(Objective(identity))
+isModel(2)
+isModel(nothing)

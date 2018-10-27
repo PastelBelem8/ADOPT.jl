@@ -34,9 +34,7 @@ struct INT  <: VarType end
 struct SET  <: VarType end
 struct REAL <: VarType end
 
-const vartypes_map = Dict(  :INT => Int,
-:SET => Real,
-:REAL => Real )
+const vartypes_map = Dict(  :INT => Int,  :SET => Real, :REAL => Real )
 
 getVarType(v::Symbol) = haskey(vartypes_map, v) ? vartypes_map[v] : throw(ArgumentError("unexpected type ($v) does not have a matching Julia type."))
 getVarType(v::Type{T}) where T<:VarType = getVarType(Symbol(v))
@@ -51,7 +49,7 @@ getbasefields(t::Symbol, typ::Type) = [  esc(:(domain::$(Type{sym2vartype_map[t]
                                          esc(:(upper_bound::$typ)),
                                          esc(:(initial_value::$typ))]
 
-function check_arguments(d, lb::T, ub::T, ival::T) where {T}
+function check_arguments(d::Type{T}, lb, ub, ival) where {T <: VarType}
     if !(typeof(lb) <: getVarType(d))
         throw(TypeError("variable's domain type $d is not compliant with $T"))
     elseif lb > ub
@@ -93,14 +91,12 @@ macro defvariable(domain::Symbol, optional_fields...)
 
         $(predicate_name)(v::AbstractVariable)::Bool = v.domain == $(esc(domain)) ? true : false
         $(predicate_name)(v::Any)::Bool = false
-        function Base.show(io::IO, v::AbstractVariable)
 
-        end
     end
 end
 
 @defvariable INT
-@defvariable SET
+# @defvariable SET values=[1, 3, 7, 9, 11]
 @defvariable REAL
 
 
@@ -134,10 +130,10 @@ isObjective(o::Any)::Bool = false
 isminimization(o::Objective) = sense(o) == :MIN
 
 # Representation
-function Base.show(io::IO, o::Objective)
-    sense = isminimization(o) ? "minimize" : "maximize"
-    print("[Objective]:\nSense:\t\t$(sense(o))\nFunction:\t$(func(o))\nCoefficient:\t$(coefficient(o))\n")
-end
+# function Base.show(io::IO, o::Objective)
+#     sense = isminimization(o) ? "minimize" : "maximize"
+#     print("[Objective]:\nSense:\t\t$(sense(o))\nFunction:\t$(func(o))\nCoefficient:\t$(coefficient(o))\n")
+# end
 
 # Argument Validations
 function check_arguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
@@ -171,7 +167,6 @@ end
 # Constructor
 Constraint(f::Function, operator::Function) = Constraint(f, 1, operator)
 
-
 # Selectors
 coefficient(c::Constraint)::Real = c.coefficient
 func(c::Constraint)::Function = c.func
@@ -182,9 +177,9 @@ isConstraint(c::Constraint)::Bool = true
 isConstraint(c::Any)::Bool = false
 
 # Representation
-function Base.show(io::IO, c::Constraint)
-    print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
-end
+# function Base.show(io::IO, c::Constraint)
+#     print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
+# end
 
 # Argument Validations
 function check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Function)
@@ -193,7 +188,7 @@ function check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op
     end
 end
 
-
+# Application
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
@@ -206,4 +201,57 @@ function evaluate_penalty(c::Constraint, args...)::Real
         throw(MethodError("penalty constraint for symbol $op is not defined"))
     end
     evaluate(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
+end
+
+
+# ---------------------------------------------------------------------
+# Model / Problem
+# ---------------------------------------------------------------------
+struct Model
+    variables::Vector{AbstractVariable}
+    objectives::Vector{Objective}
+    constraints::Vector{Constraint}
+
+    function Model(nvars::Int, nobjs::Int, nconstrs::Int=0)
+        check_arguments(Model, nvars, nobjs, nconstrs)
+        new(Vector{AbstractVariable}(undef, nvars), Vector{Objective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
+    end
+    function Model(vars::Vector{T}, objs::Vector{Objective},
+                    constrs::Vector{Constraint}=Vector{Constraint}()) where {T<:AbstractVariable}
+        check_arguments(Model, vars, objs, constrs)
+        new(vars, objs, constrs)
+    end
+end
+
+# Selectors
+constraints(m::Model)::Vector{Constraint} = deepcopy(m.constraints)
+objectives(m::Model)::Vector{Objective} = deepcopy(m.objectives)
+variables(m::Model)::Vector{AbstractVariable} = deepcopy(m.variables)
+
+nconstraints(m::Model) = length(m.constraints)
+nobjectives(m::Model) = length(m.objectives)
+nvariables(m::Model) = length(m.variables)
+
+# Predicates
+isModel(c::Model)::Bool = true
+isModel(c::Any)::Bool = false
+
+# Argument Validations
+function check_arguments(t::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int)
+    err = (x, y, z) -> "invalid number of $x: $y. Number of $x must be greater than $z"
+
+    if nvars < 1
+        throw(ArgumentError(err("variables", nvars, 1)))
+    elseif nobjs < 1
+        throw(ArgumentError(err("objectives", nobjs, 1)))
+    elseif nconstrs < 0
+        throw(ArgumentError(err("constraints", nconstrs, 0)))
+    end
+end
+
+function check_arguments(t::Type{Model},
+                        vars::Vector{AbstractVariable},
+                        objs::Vector{Objective},
+                        constrs::Vector{Constraint})
+    check_arguments(t, length(vars), length(objs), length(constrs))
 end

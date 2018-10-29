@@ -262,9 +262,9 @@ function check_arguments(t::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int)
 end
 
 function check_arguments(t::Type{Model},
-                        vars::Vector{AbstractVariable},
+                        vars::Vector{T},
                         objs::Vector{Objective},
-                        constrs::Vector{Constraint})
+                        constrs::Vector{Constraint}) where {T<:AbstractVariable}
     check_arguments(t, length(vars), length(objs), length(constrs))
 end
 
@@ -346,7 +346,7 @@ end
 # ---------------------------------------------------------------------
 abstract type AbstractSolver end
 
-const solvers = Dict{Symbol, <:AbstractSolver}(:Platypus => PlatypusSolver) 
+# const solvers = Dict{Symbol, <:AbstractSolver}(:Platypus => PlatypusSolver)
 
 """
     SolverFactory(s)
@@ -355,9 +355,7 @@ Returns the [`Solver`](@ref) associated with `s` if it exists, else it throws
 an exception.
 """
 SolverFactory(solver::Symbol)::T where {T<:AbstractSolver} =
-    haskey(solvers, solver)
-    ? solvers[solver]
-    : throw(ArgumentError("invalid solver $solver was specified"))
+    haskey(solvers, solver) ? solvers[solver] : throw(ArgumentError("invalid solver $solver was specified"))
 SolverFactory(solver::AbstractString)::T where {T<:AbstractSolver} =
     SolverFactory(Symbol(solver))
 

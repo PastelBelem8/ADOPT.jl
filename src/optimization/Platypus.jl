@@ -1,6 +1,6 @@
 module Platypus
 
-import Base: convert, show
+import Base: show
 
 using PyCall
 
@@ -28,35 +28,45 @@ PyCall.PyObject(x::PlatypusWrapper) = x.pyo
 const pre_type_map = []
 const type_map = Dict{PyObject,Type}()
 
+function make_setter(name, class)
+  name_str = string(name)
+  setter_name = Symbol("set_$(name_str)!")
+
+  quote
+    $(esc(setter_name))(o :: $(class), t) = o.pyo[$(QuoteNode(name_str))] = t
+  end
+end
+
 """
   @pytype name pyclass
 
 Creates the corresponding Julia class and its constructors.
 """
 macro pytype(name, pyclass, fields...)
-  constructor_name = esc(Symbol("_$name"))
+  constructor_name = "_$name"
+  constructor_symbol = esc(Symbol(constructor_name))
 
-  # setter_names = map(name -> "set_$(name)!(pyo::$constructor_name, $name) =
-  # pyo[:$(name)] = $name", fields)
+  mk_setters = (field_name) -> make_setter(field_name, constructor_symbol)
+  setters = map(mk_setters, fields)
 
   quote
-    struct $(constructor_name) <: PlatypusWrapper
+    struct $(constructor_symbol) <: PlatypusWrapper
       pyo::PyObject
-      $(constructor_name)(pyo::PyObject) = new(pyo)
+      $(constructor_symbol)(pyo::PyObject) = new(pyo)
 
       # Create Constructor
-      function $(constructor_name)(args...; kwargs...)
+      function $(constructor_symbol)(args...; kwargs...)
         platypus_method = ($pyclass)()
         new(pycall(platypus_method, PyObject, args...; kwargs...))
       end
-
-      # $(setter_names...)
     end
 
+    $(setters...)
     # Associate PyObject <name> with the Julia Type <name>
-    push!(pre_type_map, ($pyclass, $constructor_name))
+    push!(pre_type_map, ($pyclass, $constructor_symbol))
   end
 end
+# @macroexpand @pytype Problem ()->platypus[:Problem] types constraints "function"
 
 # Representation
 function Base.show(io::IO, pyv::PlatypusWrapper)
@@ -66,43 +76,13 @@ end
 
 # Platypus Julia's Proxies ---------------------------------------------------
 # Types
-@pytype Type ()->platypus[:Type]
 @pytype Real ()->platypus[:Real]
 @pytype Integer ()->platypus[:Integer]
 
 # Problem / Model
 @pytype Constraint ()->platypus[:Constraint]
 @pytype Solution ()->platypus[:Solution]
-@macroexpand @pytype Problem ()->platypus[:Problem] constraints directions "function" types
-
-function convert(t::_Problem, m::Model)
-  # 1. Create Base Problem
-  nvars, nobjs, nconstrs = nvariables(m), nobjectives(m), nconstraints(m)
-  problem = _Problem(nvars, nobjs, nconstrs)
-
-  # 2. Refine the Problem instance
-  # 2.1. Convert types --------------------------------------------------
-  set_types!(problem, [convert(_Type, v) for v in variables(m)])
-
-  # 2.2. Convert Constraints ---------------------------------------------
-  constrs = []
-  if nconstrs > 0
-    constrs = constraints(m)
-    set_constraints!(problem, [convert(_Constraint, c) for c in constraints(m)])
-  end
-
-  # 2.3. Convert Objective Function --------------------------------------
-  objectives = objectives(m)
-  set_directions!(problem, directions(objectives))
-  set_function!(problem, (x...) -> [func(o)(x...) for o in objectives],
-                                   [func(c)(x...) for c in constrs])
-end
-
-convert(t::_Constraint, c::Constraint) = _Constraint(string(operator(c)), 0)
-convert(t::_Type, variable::IntVariable) =
-    _Integer(lower_bound(variable), upper_bound(variable))
-convert(t::_Real, variable::RealVariable) =
-    _Real(lower_bound(variable), upper_bound(variable))
+@pytype Problem ()->platypus[:Problem] constraints directions "function" types
 
 
 # TODO
@@ -110,6 +90,8 @@ convert(t::_Real, variable::RealVariable) =
 # Passar do simbolo do algoritmo p/ objecto em Python
 # Testar se corre um problema
 # Wrap de _Solution (Python) em Solution (Julia)
+
+
 # Tests
 # p = _Problem(1, 2, 0, (x) -> [x[1]^2, (x[2]-2)^2])
 # a = NSGAII(p)

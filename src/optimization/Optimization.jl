@@ -340,7 +340,6 @@ function check_arguments(t::Type{Solution}, vars::Vector{T}) where {T<:Real}
     end
 end
 
-
 # ---------------------------------------------------------------------
 # Solvers
 # ---------------------------------------------------------------------
@@ -360,4 +359,4 @@ SolverFactory(solver::AbstractString)::T where {T<:AbstractSolver} =
     SolverFactory(Symbol(solver))
 
 "Solves the modeled problem using the given solver"
-function solve(solver, model) end
+function solve(solver::AbstractSolver, model::Model) end

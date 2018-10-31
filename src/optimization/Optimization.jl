@@ -99,6 +99,13 @@ end
 # @defvariable SET values=[1, 3, 7, 9, 11]
 @defvariable REAL
 
+IntVariable(lbound, ubound) =
+    IntVariable(lbound, ubound,floor((ubound - lbound) / 2))
+
+RealVariable(lbound, ubound) =
+    RealVariable(lbound, ubound,(ubound - lbound) / 2)
+
+
 # Selectors
 lower_bound(var::AbstractVariable) = var.lower_bound
 upper_bound(var::AbstractVariable) = var.upper_bound
@@ -243,6 +250,9 @@ nvariables(m::Model) = length(m.variables)
 isModel(c::Model)::Bool = true
 isModel(c::Any)::Bool = false
 
+ismixedtype(m::Model)::Bool = length(unique(map(typeof, variables(m)))) > 1
+
+
 # Representation
 # function Base.show(io::IO, c::Constraint)
 #     print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
@@ -297,7 +307,7 @@ julia> Solution([])
 Solution(Real[1, 2], Real[], Bool[], 0, true, false)
 """
 struct Solution
-    variables::Vector{Real}
+    variables::Vector{Any} # TODO FIX
     objectives::Vector{Real}
     constraints::Vector{Bool}
 
@@ -309,7 +319,12 @@ struct Solution
         check_arguments(Solution, v)
         new(v, Vector{Real}(), Vector{Bool}(), 0, true, false)
      end
+    function Solution(v, objectives, constraints, constraint_violation, feasible, evaluated)
+        new(v, objectives, constraints, constraint_violation, feasible, evaluated)
+    end
 end
+
+
 
 # Selectors
 variables(s::Solution) = s.variables

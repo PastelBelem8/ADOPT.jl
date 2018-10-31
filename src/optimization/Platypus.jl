@@ -12,7 +12,6 @@ function __init__()
        type_map[platypus_expr()] = julia_type
     end
 end
-
 # Platypus Wrappers ---------------------------------------------------------
 # This implementation is inspired in Pandas.jl implementation. Using Python's
 # metaprogramming capabilities we are able to mimic the existing data
@@ -21,6 +20,7 @@ end
 
 # Wrapper type that gathers the behavior of Platypus entities
 abstract type PlatypusWrapper end
+abstract type PlatypusAlgorithm <: PlatypusWrapper end
 
 PyCall.PyObject(x::PlatypusWrapper) = x.pyo
 
@@ -38,14 +38,15 @@ platypus_classname(name::Symbol) = "_$(name)"
 
 Creates the corresponding Julia class and its constructors.
 """
-macro pytype(name)
+macro pytype(name, parent=:PlatypusWrapper)
+  parent = Symbol(parent)
   pyclass = () -> platypus["$name"] # For Unwrapping
 
   constructor_name = platypus_classname(name)
   constructor_symbol = esc(Symbol(constructor_name))
 
   quote
-    struct $(constructor_symbol) <: PlatypusWrapper
+    struct $(constructor_symbol) <: $(esc(parent))
       pyo::PyObject
       $(constructor_symbol)(pyo::PyObject) = new(pyo)
 
@@ -106,6 +107,29 @@ macro pytypes_setters(classes::Expr, attrs...)
 end
 
 """
+  get_attr(class, name, type)
+
+Creates a getter for the specified attribute `name`.
+"""
+function get_attr(class, name)
+  getter_name = Symbol("get_$(name)")
+
+  quote
+    $(esc(getter_name))(o :: $(esc(class))) =
+        platypus_wrap(o.pyo[$(QuoteNode(name))])
+  end
+end
+
+macro pytype_getters(class, attrs...)
+  class = platypus_class(class)
+  getters = map(name -> get_attr(Symbol(class), name), attrs)
+
+  quote
+    $(getters...)
+  end
+end
+
+"""
   platypus_wrap(pyo::PyObject)
 
 Wraps an instance of platypus' Python class in the Julia type which corresponds
@@ -117,6 +141,7 @@ function platypus_wrap(pyo::PyObject)
       return pyv(pyo)
     end
   end
+
   convert(PyAny, pyo)
 end
 
@@ -125,34 +150,52 @@ platypus_wrap(pyo) = pyo
 
 # Platypus Julia's Proxies --------------------------------------------------
 # Types
+# @pytype_iterable FixedLengthArray
 @pytype Real
 @pytype Integer
 
 # Problem / Model
 @pytype Constraint
+
 @pytype Solution
+@pytype_getters Solution variables objectives constraints constraint_violation feasible evaluated
+function get_variables(solution::_Solution; toDecode::Bool=true)
+  if toDecode
+    types = solution.pyo[:problem][:types]
+    vars = solution.pyo[:variables]
+    decoded_vars = Vector()
+    for t in types, v in size(vars, 1)
+      decoded_vars = vcat(t[:decode](vars[v,:]), decoded_vars)
+    end
+    decoded_vars
+  else
+    get_variables(solution)
+  end
+end
+
 @pytype Problem
+@pytype_getters Problem nvars nobjs nconstrs "function" types directions constraints
 @pytype_setters Problem constraints directions "function" types
 
 # Algorithms
 # Single Objective Algorithms
-@pytype GeneticAlgorithm
-@pytype EvolutionaryStrategy
+@pytype GeneticAlgorithm PlatypusAlgorithm
+@pytype EvolutionaryStrategy PlatypusAlgorithm
 
 # Multi Objective Algorithms
-@pytype CMAES
-@pytype EpsMOEA
-@pytype EpsNSGAII
-@pytype GDE3
-@pytype IBEA
-@pytype MOEAD
-@pytype NSGAII
-@pytype NSGAIII
-@pytype PAES
-@pytype PESA2
-@pytype OMOPSO
-@pytype SMPSO
-@pytype SPEA2
+@pytype CMAES PlatypusAlgorithm
+@pytype EpsMOEA PlatypusAlgorithm
+@pytype EpsNSGAII PlatypusAlgorithm
+@pytype GDE3 PlatypusAlgorithm
+@pytype IBEA PlatypusAlgorithm
+@pytype MOEAD PlatypusAlgorithm
+@pytype NSGAII PlatypusAlgorithm
+@pytype NSGAIII PlatypusAlgorithm
+@pytype PAES PlatypusAlgorithm
+@pytype PESA2 PlatypusAlgorithm
+@pytype OMOPSO PlatypusAlgorithm
+@pytype SMPSO PlatypusAlgorithm
+@pytype SPEA2 PlatypusAlgorithm
 
 @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3, SPEA2, IBEA, PESA2], population_size::Int)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,CMAES], offspring_size::Int)
@@ -165,25 +208,50 @@ platypus_wrap(pyo) = pyo
 # @pytypes_setters([EpsMOEA,OMOPSO,CMAES], epsilons)
 # @pytypes_setters([SPEA2,MOEAD], k)
 
+# Generators
+@pytype RandomGenerator
+
+# Selectors
+@pytype TournamentSelector
+
+# Variators
+@pytype SBX
+@pytype HUX
+@pytype PCX
+@pytype PMX
+@pytype SPX
+@pytype SSX
+@pytype UNDX
+# Variators - Mutation
+@pytype Insertion
+@pytype NonUniformMutation
+@pytype PM
+@pytype Replace
+@pytype Swap
+@pytype UM
+@pytype UniformMutation
+
 # Algorithm Routines --------------------------------------------------------
 platypus_algorithms =
-    Dict(   # Single Objective
-            :GeneticAlgorithm     => _GeneticAlgorithm,
-            :EvolutionaryStrategy => _EvolutionaryStrategy,
-            # Multi Objective
-            :CMAES      => _CMAES,
-            :EpsMOEA    => _EpsMOEA,
-            :EpsNSGAII  => _EpsNSGAII,
-            :GDE3       => _GDE3,
-            :IBEA       => _IBEA,
-            :MOEAD      => _MOEAD,
-            :NSGAII     => _NSGAII,
-            :NSGAIII    => _NSGAIII,
-            :PAES       => _PAES,
-            :PESA2      => _PESA2,
-            :OMOPSO     => _OMOPSO,
-            :SMPSO      => _SMPSO,
-            :SPEA2      => _SPEA2 )
+    Dict(
+      # Single Objective
+      :GeneticAlgorithm     => _GeneticAlgorithm,
+      :EvolutionaryStrategy => _EvolutionaryStrategy,
+      # Multi Objective
+      :CMAES      => _CMAES,
+      :EpsMOEA    => _EpsMOEA,
+      :EpsNSGAII  => _EpsNSGAII,
+      :GDE3       => _GDE3,
+      :IBEA       => _IBEA,
+      :MOEAD      => _MOEAD,
+      :NSGAII     => _NSGAII,
+      :NSGAIII    => _NSGAIII,
+      :PAES       => _PAES,
+      :PESA2      => _PESA2,
+      :OMOPSO     => _OMOPSO,
+      :SMPSO      => _SMPSO,
+      :SPEA2      => _SPEA2
+   )
 
 "Returns whether a specific `algorithm` is currently supported"
 supports(algorithm::Symbol) = haskey(platypus_algorithms[algorithm])
@@ -191,37 +259,63 @@ supports(algorithm::Symbol) = haskey(platypus_algorithms[algorithm])
 "Returns an ordered list of the optimization algorithms currently supported"
 supported_algorithms() = sort(collect(keys(platypus_algorithms)))
 
-"Creates an algorithm instance"
-Algorithm(algorithm::Symbol, problem::_Problem; kwargs...) =
+"Creates an algorithm instance and associates it to the specified `problem`"
+Algorithm(algorithm::Union{Symbol, String}, problem::_Problem; kwargs...) =
     platypus_algorithms[algorithm](problem; kwargs...)
 
-
-function solve(algorithm::PlatypusWrapper, max_eval::Int; kwargs...)
-    # run(algorithm; kwargs...)
-    algorithm.pyo[:run](max_eval)
-    res = algorithm.pyo[:result]
-    platypus_wrap(res)
+function solve(algorithm_name::Symbol, problem::_Problem; max_eval::Int, algorithm_params...)
+  algorithm = Algorithm(algorithm_name, problem, algorithm_params...)
+  algorithm.pyo[:run](max_eval)
+  platypus_wrap(results(algorithm))
 end
 
+all_results(algorithm::PlatypusAlgorithm) =
+  platypus_wrap(algorithm.pyo[:result])
+get_unique(solutions::Vector{_Solution}) =
+  platypus_wrap(map(platypus[:unique], solutions))
+get_feasible(solutions::Vector{_Solution}) =
+  platypus_wrap(filter(s -> get_feasible(s), solutions))
+get_nondominated(solutions::Vector{_Solution}) =
+  platypus_wrap(platypus[:nondominatd](solutions))
 
+function results(algorithm::PlatypusAlgorithm; unique::Bool=true,
+                  feasible::Bool=true, nondominated::Bool=true)
+  results = all_results(algorithm)
+  results = unique ? get_unique(results) : results
+  results = feasible ? get_feasible(results) : results
+  results = unique ? get_nondominated(results) : results
+  results
+end
+# Reflection Capabilities -----------------------------------------------
+# These methods will be used to generate the running methods for each algorithm
+# according to the implementation. Two methods will be generated by each class.
+# One providing only the mandatory arguments and other providing the ability
+# to change other parameters.
+# -----------------------------------------------------------------------
+"Uses the reflection capabilities of python to parse a function's signature and retrieves its arguments"
+function inspect_signature(pyfunc::Symbol)
+    params = PyDict(PyCall.inspect[:signature](Platypus.platypus[pyfunc])[:parameters])
+    res = []
+    for (pname, param) in params
+      res = vcat((pname, params[pname][:default]), res)
+    end
+    res
+end
 
-# TODO
-# Reflectir sobre se é justificavel permitir que a partir de um construtor de
-# Problema se possa criar a instancia em Python ou não.
-# Definir macro que cria automaticamente p/ cada algoritmo o método run associado.
+"Returns a tuple subdiving the mandatory arguments from the optional arguments"
+function get_parameters(pyfunc::Symbol)
+  iskwargs = name -> name == "kwargs"
+  isempty = value -> value == PyCall.inspect[:Parameter][:empty]
+  isMandatory = param -> !iskwargs(param[1]) && isempty(param[2])
 
+  args = inspect_signature(pyfunc)
+  mandatory_args = map(arg -> arg[1], filter(isMandatory, args))
+  optional_args = map(arg -> (arg[1], platypus_wrap(arg[2])), filter(!isMandatory, args))
 
-# using PyCall
-# (Platypus.platypus[:NSGAII])
-# print(PyDict(PyCall.inspect[:signature](Platypus.platypus[:NSGAII])[:parameters])["population_size"][:default])
-#
-# function inspect_signature(func::Symbol)
-#     params = PyDict(PyCall.inspect[:signature](Platypus.platypus[func])[:parameters])
-#     res = []
-#     for (pname, param) in params
-#       res = vcat((pname, params[pname][:default]), res)
-#     end
-#     res
-# end
-# inspect_signature(:NSGAII)
+  (mandatory_args, optional_args)
+end
+
+mandatory_params(name::Symbol) = map(Symbol, get_parameters(name)[1])
+optional_params(name::Symbol) = map(a -> Symbol(a[1]), get_parameters(name)[2])
+
 end # Module

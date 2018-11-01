@@ -8,10 +8,8 @@ const platypus = PyNULL()
 
 function __init__()
    copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
-   for (platypus_expr, julia_type) in pre_type_map
-       type_map[platypus_expr()] = julia_type
-    end
 end
+
 # Platypus Wrappers ---------------------------------------------------------
 # This implementation is inspired in Pandas.jl implementation. Using Python's
 # metaprogramming capabilities we are able to mimic the existing data
@@ -22,16 +20,11 @@ end
 abstract type PlatypusWrapper end
 abstract type PlatypusAlgorithm <: PlatypusWrapper end
 
-PyCall.PyObject(x::PlatypusWrapper) = x.pyo
-
-# Create a dictionary to contain the PyObject->Julia_Wrapper type associations
-const pre_type_map = []
-const type_map = Dict{PyObject,Type}()
-
-platypus_class(name::String) = Symbol("_$(name)")
-platypus_class(name::Symbol) = Symbol("_$(string(name))")
-platypus_classname(name::String) = "_$(name)"
-platypus_classname(name::Symbol) = "_$(name)"
+PyCall.PyObject(x::PlatypusWrapper) =
+  begin
+      print(x)
+      x.pyo
+  end
 
 """
   @pytype name pyclass
@@ -42,8 +35,7 @@ macro pytype(name, parent=:PlatypusWrapper)
   parent = Symbol(parent)
   pyclass = () -> platypus["$name"] # For Unwrapping
 
-  constructor_name = platypus_classname(name)
-  constructor_symbol = esc(Symbol(constructor_name))
+  constructor_symbol = esc(Symbol(name))
 
   quote
     struct $(constructor_symbol) <: $(esc(parent))
@@ -56,9 +48,6 @@ macro pytype(name, parent=:PlatypusWrapper)
         new(pycall(platypus_method, PyObject, args...; kwargs...))
       end
     end
-
-    # Associate PyObject <name> with the Julia Type <name>
-    push!(pre_type_map, ($pyclass, $constructor_symbol))
   end
 end
 
@@ -85,8 +74,6 @@ function set_attr(class, name, typ=nothing)
 end
 
 macro pytype_setters(class, attrs...)
-  class = platypus_class(class)
-
   get_name = (attr) -> isa(attr, Expr) ? attr.args[1] : attr
   get_type = (attr) -> isa(attr, Expr) ? attr.args[2] : nothing
 
@@ -111,46 +98,28 @@ end
 
 Creates a getter for the specified attribute `name`.
 """
-function get_attr(class, name)
+function get_attr(class, name, out)
   getter_name = Symbol("get_$(name)")
 
   quote
-    $(esc(getter_name))(o :: $(esc(class))) =
-        platypus_wrap(o.pyo[$(QuoteNode(name))])
+    $(esc(getter_name))(receiver :: $(esc(class))) =
+        $(esc(out))(receiver.pyo[$(QuoteNode(name))])
   end
 end
 
 macro pytype_getters(class, attrs...)
-  class = platypus_class(class)
-  getters = map(name -> get_attr(Symbol(class), name), attrs)
+  attr_names = map(attr -> attr.args[1], attrs)
+  attr_outs = map(attr -> attr.args[2], attrs)
+
+  getters = map((name, out) -> get_attr(Symbol(class), name, out), attr_names, attr_outs)
 
   quote
     $(getters...)
   end
 end
 
-"""
-  platypus_wrap(pyo::PyObject)
-
-Wraps an instance of platypus' Python class in the Julia type which corresponds
-to that class.
-"""
-function platypus_wrap(pyo::PyObject)
-  for (pyt, pyv) in type_map
-    if pyisinstance(pyo, pyt)
-      return pyv(pyo)
-    end
-  end
-
-  convert(PyAny, pyo)
-end
-
-platypus_wrap(x::Union{AbstractArray, Tuple}) = [platypus_wrap(_) for _ in x]
-platypus_wrap(pyo) = pyo
-
 # Platypus Julia's Proxies --------------------------------------------------
 # Types
-# @pytype_iterable FixedLengthArray
 @pytype Real
 @pytype Integer
 
@@ -158,29 +127,42 @@ platypus_wrap(pyo) = pyo
 @pytype Constraint
 
 @pytype Solution
-@pytype_getters Solution variables objectives constraints constraint_violation feasible evaluated
-function get_variables(solution::_Solution; toDecode::Bool=true)
+@pytype_getters(Solution,
+                objectives::PyVector,
+                constraints::PyVector,
+                constraint_violation::Base.Real,
+                feasible::Bool,
+                evaluated::Bool)
+function get_variables(solution::Solution; toDecode::Bool=true)
+  vars = solution.pyo[:variables]
   if toDecode
     types = solution.pyo[:problem][:types]
-    vars = solution.pyo[:variables]
     decoded_vars = Vector()
     for t in types, v in size(vars, 1)
       decoded_vars = vcat(t[:decode](vars[v,:]), decoded_vars)
     end
     decoded_vars
   else
-    get_variables(solution)
+    vars
   end
 end
 
 @pytype Problem
-@pytype_getters Problem nvars nobjs nconstrs "function" types directions constraints
+@pytype_getters(Problem,
+                nvars::Int,
+                nobjs::Int,
+                nconstrs::Int,
+                "function"::pyfunction,
+                types::PyVector,
+                directions::PyVector,
+                constraints::PyVector)
 @pytype_setters Problem constraints directions "function" types
 
 # Algorithms
 # Single Objective Algorithms
 @pytype GeneticAlgorithm PlatypusAlgorithm
 @pytype EvolutionaryStrategy PlatypusAlgorithm
+export GeneticAlgorithm, EvolutionaryStrategy
 
 # Multi Objective Algorithms
 @pytype CMAES PlatypusAlgorithm
@@ -196,6 +178,8 @@ end
 @pytype OMOPSO PlatypusAlgorithm
 @pytype SMPSO PlatypusAlgorithm
 @pytype SPEA2 PlatypusAlgorithm
+export CMAES, EpsMOEA, EpsNSGAII, GDE3, IBEA, MOEAD, NSGAII, NSGAIII,
+        PAES, PESA2, OMOPSO, SMPSO, SPEA2
 
 @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3, SPEA2, IBEA, PESA2], population_size::Int)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,CMAES], offspring_size::Int)
@@ -210,82 +194,71 @@ end
 
 # Generators
 @pytype RandomGenerator
+export RandomGenerator
 
 # Selectors
 @pytype TournamentSelector
+export TournamentSelector
 
 # Variators
-@pytype SBX
-@pytype HUX
-@pytype PCX
-@pytype PMX
-@pytype SPX
-@pytype SSX
-@pytype UNDX
-# Variators - Mutation
-@pytype Insertion
-@pytype NonUniformMutation
-@pytype PM
-@pytype Replace
-@pytype Swap
-@pytype UM
-@pytype UniformMutation
+abstract type PlatypusVariator <: PlatypusWrapper end
+abstract type SimpleVariator <: PlatypusVariator end
+abstract type CompoundVariator <: PlatypusVariator end
+
+@pytype Variator PlatypusVariator
+@pytype CompoundOperator CompoundVariator
+@pytype GAOperator CompoundVariator
+@pytype SBX SimpleVariator
+@pytype HUX SimpleVariator
+@pytype PCX SimpleVariator
+@pytype PMX SimpleVariator
+@pytype SPX SimpleVariator
+@pytype SSX SimpleVariator
+@pytype UNDX SimpleVariator
+export CompoundOperator, GAOperator, SBX, HUX, PCX, PMX, SPX, SSX, UNDX
+
+# Mutations are specific types of Variators
+@pytype CompoundMutation CompoundVariator
+@pytype Insertion SimpleVariator
+@pytype NonUniformMutation SimpleVariator
+@pytype PM SimpleVariator
+@pytype Replace SimpleVariator
+@pytype Swap SimpleVariator
+@pytype UM SimpleVariator
+@pytype UniformMutation SimpleVariator
+export CompoundMutation, Insertion, NonUniformMutation, PM, Replace, Swap, UM,
+       UniformMutation
+
 
 # Algorithm Routines --------------------------------------------------------
-platypus_algorithms =
-    Dict(
-      # Single Objective
-      :GeneticAlgorithm     => _GeneticAlgorithm,
-      :EvolutionaryStrategy => _EvolutionaryStrategy,
-      # Multi Objective
-      :CMAES      => _CMAES,
-      :EpsMOEA    => _EpsMOEA,
-      :EpsNSGAII  => _EpsNSGAII,
-      :GDE3       => _GDE3,
-      :IBEA       => _IBEA,
-      :MOEAD      => _MOEAD,
-      :NSGAII     => _NSGAII,
-      :NSGAIII    => _NSGAIII,
-      :PAES       => _PAES,
-      :PESA2      => _PESA2,
-      :OMOPSO     => _OMOPSO,
-      :SMPSO      => _SMPSO,
-      :SPEA2      => _SPEA2
-   )
+get_all_results(algorithm::PlatypusAlgorithm) =
+  [Solution(sol) for sol in algorithm.pyo[:result]]
+get_unique(solutions::Vector{Solution}; objectives=true) =
+  [Solution(sol) for sol in platypus[:unique](solutions, objectives)]
+get_feasible(solutions::Vector{Solution}) =
+  filter(s -> get_feasible(s), solutions)
+get_nondominated(solutions::Vector{Solution}) =
+  [Solution(sol) for sol in platypus[:nondominated](solutions)]
 
-"Returns whether a specific `algorithm` is currently supported"
-supports(algorithm::Symbol) = haskey(platypus_algorithms[algorithm])
-
-"Returns an ordered list of the optimization algorithms currently supported"
-supported_algorithms() = sort(collect(keys(platypus_algorithms)))
-
-"Creates an algorithm instance and associates it to the specified `problem`"
-Algorithm(algorithm::Union{Symbol, String}, problem::_Problem; kwargs...) =
-    platypus_algorithms[algorithm](problem; kwargs...)
-
-function solve(algorithm_name::Symbol, problem::_Problem; max_eval::Int, algorithm_params...)
-  algorithm = Algorithm(algorithm_name, problem, algorithm_params...)
-  algorithm.pyo[:run](max_eval)
-  platypus_wrap(results(algorithm))
-end
-
-all_results(algorithm::PlatypusAlgorithm) =
-  platypus_wrap(algorithm.pyo[:result])
-get_unique(solutions::Vector{_Solution}) =
-  platypus_wrap(map(platypus[:unique], solutions))
-get_feasible(solutions::Vector{_Solution}) =
-  platypus_wrap(filter(s -> get_feasible(s), solutions))
-get_nondominated(solutions::Vector{_Solution}) =
-  platypus_wrap(platypus[:nondominatd](solutions))
-
-function results(algorithm::PlatypusAlgorithm; unique::Bool=true,
-                  feasible::Bool=true, nondominated::Bool=true)
-  results = all_results(algorithm)
-  results = unique ? get_unique(results) : results
+function results(algorithm::PlatypusAlgorithm; unique::Bool,
+                  unique_objectives::Bool, feasible::Bool, nondominated::Bool)
+  results = get_all_results(algorithm)
+  results = unique ? get_unique(results, objectives=unique_objectives) : results
   results = feasible ? get_feasible(results) : results
-  results = unique ? get_nondominated(results) : results
+  results = nondominated ? get_nondominated(results) : results
   results
 end
+
+"Creates an algorithm instance and associates it to the specified `problem`"
+Algorithm(algorithm::Type{T}, problem::Problem; kwargs...) where {T<:PlatypusAlgorithm}=
+    algorithm(problem, kwargs...)
+
+function solve(algorithm::T; max_eval::Int, unique::Bool=true,
+                unique_objectives::Bool=true, feasible::Bool=true, nondominated::Bool=true) where{T<:PlatypusAlgorithm}
+  algorithm.pyo[:run](max_eval)
+  results(algorithm, unique=unique, unique_objectives=unique_objectives, feasible=feasible, nondominated=nondominated)
+end
+
 # Reflection Capabilities -----------------------------------------------
 # These methods will be used to generate the running methods for each algorithm
 # according to the implementation. Two methods will be generated by each class.
@@ -310,12 +283,13 @@ function get_parameters(pyfunc::Symbol)
 
   args = inspect_signature(pyfunc)
   mandatory_args = map(arg -> arg[1], filter(isMandatory, args))
-  optional_args = map(arg -> (arg[1], platypus_wrap(arg[2])), filter(!isMandatory, args))
+  optional_args = map(arg -> (arg[1], arg[2]), filter(!isMandatory, args))
 
   (mandatory_args, optional_args)
 end
 
-mandatory_params(name::Symbol) = map(Symbol, get_parameters(name)[1])
-optional_params(name::Symbol) = map(a -> Symbol(a[1]), get_parameters(name)[2])
+mandatory_params(name::Type) = map(Symbol, get_parameters(Symbol(name))[1])
+optional_params(name::Type) = map(a -> Symbol(a[1]), get_parameters(Symbol(name))[2])
+
 
 end # Module

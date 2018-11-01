@@ -360,8 +360,6 @@ end
 # ---------------------------------------------------------------------
 abstract type AbstractSolver end
 
-# const solvers = Dict{Symbol, <:AbstractSolver}(:Platypus => PlatypusSolver)
-
 """
     SolverFactory(s)
 

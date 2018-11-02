@@ -2,16 +2,14 @@
 import Base: show
 
 # ----------------------------------------------------------------------
-# Utils
+# Auxiliar routines
 # ----------------------------------------------------------------------
 # Routines to abstract and to the make code more readable/cleaner
 
 # Fields
-parsefield(v::Expr, _=nothing) = :($(v.args[1])::$(v.args[2]))
-parsefield(v::Symbol, typ=nothing) = :($v::$typ)
+parse_field(v::Expr, ::Any=nothing) = :($(v.args[1])::$(v.args[2]))
+parse_field(v::Symbol, typ=nothing) = :($v::$typ)
 
-"Return base fields that comprise a data structure"
-function getbasefields(t::Type{Any}, typ::Type) end
 
 "Throws an error if the arguments of a certain type `T` are invalid."
 function check_arguments(t::Type{Any}, args...; kwargs...) end
@@ -29,28 +27,30 @@ function check_arguments(t::Type{Any}, args...; kwargs...) end
 """
 Variable Types
 """
-abstract type  VarType end
-struct INT  <: VarType end
-struct SET  <: VarType end
-struct REAL <: VarType end
+abstract type  VariableType end
+struct INT  <: VariableType end
+struct SET  <: VariableType end
+struct REAL <: VariableType end
 
-const vartypes_map = Dict(  :INT => Int,  :SET => Real, :REAL => Real )
+const variable_types_map = Dict{Type{<:VariableType}, DataType}(
+                        INT => Int,
+                        SET => Real,
+                        REAL => Real )
 
-getVarType(v::Symbol) = haskey(vartypes_map, v) ? vartypes_map[v] : throw(ArgumentError("unexpected type ($v) does not have a matching Julia type."))
-getVarType(v::Type{T}) where T<:VarType = getVarType(Symbol(v))
-
-const sym2vartype_map = Dict( :INT => INT, :SET => SET, :REAL => REAL) # FIXME
+get_variable_type(v) =
+    haskey(variable_types_map, v) ? variable_types_map[v] : throw(DomainError("invalid variable type specified with value $v is not associated to a Julia type."))
 
 # Variables -----------------------------------------------------------
 abstract type AbstractVariable end
 
-getbasefields(t::Symbol, typ::Type) = [  esc(:(domain::$(Type{sym2vartype_map[t]}))), #FIXME
+"Return base fields that comprise a data structure"
+get_variables_basefields(t, typ::Type) = [  esc(:(domain::$(Type{t}))),
                                          esc(:(lower_bound::$typ)),
                                          esc(:(upper_bound::$typ)),
                                          esc(:(initial_value::$typ))]
 
-function check_arguments(d::Type{T}, lb, ub, ival) where {T <: VarType}
-    if !(typeof(lb) <: getVarType(d))
+function check_arguments(d::Type{T}, lb, ub, ival) where {T <: VariableType}
+    if !(typeof(lb) <: get_variable_type(d))
         throw(TypeError("variable's domain type $d is not compliant with $T"))
     elseif lb > ub
         throw(ArgumentError("lower bound must be less than or equal to the upper bound: $lb ⩽ $ub"))
@@ -59,14 +59,14 @@ function check_arguments(d::Type{T}, lb, ub, ival) where {T <: VarType}
     end
 end
 
-macro defvariable(domain::Symbol, optional_fields...)
+macro defvariable(domain, optional_fields...)
     name_str = domain |> string |> titlecase |> x -> "$(x)Variable"
     name_sym = Symbol(name_str)
-    varType = getVarType(domain)
+    varType = get_variable_type(eval(domain))
 
     # Fields
-    base_fields = getbasefields(domain, varType)
-    optional_fields = map(field -> parsefield(field, varType), optional_fields)
+    base_fields = get_variables_basefields(domain, varType)
+    optional_fields = map(field -> parse_field(field, varType), optional_fields)
 
     # Make params
     params = base_fields[2:end]

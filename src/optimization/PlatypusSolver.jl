@@ -57,7 +57,7 @@ convert(::Type{Platypus.PlatypusWrapper}, variable::RealVariable) =
 # ------------------------------------------------------------------------
 # Solution Converter Routines
 # ------------------------------------------------------------------------
-function convert(::Type{Main.Solution}, s::Platypus.Solution)
+function convert(::Type{Solution}, s::Platypus.Solution)
   variables = Platypus.get_variables(s)
   objectives = Platypus.get_objectives(s)
   constraints = Platypus.get_constraints(s)
@@ -67,8 +67,8 @@ function convert(::Type{Main.Solution}, s::Platypus.Solution)
 
   Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
 end
-convert(::Type{Vector{Main.Solution}}, ss::Vector{Platypus.Solution}) =
-    [convert(Main.Solution, s) for s in ss]
+convert(::Type{Vector{Solution}}, ss::Vector{Platypus.Solution}) =
+    [convert(Solution, s) for s in ss]
 
 # ------------------------------------------------------------------------
 # Generators Converter Routines

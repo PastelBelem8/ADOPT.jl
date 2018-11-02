@@ -9,11 +9,11 @@ macro stratify(levels)
 end
 
 # Auxiliar Functions --------------------------------------------------------
-"Generate random number between [`min`, `max`)"
-rand_range(min, max) = rand() * (max - min) + min
+"Generate random number between [`minimm`, `maximm`)"
+rand_range(minimm::Real, maximm::Real) = rand() * (maximm - minimm) + minimm
 
 "Sets the seed of the default random pseudogenerator to be `s`"
-set_seed!(s::Int) = Random.seed!(seed)
+set_seed!(s::Int) = Random.seed!(s)
 
 # Public --------------------------------------------------------------------
 # All the methods provided in this module generate samples in [0, 1]^n.
@@ -30,23 +30,28 @@ export  randomMC,
         boxbehnken
 
 "Generate a new random sample with `ndims` dimensions."
-function randomSample(ndims::Int)
+function random_sample(ndims::Int)
+    if ndims < 0
+        throw(DomainError("number of dimensions must be positive")) end
     [rand() for j in 1:ndims]
 end
 
 "Generate `n` random samples with `ndims` dimensions."
-function randomSamples(ndims::Int, n::Int)
+function random_samples(ndims::Int, n::Int)
+    if ndims < 0 || n < 0 throw(DomainError("ndims and n must be positive integers")) end
     samples = zeros(ndims, n)
     for j in 1:n
-        samples[:, j] = randomSample(ndims)
+        samples[:, j] = random_sample(ndims)
     end
     samples
 end
-randomMC = randomSamples
+randomMC = random_samples
 
 "Generate one random sample with `ndims` dimensions for each bin."
-function stratifiedMC(ndims, bins)
-    if ndims != length(bins)
+function stratifiedMC(ndims::Int, bins::Vector{Int})
+    if ndims < 0 || any(map(x -> x < 1, bins))
+        throw(DomainError("ndims and bins must be positive integers"))
+    elseif ndims != length(bins)
         throw(DimensionMismatch("ndims $(ndims) != bins $(length(bins))"))
     end
 
@@ -60,23 +65,25 @@ function stratifiedMC(ndims, bins)
     samples
 end
 
-function latinHypercube(ndims, n)
-    step = 1 / n
-    bin = (i) -> rand_range(step*(i-1), i*step)
+function latinHypercube(ndims::Int, nbins::Int)
+    if ndims < 0 || nbins < 0 throw(DomainError("ndims and n must be positive integers")) end
 
-    samples = fill(0.0, (ndims, n))
-    Sdims = [Set(1:n) for _ in 1:ndims]
-    for j in 1:n
-        samples[:,j] = map(bin, [pop!(Sdims[d], rand(Sdims[d])) for d in 1:ndims])
+    step = 1 / nbins
+    bin(i) = rand_range(step*(i-1), i*step)
+    samples = zeros(ndims, nbins)
+    set_of_dims = [Set(1:nbins) for _ in 1:ndims]
+
+    for j in 1:nbins
+        samples[:,j] = map(bin, [pop!(set_of_dims[d], rand(collect(set_of_dims[d]))) for d in 1:ndims])
     end
     samples
 end
 
-function fullfactorial(ndims, level::Int=2)
-    if ndims <= 0
-        throw(ArgumentError("invalid argument value: ndims $(ndims)")) end
+function fullfactorial(ndims::Int, level::Int=2)
+    if ndims < 0
+        throw(DomainError("invalid argument value: ndims $(ndims)")) end
     if level < 2
-        throw(ArgumentError("invalid argument value: level $level must be greater than 2")) end
+        throw(DomainError("invalid argument value: level $level must be greater than 2")) end
     step = 1 / (level - 1)
     nbins = [0:step:1 for _ in 1:ndims]
     samples = fill(0.0, (ndims, level^ndims))
@@ -86,9 +93,9 @@ function fullfactorial(ndims, level::Int=2)
     samples
 end
 
-function boxbehnken(ndims)
+function boxbehnken(ndims::Int)
     if ndims < 3
-        throw(ArgumentError("invalid argument error. ndims $ndims < 3"))
+        throw(DomainError("invalid argument error. ndims $ndims < 3"))
     end
     # Block parameters
     X0 = fullfactorial(2, 2)'
@@ -102,8 +109,7 @@ function boxbehnken(ndims)
             index = index + 1
             X[(1+(index-1)*bsize):(index*bsize),1:end] .= 0.5
             X[(1+(index-1)*bsize):(index*bsize),[i, j]] = X0
-             # X[(1+(index-1)*bsize):(index*bsize),1:end .!=i] = X0
-         end
+        end
     end
     # Append center
     vcat(X, [0.5 for _ in 1:ndims]')'

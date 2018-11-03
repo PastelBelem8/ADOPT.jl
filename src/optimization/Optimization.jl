@@ -12,26 +12,23 @@ function check_arguments(args...; kwargs...) end
 # Variables
 # ---------------------------------------------------------------------
 # All variables share the same main behavior, however some discrete
-# variables require an additional field.
+# variables require additional fields. For example a variable composed
+# of specific numbers is considered a discrete variable, yet its values
+# must be specified in order to be manipulated.
 #
-# Each variable has a domain/type associated. Either a variable is discrete
-# and in that case it might be a range of integers or a set of discrete
-# (real) numbers, or it might be continuous.
+# Each variable is either a discrete variable (Int, Set), and, in that case, it might
+# be comprised of a set of numbers or a range of sequential numbers or it
+# might be a continuous variable (Real).
 
-"""
-Variable Types
-"""
-abstract type  VariableType end
-struct INT  <: VariableType end
-struct SET  <: VariableType end
-struct REAL <: VariableType end
-
+# Avoid parameterizing methods
 Categorical = Union{Int64, Float64, Number}
 CategoricalVector = Union{Vector{Int64}, Vector{Float64}, Vector{Real}}
 
 # Variables -----------------------------------------------------------
+"Generic Variable type that is supertype of all the variables to be defined."
 abstract type AbstractVariable end
 
+"Creates and exports variable structure subtype of the `AbstractVariable` type based on the provided fields"
 macro defvariable(name, fields...)
     name_str = string(name)
     name_sym = Symbol(name_str)
@@ -47,6 +44,7 @@ macro defvariable(name, fields...)
     predicate_name = esc(Symbol("is", name_str))
 
     quote
+        export $(name_sym)
         struct $(name_sym) <: $(esc(AbstractVariable))
             $(struct_fields...)
 
@@ -83,10 +81,12 @@ function check_arguments(lb::Categorical, ub::Categorical, ival::Categorical, va
     invoke(check_arguments, Tuple{Real, Real, Real}, lb, ub, ival)
 end
 
+# Variable Definitions
 @defvariable IntVariable  lower_bound::Int upper_bound::Int initial_value::Int
 @defvariable RealVariable lower_bound::Real upper_bound::Real initial_value::Real
 @defvariable SetVariable  lower_bound::Categorical upper_bound::Categorical initial_value::Categorical values::CategoricalVector
 
+# Additional Constructors (w/ optional fields)
 IntVariable(lbound::Int, ubound::Int) = IntVariable(lbound, ubound, floor(Int, (ubound - lbound) / 2) + lbound)
 RealVariable(lbound::Real, ubound::Real) = RealVariable(lbound, ubound, (ubound - lbound) / 2 + lbound)
 
@@ -104,7 +104,7 @@ initial_value(var::AbstractVariable) = var.initial_value
 values(var::AbstractVariable) = throw(MethodError("Undefined for abstract variables"))
 values(var::SetVariable) = var.values
 
-# Equality
+# Comparators
 ==(i1::AbstractVariable, i2::AbstractVariable) =
     typeof(i1) == typeof(i2) &&
     lower_bound(i1) == lower_bound(i2) &&
@@ -113,7 +113,8 @@ values(var::SetVariable) = var.values
 ==(i1::SetVariable, i2::SetVariable) =
     invoke(==, Tuple{AbstractVariable, AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
-
+# Export functions
+export lower_bound, upper_bound, initial_value, values, ==
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------

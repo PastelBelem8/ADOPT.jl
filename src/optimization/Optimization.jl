@@ -1,18 +1,12 @@
 # Imports --------------------------------------------------------------
-import Base: show
+import Base: show, ==, values
 
 # ----------------------------------------------------------------------
 # Auxiliar routines
 # ----------------------------------------------------------------------
 # Routines to abstract and to the make code more readable/cleaner
-
-# Fields
-parse_field(v::Expr, ::Any=nothing) = :($(v.args[1])::$(v.args[2]))
-parse_field(v::Symbol, typ=nothing) = :($v::$typ)
-
-
 "Throws an error if the arguments of a certain type `T` are invalid."
-function check_arguments(t::Type{Any}, args...; kwargs...) end
+function check_arguments(args...; kwargs...) end
 
 # ---------------------------------------------------------------------
 # Variables
@@ -32,91 +26,97 @@ struct INT  <: VariableType end
 struct SET  <: VariableType end
 struct REAL <: VariableType end
 
-const variable_types_map = Dict{Type{<:VariableType}, DataType}(
-                        INT => Int,
-                        SET => Real,
-                        REAL => Real )
-
-get_variable_type(v) =
-    haskey(variable_types_map, v) ? variable_types_map[v] : throw(DomainError("invalid variable type specified with value $v is not associated to a Julia type."))
+Categorical = Union{Int64, Float64, Number}
+CategoricalVector = Union{Vector{Int64}, Vector{Float64}, Vector{Real}}
 
 # Variables -----------------------------------------------------------
 abstract type AbstractVariable end
 
-"Return base fields that comprise a data structure"
-get_variables_basefields(t, typ::Type) = [  esc(:(domain::$(Type{t}))),
-                                         esc(:(lower_bound::$typ)),
-                                         esc(:(upper_bound::$typ)),
-                                         esc(:(initial_value::$typ))]
-
-function check_arguments(d::Type{T}, lb, ub, ival) where {T <: VariableType}
-    if !(typeof(lb) <: get_variable_type(d))
-        throw(TypeError("variable's domain type $d is not compliant with $T"))
-    elseif lb > ub
-        throw(ArgumentError("lower bound must be less than or equal to the upper bound: $lb ⩽ $ub"))
-    elseif lb > ival || ival > ub
-        throw(ArgumentError("the initial value must be within the lower and upper bounds: $lb ⩽ $ival ⩽ $ub"))
-    end
-end
-
-macro defvariable(domain, optional_fields...)
-    name_str = domain |> string |> titlecase |> x -> "$(x)Variable"
+macro defvariable(name, fields...)
+    name_str = string(name)
     name_sym = Symbol(name_str)
-    varType = get_variable_type(eval(domain))
 
     # Fields
-    base_fields = get_variables_basefields(domain, varType)
-    optional_fields = map(field -> parse_field(field, varType), optional_fields)
+    fields_names = map(field -> field.args[1], fields)
+    fields_types = map(field -> :($(esc(field.args[2]))), fields)
 
-    # Make params
-    params = base_fields[2:end]
-    kw_params = map(field ->  Expr(:kw, field), optional_fields)
-    params_names = map(field -> esc(field.args[1].args[1]), params)
-    params_names = !isempty(kw_params) ? vcat(params_name, map(field -> field.args[1], optional_fields)) : params_names
+    struct_fields = map((name, typ) -> :($(name)::$(typ)), fields_names, fields_types)
 
     # Methods
     constructor_name = esc(name_sym)
     predicate_name = esc(Symbol("is", name_str))
 
     quote
-        struct $(name_sym) <: AbstractVariable
-            $(base_fields...)
-            $(optional_fields...)
+        struct $(name_sym) <: $(esc(AbstractVariable))
+            $(struct_fields...)
 
-            function $(constructor_name)($(params...);$(kw_params...))
-                check_arguments($(esc(domain)), $(params_names...))
-                new($(esc(domain)), $(params_names...))
+            function $(constructor_name)($(struct_fields...))
+                check_arguments($(fields_names...))
+                new($(fields_names...))
             end
         end
 
-        $(predicate_name)(v::AbstractVariable)::Bool = v.domain == $(esc(domain)) ? true : false
+        $(predicate_name)(v::$(name_sym))::Bool = true
         $(predicate_name)(v::Any)::Bool = false
 
     end
 end
 
-@defvariable INT
-# @defvariable SET values=[1, 3, 7, 9, 11]
-@defvariable REAL
+function check_arguments(lb::Real, ub::Real, ival::Real)
+    if lb > ub
+        throw(DomainError("lower bound must be less than or equal to the upper bound: $lb ⩽ $ub"))
+    elseif lb > ival || ival > ub
+        throw(DomainError("the initial value must be within the lower and upper bounds: $lb ⩽ $ival ⩽ $ub"))
+    end
+end
 
-IntVariable(lbound, ubound) =
-    IntVariable(lbound, ubound,floor((ubound - lbound) / 2))
+function check_arguments(lb::Categorical, ub::Categorical, ival::Categorical, values::CategoricalVector)
+    if length(values) < 1
+        throw(DomainError("invalid variable definition with no values"))
+    elseif lb ∉ values
+        throw(DomainError("the lower bound with value $lb is not within the specified values: $values"))
+    elseif ub ∉ values
+        throw(DomainError("the upper bound with value $ub is not within the specified values: $values"))
+    elseif ival ∉ values
+        throw(DomainError("the initial value with value $ival is not in the specified values: $values"))
+    end
+    invoke(check_arguments, Tuple{Real, Real, Real}, lb, ub, ival)
+end
 
-RealVariable(lbound, ubound) =
-    RealVariable(lbound, ubound,(ubound - lbound) / 2)
+@defvariable IntVariable  lower_bound::Int upper_bound::Int initial_value::Int
+@defvariable RealVariable lower_bound::Real upper_bound::Real initial_value::Real
+@defvariable SetVariable  lower_bound::Categorical upper_bound::Categorical initial_value::Categorical values::CategoricalVector
 
+IntVariable(lbound::Int, ubound::Int) = IntVariable(lbound, ubound, floor(Int, (ubound - lbound) / 2) + lbound)
+RealVariable(lbound::Real, ubound::Real) = RealVariable(lbound, ubound, (ubound - lbound) / 2 + lbound)
+
+SetVariable(init_value::Categorical, values::CategoricalVector) =
+    length(values) > 0 ?
+        SetVariable(minimum(values), maximum(values), init_value, values) :
+        throw(DomainError("invalid variable definition with no values"))
+SetVariable(values::CategoricalVector)=
+    length(values) > 0 ? SetVariable(values[1], values) : throw(DomainError("invalid variable definition with no values"))
 
 # Selectors
 lower_bound(var::AbstractVariable) = var.lower_bound
 upper_bound(var::AbstractVariable) = var.upper_bound
-domain(var::AbstractVariable) = var.domain
 initial_value(var::AbstractVariable) = var.initial_value
+values(var::AbstractVariable) = throw(MethodError("Undefined for abstract variables"))
+values(var::SetVariable) = var.values
+
+# Equality
+==(i1::AbstractVariable, i2::AbstractVariable) =
+    typeof(i1) == typeof(i2) &&
+    lower_bound(i1) == lower_bound(i2) &&
+    upper_bound(i1) == upper_bound(i2) &&
+    initial_value(i1) == initial_value(i2)
+==(i1::SetVariable, i2::SetVariable) =
+    invoke(==, Tuple{AbstractVariable, AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
 
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------
-
 struct Objective
     func::Function
     coefficient::Real
@@ -153,7 +153,7 @@ isminimization(o::Objective) = sense(o) == :MIN
 # Argument Validations
 function check_arguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
     if !(sense in (:MIN, :MAX))
-        throw(ArgumentError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
+        throw(DomainError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
     end
 end
 
@@ -199,7 +199,7 @@ isConstraint(c::Any)::Bool = false
 # Argument Validations
 function check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Function)
     if !(Symbol(op) in (:(==), :(!=), :(>=), :(>), :(<=), :(<)))
-        throw(ArgumentError("unrecognized operator $op. Valid operators are {==, !=, =>, >, <=, <}"))
+        throw(DomainError("unrecognized operator $op. Valid operators are {==, !=, =>, >, <=, <}"))
     end
 end
 
@@ -263,11 +263,11 @@ function check_arguments(t::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int)
     err = (x, y, z) -> "invalid number of $x: $y. Number of $x must be greater than $z"
 
     if nvars < 1
-        throw(ArgumentError(err("variables", nvars, 1)))
+        throw(DomainError(err("variables", nvars, 1)))
     elseif nobjs < 1
-        throw(ArgumentError(err("objectives", nobjs, 1)))
+        throw(DomainError(err("objectives", nobjs, 1)))
     elseif nconstrs < 0
-        throw(ArgumentError(err("constraints", nconstrs, 0)))
+        throw(DomainError(err("constraints", nconstrs, 0)))
     end
 end
 
@@ -323,8 +323,6 @@ struct Solution
         new(v, objectives, constraints, constraint_violation, feasible, evaluated)
     end
 end
-
-
 
 # Selectors
 variables(s::Solution) = s.variables

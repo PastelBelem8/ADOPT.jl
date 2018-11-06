@@ -169,78 +169,177 @@ import MscThesis
         end
     end
 end
+@testset "Objectives Tests" begin
+            @testset "Constructors Tests" begin
+                        # Success
+                        @test begin o = MscThesis.Objective(identity); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.sense == :MIN end
+                        @test begin o = MscThesis.Objective(identity, 0);  isa(o.func, Function) && o.func == identity && o.coefficient == 0 && o.sense == :MIN end
+                        @test begin o = MscThesis.Objective(identity, -1);  isa(o.func, Function) && o.func == identity && o.coefficient == -1 && o.sense == :MIN end
+                        @test begin o = MscThesis.Objective(identity, 0, :MAX); isa(o.func, Function) && o.func == identity && o.coefficient == 0 && o.sense == :MAX end
+                        @test begin o = MscThesis.Objective(identity, :MAX); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.sense == :MAX end
+                        @test begin o = MscThesis.Objective(x-> x + 1); isa(o.func, Function) && o.func(1) == 2 && o.coefficient == 1 && o.sense == :MIN end
 
+                        # Method Errors
+                        @test_throws MethodError MscThesis.Objective()
+                        @test_throws MethodError MscThesis.Objective(0)
+                        @test_throws MethodError MscThesis.Objective(identity, identity)
 
-# # Tests: Objective
-# Objective(identity, 1, :MIN)
-# Objective(identity, 1, :MAX)
-# Objective(identity, 1, :X)
-# Objective(identity, 1)
-# Objective(identity, :MIN)
-#
-# o = Objective(identity, 1)
-#
-# apply(o, 2)
-# coefficient(o) # Should be 1
-#
-# evaluate(o) # MethodError
-# evaluate(o, 2)
-#
-#
-# # Test: Constraints
-# # Constructors
-# Constraint(identity, 1, ==)
-# Constraint(identity, 1, !=)
-# Constraint(identity, 1, >=)
-# Constraint(identity, 1, <=)
-# Constraint(identity, 1, >)
-# Constraint(identity, 1, <)
-# Constraint(identity, 1, >>)
-# Constraint(identity, 1)
-# Constraint(identity)
-# Constraint(identity, <)
-#
-# # Selectors
-# c = Constraint(identity)
-# func(c)
-# coefficient(c)
-# operator(c)
-#
-# # Application
-# apply(c, 3)
-# apply(c, -3)
-#
-# evaluate(c, 3)
-# evaluate(c, -3)
-# evaluate(c, 0)
-#
-# evaluate_penalty(c, 0)
-# evaluate_penalty(c, 2)
-# evaluate_penalty(c, -2)
-# evaluate_penalty(c, 10000000.0)
-#
-#
-# c1 = Constraint(x -> x + 2, -2)
-# func(c1)
-# coefficient(c1)
-# operator(c1)
-#
-#
-# # Application
-# apply(c1, 3)
-# apply(c1, -3)
-#
-# evaluate(c1, 3)
-# evaluate(c1, -3)
-# evaluate(c1, 0)
-# evaluate(c1, -2)
-#
-# evaluate_penalty(c1, 0)
-# evaluate_penalty(c1, 2)
-# evaluate_penalty(c1, -2)
-# evaluate_penalty(c1, 100.2)
-#
-#
+                        # Domain Errors
+                        @test_throws DomainError MscThesis.Objective(identity, 0, :MINIMIZE)
+                        @test_throws DomainError MscThesis.Objective(identity, 0, :MAXIMIZE)
+                        @test_throws DomainError MscThesis.Objective(identity, :MINIMIZE)
+                        @test_throws DomainError MscThesis.Objective(identity, :MAXIMIZE)
+            end
+
+            @testset "Selectors Tests" begin
+                o1 = MscThesis.Objective(identity, 0, :MIN)
+                @test MscThesis.coefficient(o1) == 0
+                @test MscThesis.func(o1) != nothing
+                @test MscThesis.func(o1) == identity
+                @test MscThesis.func(o1)(0) == 0
+                @test MscThesis.sense(o1) == :MIN
+                @test MscThesis.direction(o1) == -1
+
+                o2 = MscThesis.Objective(exp, 1, :MAX)
+                @test MscThesis.coefficient(o2) == 1
+                @test MscThesis.func(o2) != nothing
+                @test MscThesis.func(o2) == exp
+                @test MscThesis.func(o2)(0) == 1
+                @test MscThesis.sense(o2) == :MAX
+                @test MscThesis.direction(o2) == 1
+
+                @test MscThesis.directions([o1, o2]) == [-1, 1]
+            end
+
+            @testset "Predicates Tests" begin
+                 o1 = MscThesis.Objective(identity, 1, :MIN)
+                 o2 = MscThesis.Objective(exp, 1, :MAX)
+
+                 @test MscThesis.isObjective(o1)
+                 @test MscThesis.isObjective(o2)
+                 @test !MscThesis.isObjective(2)
+                 @test !MscThesis.isObjective(Vector{Real}())
+                 @test !MscThesis.isObjective(nothing)
+                 @test !MscThesis.isObjective(MscThesis.IntVariable(0, 1))
+
+                 @test MscThesis.isminimization(o1)
+                 @test !MscThesis.isminimization(o2)
+
+                 @test o1 != o2
+                 @test o1 == MscThesis.Objective(identity, 1, :MIN)
+            end
+
+            @testset "Evaluation Tests" begin
+                o = MscThesis.Objective(x -> x^2, 3)
+                # Success
+                @test MscThesis.apply(o, 2) == 4
+                @test MscThesis.apply(o, -1) == 1
+
+                @test MscThesis.evaluate(o, 2) == 4 * 3
+                @test MscThesis.evaluate(o, -1) == 1 * 3
+
+                # Method Errors
+                @test_throws MethodError MscThesis.apply(o, 2, 3)
+                @test_throws MethodError MscThesis.apply(o)
+
+                @test_throws MethodError MscThesis.evaluate(o, 2, 3)
+                @test_throws MethodError MscThesis.evaluate(o)
+
+            end
+end
+@testset "Constraints Tests" begin
+            @testset "Constructors Tests" begin
+                        # Success
+                        @test begin o = MscThesis.Constraint(identity); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == (==) end
+                        @test begin o = MscThesis.Constraint(identity, 0);  isa(o.func, Function) && o.func == identity && o.coefficient == 0 && o.operator == (==) end
+                        @test begin o = MscThesis.Constraint(identity, -1);  isa(o.func, Function) && o.func == identity && o.coefficient == -1 && o.operator == (==) end
+                        @test begin o = MscThesis.Constraint(identity, ≤); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == ≤ end
+                        @test begin o = MscThesis.Constraint(identity, <); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == < end
+                        @test begin o = MscThesis.Constraint(identity, ≥); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == ≥ end
+                        @test begin o = MscThesis.Constraint(identity, >); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == > end
+                        @test begin o = MscThesis.Constraint(identity, !=); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == != end
+                        @test begin o = MscThesis.Constraint(identity, ==); isa(o.func, Function) && o.func == identity && o.coefficient == 1 && o.operator == (==) end
+                        @test begin o = MscThesis.Constraint(x-> x + 1); isa(o.func, Function) && o.coefficient == 1 && o.operator == (==) end
+
+                        # Method Errors
+                        @test_throws MethodError MscThesis.Constraint()
+                        @test_throws MethodError MscThesis.Constraint(0)
+                        @test_throws MethodError MscThesis.Constraint(0, identity, ==)
+                        @test_throws MethodError MscThesis.Constraint(identity, nothing)
+                        @test_throws MethodError MscThesis.Constraint(identity, nothing, nothing)
+
+                        # Domain Errors
+                        @test_throws DomainError MscThesis.Constraint(identity, 0, isodd)
+                        @test_throws DomainError MscThesis.Constraint(identity, 0, x -> (x + 1) == 2)
+            end
+
+            @testset "Selectors Tests" begin
+                        o1 = MscThesis.Constraint(identity, 1, >=)
+                        @test MscThesis.coefficient(o1) == 1
+                        @test MscThesis.func(o1) != nothing
+                        @test MscThesis.func(o1) == identity
+                        @test MscThesis.func(o1)(0) == 0
+                        @test MscThesis.operator(o1) == >=
+                        @test MscThesis.operator(o1)(2, 1)
+            end
+
+            @testset "Predicates Tests" begin
+                        c1 = MscThesis.Constraint(identity, 1, ==)
+                        c2 = MscThesis.Constraint(exp, 1, >=)
+
+                        @test MscThesis.isConstraint(c1)
+                        @test MscThesis.isConstraint(c2)
+                        @test !MscThesis.isConstraint(2)
+                        @test !MscThesis.isConstraint(Vector{Real}())
+                        @test !MscThesis.isConstraint(nothing)
+                        @test !MscThesis.isConstraint(MscThesis.IntVariable(0, 1))
+                        @test !MscThesis.isConstraint(MscThesis.Objective(identity))
+
+                        @test c1 != c2
+                        @test c1 == MscThesis.Constraint(identity, 1, ==)
+            end
+
+            @testset "Evaluation Tests" begin
+                        # Success
+                        c1 = MscThesis.Constraint(x -> x^2, 3)
+                        @test MscThesis.apply(c1, 2) == 4
+                        @test MscThesis.apply(c1, -1) == 1
+
+                        # Test 1: Equality
+                        @test MscThesis.issatisfied(c1, 0)
+                        @test !MscThesis.issatisfied(c1, 2)
+                        @test !MscThesis.issatisfied(c1, -1)
+
+                        # Test 1: Greater or equal than
+                        c2 = MscThesis.Constraint(x -> x, 2, >=)
+                        @test MscThesis.issatisfied(c2, 2.0)
+                        @test !MscThesis.issatisfied(c2, -1)
+                        @test MscThesis.issatisfied(c2, 0)
+                        @test MscThesis.issatisfied(c2, -0)
+
+                        # Penalty Constraint
+                        @test MscThesis.evaluate_penalty(c1, 2) == 4 * 3
+                        @test MscThesis.evaluate_penalty(c1, -2) == 4 * 3
+
+                        @test MscThesis.evaluate_penalty(c2, 2) == 0
+                        @test MscThesis.evaluate_penalty(c2, -1) == 2
+                        @test MscThesis.evaluate_penalty(c2, 2)  != MscThesis.evaluate_penalty(c2, -2)
+                        @test begin
+                                    c3 = MscThesis.Constraint(x -> x, 2, ==);
+                                    MscThesis.evaluate_penalty(c3, 2) ==
+                                    MscThesis.evaluate_penalty(c3, -2)
+                        end
+
+                        # Method Errors
+                        @test_throws MethodError MscThesis.apply(c1, 2, 3)
+                        @test_throws MethodError MscThesis.apply(c1)
+                        @test_throws MethodError MscThesis.evaluate_penalty(MscThesis.Constraint(identity, 2, !=), 2)
+
+                        @test_throws MethodError MscThesis.issatisfied(c1, 2, 3)
+                        @test_throws MethodError MscThesis.issatisfied(c1)
+            end
+end
+
 # # Test Model
 # Model(1,2,3)
 # Model(1,2)

@@ -262,9 +262,14 @@ end
 # Platypus.get_feasible(sols[1])
 #
 # variator = Dict(:name => SBX)
-
-# algorithm_params = Dict(:population_size => 30,  :variator => variator)
+#
+# algorithm_params = Dict(:population_size => 30)#,  :variator => variator)
 # solver = PlatypusSolver(SPEA2, max_eval=90, algorithm_params=algorithm_params)
-# model = Model([IntVariable(10, 13, 12), IntVariable(-10, 10, 2)],[Objective(x -> (x[1] * x[2]) ^ 2), Objective(x -> x[1] - x[2])])
+# # # model = Model([IntVariable(10, 13, 12), IntVariable(-10, 10, 2)],
+# # #               [Objective(x -> (x[1] * x[2]) ^ 2), Objective(x -> x[1] - x[2])])
+# model = Model([IntVariable(0, 10, 5), IntVariable(-10, 10, 0)],
+#               [Objective(x -> x[1] + x[2])])
 # sols = solve(solver, model)
-# convert(Vector{Main.Solution}, sols)
+# convert(Solution, sols[1])
+# convert(Solution, sols[1])
+# convert(Vector{Solution}, sols[1])

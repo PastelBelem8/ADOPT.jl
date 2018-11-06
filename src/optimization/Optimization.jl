@@ -115,9 +115,31 @@ values(var::SetVariable) = var.values
 
 # Export functions
 export lower_bound, upper_bound, initial_value, values, ==
+
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------
+"""
+    Objective(λ, n, :MIN)
+    Objective(λ, n, :MAX)
+
+The objective is a type that encloses a function, an objective function,
+to be used in a optimization problem.
+
+For flexibility and extension purposes the objective also possesses a
+coefficiet (or a weight) associated, which can be used to articulate
+preferences of multiple objectives. An example of such approach is the
+Single Objective weighted sum approach to Multi-Objective problems, where
+each objective is assigned a coefficient and then the linear combination of
+the multiple objectives is the *function* to be optimized.
+
+# Arguments
+- `func::Function`: the function to be computed
+- `coefficient::Real`: the weight representing the importance of the objective
+function
+- `sense::Symbol`: the direction/sense of the objective function, which can
+either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
+"""
 struct Objective
     func::Function
     coefficient::Real
@@ -132,6 +154,13 @@ end
 # Constructor
 Objective(f::Function, sense::Symbol) = Objective(f, 1, sense)
 
+# Argument Validations
+function check_arguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
+    if !(sense in (:MIN, :MAX))
+        throw(DomainError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
+    end
+end
+
 # Selectors
 coefficient(o::Objective) = o.coefficient
 func(o::Objective) = o.func
@@ -145,18 +174,15 @@ isObjective(o::Any)::Bool = false
 
 isminimization(o::Objective) = sense(o) == :MIN
 
+# Comparators
+==(o1::Objective, o2::Objective) =
+    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) && sense(o1) == sense(o2)
+
 # Representation
 # function Base.show(io::IO, o::Objective)
 #     sense = isminimization(o) ? "minimize" : "maximize"
 #     print("[Objective]:\nSense:\t\t$(sense(o))\nFunction:\t$(func(o))\nCoefficient:\t$(coefficient(o))\n")
 # end
-
-# Argument Validations
-function check_arguments(t::Type{Objective}, f::Function, coefficient::Real, sense::Symbol)
-    if !(sense in (:MIN, :MAX))
-        throw(DomainError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
-    end
-end
 
 # Application
 "Applies the objective's function to provided arguments"
@@ -192,6 +218,10 @@ operator(c::Constraint)::Function = c.operator
 isConstraint(c::Constraint)::Bool = true
 isConstraint(c::Any)::Bool = false
 
+# Comparators
+==(o1::Constraint, o2::Constraint) =
+    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) && operator(o1) == operator(o2)
+
 # Representation
 # function Base.show(io::IO, c::Constraint)
 #     print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
@@ -208,15 +238,15 @@ end
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
-"Evaluates the true value of the constraint relative to 0"
-evaluate(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
+"Evaluates the value of the constraint relative to 0"
+issatisfied(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
 
 "Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
 function evaluate_penalty(c::Constraint, args...)::Real
     if Symbol(operator(c)) == :(!=)
-        throw(MethodError("penalty constraint for symbol $op is not defined"))
+        throw(MethodError("penalty constraint for symbol $(operator(c)) is not defined"))
     end
-    evaluate(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
+    issatisfied(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
 end
 
 # ---------------------------------------------------------------------

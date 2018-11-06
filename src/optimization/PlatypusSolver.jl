@@ -9,7 +9,7 @@ dict2expr(dict::Dict) = :($([Expr(:(=), kv[1], kv[2]) for kv in dict]))
 
 # Converter routines ----------------------------------------------------
 # These routines provide the interface between the solver and the
-# Platypus library.
+# Platypus Python library.
 # -----------------------------------------------------------------------
 platypus_function(objectives, constraints)::Function =
     length(constraints) > 0  ? ((x...) -> return [func(o)(x...) for o in objectives],
@@ -58,12 +58,12 @@ convert(::Type{Platypus.PlatypusWrapper}, variable::RealVariable) =
 # Solution Converter Routines
 # ------------------------------------------------------------------------
 function convert(::Type{Solution}, s::Platypus.Solution)
-  variables = Platypus.get_variables(s)
-  objectives = Platypus.get_objectives(s)
-  constraints = Platypus.get_constraints(s)
-  constraint_violation = Platypus.get_constraint_violation(s)
-  feasible = Platypus.get_feasible(s)
-  evaluated = Platypus.get_evaluated(s)
+  variables = convert(typeof_variables(Solution), Platypus.get_variables(s))
+  objectives = convert(typeof_objectives(Solution), Platypus.get_objectives(s))
+  constraints = convert(typeof_constraints(Solution), Platypus.get_constraints(s))
+  constraint_violation = convert(typeof_constraint_violation(Solution), Platypus.get_constraint_violation(s))
+  feasible = convert(typeof_feasible(Solution), Platypus.get_feasible(s))
+  evaluated = convert(typeof_evaluated(Solution),Platypus.get_evaluated(s))
 
   Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
 end
@@ -133,9 +133,32 @@ end
 # ------------------------------------------------------------------------
 # Solver Routines
 # ------------------------------------------------------------------------
-# Platypus Solver --------------------------------------------------------
 """
     PlatypusSolver
+
+To solve a problem using the PlatypusSolver it is necessary to first model the
+problem to be solved using the data structures provided by the module
+`Optimization`. After defining the model, i.e., specifying the variables,
+the objectives, and the constraints if any, the user should then specify
+which of the algorithms available in Platypus, he would like to use, as well as
+any parameters that are deemed mandatory or that the user wishes to change.
+
+By convention, the more complex parameters such as `Variator`, `Generator`, and
+`Selector` should be speficied using a dictionary, where the key is the name
+of the parameter whose value the user wishes to override. For example, if I
+want to use a simple variator but I want to use the `SBX` variator I would
+create a structure similar to the one depicted below. Since I do not specify
+other entries in the dictionary, the solver will use the default values for the
+SBX variator.
+
+julia> variator = Dict(:name => SBX);
+
+However, if the user desires to customize the `SBX` variator, then he would have
+to create other entries in the above dictionay, like so:
+
+julia> variator =  Dict(:name => SBX,
+                        :probability => 0.5,
+                        :distribution_index => 8);
 """
 struct PlatypusSolver <: AbstractSolver
     algorithm::Type
@@ -239,37 +262,64 @@ function solve(solver::PlatypusSolver, model::Model)
                     Platypus.optional_params(algorithm_type))
     extra_params = convert_params(filter(p -> first(p) in params, extra_params))
     # Create the algorithm and solve it
-    # algorithm = algorithm_type(problem, :($(dict2expr(extra_params)...)))
+    #algorithm = algorithm_type(problem, :($(dict2expr(extra_params)...)))
     algorithm = algorithm_type(problem)
     sols = Platypus.solve(algorithm, max_eval=evals)
+    convert(Vector{Solution}, sols)
 end
 
+"""
+  The steps to solve a problem are the following:
 
-#  Test
-# m = Model([IntVariable(0, 100, 2), IntVariable(0, 100, 2)],[Objective(x -> x[1] + x[2])])
-# p = convert(Platypus.Problem, m)
-# a = Platypus.Algorithm(SPEA2, p)
-# convert(Vector{Solution}, Platypus.solve(a, max_eval=3))
-# var = Platypus.solve(a, 100)
+  **Step 1**. Define the [`Model`](@ref)
+    1. Specify the variables, i.e., identify their type (Real or Integer), the
+    maximum and minimum values of each, and, if any, the initial value.
 
-# sols = Platypus.solve(a, 100, unique_objectives=false)
-# Platypus.all_results(a)
-# Platypus.get_unique(sols)
-# Platypus.get_feasible(sols)
-# Platypus.get_nondominated(sols)
-# x = convert(Solution, sol)
-#
-# Platypus.get_feasible(sols[1])
-#
-# variator = Dict(:name => SBX)
-#
-# algorithm_params = Dict(:population_size => 30)#,  :variator => variator)
-# solver = PlatypusSolver(SPEA2, max_eval=90, algorithm_params=algorithm_params)
-# # # model = Model([IntVariable(10, 13, 12), IntVariable(-10, 10, 2)],
-# # #               [Objective(x -> (x[1] * x[2]) ^ 2), Objective(x -> x[1] - x[2])])
-# model = Model([IntVariable(0, 10, 5), IntVariable(-10, 10, 0)],
-#               [Objective(x -> x[1] + x[2])])
-# sols = solve(solver, model)
-# convert(Solution, sols[1])
-# convert(Solution, sols[1])
-# convert(Vector{Solution}, sols[1])
+    julia> vars = [IntVariable(0, 20), IntVariable(-20, 0)]; # No initial value
+
+    2. Specify the objectives, i.e., identify the objective function, their sense
+    (e.g. MIN or MAX), and optionally their coefficient.
+
+    julia> objs = [Objective(x -> x[1] + x[2], :MIN)]; # No coefficient
+
+    3. If any, specify the constraints, i.e., identify the function, the coefficient
+    and the comparison operator (e.g., ≤, <, ==, !=, >, ≥). Note that the comparison
+    is against 0 and, therefore, the function should account for that.
+
+    julia> cnstrs = [Constraint(x-> x[1] - 2, <=)]; # Equivalent to x[1] <= 2
+
+    4. Create the model, using the variables, objectives and constraints defined
+    previously.
+
+    julia> model = Model(vars, objs, constrs);
+
+  **Step 2**. Specify and configure the Solver to be used
+    1. Specify the solver to be used. In the case of the PlatypusSolver, this
+    requires specifying the type of the algorithm to be used, any mandatory
+    algorithm parameter and the maximum number of evaluations. If the user wants
+    to customize the algorithm to be used it can also redefine any algorithm
+    parameter.
+
+    julia> a_type = NSGAII;
+    julia> a_params = Dict(:population_size => 10);
+    julia> solver = PlatypusSolver(a_type, max_eval=90, algorithm_params=a_params);
+
+  **Step 3**. Solve it!
+    1. Pass the `model` and the `solver` that you have just defined and wait for
+    the results.
+
+    julia> res = solve(solver, model);
+"""
+# Step 1. Define the Model
+vars = [RealVariable(0, 20), RealVariable(20, 55.99)]
+objs = [Objective(x -> x[1] ^ x[2], :MIN)]
+cnstrs = [Constraint(x-> x[1] - 2, <=)]
+model = Model(vars, objs, cnstrs)
+
+# Step 2. Define the Solver
+a_type = NSGAII;
+a_params = Dict(:population_size => 10);
+solver = PlatypusSolver(a_type, max_eval=3000, algorithm_params=a_params)
+
+# Step 3. Solve it!
+res = solve(solver, model)

@@ -361,6 +361,15 @@ struct Solution
         Solution(v, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
 
+# Typers
+typeof_variables(::Type{Solution}) = Vector{Real}
+typeof_objectives(::Type{Solution}) = Vector{Real}
+typeof_constraints(::Type{Solution}) = Vector{Bool}
+typeof_constraint_violation(::Type{Solution}) = Real
+typeof_feasible(::Type{Solution}) = Real
+typeof_evaluated(::Type{Solution}) = Real
+
+
 # Selectors
 variables(s::Solution) = s.variables
 objectives(s::Solution) = s.objectives

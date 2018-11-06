@@ -323,7 +323,8 @@ Creates a candidate solution with values `v`.
 - `objectives::Vector{Real}`: The values of the objectives, assigned after the
 evaluation of the solution.
 - `constraint::Vector{Bool}`: The values of the constraints, assigned after the
-evaluation of the solution.
+evaluation of the solution. For each constraint that is satisfied exhibit `true`,
+otherwise `false`.
 - `constraint_violation::Real=0`: The magnitude of the constraint violation,
 assigned after the evaluation of the solution.
 - `feasible::Bool=true`: True if the solution does not violate any constraint,
@@ -335,10 +336,10 @@ julia> Solution([1,2,3])
 Solution(Real[1, 2], Real[], Bool[], 0, true, false)
 
 julia> Solution([])
-Solution(Real[1, 2], Real[], Bool[], 0, true, false)
+DomainError
 """
 struct Solution
-    variables::Vector{Any} # TODO FIX
+    variables::Vector{Real}
     objectives::Vector{Real}
     constraints::Vector{Bool}
 
@@ -346,13 +347,18 @@ struct Solution
     feasible::Bool
     evaluated::Bool
 
-    function Solution(v::Vector{T}) where {T<:Real}
-        check_arguments(Solution, v)
-        new(v, Vector{Real}(), Vector{Bool}(), 0, true, false)
-     end
-    function Solution(v, objectives, constraints, constraint_violation, feasible, evaluated)
+    # FIXME - objectives should be Vector{<:Real}
+    function Solution(v::Vector{T}, objectives,
+                      constraints::Vector{Bool}, constraint_violation::Real,
+                      feasible::Bool=true, evaluated::Bool=true) where{T<:Real}
+        check_arguments(Solution, v, objectives, constraints, constraint_violation, feasible, evaluated)
         new(v, objectives, constraints, constraint_violation, feasible, evaluated)
     end
+
+    Solution(v::Vector{T}) where{T<:Real} =
+        Solution(v, Vector{Real}(), Vector{Bool}(), 0, true, false)
+    Solution(v::Vector{T}, constraints::Vector{Bool}, constraint_violation::Real, feasible::Bool=true) where {T<:Real} =
+        Solution(v, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
 
 # Selectors
@@ -378,11 +384,14 @@ isSolution(s::Any)::Bool = false
 # end
 
 # Argument Validations
-function check_arguments(t::Type{Solution}, vars::Vector{T}) where {T<:Real}
+function check_arguments(t::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector{Bool}, constraint_violation::Real, feasible::Bool, evaluated::Bool) where {T<:Real}
     if length(vars) < 1
-        throw(ArgumentError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
+        throw(DomainError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
+    elseif constraint_violation != 0 && all(constrs)
+        throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
 end
+
 
 # ---------------------------------------------------------------------
 # Solvers

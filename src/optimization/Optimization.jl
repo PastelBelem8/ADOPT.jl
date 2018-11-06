@@ -341,7 +341,7 @@ DomainError
 struct Solution
     variables::Vector{Real}
     objectives::Vector{Real}
-    constraints::Vector{Bool}
+    constraints::Vector{Real}
 
     constraint_violation::Real
     feasible::Bool
@@ -349,22 +349,22 @@ struct Solution
 
     # FIXME - objectives should be Vector{<:Real}
     function Solution(v::Vector{T}, objectives,
-                      constraints::Vector{Bool}, constraint_violation::Real,
+                      constraints::Vector{Real}, constraint_violation::Real,
                       feasible::Bool=true, evaluated::Bool=true) where{T<:Real}
         check_arguments(Solution, v, objectives, constraints, constraint_violation, feasible, evaluated)
         new(v, objectives, constraints, constraint_violation, feasible, evaluated)
     end
 
     Solution(v::Vector{T}) where{T<:Real} =
-        Solution(v, Vector{Real}(), Vector{Bool}(), 0, true, false)
-    Solution(v::Vector{T}, constraints::Vector{Bool}, constraint_violation::Real, feasible::Bool=true) where {T<:Real} =
+        Solution(v, Vector{Real}(), Vector{Real}(), 0, true, false)
+    Solution(v::Vector{T}, constraints::Vector{Real}, constraint_violation::Real, feasible::Bool=true) where {T<:Real} =
         Solution(v, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
 
 # Typers
 typeof_variables(::Type{Solution}) = Vector{Real}
 typeof_objectives(::Type{Solution}) = Vector{Real}
-typeof_constraints(::Type{Solution}) = Vector{Bool}
+typeof_constraints(::Type{Solution}) = Vector{Real}
 typeof_constraint_violation(::Type{Solution}) = Real
 typeof_feasible(::Type{Solution}) = Real
 typeof_evaluated(::Type{Solution}) = Real
@@ -393,11 +393,12 @@ isSolution(s::Any)::Bool = false
 # end
 
 # Argument Validations
-function check_arguments(t::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector{Bool}, constraint_violation::Real, feasible::Bool, evaluated::Bool) where {T<:Real}
+# TODO - CHANGE THIS
+function check_arguments(t::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector{Real}, constraint_violation::Real, feasible::Bool, evaluated::Bool) where {T<:Real}
     if length(vars) < 1
         throw(DomainError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
-    elseif constraint_violation != 0 && all(constrs)
-        throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
+    # elseif constraint_violation != 0 && all(constrs)
+    #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
 end
 

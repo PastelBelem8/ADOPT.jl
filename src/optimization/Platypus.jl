@@ -152,7 +152,9 @@ end
                 types::PyVector,
                 directions::PyVector,
                 constraints::PyVector)
-@pytype_setters Problem constraints directions "function" types
+@pytype_setters Problem directions "function" types
+set_constraints!(o::Platypus.Problem, constraints) =
+  o.pyo[:constraints][:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
 
 # Algorithms
 # Single Objective Algorithms

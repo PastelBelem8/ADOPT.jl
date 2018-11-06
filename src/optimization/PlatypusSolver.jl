@@ -26,6 +26,7 @@ function convert(::Type{Platypus.Problem}, m::Model)
 
   # 2. Refine the Problem instance
   # 2.1. Convert types
+  # TODO - fix PLATYPUS_WRAPPER TO be something more specific - e.g. PlatypusType
   Platypus.set_types!(problem, [convert(Platypus.PlatypusWrapper, v)
                                         for v in variables(m)])
 
@@ -33,8 +34,9 @@ function convert(::Type{Platypus.Problem}, m::Model)
   constrs = []
   if nconstrs > 0
     constrs = constraints(m)
-    Platypus.set_constraints!(problem, [convert(Constraint, c)
-                                                for c in constrs])
+    x = [convert(Platypus.Constraint, c) for c in constrs]
+    println(x)
+    Platypus.set_constraints!(problem, x)
   end
 
   # 2.3. Convert Objective Function
@@ -43,8 +45,7 @@ function convert(::Type{Platypus.Problem}, m::Model)
   Platypus.set_function!(problem, platypus_function(objs, constrs))
   problem
 end
-convert(::Platypus.Constraint, c::Constraint) =
-    Platypus.Constraint(string(operator(c)), 0)
+convert(::Type{Platypus.Constraint}, c::Constraint) = "$(operator(c))0"
 
 # ------------------------------------------------------------------------
 # Variable Converter Routines
@@ -310,16 +311,3 @@ end
 
     julia> res = solve(solver, model);
 """
-# Step 1. Define the Model
-vars = [RealVariable(0, 20), RealVariable(20, 55.99)]
-objs = [Objective(x -> x[1] ^ x[2], :MIN)]
-cnstrs = [Constraint(x-> x[1] - 2, <=)]
-model = Model(vars, objs, cnstrs)
-
-# Step 2. Define the Solver
-a_type = NSGAII;
-a_params = Dict(:population_size => 10);
-solver = PlatypusSolver(a_type, max_eval=3000, algorithm_params=a_params)
-
-# Step 3. Solve it!
-res = solve(solver, model)

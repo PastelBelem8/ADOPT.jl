@@ -456,6 +456,8 @@ end
             #             @test !MscThesis.ismixedtype(MscThesis.Model([MscThesis.RealVariable(0, 1), MscThesis.RealVariable(0, 1)], objs))
             # end
 end
+
+# FIXME - FIX THE TESTS TO REFLECT THE CHANGE OF CONSTRAINTS DATA TYPE TO REAL INSTEAD OF BOOLEAN
 @testset "Solution Tests" begin
             @testset "Constructor Tests" begin
                         # Success

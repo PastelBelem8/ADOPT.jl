@@ -347,17 +347,15 @@ struct Solution
     feasible::Bool
     evaluated::Bool
 
-    # FIXME - objectives should be Vector{<:Real} Create another Parametric Type
-    function Solution(v::Vector{T}, objectives,
-                      constraints::Vector{Real}, constraint_violation::Real,
-                      feasible::Bool=true, evaluated::Bool=true) where{T<:Real}
+    function Solution(v::Vector{T}, objectives::Vector{Y}, constraints::Vector{Z},
+        constraint_violation::Real, feasible::Bool=true, evaluated::Bool=true) where{T<:Real, Y<:Real, Z<:Real}
         check_arguments(Solution, v, objectives, constraints, constraint_violation, feasible, evaluated)
         new(v, objectives, constraints, constraint_violation, feasible, evaluated)
     end
 
     Solution(v::Vector{T}) where{T<:Real} =
         Solution(v, Vector{Real}(), Vector{Real}(), 0, true, false)
-    Solution(v::Vector{T}, constraints::Vector{Real}, constraint_violation::Real, feasible::Bool=true) where {T<:Real} =
+    Solution(v::Vector{T}, constraints::Vector{Y}, constraint_violation::Real, feasible::Bool=true) where {T<:Real, Y<:Real} =
         Solution(v, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
 

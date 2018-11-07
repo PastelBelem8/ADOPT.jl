@@ -469,7 +469,7 @@ end
                                     s.feasible &&
                                     !s.evaluated
                         end
-                        @test begin s = MscThesis.Solution([1, 1, 1.0], [true, false], 3, false);
+                        @test begin s = MscThesis.Solution([1, 1, 1.0], [1.0, 0.3], 3, false);
                                     length(s.variables) == 3 &&
                                     length(s.objectives) == 0 &&
                                     length(s.constraints) == 2 &&
@@ -477,7 +477,7 @@ end
                                     !s.feasible &&
                                     !s.evaluated
                         end
-                        @test begin s = MscThesis.Solution([1, 1, 1.0], [1,2,3], [true, false], 3, false, true);
+                        @test begin s = MscThesis.Solution([1, 1, 1.0], [1,2,3], [1.0, 0.3], 3, false, true);
                                     length(s.variables) == 3 &&
                                     length(s.objectives) == 3 &&
                                     length(s.constraints) == 2 &&
@@ -488,14 +488,12 @@ end
 
                         # Domain Error
                         @test_throws DomainError MscThesis.Solution(Vector{Real}())
-                        @test_throws DomainError MscThesis.Solution([1, 1, 1.0], [true, true], 98, false)
 
                         # Method Error
                         @test_throws MethodError MscThesis.Solution(nothing)
                         @test_throws MethodError MscThesis.Solution([])
                         @test_throws MethodError MscThesis.Solution([MscThesis.IntVariable(0,1)])
                         @test_throws MethodError MscThesis.Solution([1, 2, 3], [], 3, false)
-                        @test_throws MethodError MscThesis.Solution([1, 2, 3], [1, 2, 3], 3, false)
             end
             @testset "Selectors Tests" begin
                         # Test 1
@@ -511,11 +509,11 @@ end
                         @test MscThesis.nconstraints(s1) == 0
 
                         # Test 2
-                        s2 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [true, true], 0)
+                        s2 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [1.0, 0.3], 0)
 
                         @test MscThesis.variables(s2) == [1,2, 3, 4, 5]
                         @test MscThesis.objectives(s2) == [29.32, 41.21]
-                        @test all(MscThesis.constraints(s2))
+                        @test MscThesis.constraints(s2) == [1.0, 0.3]
                         @test MscThesis.constraint_violation(s2) == 0
 
                         @test MscThesis.nvariables(s2) == 5
@@ -523,19 +521,19 @@ end
                         @test MscThesis.nconstraints(s2) == 2
             end
             @testset "Predicates Tests" begin
-                        s1 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [true, true], 0)
+                        s1 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [1.0, 0.3], 0)
                         @test MscThesis.isfeasible(s1)
                         @test MscThesis.isevaluated(s1)
 
-                        s2 = MscThesis.Solution([1, 2, 3, 4, 5], [true, true], 0, true)
+                        s2 = MscThesis.Solution([1, 2, 3, 4, 5], [1.0, 0.3], 0, true)
                         @test MscThesis.isfeasible(s2)
                         @test !MscThesis.isevaluated(s2)
 
-                        s3 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [false, false], 0, false, false)
+                        s3 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [1.0, 0.3], 0, false, false)
                         @test !MscThesis.isfeasible(s3)
                         @test !MscThesis.isevaluated(s3)
 
-                        s4 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [true, false], 0, false, true)
+                        s4 = MscThesis.Solution([1, 2, 3, 4, 5], [29.32, 41.21], [1.0, 0.3], 0, false, true)
                         @test !MscThesis.isfeasible(s4)
                         @test MscThesis.isevaluated(s4)
 

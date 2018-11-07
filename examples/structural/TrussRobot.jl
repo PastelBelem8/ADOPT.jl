@@ -137,3 +137,6 @@ println(spiked_truss(pi/4, 5, -pi/3, 20, pi/10, 25))
 println(spiked_truss(pi/2, 1, pi/3, 3, pi/10, 5))
 (1.3258518106063275, 12.417592404528765)
 =#
+
+# Minimizar displacements
+# Maximizar style

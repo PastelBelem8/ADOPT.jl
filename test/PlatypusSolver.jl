@@ -42,9 +42,26 @@ a_type = NSGAII;
 a_params = Dict(:population_size => 10);
 solver = PlatypusSolver(a_type, max_eval=3000, algorithm_params=a_params)
 
+# Step 3. Solve it!
+res = solve(solver, model)
+
+
+# Test 4
+# Passing more than one argument to the algorithm
+# Step 1. Define the Model
+vars = [RealVariable(0, 5), RealVariable(0, 3)]
+objs = [Objective(x -> -2 * x[1] + x[2], :MIN)] 
+cnstrs = [Constraint(x-> -x[1] + x[2] - 1, <=), Constraint(x-> x[1] + x[2] - 7, <=)]
+model = Model(vars, objs, cnstrs)
+
+# Step 2. Define the Solver
+a_type = GeneticAlgorithm;
+a_params = Dict(:population_size => 10, :offspring_size => 5);
+solver = PlatypusSolver(a_type, max_eval=3000, algorithm_params=a_params)
 
 # Step 3. Solve it!
 res = solve(solver, model)
+
 
 #  Test
 # m = Model([IntVariable(0, 100, 2), IntVariable(0, 100, 2)],[Objective(x -> x[1] + x[2])])

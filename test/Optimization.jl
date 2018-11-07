@@ -358,103 +358,103 @@ end
                                     length(m.objectives) == 1 &&
                                     length(m.constraints) == 0
                         end
-                        # @test begin m = MscThesis.Model([MscThesis.IntVariable(1, 2)],
-                        #                                 [MscThesis.Objective(x -> x^2)],
-                        #                                 [MscThesis.Constraint(x -> x+1)])
-                        #
-                        #             length(m.variables) == 1 &&
-                        #             length(m.objectives) == 1 &&
-                        #             length(m.constraints) == 1
-                        # end
-                        # @test begin intvars = [MscThesis.IntVariable(1, 2) for i in 1:1000]
-                        #             realvars= [MscThesis.RealVariable(1, 2) for i in 1:1555]
-                        #             vars = vcat(intvars, realvars)
-                        #             objs = [MscThesis.Objective(identity, i) for i in 1:300]
-                        #
-                        #             m = MscThesis.Model(vars, objs)
-                        #             length(m.variables) == 2555 &&
-                        #             length(m.objectives) == 300 &&
-                        #             length(m.constraints) == 0
-                        # end
-                        # # Domain Error
-                        # @test_throws DomainError MscThesis.Model(-1, 0, 0)
-                        # @test_throws DomainError MscThesis.Model(0, -1, 0)
-                        # @test_throws DomainError MscThesis.Model(0, 0, 0)
-                        # @test_throws DomainError MscThesis.Model(0, 1, 0)
-                        # @test_throws DomainError MscThesis.Model(1, 0, 0)
-                        # @test_throws DomainError MscThesis.Model(1, 1, -1)
-                        #
-                        # # Method Error
-                        # @test_throws MethodError MscThesis.Model(1, 1, 1.0)
-                        # @test_throws MethodError MscThesis.Model(1, 1.0, -1)
-                        # @test_throws MethodError MscThesis.Model(1.0, 1.0)
+                        @test begin m = MscThesis.Model([MscThesis.IntVariable(1, 2)],
+                                                        [MscThesis.Objective(x -> x^2)],
+                                                        [MscThesis.Constraint(x -> x+1)])
+
+                                    length(m.variables) == 1 &&
+                                    length(m.objectives) == 1 &&
+                                    length(m.constraints) == 1
+                        end
+                        @test begin intvars = [MscThesis.IntVariable(1, 2) for i in 1:1000]
+                                    realvars= [MscThesis.RealVariable(1, 2) for i in 1:1555]
+                                    vars = vcat(intvars, realvars)
+                                    objs = [MscThesis.Objective(identity, i) for i in 1:300]
+
+                                    m = MscThesis.Model(vars, objs)
+                                    length(m.variables) == 2555 &&
+                                    length(m.objectives) == 300 &&
+                                    length(m.constraints) == 0
+                        end
+                        # Domain Error
+                        @test_throws DomainError MscThesis.Model(-1, 0, 0)
+                        @test_throws DomainError MscThesis.Model(0, -1, 0)
+                        @test_throws DomainError MscThesis.Model(0, 0, 0)
+                        @test_throws DomainError MscThesis.Model(0, 1, 0)
+                        @test_throws DomainError MscThesis.Model(1, 0, 0)
+                        @test_throws DomainError MscThesis.Model(1, 1, -1)
+
+                        # Method Error
+                        @test_throws MethodError MscThesis.Model(1, 1, 1.0)
+                        @test_throws MethodError MscThesis.Model(1, 1.0, -1)
+                        @test_throws MethodError MscThesis.Model(1.0, 1.0)
             end
-            # @testset "Selectors Tests" begin
-            #             vars = [MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1)]
-            #             objs = [MscThesis.Objective(x -> x .* 2), MscThesis.Objective(x -> (x .* 3) .- 2)]
-            #             constrs = [MscThesis.Constraint(x-> x - 12)]
-            #             m1, m2 = MscThesis.Model(vars, objs), MscThesis.Model(vars, objs, constrs)
-            #
-            #             @test MscThesis.nconstraints(m1) == 0
-            #             @test MscThesis.nconstraints(m2) == length(constrs)
-            #             @test MscThesis.nobjectives(m1) == length(objs)
-            #             @test MscThesis.nobjectives(m2) == length(objs)
-            #             @test MscThesis.nvariables(m1) == length(vars)
-            #             @test MscThesis.nvariables(m2) == length(vars)
-            #
-            #             @test isempty(MscThesis.constraints(m1))
-            #             @test !isempty(MscThesis.constraints(m2)) && MscThesis.constraints(m2)[1] == constrs[1]
-            #
-            #             @test !isempty(MscThesis.objectives(m1)) && MscThesis.objectives(m1) == objs
-            #             @test !isempty(MscThesis.objectives(m2)) && MscThesis.objectives(m2) == objs
-            #
-            #             @test !isempty(MscThesis.variables(m1)) && MscThesis.variables(m1) == vars
-            #             @test !isempty(MscThesis.variables(m2)) && MscThesis.variables(m2) == vars
-            #
-            #             # Model Default
-            #             m3 = MscThesis.Model(2, 2, 2)
-            #
-            #             @test MscThesis.nconstraints(m3) == 2
-            #             @test MscThesis.nobjectives(m3) == 2
-            #             @test MscThesis.nvariables(m3) == 2
-            #
-            #             @test begin c3 = MscThesis.constraints(m3);
-            #                         isa(c3, Vector{MscThesis.Constraint}) &&
-            #                         all([!isdefined(c3, i) for i in length(c3)])
-            #             end
-            #             @test begin v3 = MscThesis.variables(m3);
-            #                         isa(v3, Vector{MscThesis.AbstractVariable}) &&
-            #                         all([!isdefined(v3, i) for i in length(v3)])
-            #             end
-            #             @test begin o3 = MscThesis.objectives(m3);
-            #                         isa(o3, Vector{MscThesis.Objective}) &&
-            #                         all([!isdefined(o3, i) for i in length(o3)])
-            #             end
-            # end
-            # @testset "Predicates Tests" begin
-            #             vars1 = [MscThesis.IntVariable(0, 1), MscThesis.RealVariable(0, 1),
-            #                         MscThesis.IntVariable(0, 1)]
-            #             vars2 = [MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1),
-            #                                     MscThesis.IntVariable(0, 1)]
-            #             objs = [MscThesis.Objective(x -> x .* 2),
-            #                         MscThesis.Objective(x -> (x .* 3) .- 2)]
-            #             constrs = [MscThesis.Constraint(x-> x - 12)]
-            #             m1, m2, m3 = MscThesis.Model(vars2, objs), MscThesis.Model(vars2, objs, constrs), MscThesis.Model(2, 2, 2)
-            #
-            #             @test MscThesis.isModel(m1)
-            #             @test MscThesis.isModel(m2)
-            #             @test MscThesis.isModel(m3)
-            #
-            #             @test !MscThesis.isModel(2)
-            #             @test !MscThesis.isModel(Vector{Real}())
-            #             @test !MscThesis.isModel(nothing)
-            #             @test !MscThesis.isModel(MscThesis.IntVariable(0, 1))
-            #             @test !MscThesis.isModel(MscThesis.Objective(identity))
-            #
-            #             @test MscThesis.ismixedtype(MscThesis.Model(vars1, objs))
-            #             @test !MscThesis.ismixedtype(MscThesis.Model(vars2, objs))
-            #             @test !MscThesis.ismixedtype(MscThesis.Model([MscThesis.RealVariable(0, 1), MscThesis.RealVariable(0, 1)], objs))
-            # end
+            @testset "Selectors Tests" begin
+                        vars = [MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1)]
+                        objs = [MscThesis.Objective(x -> x .* 2), MscThesis.Objective(x -> (x .* 3) .- 2)]
+                        constrs = [MscThesis.Constraint(x-> x - 12)]
+                        m1, m2 = MscThesis.Model(vars, objs), MscThesis.Model(vars, objs, constrs)
+
+                        @test MscThesis.nconstraints(m1) == 0
+                        @test MscThesis.nconstraints(m2) == length(constrs)
+                        @test MscThesis.nobjectives(m1) == length(objs)
+                        @test MscThesis.nobjectives(m2) == length(objs)
+                        @test MscThesis.nvariables(m1) == length(vars)
+                        @test MscThesis.nvariables(m2) == length(vars)
+
+                        @test isempty(MscThesis.constraints(m1))
+                        @test !isempty(MscThesis.constraints(m2)) && MscThesis.constraints(m2)[1] == constrs[1]
+
+                        @test !isempty(MscThesis.objectives(m1)) && MscThesis.objectives(m1) == objs
+                        @test !isempty(MscThesis.objectives(m2)) && MscThesis.objectives(m2) == objs
+
+                        @test !isempty(MscThesis.variables(m1)) && MscThesis.variables(m1) == vars
+                        @test !isempty(MscThesis.variables(m2)) && MscThesis.variables(m2) == vars
+
+                        # Model Default
+                        m3 = MscThesis.Model(2, 2, 2)
+
+                        @test MscThesis.nconstraints(m3) == 2
+                        @test MscThesis.nobjectives(m3) == 2
+                        @test MscThesis.nvariables(m3) == 2
+
+                        @test begin c3 = MscThesis.constraints(m3);
+                                    isa(c3, Vector{MscThesis.Constraint}) &&
+                                    all([!isdefined(c3, i) for i in length(c3)])
+                        end
+                        @test begin v3 = MscThesis.variables(m3);
+                                    isa(v3, Vector{MscThesis.AbstractVariable}) &&
+                                    all([!isdefined(v3, i) for i in length(v3)])
+                        end
+                        @test begin o3 = MscThesis.objectives(m3);
+                                    isa(o3, Vector{MscThesis.Objective}) &&
+                                    all([!isdefined(o3, i) for i in length(o3)])
+                        end
+            end
+            @testset "Predicates Tests" begin
+                        vars1 = [MscThesis.IntVariable(0, 1), MscThesis.RealVariable(0, 1),
+                                    MscThesis.IntVariable(0, 1)]
+                        vars2 = [MscThesis.IntVariable(0, 1), MscThesis.IntVariable(0, 1),
+                                                MscThesis.IntVariable(0, 1)]
+                        objs = [MscThesis.Objective(x -> x .* 2),
+                                    MscThesis.Objective(x -> (x .* 3) .- 2)]
+                        constrs = [MscThesis.Constraint(x-> x - 12)]
+                        m1, m2, m3 = MscThesis.Model(vars2, objs), MscThesis.Model(vars2, objs, constrs), MscThesis.Model(2, 2, 2)
+
+                        @test MscThesis.isModel(m1)
+                        @test MscThesis.isModel(m2)
+                        @test MscThesis.isModel(m3)
+
+                        @test !MscThesis.isModel(2)
+                        @test !MscThesis.isModel(Vector{Real}())
+                        @test !MscThesis.isModel(nothing)
+                        @test !MscThesis.isModel(MscThesis.IntVariable(0, 1))
+                        @test !MscThesis.isModel(MscThesis.Objective(identity))
+
+                        @test MscThesis.ismixedtype(MscThesis.Model(vars1, objs))
+                        @test !MscThesis.ismixedtype(MscThesis.Model(vars2, objs))
+                        @test !MscThesis.ismixedtype(MscThesis.Model([MscThesis.RealVariable(0, 1), MscThesis.RealVariable(0, 1)], objs))
+            end
 end
 
 # FIXME - FIX THE TESTS TO REFLECT THE CHANGE OF CONSTRAINTS DATA TYPE TO REAL INSTEAD OF BOOLEAN

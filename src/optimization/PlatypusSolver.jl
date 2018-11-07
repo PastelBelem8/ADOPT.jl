@@ -4,8 +4,8 @@ using .Platypus
 # Imports
 import Base: convert
 
-"Converts a dictionary to an array of expressions to be passed as kwargs"
-dict2expr(dict::Dict) = :($([Expr(:(=), kv[1], kv[2]) for kv in dict]))
+"Converts a dictionary to an array of pairs to be passed as kwargs"
+dict2expr(dict::Dict) = [kv for kv in dict]
 
 # Converter routines ----------------------------------------------------
 # These routines provide the interface between the solver and the
@@ -34,9 +34,8 @@ function convert(::Type{Platypus.Problem}, m::Model)
   constrs = []
   if nconstrs > 0
     constrs = constraints(m)
-    x = [convert(Platypus.Constraint, c) for c in constrs]
-    println(x)
-    Platypus.set_constraints!(problem, x)
+    Platypus.set_constraints!(problem, [convert(Platypus.Constraint, c)
+                                                      for c in constrs])
   end
 
   # 2.3. Convert Objective Function
@@ -180,11 +179,11 @@ get_algorithm_param(solver::PlatypusSolver, param::Symbol, default=nothing) =
 struct PlatypusSolverException <: Exception
   param::Symbol
   value::Any
-  reason::Type
-  fix::Any
+  reason::Any
+  fix::String
 end
 Base.showerror(io::IO, e::PlatypusSolverException) =
-  print(io, "$(e.param) with value $(e.value) of type $(typeof(e.value)) is $(e.reason).$(e.fix)")
+  print(io, "$(string(e.param)) with value $(string(e.value)) of type $(typeof(e.value)) is $(e.reason).$(e.fix)")
 
 # Argument Verification --------------------------------------------------
 "Verifies if the mandatory parameters of a certain `func` are all present in `params`"
@@ -232,8 +231,15 @@ function check_params(solver::PlatypusSolver, model::Model)
     throw(PlatypusSolverException(
             :variables,
             variables(model),
-            "is a mixed integer problem.",
-            "Please specify one `variator` capable of handling both Integer and Real variables."))
+            "is a mixed integer problem",
+            "Please specify one `variator` capable of handling both Integer and Real variables"))
+  elseif get_algorithm(solver) in (Platypus.GeneticAlgorithm, Platypus.EvolutionaryStrategy) &&
+    nobjectives(model) > 1
+      throw(PlatypusSolverException(
+              :nobjectives,
+              nobjectives(model),
+              " a multi objective problem (nobjectives > 1)",
+              "Specify an Multi Objective Algorithm or reduce the number of objectives to 1"))
   elseif get_algorithm_param(solver, :population_size, -1) > get_max_evaluations(solver)
       throw(PlatypusSolverException(
               :population_size,
@@ -257,14 +263,13 @@ function solve(solver::PlatypusSolver, model::Model)
     algorithm_type = get_algorithm(solver)
     evals = get_max_evaluations(solver)
     extra_params = get_algorithm_params(solver)
-
     # Filter by the fields that are acceptable for the specified algorithm_type
     params = union( Platypus.mandatory_params(algorithm_type),
                     Platypus.optional_params(algorithm_type))
     extra_params = convert_params(filter(p -> first(p) in params, extra_params))
     # Create the algorithm and solve it
-    #algorithm = algorithm_type(problem, :($(dict2expr(extra_params)...)))
-    algorithm = algorithm_type(problem)
+    algorithm = algorithm_type(problem; dict2expr(extra_params)...)
+    # algorithm = algorithm_type(problem)
     sols = Platypus.solve(algorithm, max_eval=evals)
     convert(Vector{Solution}, sols)
 end

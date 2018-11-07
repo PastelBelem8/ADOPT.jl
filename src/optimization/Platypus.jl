@@ -180,7 +180,7 @@ export CMAES, EpsMOEA, EpsNSGAII, GDE3, IBEA, MOEAD, NSGAII, NSGAIII,
         PAES, PESA2, OMOPSO, SMPSO, SPEA2
 
 @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3, SPEA2, IBEA, PESA2], population_size::Int)
-# @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,CMAES], offspring_size::Int)
+@pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,CMAES], offspring_size::Int)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3,SPEA2,MOEAD,NSGAIII,IBEA,PAES,PESA2,PSO,OMOPSO,SMPSO,CMAES], generator)
 # @pytypes_setters([GeneticAlgorithm,NSGAII,EpsMOEA, NSGAIII], selector)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3,SPEA2,MOEAD,NSGAIII,IBEA,PAES,PESA2], generator)
@@ -288,6 +288,5 @@ end
 
 mandatory_params(name::Type) = map(Symbol, get_parameters(Symbol(name))[1])
 optional_params(name::Type) = map(a -> Symbol(a[1]), get_parameters(Symbol(name))[2])
-
 
 end # Module

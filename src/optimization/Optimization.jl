@@ -119,6 +119,8 @@ export lower_bound, upper_bound, initial_value, values, ==
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------
+# TODO - SharedObjective : Which encodes several objectives whose the analysis
+# function is the same but provides performance values simultaneously.
 """
     Objective(λ, n, :MIN)
     Objective(λ, n, :MAX)

@@ -255,25 +255,6 @@ function check_params(solver::PlatypusSolver, model::Model)
   end
 end
 
-function solve(solver::PlatypusSolver, model::Model)
-    check_params(solver, model)
-
-    problem = convert(Platypus.Problem, model)
-
-    algorithm_type = get_algorithm(solver)
-    evals = get_max_evaluations(solver)
-    extra_params = get_algorithm_params(solver)
-    # Filter by the fields that are acceptable for the specified algorithm_type
-    params = union( Platypus.mandatory_params(algorithm_type),
-                    Platypus.optional_params(algorithm_type))
-    extra_params = convert_params(filter(p -> first(p) in params, extra_params))
-    # Create the algorithm and solve it
-    algorithm = algorithm_type(problem; dict2expr(extra_params)...)
-    # algorithm = algorithm_type(problem)
-    sols = Platypus.solve(algorithm, max_eval=evals)
-    convert(Vector{Solution}, sols)
-end
-
 """
   The steps to solve a problem are the following:
 
@@ -316,3 +297,21 @@ end
 
     julia> res = solve(solver, model);
 """
+function solve(solver::PlatypusSolver, model::Model)
+    check_params(solver, model)
+
+    problem = convert(Platypus.Problem, model)
+
+    algorithm_type = get_algorithm(solver)
+    evals = get_max_evaluations(solver)
+    extra_params = get_algorithm_params(solver)
+    # Filter by the fields that are acceptable for the specified algorithm_type
+    params = union( Platypus.mandatory_params(algorithm_type),
+                    Platypus.optional_params(algorithm_type))
+    extra_params = convert_params(filter(p -> first(p) in params, extra_params))
+    # Create the algorithm and solve it
+    algorithm = algorithm_type(problem; dict2expr(extra_params)...)
+
+    sols = Platypus.solve(algorithm, max_eval=evals)
+    convert(Vector{Solution}, sols)
+end

@@ -108,7 +108,7 @@ using Combinatorics
 backend(robot)
 project_kind(Khepri.I_PT_SHELL)
 
-spiked_truss(α1, y1, α2, y2, α3, y3) =
+spiked_truss_displacement(α1, y1, α2, y2, α3, y3) =
   with(attractors, [sph(10, 0, α1)+vy(y1),
                     sph(10, 0, α2)+vy(y2),
                     sph(10, 0, α3)+vy(y3)]) do
@@ -120,23 +120,52 @@ spiked_truss(α1, y1, α2, y2, α3, y3) =
             node_displ = node ->
               norm(node_displacement_vector(displs, node.id, Khepri.I_LRT_NODE_DISPLACEMENT))
             disps = maximum([node_displ(node) for node in values(added_nodes())])
-            style = maximum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
-          with(current_backend, autocad) do
-            delete_all_shapes()
-            show_truss_deformation(results)
-          end
-          disps, style
+            # style = maximum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
+          # with(current_backend, autocad) do
+          #   delete_all_shapes()
+          #   show_truss_deformation(results)
+          # end
+          disps# , style
       end
     end
 end
 
+spiked_truss_style(α1, y1, α2, y2, α3, y3) = begin
+  with(attractors, [sph(10, 0, α1)+vy(y1),
+                    sph(10, 0, α2)+vy(y2),
+                    sph(10, 0, α3)+vy(y3)]) do
+    maximum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
+  end
+end
 #=
-println(spiked_truss(pi/4, 5, -pi/3, 20, pi/10, 25))
+println(spiked_truss_displacement(pi/4, 5, -pi/3, 20, pi/10, 25))
+println(spiked_truss_style(pi/4, 5, -pi/3, 20, pi/10, 25))
 (1.2648155430158327, 21.834921777293)
 
-println(spiked_truss(pi/2, 1, pi/3, 3, pi/10, 5))
+println(spiked_truss_displacement(pi/2, 1, pi/3, 3, pi/10, 5))
+println(spiked_truss_style(pi/2, 1, pi/3, 3, pi/10, 5))
 (1.3258518106063275, 12.417592404528765)
 =#
 
 # Minimizar displacements
 # Maximizar style
+#=
+# Step 1. Define the Model
+vars = [RealVariable(-π, π), RealVariable(0, 4π),
+        RealVariable(-π, π), RealVariable(0, 4π),
+        RealVariable(-π, π), RealVariable(0, 4π)]
+objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
+        Objective(x -> spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MAX)]
+
+model = Model(vars, objs)
+
+# Step 2. Define the Solver
+a_type = NSGAII;
+a_params = Dict(:population_size => 10);
+solver = PlatypusSolver(a_type, max_eval=100, algorithm_params=a_params)
+
+# Step 3. Solve it!
+sols = solve(solver, model)
+
+variables(sols[1])
+=#

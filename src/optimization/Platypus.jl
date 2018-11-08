@@ -134,8 +134,8 @@ function get_variables(solution::Solution; toDecode::Bool=true)
   if toDecode
     types = solution.pyo[:problem][:types]
     decoded_vars = Vector()
-    for t in types, v in size(vars, 1)
-      decoded_vars = vcat(t[:decode](vars[v,:]), decoded_vars)
+    for i in 1:size(vars, 1)
+      decoded_vars = vcat(types[i][:decode](vars[i,:]), decoded_vars)
     end
     decoded_vars
   else
@@ -152,9 +152,12 @@ end
                 types::PyVector,
                 directions::PyVector,
                 constraints::PyVector)
-@pytype_setters Problem directions "function" types
+@pytype_setters Problem directions "function"
 set_constraints!(o::Platypus.Problem, constraints) =
   o.pyo[:constraints][:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
+
+set_types!(o::Platypus.Problem, types) =
+  o.pyo[:types][:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), types)
 
 # Algorithms
 # Single Objective Algorithms

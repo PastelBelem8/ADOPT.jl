@@ -63,7 +63,6 @@ get_strategy_function(solver::SurrogateSolver) = solver.strategy_function
 get_validation_function(solver::SurrogateSolver) = solver.validation_function
 get_correction_function(solver::SurrogateSolver) = solver.correction_function
 
-
 """
   check_params(solver, model)
 

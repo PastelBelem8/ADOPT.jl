@@ -161,8 +161,8 @@ model = Model(vars, objs)
 
 # Step 2. Define the Solver
 a_type = NSGAII;
-a_params = Dict(:population_size => 10);
-solver = PlatypusSolver(a_type, max_eval=100, algorithm_params=a_params)
+a_params = Dict(:population_size => 5);
+solver = PlatypusSolver(a_type, max_eval=5, algorithm_params=a_params)
 
 # Step 3. Solve it!
 sols = solve(solver, model)

@@ -11,11 +11,46 @@ dict2expr(dict::Dict) = [kv for kv in dict]
 # These routines provide the interface between the solver and the
 # Platypus Python library.
 # -----------------------------------------------------------------------
-platypus_function(objectives, constraints)::Function =
+function platypus_function(objectives, constraints)::Function
     length(constraints) > 0  ? ((x...) -> return [func(o)(x...) for o in objectives],
                                                  [func(c)(x...) for c in constraints]) :
                                ((x...) -> return [func(o)(x...) for o in objectives])
+end
 
+function platypus_function_with_profiling(objectives, constraints)::Function
+
+  function aggregate_function(x...)
+    local profiling_times = Vector{Real}()
+    local profiling_results = Vector{Real}()
+
+    function profile(f, args...)
+      st = time();
+      res = f(args...)
+      @info "[$(now())] Objective function result (args: $(args...)): $res"
+      push!(profiling_results, res)
+      push!(profiling_times, time() - st)
+      res
+    end
+    @info "[$(now())] Running aggregate objective function for parameters: $(x...)"
+    prepend!(profiling_results, x...) # Decision variables
+    start_time = time()
+
+    results = [profile(func(o), x...) for o in objectives]
+
+    if length(constraints) > 0
+      results = results, [profile(func(c), x...) for c in constraints]
+    end
+    prepend!(profiling_times, time() - start_time)
+
+    # Write to File
+    output = vcat(profiling_times, profiling_results)
+    csv_write("results.csv", output)
+    # Return Results
+    return results
+  end
+
+  return (x...) -> aggregate_function(x...)
+end
 # ------------------------------------------------------------------------
 # Problem Converter Routines
 # ------------------------------------------------------------------------
@@ -41,7 +76,7 @@ function convert(::Type{Platypus.Problem}, m::Model)
   # 2.3. Convert Objective Function
   objs = objectives(m)
   Platypus.set_directions!(problem, directions(objs))
-  Platypus.set_function!(problem, platypus_function(objs, constrs))
+  Platypus.set_function!(problem, platypus_function_with_profiling(objs, constrs))
   problem
 end
 convert(::Type{Platypus.Constraint}, c::Constraint) = "$(operator(c))0"
@@ -305,6 +340,7 @@ function solve(solver::PlatypusSolver, model::Model)
     algorithm_type = get_algorithm(solver)
     evals = get_max_evaluations(solver)
     extra_params = get_algorithm_params(solver)
+
     # Filter by the fields that are acceptable for the specified algorithm_type
     params = union( Platypus.mandatory_params(algorithm_type),
                     Platypus.optional_params(algorithm_type))

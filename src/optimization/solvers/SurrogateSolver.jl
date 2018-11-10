@@ -94,7 +94,7 @@ function new_substitute_model(model::Model, surrogate)
 
     clone_and_replacef(obj, f) = Objective(f, coefficient(obj), sense(obj))
 
-    objs = [Objective(x -> surrogate(x)[1], ) for obj in original_objs]
+    objs = [clone_and_replacef(obj, x -> surrogate(x)[1]) for obj in original_objs]
 
 end
 

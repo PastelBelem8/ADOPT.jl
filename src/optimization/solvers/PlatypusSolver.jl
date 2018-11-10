@@ -26,12 +26,12 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     function profile(f, args...)
       st = time();
       res = f(args...)
-      @info "[$(now())] Objective function result (args: $(args...)): $res"
+      @info "[$(now())] Objective function result $(args...):\n[$res]"
       push!(profiling_results, res)
       push!(profiling_times, time() - st)
       res
     end
-    @info "[$(now())] Running aggregate objective function for parameters: $(x...)"
+    @debug "[$(now())] Running aggregate objective function for parameters: $(x...)"
     prepend!(profiling_results, x...) # Decision variables
     start_time = time()
 
@@ -44,7 +44,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
 
     # Write to File
     output = vcat(profiling_times, profiling_results)
-    csv_write("results.csv", output)
+    csv_write(output)
     # Return Results
     return results
   end
@@ -344,7 +344,8 @@ function solve(solver::PlatypusSolver, model::Model)
     # Filter by the fields that are acceptable for the specified algorithm_type
     params = union( Platypus.mandatory_params(algorithm_type),
                     Platypus.optional_params(algorithm_type))
-    extra_params = convert_params(filter(p -> first(p) in params, extra_params))
+    extra_params = convert_params(extra_params)
+    # extra_params = convert_params(filter(p -> first(p) in params, extra_params))
     # Create the algorithm and solve it
     algorithm = algorithm_type(problem; dict2expr(extra_params)...)
 

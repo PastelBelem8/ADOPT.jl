@@ -150,6 +150,8 @@ println(spiked_truss_style(pi/2, 1, pi/3, 3, pi/10, 5))
 # Minimizar displacements
 # Maximizar style
 #=
+
+include MscThesis
 # Step 1. Define the Model
 vars = [RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π),
@@ -160,6 +162,7 @@ objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x
 model = Model(vars, objs)
 
 # Step 2. Define the Solver
+
 a_type = NSGAII;
 a_params = Dict(:population_size => 5);
 solver = PlatypusSolver(a_type, max_eval=5, algorithm_params=a_params)
@@ -167,5 +170,35 @@ solver = PlatypusSolver(a_type, max_eval=5, algorithm_params=a_params)
 # Step 3. Solve it!
 sols = solve(solver, model)
 
-variables(sols[1])
 =#
+
+
+vars = [RealVariable(-π, π), RealVariable(0, 4π),
+        RealVariable(-π, π), RealVariable(0, 4π),
+        RealVariable(-π, π), RealVariable(0, 4π)]
+objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
+        Objective(x -> spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MAX)]
+
+model = Model(vars, objs)
+
+# Step 2. Define the Solver
+
+a_type = [MOEAD,
+          PESA2,
+          PAES]
+a_params = [Dict(:population_size => 20, :neighborhood_size => 10),
+            Dict(:population_size => 20, :capacity => 40, :divisions: 5),
+            Dict(:population_size => 20, )]
+solver = PlatypusSolver(a_type, max_eval=200, algorithm_params=a_params)
+
+for a in 1:3
+  solver = PlatypusSolver(a_type[a], max_eval=200, algorithm_params=a_params[a])
+
+  for i in 1:3
+    @info "============================ Starting run $i for algorithm $(string(a_type)) =================================="
+    csv_file("$(string(a_type))_results0$(i).csv")
+    csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "w")
+
+    solve(solver, model)
+  end
+end

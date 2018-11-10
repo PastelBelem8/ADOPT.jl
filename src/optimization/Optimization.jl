@@ -251,6 +251,9 @@ function evaluate_penalty(c::Constraint, args...)::Real
     issatisfied(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
 end
 
+evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
+    sum([evaluate_penalty(c) for c in Cs])
+
 # ---------------------------------------------------------------------
 # Model / Problem
 # ---------------------------------------------------------------------
@@ -311,6 +314,31 @@ function check_arguments(t::Type{Model},
     check_arguments(t, length(vars), length(objs), length(constrs))
 end
 
+function evaluate(model::Model, vars::Vector{Real})
+    if nvariables(model) != length(vars)
+        throw(DimensionMismatch("the number of variables in the model
+        $(nvariables(model)) does not correspond to the number of variables
+        $(length(vars))"))
+    end
+    objs, constrs = objectives(model), constraints(model)
+
+    s_objs = [evaluate(o) for o in objs]
+    s_constrs = [evaluate(c) for c in constrs]
+    s_penalty, s_feasible = 0, true
+
+    if !isempty(filter(c -> c != 0, s_constrs))
+        s_penalty = evaluate_penalty(constrs)
+        s_feasible = false
+    end
+
+    Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
+end
+
+function evaluate(model::Model, s::Solution)
+    evaluate(model, variables(s))
+end
+
+evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
 
 # ---------------------------------------------------------------------
 # Solution

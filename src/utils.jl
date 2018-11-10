@@ -95,6 +95,9 @@ minMaxScale(nmin::Number, nmax::Number, a::AbstractVector) =
 minMaxScale(nmin::Number, nmax::Number, A::AbstractMatrix, dim::Int) =
     mapslices(a -> min_max_scale(nmin, nmax, a), A, dims=dim)
 
+unscale(value, nmin, nmax, omin=0, omax=1) =
+    (value - omin) / (omax - omin) * (nmax - nmin) - nmin
+
 # --------------------------------------------------------------------------
 # File
 # --------------------------------------------------------------------------
@@ -131,6 +134,20 @@ function csv_write(filename::String, values, mode="a", el="\n")
         write(f, el)
     end
 end
+
+function csv_read(filename::String)
+    @debug "[$(now())] Reading file $filename"
+    content = ""
+    open(filename, "r") do f
+        content = read(f, String)
+    end
+
+    rows = split(rstrip(content), "\n")
+    # Return cells
+    map(row-> split(row, csv_sep), rows)
+end
+
+
 
 # --------------------------------------------------------------------------
 # Command Line

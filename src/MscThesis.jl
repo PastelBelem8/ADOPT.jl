@@ -3,6 +3,8 @@ module MscThesis
 # Submodules
 # ----------
 
+# Utils
+include("./Utils.jl")
 # Internals
 include("./optimization/Optimization.jl")
 include("./optimization/Sampling.jl")

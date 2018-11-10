@@ -123,14 +123,18 @@ function csv_language(lang::Symbol=:EN)
 end
 csv_language(lang::String="EN") = Symbol(lang) |> csv_language
 
+global csv_filename = "results.csv"
+csv_file(filename)  = global csv_filename = filename
+
 "Writes a set of `values` in a CSV format in file `filename`"
-function csv_write(filename::String, values, mode="a", el="\n")
-    @debug "[$(now())] Writing to file $filename the values:\n$(values)"
-    open(filename, mode) do f
+function csv_write(values, mode="a", el="\n")
+    @debug "[$(now())] Writing to file $csv_filename the values:\n$(values)"
+    open(csv_filename, mode) do f
         join(f, values, csv_sep)
         write(f, el)
     end
 end
+
 
 # --------------------------------------------------------------------------
 # Command Line

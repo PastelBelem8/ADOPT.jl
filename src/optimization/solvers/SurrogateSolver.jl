@@ -1,129 +1,127 @@
-
-"""
-    SurrogateSolver
-
-To solve a problem using the SurrogateSolver it is necessary to first model the
-problem to be solved using the data structures provided by the module
-[`Optimization`](@ref). After definin the model, i.e., specifying the variables,
-the objectives, and the constraints if any. The user should then specify which
-of the algorithms available in the [`Surrogate`](@ref) module, he would like
-to use, as well as any parameters that are deemed mandatory or that the user
-wishes to change.
-
-The user should specify the basic routines to perform a normal surrogate-based
-workflow as will explained in the following section.
-
-# Arguments
-- `algorithm::Type`: The algorithm type to create the surrogate with.
-- `algorithm_params::Dict{Symbol, Any}`: Additional parameters to be passed to the
-surrogate model that is going to be created by the `algorithm`.
-- `max_evaluations::Int`: Number of maximum expensive evaluations.
-
-- `sampling_function::Function`: Function responsible for the initial sampling
-of data.
-- `strategy_function::Function`: Function that explores the surrogate model
-and selects infill points to be evaluated with the expensive function.
-- `validation_function::Function`: Function that validates the prediction
-capability of the model.
-- `correction_function::Function`: Function that is responsible for correcting
-the model.
-
-"""
 struct SurrogateSolver <: AbstractSolver
     algorithm::Type
     algorithm_params::Dict{Symbol, Any}
     max_evaluations::Int
 
-    sampling_function::Function
-    strategy_function::Function
-    validation_function::Function
     correction_function::Function
+    evaluator_function::Function
+    sampling_function::Function
+    validation_function::Function
 
-    function SurrogateSolver(algorithm; algorithm_params, max_eval, sampling_f,
-                                    strategy_f, validation_f, correction_f)
-        check_arguments(SurrogateSolver, algorithm, algorithm_params, max_eval,
-                        sampling_f, strategy_f, validation_f, correction_f)
-        new(algorithm, algorithm_params, max_ev)
+    function SurrogateSolver(algorithm; algorithm_params, max_eval,
+                            correction_f, evaluator_f, sampling_f, validate_f)
+        #TODO - Add Check Arguments routine
+        new(algorithm, algorithm_params, max_ev, correction_f, evaluator_f,
+            sampling_f, validate_f)
     end
 end
 
-function check_arguments(solver::Type{SurrogateSolver}, algorithm, algorithm_params,
-                        max_eval, sampling_f, strategy_f, validation_f, correction_f)
-    # TODO
-end
-
+# Selectors
 get_algorithm(solver::SurrogateSolver) = solver.algorithm
 get_algorithm_params(solver::SurrogateSolver) = solver.algorithm_params
 get_algorithm_param(solver::SurrogateSolver, param::Symbol, default=nothing) =
     get(get_algorithm_params(solver), param, default)
 get_max_evaluations(solver::SurrogateSolver) = solver.max_evaluations
 
-get_sampling_function(solver::SurrogateSolver) = solver.sampling_function
-get_strategy_function(solver::SurrogateSolver) = solver.strategy_function
-get_validation_function(solver::SurrogateSolver) = solver.validation_function
 get_correction_function(solver::SurrogateSolver) = solver.correction_function
+get_evaluator_function(solver::SurrogateSolver)  = solver.evaluator_function
+get_sampling_function(solver::SurrogateSolver)   = solver.sampling_function
+get_validation_function(solver::SurrogateSolver) = solver.validation_function
+
+# ---------------------------------------------------------------------------
+# Solver
+# ---------------------------------------------------------------------------
+"""
+    create_initial_surrogate()
+
+Generates an initial surrogate model that is approximated using the `algorithm`
+and the parameters specified in the solver.
+
+The initial surrogate model can be created using sampling (or design of
+experiments (DOE)) techniques, or by loading the data from csv files.
+The csv files should only contain the decision variables' values and the
+objectives' values.
+
+# Arguments
 
 """
-  check_params(solver, model)
-
-"""
-function check_params(solver::SurrogateSolver, model::Model)
-
+function create_surrogate(algorithm, X, y)
+    # Cross-validation
+    surrogate = fit!(algorithm, X, y)
+    # TODO - Validate
+    # TODO - If performance <= 0.6
+    #           retrain (different params, more samples)
 end
 
-# Solver Routines
-function solve(solver::SurrogateSolver, model::Model)
-    check_params(solver, model)
 
-    # Step 1. Generate initial surrogate model
-    surrogate = generate_surrogate(solver, model)
+"Reads the necessary data to create the initial surrogate model from the file `filename`."
+function create_initial_surrogate(algorithm, model::Model; filename::String)
+    nvars = nvariables(model)
+    # Read data from file
+    data = map(x -> parse(Float64, x), csv_read(filename))
+    X, y = data[:, 1:nvars], data[:, nvars:end]
 
-    remaining_evals = get_max_evaluations(solver)
-    while remaining_evals > 0
-        # Step 2. Obtain approximate solution by optimizing the surrogate
-        approximate_sols = solve(surrogate, model)
+    create_surrogate(algorithm, X, y)
+end
 
-        # Step 3. Use the high-fidelity (original) model to evaluate
-        approximate_sols, remaining_evals = get_remaining(approximate_sols, max_eval)
-        original_sols = evaluate(solver, model, approximate_sols)
+"Uses a sampling function to generate the data to create the initial surrogate model with."
+function create_initial_surrogate(algorithm, model::Model; nsamples::Int, sampling_f::Function)
+    vars = variables(model)
+    nvars, nobjs, nconstrs = length(vars), nobjectives(model), nconstraints(model)
+    min_i(i) = lower_bound(vars[i])
+    max_i(i) = upper_bound(vars[i])
+    get_y(sol) = vcat(objectives(sol), constraints(sol))
 
-        # Step 4. Correct the surrogate model using the newly obtained data
-        surrogate = update_surrogate(solver, surrogate, original_sols)
+    X = sampling_f(nvars, nsamples)' # Matrix is nsamples x nvars
+    X = [map(v -> unscale(v, min_i(j), max_i(j)), X[:, j]) for j in 1:nvars]
+
+    y = [get_y(evaluate(model, X[j, :])) for j in 1:nsamples]
+    create_surrogate(algorithm, X, y)
+end
+
+function get_max_solutions(solutions, evals)
+    if length(solutions) > evals
+        solutions = solutions[1:evals]
     end
-    # TODO - What to return here?
+    evals -= length(solutions)
+    solutions, evals
 end
 
-"Generate the initial surrogate using multiple "
-function generate_surrogate(solver::SurrogateSolver, model::Model)
-    ndims = nvariables(model)
-    nsamples = get_algorithm_param(solver, :nsamples, -1)
-    sampling = get_sampling_function(solver)
+function new_substitute_model(model::Model, surrogate)
+    original_vars = variables(model)
+    original_objs = objectives(model)
+    original_cnstrs = constraints(model)
 
-    # 1. Apply Sampling Function
-    # 2. Evaluate the Samples
-    # 3. Create the Surrogate provide a measure of performance/error
+    clone_and_replacef(obj, f) = Objective(f, coefficient(obj), sense(obj))
+
+    objs = [clone_and_replacef(obj, x -> surrogate(x)[1]) for obj in original_objs]
+
 end
 
-#FIXME - Fix the name
-function get_remaining(approximate_sols, total)
-    remaining = length(approximate_sols)
-    nremaining = total - remaining
-    if 0 <= nremaining
-        approximate_sols, nremaining
-    else
-        approximate_sols[1:total], 0
+function solve(solver::Solver, model::Model)
+    corrector = get_correction_function(solver)
+    evaluator = get_evaluator_function(solver)
+    validator = get_validation_function(solver)
+
+    # Create a copy of the model/problem, but replace Objective Functions
+    surrogate = create_initial_surrogate(#TODO PASS PARAMETERS)
+    surrogate_model = new_substitute_model(model, surrogate)
+
+    evals = get_max_evaluations(solver)
+    while evals > 0
+        candidate_solutions = evaluator(surrogate_model)
+
+        # Guarantee that the number of Max Evals is satisfied
+        candidate_solutions, evals = get_max_solutions(candidate_solutions, evals)
+
+        # For each candidate solution, evaluate its objectives
+        sols = evaluate(model, candidate_solutions)
+        surrogate = corrector(surrogate, sols)
+        surrogate_error = validator(surrogate)
+
+        @info "[$(now())] Retrained surrogate exhibits $(surrogate_error) % error."
+        # TODO
+        # Adaptively change the surrogate to give more weight to newly
+        # obtained data, then to older one.
     end
-end
-
-function evaluate(solver, model, approximate_sols)
-    # Step 1. Use original high-fidelity models (encoded in Objectives)
-    # Step 2. Evaluate each approximate_sol
-end
-
-
-function update_surrogate(solver, surrogate, original_sols)
-    # Step 1. Update the Surrogate
-    # FIXME - Understand if the user is the responsible for specifying the
-    # correction or if it is up to the own surrogate.
-    # Step 2. Compute the
 end

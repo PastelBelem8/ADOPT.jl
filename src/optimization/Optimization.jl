@@ -255,92 +255,6 @@ evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
     sum([evaluate_penalty(c) for c in Cs])
 
 # ---------------------------------------------------------------------
-# Model / Problem
-# ---------------------------------------------------------------------
-struct Model
-    variables::Vector{AbstractVariable}
-    objectives::Vector{Objective}
-    constraints::Vector{Constraint}
-
-    function Model(nvars::Int, nobjs::Int, nconstrs::Int=0)
-        check_arguments(Model, nvars, nobjs, nconstrs)
-        new(Vector{AbstractVariable}(undef, nvars), Vector{Objective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
-    end
-    function Model(vars::Vector{T}, objs::Vector{Objective},
-                    constrs::Vector{Constraint}=Vector{Constraint}()) where {T<:AbstractVariable}
-        check_arguments(Model, vars, objs, constrs)
-        new(vars, objs, constrs)
-    end
-end
-
-# Selectors
-constraints(m::Model)::Vector{Constraint} = deepcopy(m.constraints)
-objectives(m::Model)::Vector{Objective} = deepcopy(m.objectives)
-variables(m::Model)::Vector{AbstractVariable} = deepcopy(m.variables)
-
-nconstraints(m::Model) = length(m.constraints)
-nobjectives(m::Model) = length(m.objectives)
-nvariables(m::Model) = length(m.variables)
-
-# Predicates
-isModel(c::Model)::Bool = true
-isModel(c::Any)::Bool = false
-
-ismixedtype(m::Model)::Bool = length(unique(map(typeof, variables(m)))) > 1
-
-
-# Representation
-# function Base.show(io::IO, c::Constraint)
-#     print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
-# end
-
-# Argument Validations
-function check_arguments(t::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int)
-    err = (x, y, z) -> "invalid number of $x: $y. Number of $x must be greater than $z"
-
-    if nvars < 1
-        throw(DomainError(err("variables", nvars, 1)))
-    elseif nobjs < 1
-        throw(DomainError(err("objectives", nobjs, 1)))
-    elseif nconstrs < 0
-        throw(DomainError(err("constraints", nconstrs, 0)))
-    end
-end
-
-function check_arguments(t::Type{Model},
-                        vars::Vector{T},
-                        objs::Vector{Objective},
-                        constrs::Vector{Constraint}) where {T<:AbstractVariable}
-    check_arguments(t, length(vars), length(objs), length(constrs))
-end
-
-function evaluate(model::Model, vars::Vector{Real})
-    if nvariables(model) != length(vars)
-        throw(DimensionMismatch("the number of variables in the model
-        $(nvariables(model)) does not correspond to the number of variables
-        $(length(vars))"))
-    end
-    objs, constrs = objectives(model), constraints(model)
-
-    s_objs = [evaluate(o) for o in objs]
-    s_constrs = [evaluate(c) for c in constrs]
-    s_penalty, s_feasible = 0, true
-
-    if !isempty(filter(c -> c != 0, s_constrs))
-        s_penalty = evaluate_penalty(constrs)
-        s_feasible = false
-    end
-
-    Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
-end
-
-function evaluate(model::Model, s::Solution)
-    evaluate(model, variables(s))
-end
-
-evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
-
-# ---------------------------------------------------------------------
 # Solution
 # ---------------------------------------------------------------------
 """
@@ -429,6 +343,92 @@ function check_arguments(t::Type{Solution}, vars::Vector{T}, objs::Vector, const
     #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
 end
+
+# ---------------------------------------------------------------------
+# Model / Problem
+# ---------------------------------------------------------------------
+struct Model
+    variables::Vector{AbstractVariable}
+    objectives::Vector{Objective}
+    constraints::Vector{Constraint}
+
+    function Model(nvars::Int, nobjs::Int, nconstrs::Int=0)
+        check_arguments(Model, nvars, nobjs, nconstrs)
+        new(Vector{AbstractVariable}(undef, nvars), Vector{Objective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
+    end
+    function Model(vars::Vector{T}, objs::Vector{Objective},
+                    constrs::Vector{Constraint}=Vector{Constraint}()) where {T<:AbstractVariable}
+        check_arguments(Model, vars, objs, constrs)
+        new(vars, objs, constrs)
+    end
+end
+
+# Selectors
+constraints(m::Model)::Vector{Constraint} = deepcopy(m.constraints)
+objectives(m::Model)::Vector{Objective} = deepcopy(m.objectives)
+variables(m::Model)::Vector{AbstractVariable} = deepcopy(m.variables)
+
+nconstraints(m::Model) = length(m.constraints)
+nobjectives(m::Model) = length(m.objectives)
+nvariables(m::Model) = length(m.variables)
+
+# Predicates
+isModel(c::Model)::Bool = true
+isModel(c::Any)::Bool = false
+
+ismixedtype(m::Model)::Bool = length(unique(map(typeof, variables(m)))) > 1
+
+
+# Representation
+# function Base.show(io::IO, c::Constraint)
+#     print("[Constraint]:\n  $(coefficient(c)) * $(func(c)) $(Symbol(operator(c))) 0\n")
+# end
+
+# Argument Validations
+function check_arguments(t::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int)
+    err = (x, y, z) -> "invalid number of $x: $y. Number of $x must be greater than $z"
+
+    if nvars < 1
+        throw(DomainError(err("variables", nvars, 1)))
+    elseif nobjs < 1
+        throw(DomainError(err("objectives", nobjs, 1)))
+    elseif nconstrs < 0
+        throw(DomainError(err("constraints", nconstrs, 0)))
+    end
+end
+
+function check_arguments(t::Type{Model},
+                        vars::Vector{T},
+                        objs::Vector{Objective},
+                        constrs::Vector{Constraint}) where {T<:AbstractVariable}
+    check_arguments(t, length(vars), length(objs), length(constrs))
+end
+
+function evaluate(model::Model, vars::Vector{Real})
+    if nvariables(model) != length(vars)
+        throw(DimensionMismatch("the number of variables in the model
+        $(nvariables(model)) does not correspond to the number of variables
+        $(length(vars))"))
+    end
+    objs, constrs = objectives(model), constraints(model)
+
+    s_objs = [evaluate(o) for o in objs]
+    s_constrs = [evaluate(c) for c in constrs]
+    s_penalty, s_feasible = 0, true
+
+    if !isempty(filter(c -> c != 0, s_constrs))
+        s_penalty = evaluate_penalty(constrs)
+        s_feasible = false
+    end
+
+    Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
+end
+
+function evaluate(model::Model, s::Solution)
+    evaluate(model, variables(s))
+end
+
+evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
 
 # ---------------------------------------------------------------------
 # Solvers

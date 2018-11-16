@@ -1,3 +1,5 @@
+using .SurrogateModels
+
 struct SurrogateSolver <: AbstractSolver
     algorithm::Type
     algorithm_params::Dict{Symbol, Any}

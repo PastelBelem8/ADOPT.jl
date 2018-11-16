@@ -1,3 +1,5 @@
+using DecisionTree
+
 # Generate Sample Data
 X = sort(5 * rand(40, 1), dims=1)
 y = sin.(X)[:]

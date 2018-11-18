@@ -82,7 +82,7 @@ update_best!(es::EarlyStopping, loss, params) =
 
 function update!(es::EarlyStopping, X_val, y_val, λloss, params)
     loss = λloss(X_val, y_val)
-    @info "[$(now())] Early Stopping loss: $(round(loss, digits=8))"
+    @debug "[$(now())] Early Stopping loss: $(round(loss, digits=8))"
     update_loss!(es, loss)
     update_epochs_nochange!(es, loss)
     update_best!(es, loss, params)
@@ -278,3 +278,5 @@ mlppredict(r::MLPRegressor, X) = Tracker.data(r.model(X))
 # Scikit Learn compatibility
 ScikitLearnBase.fit!(r::MLPRegressor, X, y) = begin mlptrain!(r, X, y); return r end
 ScikitLearnBase.predict(r::MLPRegressor, X) = mlppredict(r, X)
+
+export fit!, predict, MLPRegressor

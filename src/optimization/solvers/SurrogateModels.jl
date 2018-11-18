@@ -49,7 +49,6 @@ end
 
 ScikitLearnBase.predict(lr::LinearRegression, X) = lr.coefs' * X .+ lr.intercepts
 
-
 # ------------------------------------------------------------------------
 # Support Vector Regression (SVR)
 # ------------------------------------------------------------------------
@@ -64,6 +63,47 @@ export Linear, RadialBasis, Polynomial, Sigmoid, Precomputed
 # ------------------------------------------------------------------------
 # Multi-Layer Perceptron Regression
 # ------------------------------------------------------------------------
+include("MLPRegressor.jl")
 
+# ------------------------------------------------------------------------
+# Gaussian Processes
+# ------------------------------------------------------------------------
+using GaussianProcesses: GPE
+# Means
+using GaussianProcesses: MeanConst, MeanLin, MeanPoly, MeanZero
+using GaussianProcesses: SumMean, ProdMean
+# Kernels
+using GaussianProcesses: Const,
+                         LinArd, LinIso,
+                         Matern,
+                         Mat12Iso, Mat32Iso, Mat52Iso,
+                         Mat12Ard, Mat32Ard, Mat52Ard,
+                         Noise,
+                         Poly,
+                         RQ, RQIso, RQArd,
+                         SE, SEArd, SEIso,
+                         # Composite Kernels
+                         ProdKernel,
+                         SumKernel
+# Likelihood
+using GaussianProcesses: BernLik,
+                         BinLik,
+                         ExpLik,
+                         GaussLik,
+                         PoisLik,
+                         StuTLik
+
+function predict(gp::GPE, X::AbstractMatrix; eval_MSE::Bool=false)
+    optimise!(gpe)
+    ScikitLearnBase.predict(gpe, X)
+end
+
+export GPE
+export MeanConst, MeanLin, MeanPoly, MeanZero, SumMean, ProdMean
+export Const, LinArd, LinIso, Matern, Mat12Iso, Mat32Iso, Mat52Iso,
+       Mat12Ard, Mat32Ard, Mat52Ard, Noise, Poly, RQ, RQIso, RQArd,
+       SE, SEArd, SEIso, ProdKernel, SumKernel
+export BernLik, BinLik, ExpLik, GaussLik, PoisLik, StuTLik
+export fit!, predict
 
 end # Module

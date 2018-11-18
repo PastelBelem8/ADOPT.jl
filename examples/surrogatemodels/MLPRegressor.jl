@@ -35,8 +35,7 @@ using Flux
 
 using Flux
 X = 5 * rand(1, 40)
-y = sin.(X)[:]
-
+y = identity(X) .+ 3
 
 # Add noise to targets
 y[1:5:end] += 3 * (0.5 .- rand(8))
@@ -52,18 +51,26 @@ y[1:5:end] += 3 * (0.5 .- rand(8))
 # end
 #
 # data = transform_data(X', y)
-model = Chain( Dense(1, 100, relu),
-               Dense(100, 1),
-            )
+model = Chain( Dense(1, 5, relu),
+               Dense(5, 1))
 
 loss(x, y) = Flux.mse(model(x), y)
 
 
-opt = ADAM(params(model))
-Flux.train!(loss, [(X, y)], opt, cb = Flux.throttle(() -> println("training"), 10))
-Flux.@epochs 200 Flux.train!(loss, data, opt, cb = Flux.throttle(() -> println("training"), 10))
+initial_params = params(model)
+initial_loss = loss(model(X), y)
 
-X'
+opt = ADAM(params(model))
+Flux.@epochs 200 Flux.train!(loss, [(X, y)], opt)
+
+final_params = params(model)
+final_loss = loss(model(X), y)
+
+model = Chain( Dense(initial_params[1], initial_params[2], relu),
+               Dense(initial_params[3], initial_params[4]))
+
+final_loss2 = loss(model(X), y)
+
 y_mlp = Tracker.data(model(X'))
 y_mlp = reshape(y_mlp, 4000)
 

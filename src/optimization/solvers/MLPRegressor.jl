@@ -6,11 +6,100 @@ using ScikitLearnBase
 import ScikitLearnBase: fit!, predict
 
 # ---------------------------------------------------------------------------
+# Training Utils: train_test_split, batches_split
+# ---------------------------------------------------------------------------
+function train_test_split(X, y, test_fraction=0.25, shuffle=false)
+    ndims, nsamples = size(X); test_size = trunc(Int, nsamples * test_fraction)
+    ixs = shuffle ? Random.shuffle(Vector(1:nsamples)) : Vector(1:nsamples)
+
+    # X_Train, X_Test, y_Train, y_Test
+    X[:, ixs[test_size+1:end]], test_size == 0 ? zeros(ndims, 0) : X[:, ixs[1:test_size]],
+    y[:, ixs[test_size+1:end]], test_size == 0 ? zeros(ndims, 0) : y[:, ixs[1:test_size]]
+end
+
+"Groups `n` points in batches of size `bsize`, shuffling them if specified."
+function gen_batches(bsize, n, shuffle=false)
+    ixs = shuffle ? Random.shuffle(Vector(1:n)) : Vector(1:n)
+    [ixs[i:min(i+bsize-1, n)] for i in 1:bsize:n]
+end
+
+"Computes the l2 penalty for matrix `X`"
+L2penalty(X::T)         where{T<:AbstractArray} =
+    let x = X[:]; sum(x' * x) end
+L2penalty(X::Vector{T}) where{T<:AbstractArray} = sum(map(L2penalty, X))
+
+# ---------------------------------------------------------------------------
+# Validation-Based Early Stopping
+# ---------------------------------------------------------------------------
+mutable struct EarlyStopping
+    tolerance::Float64
+    epochs_nochange::Int
+    epochs_nochange_count::Int
+
+    validation_fraction::Float64
+    validation_losses::Vector{Real}
+
+    best_loss::Float64
+    best_params::Vector
+
+    function EarlyStopping(tol=1e-4, epochs_nochange=10, validation_fraction=0.1)
+        @assert tol > 0 "Tolerance cannot be a negative value"
+        @assert epochs_nochange > 0 "Number of epochs cannot be a negative value"
+        @assert 0 ≤ validation_fraction ≤ 1 "The validation set's fraction must be within 0 and 1."
+
+        new(tol, epochs_nochange, 0, validation_fraction, Vector{Real}(), Inf, Vector())
+    end
+end
+
+# Selectors ----------------------------------------------------------------
+best_loss(es::EarlyStopping) = es.best_loss
+best_params(es::EarlyStopping) = es.best_params
+
+nochange(es::EarlyStopping) = es.epochs_nochange
+nochange_count(es::EarlyStopping) = es.epochs_nochange_count
+
+tolerance(es::EarlyStopping) = es.tolerance
+validation_fraction(es::EarlyStopping) = es.validation_fraction
+
+
+# Predicates ----------------------------------------------------------------
+is_improvement(es::EarlyStopping, loss::Real) =
+    loss < best_loss(es) + tolerance(es)
+is_toStop(es::EarlyStopping) =
+    nochange(es) == nochange_count(es)
+is_validation_based(es::EarlyStopping) = validation_fraction(es) > 0
+
+# Modifiers -----------------------------------------------------------------
+update_loss!(es::EarlyStopping, loss::Real) =
+    push!(es.validation_losses, loss)
+update_epochs_nochange!(es::EarlyStopping, loss::Real) =
+    es.epochs_nochange_count = is_improvement(es, loss) ?  0 : nochange_count(es) + 1
+update_best!(es::EarlyStopping, loss, params) =
+    if loss < best_loss(es)
+        es.best_loss = loss
+        es.best_params = deepcopy(params)
+    end
+
+function update!(es::EarlyStopping, X_val, y_val, λloss, params)
+    loss = λloss(X_val, y_val)
+    @info "[$(now())] Early Stopping loss: $(round(loss, digits=8))"
+    update_loss!(es, loss)
+    update_epochs_nochange!(es, loss)
+    update_best!(es, loss, params)
+end
+# Others
+status(es::EarlyStopping) =
+    "$(is_validation_based(es) ? "Validation" : "Training") loss did not improve more than $(tolerance(es)) for $(nochange(es)) consecutive epochs."
+
+train_test_split(es::EarlyStopping, X, y, shuffle) =
+    train_test_split(X, y, validation_fraction(es), shuffle)
+
+# ---------------------------------------------------------------------------
 # Flux Utils
 # ---------------------------------------------------------------------------
-coeffs(m::Chain) = map(Flux.Tracker.data, params(m)[1:2:end])
+call(f, xs...) = f(xs...)
 
-# Flux Optimisers
+# Flux Optimisers -----------------------------------------------------------
 ADADelta(;ρ=0.9, ϵ=1e-8, decay=0) =
     (ps) -> Flux.ADADelta(ps, ρ=ρ, ϵ=ϵ, decay=decay)
 ADAGrad(η=0.001; ϵ=1e-8, decay=0) =
@@ -37,126 +126,182 @@ SGD(η=0.001; decay=0) =
 export  ADADelta, ADAGrad, ADAM, AdaMax, ADAMW, AMSGrad,
         Momentum, NADAM, Nesterov, RMSProp, SGD
 
+# Getters  -----------------------------------------------------------------
+get_params(m::Chain; weights::Bool) = let
+    i = weights ? 1 : 2;
+    map(Tracker.data, Flux.params(m)[i:2:end])
+end
+weights(m::Chain) = get_params(m, weights=true)
+bias(m::Chain) = get_params(m, weights=false)
+
+
+"Stacks multiple layers with sizes `layer_sizes` and except for the last
+layer, assigns them the specified `activation` function."
+function Chain_by_sizes(activation, layer_sizes...)
+    create_layer(in, out) = Dense(layer_sizes[in], layer_sizes[out], activation)
+
+    layers = vcat(map(i -> create_layer(i, i+1), 1:(length(layer_sizes)-2)),
+                  Dense(layer_sizes[end-1], layer_sizes[end]))
+
+    Flux.Chain(layers...)
+end
+
 # ---------------------------------------------------------------------------
 # MLPRegressor
 # ---------------------------------------------------------------------------
 mutable struct MLPRegressor
-    tol::Real
     epochs::Int
-    epochs_nochange::Int
     batch_size::Int
-    batch_shuffle::Bool
+    shuffle::Bool
 
-    ninputs::Int
-    noutputs::Int
-
-    loss::Float64
-    loss_function::Function
+    loss::Function
     optimiser::Function
 
     model::Chain
-    MLPRegressor(tol, epochs, epochs_nochange, batch_size, batch_shuffle,
-                    ninputs, noutputs, loss_function, optimiser, model) =
-        new(tol, epochs, epochs_nochange, batch_size, batch_shuffle,
-            ninputs, noutputs, 0, loss_function, optimiser, model)
+    losses::Vector{Real}
+    early_stopping::EarlyStopping
+
+    # Constructor
+    MLPRegressor(epochs, batch_size, shuffle, loss_f, opt, model, early_stop::EarlyStopping) =
+        new(epochs, batch_size, shuffle, loss_f, opt, model, Vector{Real}(),
+            early_stop)
+    MLPRegressor(epochs, batch_size, shuffle, loss_f, opt, model, tol=1e-4,
+                    epochs_nochange=10, val_fraction=0.1) =
+        MLPRegressor(epochs, batch_size, shuffle, loss_f, opt, model,
+            EarlyStopping(tol, epochs_nochange, val_fraction))
 end
 
 function MLPRegressor(layer_sizes=(1, 100, 1); solver, activation=Flux.relu,
                         λ=0.0001, batch_size=-1, shuffle=true, epochs=200,
-                        epochs_no_change=10, tol=1e-4)
-    # TODO - Check Arguments!
+                        early_stop=true, epochs_nochange=10, tol=1e-4, val_fraction=0.10)
+    # Create Early Stopping
+    earlystop = EarlyStopping(tol, epochs_nochange, early_stop ? val_fraction : 0)
 
-    # Create model chain
-    nlayers = length(layer_sizes)
-    layers = [Dense(layer_sizes[i], layer_sizes[i+1], activation)
-                for i in 1:(nlayers-2)]
-    layers = vcat(layers, Dense(layer_sizes[nlayers-1], layer_sizes[nlayers]))
-    model = Chain(layers...)
+    # Create Network
+    model = Chain_by_sizes(activation, layer_sizes...)
 
-    # Define Loss Function and L2 Regularization
-    L2penalty(coeffs) = sum(map(x -> x[:] |> x -> x' * x , coeffs))
-    loss_f(x, y) = Flux.mse(model(x), y) + λ * L2penalty(coeffs(model))
+    # Create loss_function w/ L2 regularization
+    loss(x, y) = Flux.mse(model(x), y) + λ * L2penalty(weights(model))
 
-    # Define Optimiser
-    opt = solver(params(model))
-    MLPRegressor(tol, epochs, epochs_no_change, batch_size, shuffle,
-                 layer_sizes[1], layer_sizes[end], loss_f, opt, model)
+    solver = solver(Flux.params(model))
+    MLPRegressor(epochs, batch_size, shuffle, loss, solver, model, earlystop)
 end
 
-# Selectors
-batch_size(r::MLPRegressor) = r.batch_size
-batch_shuffle(r::MLPRegressor) = r.batch_shuffle
+"Calculates `batch_size`, given the `max size` and the proposed `bsize`.
+Clipping the value of `bsize` if larger than `maxsize` or smaller than 1. If
+no `bsize` is specified, the batch size will be 200 or `maxsize` if smaller
+than 200."
+batch_size(maxsize, bsize=-1) = bsize == -1 ?
+min(200, maxsize) :
+bsize < 1 ? 1 :
+bsize > maxsize ? maxsize :
+bsize
 
+# Selectors ----------------------------------------------------------------
+batch_size(r::MLPRegressor) = r.batch_size
+shuffle(r::MLPRegressor) = r.shuffle
+
+early_stopping(r::MLPRegressor) = r.early_stopping
 epochs(r::MLPRegressor) = r.epochs
 
-loss(r::MLPRegressor) = r.loss
-loss_function(r::MLPRegressor) = r.loss_function
+loss_curve(r::MLPRegressor) = r.losses
+loss_function(r::MLPRegressor) = r.loss
+
+params(r::MLPRegressor) = map(Tracker.data, Flux.params(r.model))
 optimiser(r::MLPRegressor) = r.optimiser
 
-# Setters
-function set_loss!(r::MLPRegressor, l) =
-        r.loss = l
-        return nothing
+# Modifiers ------------------------------------------------------------------
+update_losses!(r::MLPRegressor, loss) = push!(r.losses, loss);
+function update_params!(r::MLPRegressor, params)
+    @warn "[$(now())] Updating MLP Regressor Parameters"
+    @debug "[Before] MLP Regressor Parameters: $(Tracker.data(params(r.model)))"
+    new_layers = map(layer -> Dense(layer.W, layer.b, layer.σ), r.model.layers)
+    r.model = Chain(new_layers...)
+    @debug "[After] MLP Regressor Parameters: $(Tracker.data(params(r.model)))"
 end
 
-# ---------------------------------------------------------------------------
-# Training and Prediction Routines
-# ---------------------------------------------------------------------------
-batch_size(size, nsamples) = size == -1 ? min(200, nsamples) :
-size < 1 ? 1 :
-size > nsamples ? nsamples :
-size
-
-"Groups `n` points in batches of size `bsize`, shuffling them if specified."
-function gen_batches(bsize, n, shuffle)
-    ixs = shuffle ? Random.shuffle(Vector(1:n)) : 1:n
-    [ixs[i:min(i+bsize-1, n)] for i in 1:bsize:n]
-end
-
-function mlptrain!(r::MLPRegressor, batches; cb=() -> ())
-    batch_loss = 0
-    # To register the current loss, save value in batch_loss
-    function loss(x, y)
+# Training and Prediction Routines -----------------------------------------
+"Creates the loss function to be used for batch training."
+function batches_loss(r::MLPRegressor; cb=() -> ())
+    accumulated_loss = 0
+    function loss_per_batch(x, y)
         res = loss_function(r)(x,y)
-        batch_loss += Flux.data(res) * size(x, 2)
+        accumulated_loss += Flux.data(res) * size(x, 2)
         res
     end
 
-    Flux.train!(loss, batches, optimiser(r), cb=cb)
-    batch_loss
-end
-
-function ScikitLearnBase.fit!(lr::MLPRegressor, X, y)
-    nsamples = size(X, 2)
-    bsize, shuffle = batch_size(batch_size(lr), nsamples), batch_shuffle(lr)
-
-    for epoch in 1:epochs(lr)
-        batches = [(X[:,batch_slice], y[:,batch_slice])
-                    for batch_slice in gen_batches(bsize, nsamples, shuffle)]
-        batches_loss = mlptrain!(lr, batches)  # TODO - use cb to stop iterations
-                                               # if max_iter exceed or (tol or n_iter_no_change)
-        loss = batches_loss / nsamples
-
-        @info "[$(now())] Epoch: $epoch, loss: $(round(loss, digits=8))"
-        set_loss!(lr, loss)
+    (batches) -> begin
+        accumulated_loss = 0
+        Flux.train!(loss_per_batch, batches, optimiser(r), cb=cb);
+        # foreach(call, cb)
+        accumulated_loss
     end
 end
 
-ScikitLearnBase.predict(lr::MLPRegressor, X) = Tracker.data(lr.model(X))
+function mlptrain!(r::MLPRegressor, X, y; cb=() -> ())
+    batch_train = batches_loss(r,  cb=cb);
+    loss_f = (x, y) -> loss_function(r)(x, y) |> Tracker.data
+
+    shffle = shuffle(r)
+    early_stop = early_stopping(r)
+    X, X_val, y, y_val = train_test_split(early_stop, X, y, shffle)
+
+    if !is_validation_based(early_stop)
+        X_val, y_val = X, y
+    end
+
+    nsamples = size(X, 2)
+    bsize = batch_size(nsamples, batch_size(r))
+
+    for epoch in 1:epochs(r)
+        batches = map(gen_batches(bsize, nsamples)) do batch
+                        (X[:,batch], y[:,batch]) end
+        loss = batch_train(batches) / nsamples
+        @info "[$(now())] Epoch: $epoch, loss: $(round(loss, digits=8))"
+
+        update_losses!(r, loss)
+        update!(early_stop, X_val, y_val, loss_f, params(r))
+
+        if is_toStop(early_stop)
+            @info status(early_stop)
+            update_params!(r, best_params(early_stop))
+            return r
+        end
+    end
+
+    # Optimization has not yet converged
+    @warn "Optimizer: Maximum epochs $(epochs(r)) reached and the optimization hasn't converged yet."
+
+end
+mlppredict(r::MLPRegressor, X) = Tracker.data(r.model(X))
+
+# Scikit Learn compatibility
+ScikitLearnBase.fit!(r::MLPRegressor, X, y) = begin mlptrain!(r, X, y); return r end
+ScikitLearnBase.predict(r::MLPRegressor, X) = mlppredict(r, X)
+
 
 #= Tests
-X1 = [1 2 3 4 5 6 7 8 9 10;]
+X1 = reshape(Vector(1:1000), (1, 1000))
 y1 = vcat(map(identity,X1), map(x -> -x |> identity, X1))
 
+λ=0.01
 solver = ADAM()
-reg1 = MLPRegressor((1, 100, 100, 2), solver=solver, batch_size=5)
+reg1 = MLPRegressor((1, 100, 100, 2), solver=solver, batch_size=75, epochs=30, λ=λ)
+
 fit!(reg1, X1, y1)
+
+using Plots
+plot(Vector(1:length(reg1.early_stopping.validation_losses)), reg1.early_stopping.validation_losses, yscale=:log10, label="Validation Losses")
+plot!(Vector(1:length(reg1.losses)), reg1.losses, yscale=:log10, label="Training Losses")
+
 y_pred1 = predict(reg1, X1)
+
+println("Minimum training losses: $(minimum(reg1.losses))")
+println("Minimum validation losses: $(minimum(reg1.early_stopping.validation_losses))")
 
 using Plots
 scatter(X1', y1', title="MLP Regression", label="Data")
 plot!(X1', y_pred1', linewidth=6, label="MLP model (ReLU)")
-
 =#
 
 
@@ -165,8 +310,9 @@ X2 = [0 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
       0 -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16 -17 -18 -19 -20 -21 -22 -23 -24 -25 -26 -27 -28 -29 -30;]
 y2 = mapslices(x -> x[1] * x[2], X2, dims=1)
 
-solver = ADAM()
-reg2 = MLPRegressor((2, 100, 50, 100, 1), solver=solver, batch_size=5, epochs=500, λ=0.1)
+λ = 0.03
+solver = ADAM(0.3, decay=0.25)
+reg2 = MLPRegressor((2, 100, 100, 1), solver=solver, epochs=1200, batch_size=5, λ=λ)
 fit!(reg2, X2, y2)
 y_pred2 = predict(reg2, X2)
 
@@ -176,8 +322,10 @@ plot!(y_pred2', X2', linewidth=6, label="MLP model (ReLU)")
 scatter(X2', y2', title="MLP Regression", label="Data")
 plot!(X2', y_pred2', linewidth=6, label="MLP model (ReLU)")
 
+minimum(reg2.losses)
 
-L2penalty(coeffs) = sum(map(x -> x[:] |> x -> x' * x , coeffs))
-loss_f(x, y) = Flux.mse(reg2.model(x), y2) + λ * L2penalty(coeffs(reg2.model))
-loss_f(X2, y2)
+plot(Vector(1:length(reg1.losses)), reg1.losses)
+plot!(Vector(1:length(reg1.early_stopping.validation_losses)), reg1.early_stopping.validation_losses)
+plot!(Vector(1:length(reg2.losses)), reg2.losses)
+plot!(Vector(1:length(reg2.early_stopping.validation_losses)), reg2.early_stopping.validation_losses)
 =#

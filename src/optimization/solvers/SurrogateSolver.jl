@@ -55,7 +55,6 @@ function create_surrogate(algorithm, X, y)
     #           retrain (different params, more samples)
 end
 
-
 "Reads the necessary data to create the initial surrogate model from the file `filename`."
 function create_initial_surrogate(algorithm, model::Model; filename::String)
     nvars = nvariables(model)

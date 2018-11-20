@@ -113,8 +113,22 @@ values(var::SetVariable) = var.values
 ==(i1::SetVariable, i2::SetVariable) =
     invoke(==, Tuple{AbstractVariable, AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
+# Unscalers
+unscale(var::T, value, old_min, old_max) where{T<:AbstractVariable}=
+    unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
+
+function unscale(var::SetVariable, value, old_min, old_max)
+    nval = unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
+    var.values[round(Int64, nval)]
+end
+
+function unscale(var::AbstractVariable, values::Vector, old_min, old_max)
+    [unscale(value, lower_bound(var[j]), upper_bound(var[j]), old_min, old_max)
+        for j in 1:length(values)]
+end
+
 # Export functions
-export lower_bound, upper_bound, initial_value, values, ==
+export lower_bound, upper_bound, initial_value, values, ==, unscale
 
 # ---------------------------------------------------------------------
 # Objectives

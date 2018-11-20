@@ -1,8 +1,8 @@
-module SurrogateModelsTests
+module MetaModelsTests
 
 using Test
-import MscThesis.SurrogateModels: LinearRegression, fit!, predict
-import MscThesis.SurrogateModels: MLPRegressor, gen_batches
+import MscThesis.MetaModels: LinearRegression, fit!, predict
+import MscThesis.MetaModels: MLPRegressor, gen_batches
 
 @testset "Linear Regression Tests" begin
     close_enough(x0, x1, tol=1e-14) = abs(x0 - x1) <= tol ? true : false

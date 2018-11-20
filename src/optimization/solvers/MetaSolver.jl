@@ -1,5 +1,5 @@
 using .Metamodels
-using .Pareto: ParetoDominance
+using .Pareto: ParetoResult
 
 struct MetaSolver <: AbstractSolver
     surrogate::Type
@@ -19,7 +19,7 @@ struct MetaSolver <: AbstractSolver
     surrogate_exploration_decay_rate::Real
 
     max_evaluations::Int
-    pareto_data::ParetoDominance
+    pareto_result::ParetoResult
     end
 
     # TODO - Constructor
@@ -29,11 +29,11 @@ end
 init_function(s::MetaSolver) = s.surrogate_creation
 init_function_params(s::MetaSolver) = s.surrogate_creation_params
 max_evaluations(s::MetaSolver) = s.max_evaluations
-pareto_data(s::MetaSolver) = s.pareto_data
+results(s::MetaSolver) = s.pareto_result
 surrogate_optimiser(s::MetaSolver) = s.solver
 
 function data(s::MetaSolver)
-    dt = pareto_data(s)
+    dt = results(s)
     variables(dt), objectives(dt) # X, y
 end
 
@@ -122,7 +122,6 @@ create_proxy_model(proxy::Function, original_model::Model) =
             i -> (x -> surrogate(x))[i]
         end,
         original_model)
-
 create_proxy_model(proxies::Vector{Function}, original_model::Model)
     replace_obj_f(o, f) = Objective(f, coefficient(o), sense(o))
 
@@ -141,7 +140,7 @@ end
 function update_data!(solver::MetaSolver, new_data)
     vars = map(variables, new_data)
     objs = map(objectives, new_data)
-    push!(solver.pareto_sets, vars, objs);
+    push!(results(solver), vars, objs);
 end
 
 function update_surrogate!(surrogate, data)
@@ -150,6 +149,7 @@ function update_surrogate!(surrogate, data)
     fit!(surrogate, X, y)
 
     # TODO - Get error measurement
+    surrogate, 0
 end
 
 function solve(solver::MetaSolver, original_model::Model)

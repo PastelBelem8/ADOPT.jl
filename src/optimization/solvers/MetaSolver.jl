@@ -84,7 +84,7 @@ end
 "Ensures the necessary `kwargs` are well specified for the `sample` function"
 function sample_kwargs(;kwargs...)
     res = Dict{Symbol, Any}()
-    res[:sampling] = get(kwargs, :sampling, throw(ArgumentError("sampling function must be specified")))
+    res[:sampling_f] = get(kwargs, :sampling_f, throw(ArgumentError("sampling function must be specified")))
     res[:nsamples] = get(kwargs, :nsamples, 100)
     res[:filename] = get(kwargs, :filename, "sample-$(now()).csv")
     res

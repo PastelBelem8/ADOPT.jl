@@ -1,4 +1,4 @@
-module SurrogateModels
+module Metamodels
 
 using ScikitLearnBase
 import ScikitLearnBase: @declare_hyperparameters, fit!, predict

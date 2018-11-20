@@ -98,6 +98,12 @@ minMaxScale(nmin::Number, nmax::Number, A::AbstractMatrix, dim::Int) =
 unscale(value, nmin, nmax, omin=0, omax=1) =
     (value - omin) / (omax - omin) * (nmax - nmin) - nmin
 
+unscale(values::AbstractArray, nmins::AbstractVector, nmaxs::AbstractVector,
+        omins::AbstractVector, omaxs::AbstractVector) =
+    map(1:size(values, 2)) do j
+        unscale(values[:,j], nmins[j], nmaxs[j], omins[j], omaxs[j])
+    end
+
 # --------------------------------------------------------------------------
 # File
 # --------------------------------------------------------------------------

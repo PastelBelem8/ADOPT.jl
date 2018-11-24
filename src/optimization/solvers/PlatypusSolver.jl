@@ -22,7 +22,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
       st = time();
       res = f(args...)
       @info "[$(now())] Objective function result $(args...):\n[$res]"
-      push!(profiling_results, res)
+      push!(profiling_results, res...)
       push!(profiling_times, time() - st)
       res
     end
@@ -30,7 +30,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     prepend!(profiling_results, x...) # Decision variables
     start_time = time()
 
-    results = [profile((x...) -> apply(o, x...), x...) for o in objectives]
+    results = flatten([profile((x...) -> apply(o, x...), x...) for o in objectives])
 
     if length(constraints) > 0
       results = results, [profile(func(c), x...) for c in constraints]
@@ -70,7 +70,8 @@ function convert(::Type{Platypus.Problem}, m::Model)
 
   # 2.3. Convert Objective Function
   objs = objectives(m)
-  Platypus.set_directions!(problem, directions(objs))
+  Platypus.set_directions!(problem, flatten(directions(objs)))
+
   Platypus.set_function!(problem, platypus_function_with_profiling(objs, constrs))
   problem
 end
@@ -331,7 +332,6 @@ function solve(solver::PlatypusSolver, model::Model)
     check_params(solver, model)
 
     problem = convert(Platypus.Problem, model)
-
     algorithm_type = get_algorithm(solver)
     evals = get_max_evaluations(solver)
     extra_params = get_algorithm_params(solver)
@@ -347,8 +347,3 @@ function solve(solver::PlatypusSolver, model::Model)
     sols = Platypus.solve(algorithm, max_eval=evals)
     convert(Vector{Solution}, sols)
 end
-
-
-
-alg = SPEA2
-solver = PlatypusSolver(alg, max_eval=100)

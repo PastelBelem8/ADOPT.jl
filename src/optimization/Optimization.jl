@@ -1,5 +1,5 @@
 # Imports --------------------------------------------------------------
-import Base: show, ==, values, get, push!, delete!
+import Base: show, ==, values
 
 # ----------------------------------------------------------------------
 # Auxiliar routines
@@ -227,11 +227,6 @@ produce multiple outputs that can be used as objective functions.
 
 # Arguments
 - `nobjectives::Int`: the number of objectives represented by this structure
-- `cache::Dict{UInt64, Dict{Symbol, Any}}`: the results of the last calls to the
-function. The key is the hash of the value of the variables and the value is a
-tuple with 2 elements, the array with the results and a counter to monitorize
-the accesses to the cache. After surpassing the number of objectives, the entry
-will be deleted.
 - `func::Function`: the function to be computed
 - `coefficients::Vector{Real}`: the weight representing the importance of the objective
 functions
@@ -240,14 +235,13 @@ either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
 """
 struct SharedObjective <: AbstractObjective
     nobjectives::Int
-    cache::Dict{UInt64, Dict{Symbol, Any}}
     func::Function
     coefficients::Vector{Real}
     senses::Vector{Symbol}
 
-    SharedObjective(f::Function, coefficients::Vector{T}, senses::Vector{Symbol}) where{T<:Real} =
+    SharedObjective(f::Function, coefficients, senses::Vector{Symbol}) =
         begin   check_arguments(SharedObjective, coefficients, senses)
-                new(length(coefficients), Dict{UInt64,  Dict{Symbol, Any}}(), f, coefficients, senses)
+                new(length(coefficients), f, coefficients, senses)
         end
 end
 
@@ -272,20 +266,19 @@ check_arguments(::Type{SharedObjective}, coefficients, senses) =
     end
 
 # Selectors
-cache(o::SharedObjective) = o.cache
 nobjectives(o::SharedObjective) = o.nobjectives
 
 coefficient(o::SharedObjective, i::Union{Int,Colon}=(:)) =
     let coeffs = coefficients(o)
         0 < i < length(coeffs) ? coeffs[i] : throw(BoundsError(coeffs, i))
     end
-coefficients(o::SharedObjective) = coefficient(o)
+coefficients(o::SharedObjective) = o.coefficients
 
 sense(o::SharedObjective, i::Union{Int,Colon}=(:)) =
     let snses = senses(o)
         i == (:) || 0 < i < length(snses) ? snses[i] : throw(BoundsError(snses, i))
     end
-senses(o::SharedObjective) = sense(o)
+senses(o::SharedObjective) = o.senses
 
 direction(o::SharedObjective, i::Union{Int,Colon}=(:)) =
     let direction(sense) = sense == :MIN ? -1 : 1
@@ -297,56 +290,15 @@ directions(v::Vector{SharedObjective}) = [direction(o) for o in v]
 isminimization(o::SharedObjective) =
     invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
 
-"Returns whether the number of accesses to a cache entry has been exceeded"
-access_exceeded(o::SharedObjective, key) =
-    let cache = get(o, key, throw(KeyError(key)))
-        cache[:counter] >= nobjectives(o)
-    end
-
-Base.in(o::SharedObjective, key) = haskey(cache(o), key)
-
-# Iterators
-Base.get(o::SharedObjective, key, default=nothing) =
-    let cached_result = get(cache(o), key, default)
-        cached_result[:results], cached_result[:counter]
-    end
-
 # Comparators
 ==(o1::SharedObjective, o2::SharedObjective) =
     func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
     sense(o1) == sense(o2)
 
-# Modifiers
-"Delete the entry associated with `key` in the SharedObjective's cache"
-Base.delete!(o::SharedObjective, key) = delete!(cache(o), key)
-"Increases the number of accesses in the SharedObjective's cache"
-incr_access!(o::SharedObjective, key) = cache(o)[:counter] += 1
-"Updates the access in a Shared Objective's cache accordingly"
-update_access!(o::SharedObjective, key) =
-    is_access_exceeded(o, key) ? delete!(o, key) : incr_access!(o, key)
-
-"Creates a new entry for the `key` associated to the values of `counter` and `results`"
-Base.push!(o::SharedObjective, key; counter, results) =
-    let cache = cache(o);
-        cache[key] = Dict(:counter => counter, :results => results);
-    end
-
 # Application
 "Applies the objective's function to provided arguments"
-apply(o::SharedObjective, args...) =
-    let # key = hash(args...)
-        # Apply the evaluation function if it hasn't been applied yet
-        # if !(key in o)
-            results = func(o)(args...)
-            # push!(o, key, counter=0, results=results)
-        # end
-        # Get the result and update the number of accesses
-        # results, _ = get(o, key)
-        # result = results[counter+1]
-        # update_access!(o, key)
-        # result
-        results
-    end
+apply(o::SharedObjective, args...) = func(o)(args...)
+
 "Evaluates the true value of the objective"
 evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)
 
@@ -521,7 +473,7 @@ objectives(m::AbstractModel) = deepcopy(m.objectives)
 variables(m::AbstractModel) = deepcopy(m.variables)
 
 nconstraints(m::AbstractModel) = length(m.constraints)
-nobjectives(m::AbstractModel) = length(m.objectives)
+nobjectives(m::AbstractModel) = sum(map(nobjectives, m.objectives))
 nvariables(m::AbstractModel) = length(m.variables)
 
 unscalers(m::AbstractModel) = map(variables(m)) do var

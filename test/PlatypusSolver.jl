@@ -58,7 +58,7 @@ model = Model(vars, objs, cnstrs)
 # Step 2. Define the Solver
 a_type = GeneticAlgorithm;
 a_params = Dict(:population_size => 10, :offspring_size => 5);
-solver = PlatypusSolver(a_type, max_eval=3000, algorithm_params=a_params)
+solver = PlatypusSolver(a_type, max_eval=300, algorithm_params=a_params)
 
 # Step 3. Solve it!
 res = solve(solver, model)
@@ -97,15 +97,15 @@ convert(Vector{Solution}, sols[1])
 # Shared Objective
 #=
 vars = [IntVariable(0, 20), IntVariable(-20, 0)]
-objs = [SharedObjective(x -> [x[1] + x[2], x[1] ^ x[2]], [:MIN, :MAX])]
+objs = [SharedObjective(x -> [3 + x[1], 2 - x[2]], [:MIN, :MAX])]
 model = Model(vars, objs)
 
+nobjectives(model)
 # Step 2. Define the Solver
 a_type = NSGAII;
-a_params = Dict(:population_size => 10);
-solver = PlatypusSolver(a_type, max_eval=300, algorithm_params=a_params)
+a_params = Dict(:population_size => 1);
+solver = PlatypusSolver(a_type, max_eval=100, algorithm_params=a_params)
 
 # Step 3. Solve it!
 res = solve(solver, model)
-
 =#

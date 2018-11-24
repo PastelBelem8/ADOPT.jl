@@ -4,6 +4,7 @@ authors = ["PastelBelem8 <catarina.belem@tecnico.ulisboa.pt>"]
 version = "0.1.0"
 
 [deps]
+ASTInterpreter2 = "e6d88f4b-b52a-544c-a8d3-7a4f12cb39c3"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"

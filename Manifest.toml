@@ -1,3 +1,9 @@
+[[ASTInterpreter2]]
+deps = ["DebuggerFramework"]
+git-tree-sha1 = "8df3d36e0286777d226f4fd4956a432b73425186"
+uuid = "e6d88f4b-b52a-544c-a8d3-7a4f12cb39c3"
+version = "0.1.1"
+
 [[Arpack]]
 deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
 git-tree-sha1 = "1ce1ce9984683f0b6a587d5bdbc688ecb480096f"
@@ -52,6 +58,11 @@ version = "0.14.0"
 [[Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
+[[DebuggerFramework]]
+git-tree-sha1 = "0288f278a5f58c28c67ad1cf55dce950069709b7"
+uuid = "67417a49-6d77-5db2-98c7-c13144130cd2"
+version = "0.1.2"
 
 [[DecisionTree]]
 deps = ["DelimitedFiles", "Distributed", "LinearAlgebra", "Random", "ScikitLearnBase", "Statistics", "Test"]

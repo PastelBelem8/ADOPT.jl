@@ -18,6 +18,7 @@ convert(::Type{Solution}, x, y, constrs) =
 
         Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
     end
+
 convert(::Type{Vector{Solution}}, X, y, constraints) =
     map(1:size(X, 2)) do sample
         convert(Solution, X[:, sample], y[:, sample], constraints)
@@ -121,7 +122,7 @@ struct Surrogate
     # obtained data, then to older one.
     exploration_decay_rate::Real
 
-    Surrogate(meta_model; objectives::Tuple{Objectives}, creation_f::Function=fit!,
+    Surrogate(meta_model; objectives::Tuple{Objective}, creation_f::Function=fit!,
               creation_params::Dict{Symbol, Any}, correction_f::Function=predict,
               correction_frequency::Int=1, decay_rate::Real=0.1) = begin
         if isempty(objectives)

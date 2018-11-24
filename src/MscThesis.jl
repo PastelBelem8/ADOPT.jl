@@ -4,7 +4,7 @@ module MscThesis
 # ----------
 
 # Utils
-# include("./Utils.jl")
+include("./Utils.jl")
 # Internals
 include("./optimization/Optimization.jl")
 include("./optimization/Pareto.jl")
@@ -12,7 +12,7 @@ include("./optimization/Sampling.jl")
 # Solvers
 include("./optimization/solvers/Platypus.jl")
 include("./optimization/solvers/PlatypusSolver.jl")
-# include("./optimization/solvers/MetaModels.jl")
-# include("./optimization/solvers/MetaSolver.jl")
+include("./optimization/solvers/Metamodels.jl")
+include("./optimization/solvers/MetaSolver.jl")
 
 end

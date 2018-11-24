@@ -115,6 +115,24 @@ function boxbehnken(ndims::Int)
     vcat(X, [0.5 for _ in 1:ndims]')'
 end
 
+get_existing(sampling_f; kwargs...) =
+    if sampling_f in (randomMC, random_samples)
+        (ndims, nsamples) -> random_sample(ndims, nsamples)
+    elseif sampling_f == stratifiedMC
+        (ndims, _) -> stratifiedMC(ndims, kwargs[:bins])
+    elseif sampling_f == latinHypercube
+        (ndims, _) -> latinHypercube(ndims, kwargs[:nbins])
+    elseif sampling_f == fullfactorial
+        (ndims, _) -> fullfactorial(ndims, kwargs[:level])
+    elseif sampling_f == boxbehnken
+        (ndims, _) -> boxbehnken(ndims)
+    else
+        throw(error("unimplemented sampling function"))
+    end
+
+exists(f) = f ∈ (boxbehnken, fullfactorial, latinHypercube, random_samples, randomMC, stratifiedMC)
+
+
 # References
 # [1] - Giunta, A. A., Wojtkiewicz, S., & Eldred, M. S. (2003).
 # Overview of modern design of experiments methods for computational

@@ -427,7 +427,7 @@ end
                                     all([!isdefined(v3, i) for i in length(v3)])
                         end
                         @test begin o3 = MscThesis.objectives(m3);
-                                    isa(o3, Vector{MscThesis.Objective}) &&
+                                    isa(o3, Vector{MscThesis.AbstractObjective}) &&
                                     all([!isdefined(o3, i) for i in length(o3)])
                         end
             end

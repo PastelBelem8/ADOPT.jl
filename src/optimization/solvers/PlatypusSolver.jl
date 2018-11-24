@@ -1,5 +1,6 @@
 # Using
 using .Platypus
+using Dates: now
 
 # Imports
 import Base: convert
@@ -11,17 +12,11 @@ dict2expr(dict::Dict) = [kv for kv in dict]
 # These routines provide the interface between the solver and the
 # Platypus Python library.
 # -----------------------------------------------------------------------
-function platypus_function(objectives, constraints)::Function
-    length(constraints) > 0  ? ((x...) -> return [func(o)(x...) for o in objectives],
-                                                 [func(c)(x...) for c in constraints]) :
-                               ((x...) -> return [func(o)(x...) for o in objectives])
-end
-
 function platypus_function_with_profiling(objectives, constraints)::Function
 
-  function aggregate_function(x...)
-    local profiling_times = Vector{Real}()
-    local profiling_results = Vector{Real}()
+  aggregate_function(x...) = let
+    profiling_times = Vector{Real}()
+    profiling_results = Vector{Real}()
 
     function profile(f, args...)
       st = time();
@@ -35,7 +30,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     prepend!(profiling_results, x...) # Decision variables
     start_time = time()
 
-    results = [profile(func(o), x...) for o in objectives]
+    results = [profile((x...) -> apply(o, x...), x...) for o in objectives]
 
     if length(constraints) > 0
       results = results, [profile(func(c), x...) for c in constraints]
@@ -45,8 +40,8 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     # Write to File
     output = vcat(profiling_times, profiling_results)
     csv_write(output)
-    # Return Results
-    return results
+    # Results
+    results
   end
 
   return (x...) -> aggregate_function(x...)
@@ -345,10 +340,15 @@ function solve(solver::PlatypusSolver, model::Model)
     params = union( Platypus.mandatory_params(algorithm_type),
                     Platypus.optional_params(algorithm_type))
     extra_params = convert_params(extra_params)
-    # extra_params = convert_params(filter(p -> first(p) in params, extra_params))
+
     # Create the algorithm and solve it
     algorithm = algorithm_type(problem; dict2expr(extra_params)...)
 
     sols = Platypus.solve(algorithm, max_eval=evals)
     convert(Vector{Solution}, sols)
 end
+
+
+
+alg = SPEA2
+solver = PlatypusSolver(alg, max_eval=100)

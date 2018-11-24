@@ -1,12 +1,12 @@
 # Imports --------------------------------------------------------------
-import Base: show, ==, values
+import Base: show, ==, values, get, push!, delete!
 
 # ----------------------------------------------------------------------
 # Auxiliar routines
 # ----------------------------------------------------------------------
 # Routines to abstract and to the make code more readable/cleaner
 "Throws an error if the arguments of a certain type `T` are invalid."
-function check_arguments(args...; kwargs...) end
+function check_arguments(args...) end
 
 # ---------------------------------------------------------------------
 # Variables
@@ -26,7 +26,6 @@ might be a continuous variable (Real).
 
 See also: [`IntVariable`](@ref), [`RealVariable`](@ref), [`SetVariable`](@ref)
 """
-"Generic Variable type that is supertype of all the variables to be defined."
 abstract type AbstractVariable end
 
 "Creates and exports variable structure subtype of the `AbstractVariable` type based on the provided fields"
@@ -126,8 +125,10 @@ values(var::SetVariable) = var.values
 unscale(var::AbstractVariable, values::Vector, old_min, old_max) =
     [unscale(value, lower_bound(var[j]), upper_bound(var[j]), old_min, old_max)
         for j in 1:length(values)]
+
 unscale(var::T, value, old_min, old_max) where{T<:AbstractVariable} =
     unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
+
 unscale(var::SetVariable, value, old_min, old_max) = let
     nval = unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
     var.values[round(Int64, nval)]
@@ -139,6 +140,17 @@ export lower_bound, upper_bound, initial_value, values, ==, unscale
 # ---------------------------------------------------------------------
 # Objectives
 # ---------------------------------------------------------------------
+abstract type AbstractObjective end
+
+# Selectors
+func(o::AbstractObjective) = o.func
+
+# Predicates
+isObjective(o::AbstractObjective)::Bool = true
+isObjective(o::Any)::Bool = false
+
+isminimization(o::AbstractObjective, comp) = comp(:MIN, sense(o))
+
 """
     Objective(λ, n, :MIN)
     Objective(λ, n, :MAX)
@@ -160,7 +172,7 @@ function
 - `sense::Symbol`: the direction/sense of the objective function, which can
 either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
 """
-struct Objective
+struct Objective <: AbstractObjective
     func::Function
     coefficient::Real
     sense::Symbol
@@ -182,32 +194,168 @@ check_arguments(::Type{Objective}, f::Function, coefficient::Real, sense::Symbol
 
 # Selectors
 coefficient(o::Objective) = o.coefficient
-func(o::Objective) = o.func
 sense(o::Objective) = o.sense
+
 direction(o::Objective) = o.sense == :MIN ? -1 : 1
-directions(v::Vector{Objective}) = [direction(o) for o in v]
+directions(v::Vector) = [direction(o) for o in v]
 
-# Predicates
-isObjective(o::Objective)::Bool = true
-isObjective(o::Any)::Bool = false
-
-isminimization(o::Objective) = sense(o) == :MIN
+# Predicate
+isminimization(o::Objective) = invoke(isminimization, Tuple{AbstractObjective, Function}, o, ==)
 
 # Comparators
 ==(o1::Objective, o2::Objective) =
     func(o1) == func(o2) && coefficient(o1) == coefficient(o2) && sense(o1) == sense(o2)
 
 # Application
+nobjectives(::Objective) = 1
+
 "Applies the objective's function to provided arguments"
 apply(o::Objective, args...) = func(o)(args...)
 
 "Evaluates the true value of the objective"
 evaluate(o::Objective, args...) = coefficient(o) * apply(o, args...)
 
+"""
+    SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])
+
+The shared objective is a that encloses multiple objective functions in a
+single function. This avoids evaluating multiple the same function multiple
+times, which is extremely useful in the case of simulation-based optimization
+problems, where simulations are time-consuming and often simulatenously
+produce multiple outputs that can be used as objective functions.
+
+
+# Arguments
+- `nobjectives::Int`: the number of objectives represented by this structure
+- `cache::Dict{UInt64, Dict{Symbol, Any}}`: the results of the last calls to the
+function. The key is the hash of the value of the variables and the value is a
+tuple with 2 elements, the array with the results and a counter to monitorize
+the accesses to the cache. After surpassing the number of objectives, the entry
+will be deleted.
+- `func::Function`: the function to be computed
+- `coefficients::Vector{Real}`: the weight representing the importance of the objective
+functions
+- `senses::Vector{Symbol}`: the senses of the objective functions, which can
+either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
+"""
+struct SharedObjective <: AbstractObjective
+    nobjectives::Int
+    cache::Dict{UInt64, Dict{Symbol, Any}}
+    func::Function
+    coefficients::Vector{Real}
+    senses::Vector{Symbol}
+
+    SharedObjective(f::Function, coefficients::Vector{T}, senses::Vector{Symbol}) where{T<:Real} =
+        begin   check_arguments(SharedObjective, coefficients, senses)
+                new(length(coefficients), Dict{UInt64,  Dict{Symbol, Any}}(), f, coefficients, senses)
+        end
+end
+
+# Constructors
+SharedObjective(f::Function, nobjs::Int) =
+    SharedObjective(f, [1 for _ in 1:objs], [:MIN for _ in 1:nobjs])
+
+SharedObjective(f::Function, coefficients::Vector{T}) where{T<:Real} =
+    SharedObjective(f, coefficients, [:MIN for _ in 1:length(coefficients)])
+
+SharedObjective(f::Function, senses::Vector{Symbol}) =
+    SharedObjective(f, [1 for _ in 1:length(senses)], senses)
+
+# Argument Validations
+check_arguments(::Type{SharedObjective}, coefficients, senses) =
+    let valid_sense(sense) = sense in (:MIN, :MAX)
+        if length(coefficients) != length(senses)
+            throw(DimensionMismatch("`coefficients` and `senses` should have the same dimension"))
+        elseif isempty(filter(valid_sense, senses))
+            throw(DomainError("unrecognized sense in `senses`. Valid values are {MIN, MAX}"))
+        end
+    end
+
+# Selectors
+cache(o::SharedObjective) = o.cache
+nobjectives(o::SharedObjective) = o.nobjectives
+
+coefficient(o::SharedObjective, i::Union{Int,Colon}=(:)) =
+    let coeffs = coefficients(o)
+        0 < i < length(coeffs) ? coeffs[i] : throw(BoundsError(coeffs, i))
+    end
+coefficients(o::SharedObjective) = coefficient(o)
+
+sense(o::SharedObjective, i::Union{Int,Colon}=(:)) =
+    let snses = senses(o)
+        i == (:) || 0 < i < length(snses) ? snses[i] : throw(BoundsError(snses, i))
+    end
+senses(o::SharedObjective) = sense(o)
+
+direction(o::SharedObjective, i::Union{Int,Colon}=(:)) =
+    let direction(sense) = sense == :MIN ? -1 : 1
+        map(direction, sense(o, i))
+    end
+directions(v::Vector{SharedObjective}) = [direction(o) for o in v]
+
+# Predicates
+isminimization(o::SharedObjective) =
+    invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
+
+"Returns whether the number of accesses to a cache entry has been exceeded"
+access_exceeded(o::SharedObjective, key) =
+    let cache = get(o, key, throw(KeyError(key)))
+        cache[:counter] >= nobjectives(o)
+    end
+
+Base.in(o::SharedObjective, key) = haskey(cache(o), key)
+
+# Iterators
+Base.get(o::SharedObjective, key, default=nothing) =
+    let cached_result = get(cache(o), key, default)
+        cached_result[:results], cached_result[:counter]
+    end
+
+# Comparators
+==(o1::SharedObjective, o2::SharedObjective) =
+    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
+    sense(o1) == sense(o2)
+
+# Modifiers
+"Delete the entry associated with `key` in the SharedObjective's cache"
+Base.delete!(o::SharedObjective, key) = delete!(cache(o), key)
+"Increases the number of accesses in the SharedObjective's cache"
+incr_access!(o::SharedObjective, key) = cache(o)[:counter] += 1
+"Updates the access in a Shared Objective's cache accordingly"
+update_access!(o::SharedObjective, key) =
+    is_access_exceeded(o, key) ? delete!(o, key) : incr_access!(o, key)
+
+"Creates a new entry for the `key` associated to the values of `counter` and `results`"
+Base.push!(o::SharedObjective, key; counter, results) =
+    let cache = cache(o);
+        cache[key] = Dict(:counter => counter, :results => results);
+    end
+
+# Application
+"Applies the objective's function to provided arguments"
+apply(o::SharedObjective, args...) =
+    let # key = hash(args...)
+        # Apply the evaluation function if it hasn't been applied yet
+        # if !(key in o)
+            results = func(o)(args...)
+            # push!(o, key, counter=0, results=results)
+        # end
+        # Get the result and update the number of accesses
+        # results, _ = get(o, key)
+        # result = results[counter+1]
+        # update_access!(o, key)
+        # result
+        results
+    end
+"Evaluates the true value of the objective"
+evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)
+
+# Other comparators
+==(o1::SharedObjective, o2::Objective) = ==(o1::Objective, o2::SharedObjective) = false
+
 # ---------------------------------------------------------------------
 # Constraints
 # ---------------------------------------------------------------------
-
 struct Constraint
     func::Function
     coefficient::Real
@@ -248,6 +396,10 @@ apply(c::Constraint, args...) = func(c)(args...)
 "Evaluates the value of the constraint relative to 0"
 issatisfied(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
 
+"Evaluates the value of constraint"
+evaluate(c::Constraint, args...) = issatisfied(c, args...) ? 0 : apply(c, args...)
+
+
 "Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
 evaluate_penalty(c::Constraint, args...)::Real =
     begin
@@ -278,7 +430,7 @@ otherwise `false`.
 assigned after the evaluation of the solution.
 - `feasible::Bool=true`: True if the solution does not violate any constraint,
 and false otherwise.
-- `evaluated::Bool=false`: True if the solution was evaluated, false otherwise.
+- `evaluated::Bool=true`: True if the solution was evaluated, false otherwise.
 
 # Examples
 julia> Solution([1,2,3])
@@ -296,18 +448,16 @@ struct Solution
     feasible::Bool
     evaluated::Bool
 
-    Solution(v::Vector{T}, objectives::Vector{Y}, constraints::Vector{Z},
-             constraint_violation::Real, feasible::Bool=true, evaluated::Bool=true)
-             where{T<:Real, Y<:Real, Z<:Real} =
-        begin
-            check_arguments(Solution, v, objectives, constraints, constraint_violation, feasible, evaluated)
-            new(v, objectives, constraints, constraint_violation, feasible, evaluated)
+    Solution(vars::Vector{T}, objectives::Vector{Y}, constraints::Vector{Z}, constraint_violation::Real, feasible::Bool=true, evaluated::Bool=true) where{T<:Real, Y<:Real, Z<:Real} =
+        begin   check_arguments(Solution, vars, objectives, constraints, constraint_violation, feasible, evaluated)
+                new(vars, objectives, constraints, constraint_violation, feasible, evaluated)
         end
-    Solution(v::Vector{T}) where{T<:Real} =
-        Solution(v, Vector{Real}(), Vector{Real}(), 0, true, false)
-    Solution(v::Vector{T}, constraints::Vector{Y}, constraint_violation::Real,
-             feasible::Bool=true) where {T<:Real, Y<:Real} =
-        Solution(v, Vector{Real}(), constraints, constraint_violation, feasible, false)
+
+    Solution(vars::Vector{T}) where{T<:Real} =
+        Solution(vars, Vector{Real}(), Vector{Real}(), 0, true, false)
+
+    Solution(vars::Vector{T}, constraints::Vector{Y}, constraint_violation::Real, feasible::Bool=true) where{T<:Real, Y<:Real} =
+        Solution(vars, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
 
 # Typers
@@ -315,8 +465,8 @@ typeof_variables(::Type{Solution}) = Vector{Real}
 typeof_objectives(::Type{Solution}) = Vector{Real}
 typeof_constraints(::Type{Solution}) = Vector{Real}
 typeof_constraint_violation(::Type{Solution}) = Real
-typeof_feasible(::Type{Solution}) = Real
-typeof_evaluated(::Type{Solution}) = Real
+typeof_feasible(::Type{Solution}) = Bool
+typeof_evaluated(::Type{Solution}) = Bool
 
 # Selectors
 variables(s::Solution) = s.variables
@@ -337,15 +487,13 @@ isSolution(s::Any)::Bool = false
 
 # Argument Validations
 # TODO - CHANGE THIS
-check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector,
-                constrs::Vector{Real}, constraint_violation::Real,
-                feasible::Bool, evaluated::Bool) where {T<:Real} =
+check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector{Real},
+                constraint_violation::Real, feasible::Bool, evaluated::Bool) where{T<:Real} =
     if length(vars) < 1
         throw(DomainError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
     # elseif constraint_violation != 0 && all(constrs)
     #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
-
 
 # ---------------------------------------------------------------------
 # Model / Problem
@@ -354,31 +502,39 @@ abstract type AbstractModel end
 
 struct Model <: AbstractModel
     variables::Vector{AbstractVariable}
-    objectives::Vector{Objective}
+    objectives::Vector{AbstractObjective}
     constraints::Vector{Constraint}
 
     Model(nvars::Int, nobjs::Int, nconstrs::Int=0) =
         begin   check_arguments(Model, nvars, nobjs, nconstrs)
-                new(Vector{AbstractVariable}(undef, nvars), Vector{Objective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
+                new(Vector{AbstractVariable}(undef, nvars), Vector{AbstractObjective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
         end
-    Model(vars::Vector{T}, objs::Vector{Objective}, constrs::Vector{Constraint}=Vector{Constraint}())
-    where {T<:AbstractVariable} =
+    Model(vars::Vector{T}, objs::Vector{Y}, constrs::Vector{Constraint}=Vector{Constraint}()) where{T<:AbstractVariable, Y<:AbstractObjective} =
         begin   check_arguments(Model, vars, objs, constrs)
                 new(vars, objs, constrs)
         end
 end
 
 # Selectors
-constraints(m::AbstractModel)::Vector{Constraint} = deepcopy(m.constraints)
-objectives(m::AbstractModel)::Vector{Objective} = deepcopy(m.objectives)
-variables(m::AbstractModel)::Vector{AbstractVariable} = deepcopy(m.variables)
+constraints(m::AbstractModel) = deepcopy(m.constraints)
+objectives(m::AbstractModel) = deepcopy(m.objectives)
+variables(m::AbstractModel) = deepcopy(m.variables)
 
 nconstraints(m::AbstractModel) = length(m.constraints)
 nobjectives(m::AbstractModel) = length(m.objectives)
 nvariables(m::AbstractModel) = length(m.variables)
 
+unscalers(m::AbstractModel) = map(variables(m)) do var
+    (val, old_min, old_max) -> unscale(var, val, old_min, old_max)
+    end
+
+aggregate_function(model::Model, transformation=flatten) =
+    length(constraints) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),
+                                          transformation([apply(c, x...) for c in constraints(model)])) :
+                               ((x...) -> transformation([apply(o, x...) for o in objectives(model)]))
+
 # Predicates
-isModel(c::Model)::Bool = true
+isModel(c::AbstractModel)::Bool = true
 isModel(c::Any)::Bool = false
 
 ismixedtype(m::AbstractModel)::Bool = length(unique(map(typeof, variables(m)))) > 1
@@ -395,11 +551,13 @@ check_arguments(::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int) =
             throw(DomainError(err("constraints", nconstrs, 0)))
         end
     end
-check_arguments(::Type{Model}, vars::Vector{T}, objs::Vector{Objective},
-                constrs::Vector{Constraint}) where {T<:AbstractVariable} =
+check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vector{Constraint}) where{T<:AbstractVariable, Y<:AbstractObjective} =
     check_arguments(t, length(vars), length(objs), length(constrs))
 
-evaluate(model::Model, vars::Vector{Real}) =
+
+evaluate(model::AbstractModel, s::Solution) = evaluate(model, variables(s))
+evaluate(model::AbstractModel, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
+evaluate(model::AbstractModel, vars::Vector{Real}, transformation=flatten) =
     let
         if nvariables(model) != length(vars)
             throw(DimensionMismatch("the number of variables in the model
@@ -408,7 +566,7 @@ evaluate(model::Model, vars::Vector{Real}) =
         end
         objs, constrs = objectives(model), constraints(model)
 
-        s_objs = [evaluate(o) for o in objs]
+        s_objs = [evaluate(o) for o in objs] |> transformation
         s_constrs = [evaluate(c) for c in constrs]
         s_penalty, s_feasible = 0, true
 
@@ -419,8 +577,6 @@ evaluate(model::Model, vars::Vector{Real}) =
 
         Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
     end
-evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
-evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
 
 # ---------------------------------------------------------------------
 # Solvers

@@ -135,7 +135,7 @@ function get_variables(solution::Solution; toDecode::Bool=true)
     types = solution.pyo[:problem][:types]
     decoded_vars = Vector()
     for i in 1:size(vars, 1)
-      decoded_vars = vcat(types[i][:decode](vars[i,:]), decoded_vars)
+      decoded_vars = vcat(decoded_vars, types[i][:decode](vars[i,:]))
     end
     decoded_vars
   else

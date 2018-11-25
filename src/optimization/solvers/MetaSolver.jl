@@ -245,8 +245,9 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         constrs = constraints(m)
         objs = map(surrogates(m)) do surrogate
             λ = (x...) -> evaluation_function(surrogate, reshape(x..., (length(vars), 1)))
-            coeffs = flatten(map(coefficient, objectives(surrogate)))
-            snses = flatten(map(tuple ∘ sense, objectives(surrogate)))
+
+            coeffs = foldl(vcat, map(coefficient, objectives(surrogate)), init=Real[]) # TODO - Broke abstraction barrier! FIX it later
+            snses = foldl(vcat, map(sense, objectives(surrogate)), init=Symbol[])
 
             # Create Objective
             is_multi_target(surrogate) ? SharedObjective(λ, coeffs, snses) :

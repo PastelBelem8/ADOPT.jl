@@ -123,7 +123,7 @@ values(var::SetVariable) = var.values
 
 # Unscalers
 unscale(var::AbstractVariable, values::Vector, old_min, old_max) =
-    [unscale(value, lower_bound(var[j]), upper_bound(var[j]), old_min, old_max)
+    [unscale(values[j], lower_bound(var), upper_bound(var), old_min, old_max)
         for j in 1:length(values)]
 
 unscale(var::T, value, old_min, old_max) where{T<:AbstractVariable} =
@@ -290,11 +290,6 @@ directions(v::Vector{SharedObjective}) = [direction(o) for o in v]
 isminimization(o::SharedObjective) =
     invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
 
-# Comparators
-==(o1::SharedObjective, o2::SharedObjective) =
-    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
-    sense(o1) == sense(o2)
-
 # Application
 "Applies the objective's function to provided arguments"
 apply(o::SharedObjective, args...) = func(o)(args...)
@@ -302,9 +297,17 @@ apply(o::SharedObjective, args...) = func(o)(args...)
 "Evaluates the true value of the objective"
 evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)
 
-# Other comparators
+
+# Comparators
+==(o1::SharedObjective, o2::SharedObjective) =
+    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
+    sense(o1) == sense(o2)
+
 ==(o1::SharedObjective, o2::Objective) = ==(o1::Objective, o2::SharedObjective) = false
 
+export AbstractObjective, Objective, SharedObjective
+export nobjectives, objectives, coefficient, coefficients, sense, senses,
+        direction, directions, isminimization, apply, evaluate
 # ---------------------------------------------------------------------
 # Constraints
 # ---------------------------------------------------------------------
@@ -351,7 +354,6 @@ issatisfied(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
 "Evaluates the value of constraint"
 evaluate(c::Constraint, args...) = issatisfied(c, args...) ? 0 : apply(c, args...)
 
-
 "Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
 evaluate_penalty(c::Constraint, args...)::Real =
     begin
@@ -363,6 +365,7 @@ evaluate_penalty(c::Constraint, args...)::Real =
 evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
     sum([evaluate_penalty(c) for c in Cs])
 
+export Constraint
 # ---------------------------------------------------------------------
 # Solution
 # ---------------------------------------------------------------------
@@ -408,6 +411,9 @@ struct Solution
     Solution(vars::Vector{T}) where{T<:Real} =
         Solution(vars, Vector{Real}(), Vector{Real}(), 0, true, false)
 
+    Solution(vars::Vector{T}, objs::Vector{Y}) where{T<:Real,Y<:Real} =
+        Solution(vars, objs, Vector{Real}(), 0, true, true)
+
     Solution(vars::Vector{T}, constraints::Vector{Y}, constraint_violation::Real, feasible::Bool=true) where{T<:Real, Y<:Real} =
         Solution(vars, Vector{Real}(), constraints, constraint_violation, feasible, false)
 end
@@ -447,6 +453,8 @@ check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector
     #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
 
+export Solution
+
 # ---------------------------------------------------------------------
 # Model / Problem
 # ---------------------------------------------------------------------
@@ -471,6 +479,8 @@ end
 constraints(m::AbstractModel) = deepcopy(m.constraints)
 objectives(m::AbstractModel) = deepcopy(m.objectives)
 variables(m::AbstractModel) = deepcopy(m.variables)
+
+unsafe_objectives(m::T) where{T<:AbstractModel} = m.objectives
 
 nconstraints(m::AbstractModel) = length(m.constraints)
 nobjectives(m::AbstractModel) = sum(map(nobjectives, m.objectives))
@@ -507,44 +517,36 @@ check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vecto
     check_arguments(t, length(vars), length(objs), length(constrs))
 
 
-evaluate(model::AbstractModel, s::Solution) = evaluate(model, variables(s))
-evaluate(model::AbstractModel, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
-evaluate(model::AbstractModel, vars::Vector{Real}, transformation=flatten) =
+evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
+evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
+evaluate(model::Model, vars::Vector, transformation=flatten) =
     let
         if nvariables(model) != length(vars)
             throw(DimensionMismatch("the number of variables in the model
             $(nvariables(model)) does not correspond to the number of variables
             $(length(vars))"))
         end
-        objs, constrs = objectives(model), constraints(model)
 
-        s_objs = [evaluate(o) for o in objs] |> transformation
-        s_constrs = [evaluate(c) for c in constrs]
-        s_penalty, s_feasible = 0, true
+        s_objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
 
-        if !isempty(filter(c -> c != 0, s_constrs))
-            s_penalty = evaluate_penalty(constrs)
-            s_feasible = false
+        if nconstraints(model) > 0
+            s_constrs = [evaluate(c, vars) for c in constraints(model)]
+            s_penalty = evaluate_penalty(constrs, vars)
+            s_feasible = s_penalty != 0
+            Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
+        else
+            Solution(vars, s_objs)
         end
-
-        Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
     end
+
+export AbstractModel, Model
 
 # ---------------------------------------------------------------------
 # Solvers
 # ---------------------------------------------------------------------
 abstract type AbstractSolver end
 
-"""
-    SolverFactory(s)
-
-Returns the [`Solver`](@ref) associated with `s` if it exists, else it throws
-an exception.
-"""
-SolverFactory(solver::Symbol) =
-    haskey(solvers, solver) ? solvers[solver] : throw(ArgumentError("invalid solver $solver was specified"))
-SolverFactory(solver::AbstractString) =
-    SolverFactory(Symbol(solver))
-
 "Solves the modeled problem using the given solver"
 function solve(solver::AbstractSolver, model::Model) end
+
+export AbstractSolver, solve

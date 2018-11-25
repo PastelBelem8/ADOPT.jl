@@ -286,6 +286,8 @@ function check_params(solver::PlatypusSolver, model::Model)
   end
 end
 
+
+export PlatypusSolver, PlatypusSolverException, solve
 """
   The steps to solve a problem are the following:
 

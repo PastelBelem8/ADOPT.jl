@@ -17,9 +17,10 @@ specifying filtering functions, such as [`all`](@ref) and [`any`](@ref), it is
 possible to determine if `v0` is a Weak Pareto Optimum (WPO) or if it just
 dominates another vector in `V`.
 """
-weakly_dominates(v0::AbstractVector, v1::AbstractVector) = all(v0 .≤ v1) && any(v0 .< v1)
+weakly_dominates(v0::AbstractVector, v1::AbstractVector) =
+    isempty(v1) ? true : all(v0 .≤ v1) && any(v0 .< v1)
 weakly_dominates(v0::AbstractVector, V::AbstractMatrix, f::Function=identity) =
-    f([weakly_dominates(v0, V[:, j]) for j in 1:ncols(V)])
+    isempty(V) ? true : f([weakly_dominates(v0, V[:, j]) for j in 1:ncols(V)])
 
 """
     strongly_dominates(v0, v1)
@@ -148,17 +149,18 @@ function Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector
         dominated = dominance(objs, nondominated_objs);
         dominated = filter(i-> dominated[i], 1:length(dominated))
 
-        dominated_vars = nondominated_vars[:, dominated];
-        dominated_objs = nondominated_objs[:, dominated];
+        if !isempty(dominated) && !isempty(nondominated_objs)
+            dominated_vars = nondominated_vars[:, dominated];
+            dominated_objs = nondominated_objs[:, dominated];
 
-        # Remove dominated solutions from nondominated
-        remove_nondominated!(pd, dominated);
+            # Remove dominated solutions from nondominated
+            remove_nondominated!(pd, dominated);
 
-        # Push dominated solutions
-        map(dominated) do j
-            push_dominated!(pd, dominated_vars[:, j], dominated_objs[:, j]);
+            # Push dominated solutions
+            map(dominated) do j
+                push_dominated!(pd, dominated_vars[:, j], dominated_objs[:, j]);
+            end
         end
-
         # Push Pareto Optimal Solution
         push_nondominated!(pd, vars, objs);
     else

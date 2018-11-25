@@ -238,3 +238,18 @@ end
     end
 end
 end #module
+
+
+# Add more tests to the Pareto Front
+
+# Test
+pr = ParetoResult(1, 2)
+
+y(x) = [x, 1/x]
+
+for x in 1:10
+    push!(pr, [x], y(x))
+end
+
+# Add more tests to non domianted
+# - involving empty pareto front

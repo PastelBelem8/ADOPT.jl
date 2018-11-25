@@ -239,7 +239,7 @@ struct SharedObjective <: AbstractObjective
     coefficients::Vector{Real}
     senses::Vector{Symbol}
 
-    SharedObjective(f::Function, coefficients, senses::Vector{Symbol}) =
+    SharedObjective(f::Function, coefficients, senses::AbstractVector{Symbol}) =
         begin   check_arguments(SharedObjective, coefficients, senses)
                 new(length(coefficients), f, coefficients, senses)
         end
@@ -270,7 +270,7 @@ nobjectives(o::SharedObjective) = o.nobjectives
 
 coefficient(o::SharedObjective, i::Union{Int,Colon}=(:)) =
     let coeffs = coefficients(o)
-        0 < i < length(coeffs) ? coeffs[i] : throw(BoundsError(coeffs, i))
+        i == (:) || 0 < i < length(coeffs) ? coeffs[i] : throw(BoundsError(coeffs, i))
     end
 coefficients(o::SharedObjective) = o.coefficients
 

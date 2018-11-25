@@ -22,6 +22,9 @@ weakly_dominates(v0::AbstractVector, v1::AbstractVector) =
 weakly_dominates(v0::AbstractVector, V::AbstractMatrix, f::Function=identity) =
     isempty(V) ? true : f([weakly_dominates(v0, V[:, j]) for j in 1:ncols(V)])
 
+weakly_dominates(V::AbstractMatrix, v0::AbstractVector, f::Function=identity) =
+    isempty(V) ? false : f([weakly_dominates(V[:, j], v0) for j in 1:ncols(V)])
+
 """
     strongly_dominates(v0, v1)
 
@@ -54,7 +57,7 @@ true
 
 ```
 """
-is_nondominated(v::AbstractVector, V::AbstractMatrix) = weakly_dominates(v, V, all)
+is_nondominated(v::AbstractVector, V::AbstractMatrix) = !weakly_dominates(V, v, any)
 is_pareto_optimal = is_nondominated
 
 # Overriden methods
@@ -135,41 +138,42 @@ push_nondominated!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector)
     pd.nondominated_objectives = [pd.nondominated_objectives objs];
 end
 
-function Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominance::Function=weakly_dominates)
-    nondominated_vars = nondominated_variables(pd);
-    nondominated_objs = nondominated_objectives(pd);
+Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominance::Function=weakly_dominates) =
+    let nondominated_vars = nondominated_variables(pd);
+        nondominated_objs = nondominated_objectives(pd);
 
-    if length(vars) != nrows(nondominated_vars)
-        throw(DimensionMismatch("`vars` does not have the same dimension as `ndvars`"))
-    elseif length(objs) != nrows(nondominated_objs)
-        throw(DimensionMismatch("`objs` does not have the same dimension as `ndobjs`"))
-    end
-
-    if is_nondominated(objs, nondominated_objs)
-        dominated = dominance(objs, nondominated_objs);
-        dominated = filter(i-> dominated[i], 1:length(dominated))
-
-        if !isempty(dominated) && !isempty(nondominated_objs)
-            dominated_vars = nondominated_vars[:, dominated];
-            dominated_objs = nondominated_objs[:, dominated];
-
-            # Remove dominated solutions from nondominated
-            remove_nondominated!(pd, dominated);
-
-            # Push dominated solutions
-            map(dominated) do j
-                push_dominated!(pd, dominated_vars[:, j], dominated_objs[:, j]);
-            end
+        if length(vars) != nrows(nondominated_vars)
+            throw(DimensionMismatch("`vars` does not have the same dimension as `ndvars`"))
+        elseif length(objs) != nrows(nondominated_objs)
+            throw(DimensionMismatch("`objs` does not have the same dimension as `ndobjs`"))
         end
-        # Push Pareto Optimal Solution
-        push_nondominated!(pd, vars, objs);
-    else
-        push_dominated!(pd, vars, objs);
+
+        if is_nondominated(objs, nondominated_objs)
+            dominated = dominance(objs, nondominated_objs);
+            dominated = filter(i-> dominated[i], 1:length(dominated))
+
+            if !isempty(dominated) && !isempty(nondominated_objs)
+                dominated_vars = nondominated_vars[:, dominated];
+                dominated_objs = nondominated_objs[:, dominated];
+
+                # Remove dominated solutions from nondominated
+                remove_nondominated!(pd, dominated);
+
+                # Push dominated solutions
+                map(dominated) do j
+                    push_dominated!(pd, dominated_vars[:, j], dominated_objs[:, j]);
+                end
+            end
+            # Push Pareto Optimal Solution
+            push_nondominated!(pd, vars, objs);
+        else
+            push_dominated!(pd, vars, objs);
+        end
     end
-end
 
 Base.push!(pd::ParetoResult, V::AbstractMatrix) =
      [Base.push!(pd, V[:, j]) for j in 1:size(V, 2)]
 
 Base.isempty(pd::ParetoResult) = all(map(isempty, (variables(pd), objectives(pd))))
+
 end # Module

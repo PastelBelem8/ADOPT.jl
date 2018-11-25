@@ -1,9 +1,8 @@
 module MetaModelsTests
 
 using Test
-import MscThesis.MetaModels: LinearRegression, fit!, predict
-import MscThesis.MetaModels: MLPRegressor, gen_batches
-
+import MscThesis.Metamodels
+# import MscThesis.Metamodels: MLPRegressor, gen_batches
 @testset "Linear Regression Tests" begin
     close_enough(x0, x1, tol=1e-14) = abs(x0 - x1) <= tol ? true : false
     @testset "Single-Target Keyword Tests" begin
@@ -14,12 +13,12 @@ import MscThesis.MetaModels: MLPRegressor, gen_batches
             y = identity.(X)
 
             @test begin
-                y_pred = predict(fit!(LinearRegression(), X, y), X)
+                y_pred = Metamodels.predict(Metamodels.fit!(Metamodels.LinearRegression(), X, y), X)
                 all(map(close_enough, y_pred, y))
             end
             @test begin
-                y_pred = predict(
-                fit!(LinearRegression(multi_output=false), X, y),
+                y_pred = Metamodels.predict(
+                Metamodels.fit!(Metamodels.LinearRegression(multi_output=false), X, y),
                 X)
                 all(map(close_enough, y_pred, y))
             end
@@ -31,12 +30,12 @@ import MscThesis.MetaModels: MLPRegressor, gen_batches
              y = mapslices(x -> x[1] - x[2], X, dims=1)
 
              @test begin
-                 y_pred = predict(fit!(LinearRegression(), X, y), X)
+                 y_pred = Metamodels.predict(Metamodels.fit!(Metamodels.LinearRegression(), X, y), X)
                  all(map(close_enough, y_pred, y))
              end
              @test begin
-                 y_pred = predict(
-                 fit!(LinearRegression(multi_output=false), X, y),
+                 y_pred = Metamodels.predict(
+                 Metamodels.fit!(Metamodels.LinearRegression(multi_output=false), X, y),
                  X)
                  all(map(close_enough, y_pred, y))
              end
@@ -50,12 +49,12 @@ import MscThesis.MetaModels: MLPRegressor, gen_batches
             y = [1  2  3  4  5;
                 -1 -2 -3 -4 -5]
             @test begin
-                y_pred = predict(fit!(LinearRegression(), X, y), X)
+                y_pred = Metamodels.predict(Metamodels.fit!(Metamodels.LinearRegression(), X, y), X)
                 all(map(close_enough, y_pred, y))
             end
             @test begin
-                y_pred = predict(
-                        fit!(LinearRegression(multi_output=true), X, y),
+                y_pred = Metamodels.predict(
+                        Metamodels.fit!(Metamodels.LinearRegression(multi_output=true), X, y),
                         X)
                 all(map(close_enough, y_pred, y))
             end
@@ -67,12 +66,12 @@ import MscThesis.MetaModels: MLPRegressor, gen_batches
             y = mapslices(x -> [x[1] + x[2], x[1] - x[2]], X, dims=1)
 
             @test begin
-                y_pred = predict(fit!(LinearRegression(), X, y), X)
+                y_pred = Metamodels.predict(Metamodels.fit!(Metamodels.LinearRegression(), X, y), X)
                 all(map(close_enough, y_pred, y))
             end
             @test begin
-                y_pred = predict(
-                        fit!(LinearRegression(multi_output=true), X, y),
+                y_pred = Metamodels.predict(
+                        Metamodels.fit!(Metamodels.LinearRegression(multi_output=true), X, y),
                         X)
                 all(map(close_enough, y_pred, y))
             end
@@ -99,8 +98,8 @@ end
 #         #
 #         # solver = ADAM()
 #         # reg1 = MLPRegressor((1, 100, 2), solver=solver, batch_size=5, batch_shuffle=true)
-#         # fit!(reg1, X1, y1)
-#         # y_pred1 = predict(reg1, X1)
+#         # Metamodels.fit!(reg1, X1, y1)
+#         # y_pred1 = Metamodels.predict(reg1, X1)
 #         #
 #         # using Plots
 #         # scatter(X1', y1', title="MLP Regression", label="Data")
@@ -118,13 +117,13 @@ y1 = vcat(map(identity,X1), map(x -> -x |> identity, X1))
 solver = ADAM()
 reg1 = MLPRegressor((1, 100, 100, 2), solver=solver, batch_size=75, epochs=30, λ=λ)
 
-fit!(reg1, X1, y1)
+Metamodels.fit!(reg1, X1, y1)
 
 using Plots
 plot(Vector(1:length(reg1.early_stopping.validation_losses)), reg1.early_stopping.validation_losses, yscale=:log10, label="Validation Losses")
 plot!(Vector(1:length(reg1.losses)), reg1.losses, yscale=:log10, label="Training Losses")
 
-y_pred1 = predict(reg1, X1)
+y_pred1 = Metamodels.predict(reg1, X1)
 
 println("Minimum training losses: $(minimum(reg1.losses))")
 println("Minimum validation losses: $(minimum(reg1.early_stopping.validation_losses))")
@@ -143,8 +142,8 @@ y2 = mapslices(x -> x[1] * x[2], X2, dims=1)
 λ = 0.03
 solver = ADAM(0.3, decay=0.25)
 reg2 = MLPRegressor((2, 100, 100, 1), solver=solver, epochs=1200, batch_size=5, λ=λ)
-fit!(reg2, X2, y2)
-y_pred2 = predict(reg2, X2)
+Metamodels.fit!(reg2, X2, y2)
+y_pred2 = Metamodels.predict(reg2, X2)
 
 using Plots
 scatter(y2', X2', title="MLP Regression", label="Data")
@@ -168,13 +167,13 @@ y3 = vcat(map(identity,X1), map(x -> -x^2 |> identity, X1))
 solver = ADAM()
 reg3 = MLPRegressor((1, 100, 100,50,100, 2), solver=solver, batch_size=100, epochs=30, λ=λ)
 
-fit!(reg3, X3, y3)
+Metamodels.fit!(reg3, X3, y3)
 
 using Plots
 plot(Vector(1:length(reg3.early_stopping.validation_losses)), reg3.early_stopping.validation_losses, yscale=:log10, label="Validation Losses")
 plot!(Vector(1:length(reg3.losses)), reg3.losses, yscale=:log10, label="Training Losses")
 
-y_pred3 = predict(reg3, X1)
+y_pred3 = Metamodels.predict(reg3, X1)
 
 println("Minimum training losses: $(minimum(reg3.losses))")
 println("Minimum validation losses: $(minimum(reg3.early_stopping.validation_losses))")
@@ -193,13 +192,13 @@ y4 = vcat(map(x -> -x^3,X4), map(x -> -x^2, X4))
 solver = ADAM()
 reg4 = MLPRegressor((1, 100, 100,50,100, 2), solver=solver, batch_size=100, epochs=300, λ=λ, val_fraction=0)
 
-fit!(reg4, X4, y4)
+Metamodels.fit!(reg4, X4, y4)
 
 using Plots
 plot(Vector(1:length(reg4.early_stopping.validation_losses)), reg4.early_stopping.validation_losses, yscale=:log10, label="Validation Losses")
 plot!(Vector(1:length(reg4.losses)), reg4.losses, yscale=:log10, label="Training Losses")
 
-y_pred4 = predict(reg4, X4)
+y_pred4 = Metamodels.predict(reg4, X4)
 
 println("Minimum training losses: $(minimum(reg4.losses))")
 println("Minimum validation losses: $(minimum(reg4.early_stopping.validation_losses))")

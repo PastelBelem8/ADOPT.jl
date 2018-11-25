@@ -123,15 +123,14 @@ end
 create_temporary_file(dir::String, ext::String) =
     joinpath(dir, "$(Dates.format(Dates.now(), "yyyymmddHHMMSS"))") * ext
 
-
 # CSV utils
 csv_sep = ','
 "Changes the language of the CSV files to be written"
-function csv_language end
-function csv_language(lang::Symbol=:EN)
-    global csv_sep = lang == :PT ? ";" : ","
-    @debug "[$(now())] Changed CSV language to $lang"
-end
+function csv_language(lang) end
+csv_language(lang::Symbol=:EN) = begin
+        global csv_sep = lang == :PT ? ";" : ","
+        @debug "[$(now())] Changed CSV language to $lang"
+    end
 csv_language(lang::String="EN") = Symbol(lang) |> csv_language
 
 global csv_filename = "results.csv"

@@ -1,22 +1,27 @@
 using .Metamodels
 using .Pareto: ParetoResult
 
+using DelimitedFiles: readdlm, writedlm
 # ------------------------------------------------------------------------
 # Solution Converter Routines
 # ------------------------------------------------------------------------
-convert(::Type{Solution}, x, y, constrs) =
+convert(::Type{Solution}, x, y, constraints) =
     let variables = convert(typeof_variables(Solution), x)
         objectives = convert(typeof_objectives(Solution), y)
 
         # Constraints
-        constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
-        constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
+        if length(constraints) > 0
+            constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
+            constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
 
-        # Booleans
-        feasible = (constraint_violation == 0)
-        evaluated = true
+            # Booleans
+            feasible = constraint_violation != 0
+            evaluated = true
 
-        Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+            Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+        else
+            Solution(variables, objectives)
+        end
     end
 
 convert(::Type{Vector{Solution}}, X, y, constraints) =
@@ -43,28 +48,37 @@ julia>
 
 """
 sample(;nsamples, sampling, unscalers, evaluate) =
-    let nvars = length()
+    let nvars = length(unscalers)
         X = sampling(nvars, nsamples)
         foreach((unscale, var) -> X[var,:] = unscale(X[var,:], 0, 1), unscalers, 1:nvars)
-        X, evaluate(X)
+        y = mapslices(evaluate, X, dims=1)
+        X, y
     end
 
-sample_to_file(;nsamples, sampling, unscalers, evaluate, filename, header=nothing, dlm=',') =
-    let X, y = sample(nsamples=nsamples, sampling=sampling, unscalers=unscalers, evaluate=evaluate)
+sample_to_file(;nsamples, sampling, unscalers, evaluate, filename, header=nothing, dlm=',', _...) =
+    let (X, y) = sample(nsamples=nsamples, sampling=sampling, unscalers=unscalers, evaluate=evaluate)
+        data = vcat(X, y)'
         open(filename, "w") do io
             if header != nothing
-                write(io, header)
+                join(io, header, dlm)
+                write(io, '\n')
             end
-            writeldm(io, [X y], ',')
+            writedlm(io, data, dlm)
         end
         X, y
     end
 
-from_file(;nvars::Int=0, vars, objs, filename, has_header::Bool=true, dlm=',', _...) =
-    let read(io) = readdlm(io, dlm) ∘ (has_header ? readline : identity)
-        data = read(filename)
-        X, y = data[:, vars], data[:, (nvars .+ objs)]
+
+from_file(;nvars::Int=0, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
+    let data = open(filename, "r") do io
+                    has_header ? readline(io) : nothing;
+                    readdlm(io, dlm, Float64, '\n')
+                end
+        X, y = data[:, vars_cols], data[:, (nvars .+ objs_cols)]
+        X', y'
     end
+
+
 
 # ---------------------------------------------------------------------
 # Surrogate
@@ -106,25 +120,29 @@ julia> file_creation_params = Dict{Symbol, Any} {
 
 """
 struct Surrogate
-    meta_model::Type
-    objectives::Tuple{AbstractObjective}
+    meta_model::Any
+    objectives::Tuple{Vararg{AbstractObjective}}
 
     # Surrogates can be loaded from files or by sampling
-    creation_function::Function
+    creation::Function
     creation_params::Dict{Symbol, Any}
 
     # Surrogates can be updated from t to t
-    correction_function::Function
+    correction::Function
     correction_frequency::Real
+
+    # Surrogates evaluate samples
+    evaluation::Function
 
     # Surrogates should increase exploitation with the increase of evaluations
     # TODO - Adaptively change the surrogate to give more weight to newly
     # obtained data, then to older one.
     exploration_decay_rate::Real
 
-    Surrogate(meta_model; objectives::Tuple{Objective}, creation_f::Function=fit!,
-              creation_params::Dict{Symbol, Any}, correction_f::Function=predict,
-              correction_frequency::Int=1, decay_rate::Real=0.1) = begin
+    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}}, creation_f::Function=Metamodels.fit!,
+              creation_params::Dict{Symbol, Any}, correction_f::Function=Metamodels.fit!,
+              correction_frequency::Int=1, evaluation_f::Function=Metamodels.predict,
+              decay_rate::Real=0.1) = begin
         if isempty(objectives)
             throw(DomainError("invalid argument `objectives` cannot be empty."))
         elseif correction_frequency < 0
@@ -132,63 +150,68 @@ struct Surrogate
         elseif decay_rate < 0
             throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
         end
-        new(meta_model, objectives, creation_f, creation_params, correction_f,
-            correction_frequency, decay_rate)
+        new(meta_model, objectives, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
     end
 end
 
 # Selectors
-surrogate(s::Surrogate) = s.meta_model
-objectives(s::Surrogate) = s.objectives
+@inline surrogate(s::Surrogate) = s.meta_model
+@inline objectives(s::Surrogate) = s.objectives
 
-nobjectives(s::Surrogate) = sum(map(nobjectives, objectives(s)))
+@inline nobjectives(s::Surrogate) = sum(map(nobjectives, objectives(s)))
 
-correction_function(s::Surrogate) = s.correction_function
-creation_function(s::Surrogate) = s.creation_function
-creation_params(s::Surrogate) = s.creation_params
-creation_param(s::Surrogate, param::Symbol, default=nothing) = get(creation_params(s), param, default)
+@inline correction_function(s::Surrogate) = s.correction
+@inline correction_function(s::Surrogate, X, y) = s.correction(surrogate(s), X, y)
 
-creation_approach(s::Surrogate) = try
-    λ = creation_param(s, "sampling_function", throw(DomainError()))
-    λparams = creation_params(s)
-    sampling = Sampling.exists(λ) ? Sampling.get_existing(λ; λparams...) : λ
+@inline creation_function(s::Surrogate) = s.creation
+@inline creation_function(s::Surrogate, X, y) = s.creation(surrogate(s), X, y)
 
-    evaluate(x...) = map(o -> apply(o, x...), objectives(s)) |> flatten
-    filename = creation_param(s, :filename, "sample-$(string(λ))-$(now()).csv")
+@inline evaluation_function(s::Surrogate) = s.evaluation
+@inline evaluation_function(s::Surrogate, X) = s.evaluation(s.meta_model, X)
 
-    (unscalers) -> sample_to_file(; λparams...,
-                                    sampling=λ,
-                                    evaluate=evaluate,
-                                    unscalers=unscalers,
-                                    filename=filename)
-    catch y
-        isa(y, DomainError) ? (_...) -> from_file(;creation_params(s)...) : throw(y)
-    end
+@inline creation_params(s::Surrogate) = s.creation_params
+@inline creation_param(s::Surrogate, param::Symbol, default) = get(creation_params(s), param, default)
 
 # Predicate
-is_multi_target(s::Surrogate) = nobjectives(s) > 1
+@inline is_multi_target(s::Surrogate) = nobjectives(s) > 1
 
 # Modifiers
 create!(surrogate::Surrogate, unscalers) =
-    let approach = creation_approach(surrogate);
-        @info "[$(now())] Creating surrogate using the $(string(approach)) approach";
-        X, y = approach(unscalers);
+    let λ = creation_param(surrogate, :sampling_function, nothing)
+        λparams = creation_params(surrogate)
 
-        @info "[$(now())] Training surrogate model for $(size(X, 2)) samples";
+        # Sampling
+        if λ != nothing
+            sampling = Sampling.exists(λ) ? Sampling.get_existing(λ; λparams...) : λ
+
+            evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
+            filename = creation_param(surrogate, :filename, "sample-$(string(λ))-$(now()).csv")
+
+            X, y = sample_to_file(; λparams..., sampling=λ, evaluate=evaluate,
+                                    unscalers=unscalers, filename=filename)
+        # From File
+        else
+            X, y = from_file(;λparams...)
+        end
+        @info "[$(now())] Training surrogate model for $(size(X, 2)) samples with $(size(X, 1)) dimensions";
         creation_function(surrogate, X, y);
     end
 
-correct!(surrogate::Surrogate, data) = let
-    X, y = data
-    # Fit surrogate
-    correction_function(surrogate, X, y)
+correct!(surrogate::Surrogate, data::Vector{Solution}) =
+    let nsols = length(data)
+        X = hcat(map(variables, data)...)
+        y = hcat(map(objectives, data)...)
+        # Fit surrogate
+        correction_function(surrogate, X, y)
 
-    # TODO - Get error measurement
-    surrogate, 0
+        # TODO - Get error measurement
+        0
     end
 
+export Surrogate
 # ---------------------------------------------------------------------
 # MetaModel (MetaProblem)
+# TODO - This is the same as the Model - define macro?
 # ---------------------------------------------------------------------
 """
     MetaModel(variables, objectives, constraints)
@@ -202,39 +225,45 @@ two different models:
     real/true objective functions (e.g., simulations).
 """
 struct MetaModel <: AbstractModel
-# TODO - This is the same as the Model - define macro?
     variables::Vector{AbstractVariable}
     objectives::Vector{Surrogate}
     constraints::Vector{Constraint}
+
+    MetaModel(vars::Vector{T}, objs::Vector{Surrogate}, constrs::Vector{Constraint}=Vector{Constraint}()) where{T<:AbstractVariable} =
+        new(vars, objs, constrs)
 end
 
 # Selectors
-surrogates(m::MetaModel) = map(surrogate, objectives(m))
-original_objectives(m::MetaModel) = flatten(map(objectives, objectives(m))
+surrogates(m::MetaModel) = objectives(m)
+unsafe_surrogates(m::MetaModel) = unsafe_objectives(m)
+original_objectives(m::MetaModel) = flatten(map(objectives, surrogates(m)))
 
 # Create different Models from MetaModel
-cheap_model(m::MetaModel) =
-    let vars = variables(m)
+cheap_model(m::MetaModel; dynamic::Bool=false) =
+    let surrogates = dynamic ? unsafe_surrogates : surrogates
+        vars = variables(m)
         constrs = constraints(m)
-        objs = map(objectives(m)) do surrogate
-            λ = X -> predict(surrogate, X)
+        objs = map(surrogates(m)) do surrogate
+            λ = (x...) -> evaluation_function(surrogate, reshape(x..., (length(vars), 1)))
             coeffs = flatten(map(coefficient, objectives(surrogate)))
-            senses = flatten(map(senses, objectives(surrogate)))
+            snses = flatten(map(tuple ∘ sense, objectives(surrogate)))
 
             # Create Objective
-            obj = is_multi_target(surrogate) ? SharedObjective : Objective
-            obj(λ, coeffs, senses)
+            is_multi_target(surrogate) ? SharedObjective(λ, coeffs, snses) :
+                                 Objective(λ, coeffs..., snses...)
         end
         Model(vars, objs, constrs)
     end
 expensive_model(m::MetaModel) =
     Model(variables(m), original_objectives(m), constraints(m))
 
+export MetaModel
+
 # ---------------------------------------------------------------------
 # MetaSolver
 # ---------------------------------------------------------------------
 """
-    MetaSolver(solver, max_eval, nvariables, nobjectives)
+    MetaSolver(solver, nvariables, nobjectives, max_eval)
 
 Concretization of [`AbstractSolver`](@ref), which maintains a solver, the
 maximum number of expensive evaluations to be reached in the optimization
@@ -251,7 +280,6 @@ mutable struct MetaSolver <: AbstractSolver
 
     max_evaluations::Int
     pareto_result::ParetoResult
-    end
 
     MetaSolver(solver, nvars, nobjs, max_eval=100) =
         begin
@@ -269,17 +297,13 @@ max_evaluations(s::MetaSolver) = s.max_evaluations
 optimiser(s::MetaSolver) = s.solver
 "Returns the Pareto Results"
 results(s::MetaSolver) = s.pareto_result
-"Returns the data stored in the meta solver in the format `(X, y)`"
-data(s::MetaSolver) = let
-    dt = results(s)
-    variables(dt), objectives(dt) # X, y
-    end
+
 "Returns the Pareto Front solutions obtained with the MetaSolver"
-ParetoFront(s::MetaSolver) = ParetoFront(results(s))
+ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
 
 # Modifiers
 "Stores the variables and objectives in the corresponding meta solver"
-push!(solver::MetaSolver, solutions::Vector{Solution}) =
+Base.push!(solver::MetaSolver, solutions::Vector{Solution}) =
     foreach(solution -> push!(results(solver), variables(solution), objectives(solution)),
         solutions)
 
@@ -293,17 +317,21 @@ clip(elements, nmax) = let
 
 solve(meta_solver::MetaSolver, meta_model::MetaModel) =
     let solver = optimiser(meta_solver)
+        unsclrs = unscalers(meta_model)
         evals_left = max_evaluations(meta_solver)
-        correct(s) -> let err = correct!(s, data(meta_solver))
-                          @info "[$(now())] Retrained surrogate exhibits $(err)% error."
-                      end
+        create(s) = create!(s, unsclrs)
+        correct(solutions) = surrogate ->
+                                let err = correct!(surrogate, solutions)
+                                    @info "[$(now())] Retrained surrogate exhibits $(err)% error."
+                                    err
+                                end
 
         # Models
-        cheaper_model = cheap_model(meta_model)
+        cheaper_model = cheap_model(meta_model, dynamic=true)
         expensiv_model = expensive_model(meta_model)
 
         # Step 1. Create each Surrogate
-        foreach(create!, objectives(meta_model))
+        foreach(create, unsafe_surrogates(meta_model))
 
         # Repeat until termination condition is met.
         while evals_left > 0
@@ -318,8 +346,56 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
             # Step 4. Add results from 3 to ParetoResult
             push!(meta_solver, solutions)
             # Step 5. Update the surrogates
-            foreach(correct,  objectives(meta_model))
+            foreach(correct(solutions),  unsafe_surrogates(meta_model))
         end
         # Step 7. Return Pareto Result non-dominated
-        convert(Vector{Solution}, ParetoFront(s)...)
+        convert(Vector{Solution}, ParetoFront(meta_solver)..., constraints(expensiv_model))
     end
+
+export MetaSolver, solve
+
+#=
+# Define the Variables
+using Main.MscThesis
+v1 = IntVariable(0,  100)
+v2 = IntVariable(-100, 0)
+vars = [v1, v2]
+
+# Define the Objectives
+o1 = Objective(x -> x[1] + x[2], 1, :MIN)
+
+# using Main.MscThesis.Sampling
+# using Main.MscThesis.Metamodels
+# Define the Surrogates
+s1 = LinearRegression(multi_output=false)
+sampling_params = Dict{Symbol, Any}(
+    :sampling_function => Sampling.randomMC,
+    :nsamples => 30,
+    :filename => "sMC-sample.csv",
+    :header => ["Var1", "Var2", "Obj1"],
+    :dlm => ',')
+
+surrogate_o1 = Surrogate(s1, objectives=(o1,), creation_params=sampling_params)
+
+# Define the Optimiser Solver
+# using Main.MscThesis.Platypus
+a_type = NSGAII;
+a_params = Dict(:population_size => 1);
+# solver = Main.MscThesis.PlatypusSolver(a_type, max_eval=100, algorithm_params=a_params)
+solver = PlatypusSolver(a_type, max_eval=100, algorithm_params=a_params)
+
+# Define the Meta Solver
+# meta_solver = Main.MscThesis.MetaSolver(solver, 2, 1, 100)
+meta_solver = MetaSolver(solver, 2, 1, 100)
+
+# Define the MetaModel
+meta_model = MetaModel(vars, [surrogate_o1])
+
+# Solve it!
+solve(meta_solver, meta_model)
+
+# Test Sampling Routines
+surrogate_o1
+Main.MscThesis.create!(surrogate_o1, Main.MscThesis.unscalers(meta_model))
+create!(surrogate_o1, unscalers(meta_model))
+=#

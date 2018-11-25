@@ -8,7 +8,8 @@ using Test
     include("Sampling.jl")
 
     # Unit tests for solvers
-    # include("MetaModels.jl")
+    include("MetaModels.jl")
+    include("MetaSolver.jl")
 
 
 end

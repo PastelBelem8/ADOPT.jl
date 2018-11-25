@@ -172,33 +172,25 @@ sols = solve(solver, model)
 
 =#
 
-
 vars = [RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π)]
 objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
         Objective(x -> spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MAX)]
+objs1 = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
+        Objective(x -> -spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MIN)]
 
-model = Model(vars, objs)
+model = Model(vars, objs1)
 
 # Step 2. Define the Solver
-
-a_type = [MOEAD,
-          PESA2,
-          PAES]
-a_params = [Dict(:population_size => 20, :neighborhood_size => 10),
-            Dict(:population_size => 20, :capacity => 40, :divisions: 5),
-            Dict(:population_size => 20, )]
+a_type = SPEA2
+a_params = Dict(:population_size => 50)
 solver = PlatypusSolver(a_type, max_eval=200, algorithm_params=a_params)
 
-for a in 1:3
-  solver = PlatypusSolver(a_type[a], max_eval=200, algorithm_params=a_params[a])
+for i in 1:3
+  @info "============================ Starting run $i for algorithm $(string(a_type)) =================================="
+  csv_file("$(string(a_type))_results0$(i).csv")
+  csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "w")
 
-  for i in 1:3
-    @info "============================ Starting run $i for algorithm $(string(a_type)) =================================="
-    csv_file("$(string(a_type))_results0$(i).csv")
-    csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "w")
-
-    solve(solver, model)
-  end
+  solve(solver, model)
 end

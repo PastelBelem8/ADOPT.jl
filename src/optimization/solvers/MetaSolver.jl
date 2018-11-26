@@ -23,7 +23,6 @@ convert(::Type{Solution}, x, y, constraints) =
             Solution(variables, objectives)
         end
     end
-
 convert(::Type{Vector{Solution}}, X, y, constraints) =
     map(1:size(X, 2)) do sample
         convert(Solution, X[:, sample], y[:, sample], constraints)
@@ -47,38 +46,78 @@ information is already provided out-of-the-box in the specified file.
 julia>
 
 """
-sample(;nsamples, sampling, unscalers, evaluate) =
-    let nvars = length(unscalers)
-        X = sampling(nvars, nsamples)
-        foreach((unscale, var) -> X[var,:] = unscale(X[var,:], 0, 1), unscalers, 1:nvars)
+generate_samples(;nvars, nsamples, sampling, evaluate, unscalers=[], clip=false, transform=identity, _...) =
+    let unscale(V) = foreach((unscale, i) -> V[i,:] = unscale(V[i,:], 0, 1), enumerate(unscalers))
+        clip(val, limit) = clip ? min(val, limit) : val
+
+        X = sampling(nvars, nsamples) |> unscale
+        X = X[:, 1:clip(size(X, 2), nsamples)]
+        X = transform(X)
         y = mapslices(evaluate, X, dims=1)
         X, y
     end
 
-sample_to_file(;nsamples, sampling, unscalers, evaluate, filename, header=nothing, dlm=',', _...) =
-    let (X, y) = sample(nsamples=nsamples, sampling=sampling, unscalers=unscalers, evaluate=evaluate)
-        data = vcat(X, y)'
+store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
+    let X, y = generate_samples(;gensamples_kwargs...)
         open(filename, "w") do io
             if header != nothing
                 join(io, header, dlm)
                 write(io, '\n')
             end
-            writedlm(io, data, dlm)
+            writedlm(io, vcat(X, y)', dlm)
         end
         X, y
     end
-
-
-from_file(;nvars::Int=0, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
+load_samples(;nsamples=Colon, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
     let data = open(filename, "r") do io
                     has_header ? readline(io) : nothing;
                     readdlm(io, dlm, Float64, '\n')
                 end
-        X, y = data[:, vars_cols], data[:, (nvars .+ objs_cols)]
+        X, y = data[nsamples, vars_cols], data[nsamples, objs_cols]
         X', y'
     end
 
+"""
+    create_samples(; kwargs...)
 
+Dispatches the sampling routines according to the provided arguments.
+There are three main sampling routines:
+- [`load_samples`](@ref): given a `filename`, loads the samples from the file.
+It is necessary to know which columns refer to the variables and which columns
+refer to the objectives, and therefore it requires the `vars_cols` and `objs_cols`
+to be specified. If the argument `nsamples` is supplied, then it will return
+the first `nsamples` that were loaded from the file `filename`, otherwise it
+will return all the samples.
+
+- [`generate_samples`](@ref): given a `sampling_function`, the number of
+dimensions `nvars`, and the number of samples `nsamples`, applies the sampling
+function to the `nvars` and `nsamples` parameters and obtains a set of samples.
+Since not all sampling routines depend on both parameters, if `clipped` is
+specified, the number of samples will be clipped, i.e., it will return at most
+the specified nsamples. If `clipped` is not specified, then the result of
+applying the sampling function will be returned. If `unscalers` are specified
+they will unscale the result of the sampling routines. The unscalers should be
+an array of unscaling functions receiving a new value, the current minimum and
+the current maximum per dimension. It is assumed that the unscaling functions
+already possess the knowledge of the variables bounds within the function as
+free variables.
+
+- [`store_samples`](@ref): given a `sampling_function` and a `filename` it
+first generate samples using the [`generate_samples`](@ref) method and then
+stores it in the specified `filename`.
+"""
+create_samples(;kwargs...) =
+    if !has_key(kwargs, :sampling_function)
+        has_key(kwargs, :filename) ?
+            generate_samples(;load_samples...) :
+            throw(ArgumentError("invalid sampling methods"))
+    else
+        λ = get(kwargs, :sampling_function)
+        λ = Sampling.exists(λ) ? Sampling.get_existing(λ; kwargs...) : λ
+        has_key(kwargs, :filename) ?
+            store_samples(; sampling=λ, kwargs...) :
+            generate_samples(; sampling=λ, kwargs...)
+    end
 
 # ---------------------------------------------------------------------
 # Surrogate
@@ -98,7 +137,6 @@ on global exploration and, consequently, allow the meta model to become more
 and more local, i.e., to exploit locality and promising regions.
 
 # Arguments
-
 
 # Examples
 julia> sampling_creation_params = Dict{Symbol, Any} {
@@ -123,6 +161,9 @@ struct Surrogate
     meta_model::Any
     objectives::Tuple{Vararg{AbstractObjective}}
 
+    objectives_indices::Union{Colon, Vector{Int}}
+    variables_indices::Union{Colon, Vector{Int}}
+
     # Surrogates can be loaded from files or by sampling
     creation::Function
     creation_params::Dict{Symbol, Any}
@@ -139,71 +180,92 @@ struct Surrogate
     # obtained data, then to older one.
     exploration_decay_rate::Real
 
-    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}}, creation_f::Function=Metamodels.fit!,
-              creation_params::Dict{Symbol, Any}, correction_f::Function=Metamodels.fit!,
-              correction_frequency::Int=1, evaluation_f::Function=Metamodels.predict,
-              decay_rate::Real=0.1) = begin
-        if isempty(objectives)
-            throw(DomainError("invalid argument `objectives` cannot be empty."))
-        elseif correction_frequency < 0
-            throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
-        elseif decay_rate < 0
-            throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
+    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}}, objectives_indices=(:), variables_indices=(:),
+              creation_f::Function=Metamodels.fit!, creation_params::Dict{Symbol, Any},
+              correction_f::Function=Metamodels.fit!, correction_frequency::Int=1,
+              evaluation_f::Function=Metamodels.predict, decay_rate::Real=0.1) =
+        begin
+            if isempty(objectives)
+                throw(DomainError("invalid argument `objectives` cannot be empty."))
+            elseif correction_frequency < 0
+                throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
+            elseif decay_rate < 0
+                throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
+            end
+            new(meta_model, objectives, objectives_indices, variables_indices, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
         end
-        new(meta_model, objectives, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
-    end
-end
 
 # Selectors
+@inline sampling_transform(s::Surrogate) =
+(V) -> let  surrogate_vars = variable_indices(s)
+V_temp = zeros(maximum(surrogate_vars), size(V, 2))
+V_temp[surrogate_vars] = V
+V_temp
+end
+
 @inline surrogate(s::Surrogate) = s.meta_model
 @inline objectives(s::Surrogate) = s.objectives
 
+@inline objectives(s::Surrogate, y) = y[s.objectives_indices,:]
+@inline variables(s::Surrogate, X) = X[s.variables_indices,:]
+
+@inline variables_indices(s::Surrogate) = s.variables_indices
+@inline objectives_indices(s::Surrogate) = s.objectives_indices
 @inline nobjectives(s::Surrogate) = sum(map(nobjectives, objectives(s)))
 
 @inline correction_function(s::Surrogate) = s.correction
-@inline correction_function(s::Surrogate, X, y) = s.correction(surrogate(s), X, y)
+@inline correction_function(s::Surrogate, X, y) =
+    s.correction(surrogate(s), X, y)
 
 @inline creation_function(s::Surrogate) = s.creation
-@inline creation_function(s::Surrogate, X, y) = s.creation(surrogate(s), X, y)
+@inline creation_function(s::Surrogate, X, y) =
+    s.creation(surrogate(s), X, y)
 
 @inline evaluation_function(s::Surrogate) = s.evaluation
-@inline evaluation_function(s::Surrogate, X) = s.evaluation(s.meta_model, X)
+@inline evaluation_function(s::Surrogate, X) = s.evaluation(s.meta_model, variables(s, X))
 
 @inline creation_params(s::Surrogate) = s.creation_params
-@inline creation_param(s::Surrogate, param::Symbol, default) = get(creation_params(s), param, default)
+@inline creation_param(s::Surrogate, param::Symbol, default) =
+    get(creation_params(s), param, default)
 
 # Predicate
 @inline is_multi_target(s::Surrogate) = nobjectives(s) > 1
 
 # Modifiers
-create!(surrogate::Surrogate, unscalers) =
-    let λ = creation_param(surrogate, :sampling_function, nothing)
-        λparams = creation_params(surrogate)
-
-        # Sampling
-        if λ != nothing
-            sampling = Sampling.exists(λ) ? Sampling.get_existing(λ; λparams...) : λ
-
-            evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
-            filename = creation_param(surrogate, :filename, "sample-$(string(λ))-$(now()).csv")
-
-            X, y = sample_to_file(; λparams..., sampling=λ, evaluate=evaluate,
-                                    unscalers=unscalers, filename=filename)
-        # From File
-        else
-            X, y = from_file(;λparams...)
-        end
-        @info "[$(now())] Training surrogate model for $(size(X, 2)) samples with $(size(X, 1)) dimensions";
-        creation_function(surrogate, X, y);
+create!(surrogates::Vector{Surrogate}; creation_params...) =
+    let X, y = create_samples(;creation_params...)
+        foreach(surrogate ->
+                    creation_function(  surrogate,
+                                        objectives(surrogate, X),
+                                        variables(surrogate, y)))
+        X, y
     end
+create!(surrogate::Surrogate, model=nothing) =
+    let evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
+        params = creation_params(surrogate)
+        surrogate_vars = variables_indices(surrogate)
 
+        # Retrieve unscalers from model if user does not specify unscalers
+        if model != nothing && !has_key(params, :unscalers)
+            params[:unscalers] = unscalers(model)[surrogate_vars]
+        end
+
+        # If special case of surrogate, specify extra configurations (override if necessary)
+        if surrogate_vars != Colon
+            params[:nvars] = length(surrogate_vars)
+            params[:transform] = sampling_transform(s)
+        end
+        X, y = create_samples(;params...)
+        creation_function(surrogate, objectives(surrogate, X), variables(surrogate, y))
+        X, y
+    end
 correct!(surrogate::Surrogate, data::Vector{Solution}) =
     let nsols = length(data)
-        X = hcat(map(variables, data)...)
-        y = hcat(map(objectives, data)...)
+        X = hcat(map(variables, data)...)[variables_indices(surrogate),:]
+        y = hcat(map(objectives, data)...)[objectives_indices(surrogate),:]
+
         # Fit surrogate
         correction_function(surrogate, X, y)
-
         # TODO - Get error measurement
         0
     end
@@ -259,7 +321,6 @@ expensive_model(m::MetaModel) =
     Model(variables(m), original_objectives(m), constraints(m))
 
 export MetaModel
-
 # ---------------------------------------------------------------------
 # MetaSolver
 # ---------------------------------------------------------------------
@@ -280,14 +341,17 @@ mutable struct MetaSolver <: AbstractSolver
     solver::AbstractSolver
 
     max_evaluations::Int
-    pareto_result::ParetoResult
+    sampling_params::Dict{Symbol, Any}
 
-    MetaSolver(solver, nvars, nobjs, max_eval=100) =
-        begin
+    pareto_result::ParetoResult
+    MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100) = begin
             if max_eval < 0
                 throw(DomainError("invalid argument `max_eval` must be a positive integer"))
+            elseif isempty(sampling_params)
+                throw(DomainError("invalid argument `sampling_params` must provide
+                enough parameters to run the initialization routine for the surrogates"))
             end
-            new(solver, max_eval, ParetoResult(nvars, nobjs))
+            new(solver, max_eval, sampling_params, ParetoResult(nvars, nobjs))
         end
 end
 
@@ -298,6 +362,8 @@ max_evaluations(s::MetaSolver) = s.max_evaluations
 optimiser(s::MetaSolver) = s.solver
 "Returns the Pareto Results"
 results(s::MetaSolver) = s.pareto_result
+"Returns the Meta Solver initial sampling params"
+sampling_params(s::MetaSolver) = s.sampling_params
 
 "Returns the Pareto Front solutions obtained with the MetaSolver"
 ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
@@ -318,9 +384,7 @@ clip(elements, nmax) = let
 
 solve(meta_solver::MetaSolver, meta_model::MetaModel) =
     let solver = optimiser(meta_solver)
-        unsclrs = unscalers(meta_model)
         evals_left = max_evaluations(meta_solver)
-        create(s) = create!(s, unsclrs)
         correct(solutions) = surrogate ->
                                 let err = correct!(surrogate, solutions)
                                     @info "[$(now())] Retrained surrogate exhibits $(err)% error."
@@ -332,7 +396,7 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         expensiv_model = expensive_model(meta_model)
 
         # Step 1. Create each Surrogate
-        foreach(create, unsafe_surrogates(meta_model))
+        create!(unsafe_surrogates(meta_model); sampling_params(solver))
 
         # Repeat until termination condition is met.
         while evals_left > 0

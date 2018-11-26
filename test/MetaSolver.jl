@@ -296,4 +296,44 @@ import MscThesis.MetaSolver
 # # Solve it!
 # Main.MscThesis.solve(meta_solver, meta_model)
 
+
+#################################
+# Test 6
+#################################
+# using Main.MscThesis
+# using Main.MscThesis.Metamodels
+# using Main.MscThesis.Platypus
+# using Main.MscThesis.Sampling
+# vars = [IntVariable(1, 100)]
+# o1 = SharedObjective(x -> [x[1] ,1/x[1]], [1,1], [:MIN, :MIN])
+#
+# # Define the Surrogates
+# s1 = LinearRegression(multi_output=false)
+# sampling_params = Dict{Symbol, Any}(
+#     :sampling_function => Sampling.randomMC,
+#     :nsamples => 30,
+#     :filename => "sMC-sample-2objs.csv",
+#     :header => ["Var1", "Obj1", "Obj2"],
+#     :dlm => ',')
+#
+# surrogate_o1 = Main.MscThesis.Surrogate(s1, objectives=(o1,), creation_params=sampling_params)
+# # Define the Optimiser Solver
+# a_type = SPEA2;
+# a_params = Dict(:population_size => 20);
+# solver = Main.MscThesis.PlatypusSolver(a_type, max_eval=200, algorithm_params=a_params)
+# # Define the Meta Solver
+# meta_solver = Main.MscThesis.MetaSolver(solver, 1, 2, 30)
+# # Define the MetaModel
+# meta_model = Main.MscThesis.MetaModel(vars, [surrogate_o1])
+# # Solve it!
+# Main.MscThesis.solve(meta_solver, meta_model)
+# Main.MscThesis.results(meta_solver)
+
+
+
+#################################
+# Test 7 - Avoid repeated points
+#################################
+
+
 end # module

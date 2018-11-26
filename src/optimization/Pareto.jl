@@ -95,12 +95,12 @@ ParetoResult(dvars, dobjs::AbstractVector, ndvars, ndobjs::AbstractVector) =
 ParetoResult(dvars::AbstractVector, dobjs::AbstractVector, ndvars::AbstractVector, ndobjs::AbstractVector) =
     ParetoResult(dvars, reshape(dobjs, (length(dobjs)), 1), ndvars, reshape(ndobjs, (length(ndobjs)), 1))
 ParetoResult(vars_dims::Int, objs_dims::Int) =
-    if vars_dims > 0 && objs_dims > 0
-        ParetoResult(Array{Float64}(undef, vars_dims, 0), Array{Float64}(undef, objs_dims, 0),
-                 Array{Float64}(undef, vars_dims, 0), Array{Float64}(undef, objs_dims, 0))
-    else
+    vars_dims > 0 && objs_dims > 0 ?
+        ParetoResult(Array{Float64}(undef, vars_dims, 0),
+                     Array{Float64}(undef, objs_dims, 0),
+                     Array{Float64}(undef, vars_dims, 0),
+                     Array{Float64}(undef, objs_dims, 0)) :
         throw(DomainError("`vars_dims` and `objs_dims` must be positive integers"))
-    end
 
 # Selectors
 dominated_variables(pd::ParetoResult) = pd.dominated_variables
@@ -119,6 +119,10 @@ objectives(pd::ParetoResult) =
 ParetoFront(pd::ParetoResult) =
     nondominated_variables(pd), nondominated_objectives(pd)
 
+# Predicates
+is_in(x0, X) = isempty(X) ? false : any(mapslices(x -> x == x0, X, dims=1))
+
+
 # Modifiers
 remove_nondominated!(pd::ParetoResult, ids::Union{AbstractVector, Int}) = begin
     ids = filter(i -> !(i in ids), 1:total_nondominated(pd));
@@ -128,12 +132,15 @@ remove_nondominated!(pd::ParetoResult, ids::Union{AbstractVector, Int}) = begin
 end
 push_dominated!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector) = begin
     if isempty(vars) && isempty(objs) return end
+    if is_in(objs, pd.dominated_objectives) return end
 
     pd.dominated_variables = [pd.dominated_variables vars];
     pd.dominated_objectives = [pd.dominated_objectives objs];
 end
 push_nondominated!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector) = begin
     if isempty(vars) && isempty(objs) return end
+    if is_in(objs, pd.nondominated_objectives) return end
+
     pd.nondominated_variables = [pd.nondominated_variables vars];
     pd.nondominated_objectives = [pd.nondominated_objectives objs];
 end

@@ -262,15 +262,12 @@ end
 @inline is_multi_target(s::Surrogate) = nobjectives(s) > 1
 
 # Modifiers
-create!(surrogates::Vector{Surrogate}; creation_params...) =
-    let X, y = create_samples(;creation_params...)
-        foreach(surrogate ->
-                    creation_function(  surrogate,
-                                        objectives(surrogate, X),
-                                        variables(surrogate, y)))
-        X, y
-    end
-create!(surrogate::Surrogate, model=nothing) =
+train!(surrogates::Vector{Surrogate}, X, y) =
+    foreach(surrogate ->
+                creation_function(  surrogate,
+                                    objectives(surrogate, X),
+                                    variables(surrogate, y)))
+train!(surrogate::Surrogate, model=nothing) =
     let evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
         params = creation_params(surrogate)
         surrogate_vars = variables_indices(surrogate)
@@ -377,9 +374,14 @@ mutable struct MetaSolver <: AbstractSolver
     MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100) = begin
             if max_eval < 0
                 throw(DomainError("invalid argument `max_eval` must be a positive integer"))
-            # elseif isempty(sampling_params)
-            #     throw(DomainError("invalid argument `sampling_params` must provide
-            #     enough parameters to run the initialization routine for the surrogates"))
+            elseif isempty(sampling_params)
+                throw(DomainError("invalid argument `sampling_params` must provide
+                enough parameters to run the initialization routine for the surrogates"))
+            # Ready-to-use data is specified (no sampling necessary)
+            elseif haskey(sampling_params, :X) && !haskey(sampling_params, :y) ||
+                   !haskey(sampling_params, :X) && haskey(sampling_params, :y)
+                throw(DomainError("invalid argument `sampling_params` must provide
+                both `:X` and `:y` in order to run the initialization routine for the surrogates"))
             end
             new(solver, max_eval, sampling_params, ParetoResult(nvars, nobjs))
         end
@@ -394,6 +396,14 @@ optimiser(s::MetaSolver) = s.solver
 results(s::MetaSolver) = s.pareto_result
 "Returns the Meta Solver initial sampling params"
 sampling_params(s::MetaSolver) = s.sampling_params
+sampling_data(s::MetaSolver) = !is_sampling_required(s) ?
+        (s.sampling_params[:X], s.sampling_params[:y]) :
+        throw(DomainError("invalid operation. The specified MetaSolver does not
+        have ready-to-use data `X` and `y`"))
+
+# Predicates
+is_sampling_required(s::MetaSolver) =
+    !(s.sampling_params[:X] && s.sampling_params[:y])
 
 "Returns the Pareto Front solutions obtained with the MetaSolver"
 ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
@@ -439,14 +449,18 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
 
         # Step 1. Create each Surrogate
         sampling_prms = sampling_params(solver)
-        if isempty(sampling_prms)
-            @warn "[$(now())] Skipping joint sampling of surrogates (assuming surrogates were already trained)..."
+        X, y = [], []
+        if is_sampling_required(sampling_prms)
+            @info "[$(now())] Creating samples..."
+            X, y = create_samples(;sampling_prms...)
         else
-            @info "[$(now())] Initializing surrogates..."
-            X, y = create!(unsafe_surrogates(meta_model); sampling_prms...)
-            @info "[$(now())] Pushing sampling data to Pareto Front..."
-            push!(meta_solver, X, y)
+            @info "[$(now())] Loading provided samples..."
+            X, y = sampling_data(solver)
         end
+        @info "[$(now())] Initializing surrogates with samples..."
+        train!(unsafe_surrogates(meta_model), X, y)
+        @info "[$(now())] Pushing sampling data to Pareto Front..."
+        push!(meta_solver, X, y)
 
         # Repeat until termination condition is met.
         while evals_left > 0

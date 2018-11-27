@@ -46,12 +46,12 @@ information is already provided out-of-the-box in the specified file.
 julia>
 
 """
-generate_samples(;nvars, nsamples, sampling, evaluate, unscalers=[], clip=false, transform=identity, _...) =
-    let unscale(V) = foreach((unscale, i) -> V[i,:] = unscale(V[i,:], 0, 1), enumerate(unscalers))
-        clip(val, limit) = clip ? min(val, limit) : val
+generate_samples(;nvars, nsamples, sampling, evaluate, unscalers=[], clip::Bool=false, transform=identity, _...) =
+    let unscale(V) = foreach((unscale, i) -> V[i,:] = unscale(V[i,:], 0, 1), enumerate(unscalers)) #TODO - Fix hardcoded value of min and max in unscalers
+        clip_it(val, limit) = clip ? min(val, limit) : val
 
         X = sampling(nvars, nsamples) |> unscale
-        X = X[:, 1:clip(size(X, 2), nsamples)]
+        X = X[:, 1:clip_it(size(X, 2), nsamples)]
         X = transform(X)
         y = mapslices(evaluate, X, dims=1)
         X, y
@@ -105,6 +105,37 @@ free variables.
 - [`store_samples`](@ref): given a `sampling_function` and a `filename` it
 first generate samples using the [`generate_samples`](@ref) method and then
 stores it in the specified `filename`.
+
+# Arguments
+- `nvars::Int`: the number of variables, i.e., dimensions of the samples.
+- `nsamples::Int`: the number of samples to be created.
+- `sampling::Function`: the sampling function to be used. It must be a function
+    receiving two parameters: the number of variables and the number of samples
+- `evaluate::Function`: the function that will receive a sample and produce the
+    corresponding objective value.
+- `unscalers::Vector{Function}=[]`: an array with the unscalers for each variable.
+The provided sampling algorithms are unitary, producing samples with ranges in
+    the interval [0, 1]. Each unscaler function must receive a value to be unscaled,
+    as well as the old minimum and the old maximum. Defaults to empty vector, in
+    which case no unscalers will be applied.
+- `clip::Bool=false`: variable indicating if we strictly want the specified `nsamples`.
+This is necessary as there are many sampling algorithms for which the number of
+    samples is exponential in the number of dimensions (`nvars`).
+- `transform::Function=identity`: function that allows to apply a transformation to the
+    samples that are produced by the sampling algorithm. It receives as argument
+    the matrix with the unscaled samples produced by the sampling function.
+- `filename::String`: the filename to read samples from or to store samples to.
+    Mandatory when reading samples from file.
+- `header::Vector{String}=nothing`: the header to insert in the file when storing the
+    samples. If not specified, the file will not have header.
+- `has_header::Bool=false`: indicator of whether there exists an header in the file
+    from which the samples will be read. Defaults to false.
+- `dlm::Char=','`: the delimiter of the sample values in the file.
+- `vars_cols::Vector{Int}`: the columns corresponding to the variables that will
+    be loaded from the file.
+- `objs_cols::Vector{Int}`: the columns corresponding to the objectives that
+    will be loaded from the file.
+
 """
 create_samples(;kwargs...) =
     if !has_key(kwargs, :sampling_function)
@@ -135,8 +166,6 @@ frequency is meant to limit the number of corrections the meta model is to be
 updated and the exploration_decay_rate (or `η`) is meant to decrease the focus
 on global exploration and, consequently, allow the meta model to become more
 and more local, i.e., to exploit locality and promising regions.
-
-# Arguments
 
 # Examples
 julia> sampling_creation_params = Dict{Symbol, Any} {
@@ -194,13 +223,14 @@ struct Surrogate
             end
             new(meta_model, objectives, objectives_indices, variables_indices, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
         end
+end
 
 # Selectors
 @inline sampling_transform(s::Surrogate) =
 (V) -> let  surrogate_vars = variable_indices(s)
-V_temp = zeros(maximum(surrogate_vars), size(V, 2))
-V_temp[surrogate_vars] = V
-V_temp
+            V_temp = zeros(maximum(surrogate_vars), size(V, 2))
+            V_temp[surrogate_vars] = V
+            V_temp
 end
 
 @inline surrogate(s::Surrogate) = s.meta_model
@@ -250,7 +280,7 @@ create!(surrogate::Surrogate, model=nothing) =
             params[:unscalers] = unscalers(model)[surrogate_vars]
         end
 
-        # If special case of surrogate, specify extra configurations (override if necessary)
+        # If special case of surrogate, specify extra configurations (override old ones if necessary)
         if surrogate_vars != Colon
             params[:nvars] = length(surrogate_vars)
             params[:transform] = sampling_transform(s)
@@ -347,9 +377,9 @@ mutable struct MetaSolver <: AbstractSolver
     MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100) = begin
             if max_eval < 0
                 throw(DomainError("invalid argument `max_eval` must be a positive integer"))
-            elseif isempty(sampling_params)
-                throw(DomainError("invalid argument `sampling_params` must provide
-                enough parameters to run the initialization routine for the surrogates"))
+            # elseif isempty(sampling_params)
+            #     throw(DomainError("invalid argument `sampling_params` must provide
+            #     enough parameters to run the initialization routine for the surrogates"))
             end
             new(solver, max_eval, sampling_params, ParetoResult(nvars, nobjs))
         end
@@ -370,9 +400,21 @@ ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
 
 # Modifiers
 "Stores the variables and objectives in the corresponding meta solver"
+Base.push!(solver::MetaSolver, variables, objectives) =
+    let nvars = size(variables, 2)
+        nobjs = size(objectives, 2)
+        rsults = results(solver)
+        if nvars == nobjs
+            foreach(n -> push!(rsults, variables[:, n], objectives[:, n]), 1:nobjs)
+        else
+            throw(DimensionMismatch("the number of variables and objectives does not match"))
+        end
+    end
 Base.push!(solver::MetaSolver, solutions::Vector{Solution}) =
-    foreach(solution -> push!(results(solver), variables(solution), objectives(solution)),
-        solutions)
+    let vars = hcat(map(variables, solutions)...)
+        objs = hcat(map(objectives, solutions)...)
+        push!(solver, vars, objs)
+    end
 
 # Solve -------------------------------------------------------------------
 "Clips the number of elements in `elements` to be at most `nmax` or if there
@@ -396,7 +438,15 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         expensiv_model = expensive_model(meta_model)
 
         # Step 1. Create each Surrogate
-        create!(unsafe_surrogates(meta_model); sampling_params(solver))
+        sampling_prms = sampling_params(solver)
+        if isempty(sampling_prms)
+            @warn "[$(now())] Skipping joint sampling of surrogates (assuming surrogates were already trained)..."
+        else
+            @info "[$(now())] Initializing surrogates..."
+            X, y = create!(unsafe_surrogates(meta_model); sampling_prms...)
+            @info "[$(now())] Pushing sampling data to Pareto Front..."
+            push!(meta_solver, X, y)
+        end
 
         # Repeat until termination condition is met.
         while evals_left > 0
@@ -408,10 +458,10 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
             candidate_solutions, evals_left = clip(candidate_solutions, evals_left)
             solutions = evaluate(expensiv_model, candidate_solutions)
 
-            # Step 4. Add results from 3 to ParetoResult
+            # Step 4. Add results from Step 3. to ParetoResult
             push!(meta_solver, solutions)
             # Step 5. Update the surrogates
-            foreach(correct(solutions),  unsafe_surrogates(meta_model))
+            foreach(correct(solutions), unsafe_surrogates(meta_model))
         end
         # Step 7. Return Pareto Result non-dominated
         convert(Vector{Solution}, ParetoFront(meta_solver)..., constraints(expensiv_model))

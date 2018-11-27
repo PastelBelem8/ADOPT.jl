@@ -122,7 +122,6 @@ ParetoFront(pd::ParetoResult) =
 # Predicates
 is_in(x0, X) = isempty(X) ? false : any(mapslices(x -> x == x0, X, dims=1))
 
-
 # Modifiers
 remove_nondominated!(pd::ParetoResult, ids::Union{AbstractVector, Int}) = begin
     ids = filter(i -> !(i in ids), 1:total_nondominated(pd));

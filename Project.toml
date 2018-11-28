@@ -15,9 +15,7 @@ LIBSVM = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 ScikitLearnBase = "6e75b9c4-186b-50bd-896f-2d2496a4843e"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]

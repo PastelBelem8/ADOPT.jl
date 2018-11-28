@@ -1,6 +1,5 @@
 # Using
 using .Platypus
-using Dates: now
 
 # Imports
 import Base: convert
@@ -194,15 +193,18 @@ julia> variator =  Dict(:name => SBX,
 struct PlatypusSolver <: AbstractSolver
     algorithm::Type
     algorithm_params::Dict{Symbol,Any}
+
     max_evaluations::Int
-    function PlatypusSolver(algorithm::Type; algorithm_params=Dict{Symbol, Any}(), max_eval=100)
+    nondominated_only::Bool
+    function PlatypusSolver(algorithm::Type; algorithm_params=Dict{Symbol, Any}(), max_eval=100, nondominated_only=true)
         check_arguments(PlatypusSolver, algorithm, algorithm_params, max_eval)
-        new(algorithm, algorithm_params, max_eval)
+        new(algorithm, algorithm_params, max_eval, nondominated_only)
     end
 end
 
 get_algorithm(solver::PlatypusSolver) = solver.algorithm
 get_max_evaluations(solver::PlatypusSolver) =  solver.max_evaluations
+get_nondominated_only(solver::PlatypusSolver) =  solver.nondominated_only
 get_algorithm_params(solver::PlatypusSolver) = solver.algorithm_params
 get_algorithm_param(solver::PlatypusSolver, param::Symbol, default=nothing) =
   get(get_algorithm_params(solver), param, default)
@@ -335,8 +337,9 @@ function solve(solver::PlatypusSolver, model::Model)
 
     problem = convert(Platypus.Problem, model)
     algorithm_type = get_algorithm(solver)
-    evals = get_max_evaluations(solver)
     extra_params = get_algorithm_params(solver)
+    evals = get_max_evaluations(solver)
+    nondominated = get_nondominated_only(solver)
 
     # Filter by the fields that are acceptable for the specified algorithm_type
     params = union( Platypus.mandatory_params(algorithm_type),
@@ -346,6 +349,7 @@ function solve(solver::PlatypusSolver, model::Model)
     # Create the algorithm and solve it
     algorithm = algorithm_type(problem; dict2expr(extra_params)...)
 
-    sols = Platypus.solve(algorithm, max_eval=evals)
+    sols = Platypus.solve(algorithm, max_eval=evals,
+                          nondominated=nondominated)
     convert(Vector{Solution}, sols)
 end

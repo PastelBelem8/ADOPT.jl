@@ -456,10 +456,28 @@ check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector
 export Solution
 
 # ---------------------------------------------------------------------
-# Model / Problem
+# Generic Model / Problem - Interface
 # ---------------------------------------------------------------------
 abstract type AbstractModel end
 
+# Selectors
+constraints(m::AbstractModel) = deepcopy(m.constraints)
+objectives(m::AbstractModel) = deepcopy(m.objectives)
+variables(m::AbstractModel) = deepcopy(m.variables)
+
+unsafe_objectives(m::T) where{T<:AbstractModel} = m.objectives
+
+nconstraints(m::AbstractModel) = length(m.constraints)
+nobjectives(m::AbstractModel) = throw(MethodError("method is not supported"))
+nvariables(m::AbstractModel) = length(m.variables)
+
+unscalers(m::AbstractModel) = map(variables(m)) do var
+    (val, old_min, old_max) -> unscale(var, val, old_min, old_max)
+    end
+
+# ---------------------------------------------------------------------
+# Model / Problem
+# ---------------------------------------------------------------------
 struct Model <: AbstractModel
     variables::Vector{AbstractVariable}
     objectives::Vector{AbstractObjective}
@@ -474,21 +492,8 @@ struct Model <: AbstractModel
                 new(vars, objs, constrs)
         end
 end
-
 # Selectors
-constraints(m::AbstractModel) = deepcopy(m.constraints)
-objectives(m::AbstractModel) = deepcopy(m.objectives)
-variables(m::AbstractModel) = deepcopy(m.variables)
-
-unsafe_objectives(m::T) where{T<:AbstractModel} = m.objectives
-
-nconstraints(m::AbstractModel) = length(m.constraints)
-nobjectives(m::AbstractModel) = sum(map(nobjectives, m.objectives))
-nvariables(m::AbstractModel) = length(m.variables)
-
-unscalers(m::AbstractModel) = map(variables(m)) do var
-    (val, old_min, old_max) -> unscale(var, val, old_min, old_max)
-    end
+nobjectives(m::Model) = length(m.objectives)
 
 aggregate_function(model::Model, transformation=flatten) =
     length(constraints) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),

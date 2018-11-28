@@ -57,7 +57,7 @@ export Linear, RadialBasis, Polynomial, Sigmoid, Precomputed
 # ------------------------------------------------------------------------
 # Multi-Layer Perceptron Regression
 # ------------------------------------------------------------------------
-# include("MLPRegressor.jl")
+include("MLPRegressor.jl")
 
 # ------------------------------------------------------------------------
 # Gaussian Processes

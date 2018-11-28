@@ -3,6 +3,9 @@ module MscThesis
 # Submodules
 # ----------
 
+using Dates
+using Random
+
 # Utils
 include("./Utils.jl")
 # Internals

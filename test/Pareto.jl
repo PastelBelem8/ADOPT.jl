@@ -14,7 +14,7 @@ import MscThesis.Pareto
         # Successful
         # Empty Initialization
         @test begin
-            p = Pareto.Pareto.ParetoResult(1, 1);
+            p = Pareto.ParetoResult(1, 1);
             test_emptyness(p) &&
             size(p.nondominated_variables) == size(p.dominated_variables) &&
             size(p.nondominated_objectives) == size(p.dominated_objectives)
@@ -243,13 +243,14 @@ end #module
 # Add more tests to the Pareto Front
 
 # Test
-pr = ParetoResult(1, 2)
-
-y(x) = [x, 1/x]
-
-for x in 1:10
-    push!(pr, [x], y(x))
-end
+# pr = ParetoResult(1, 2)
+#
+# y(x) = [x, 1/x]
+#
+# for x in 1:10
+#     push!(pr, [x], y(x))
+# end
 
 # Add more tests to non domianted
 # - involving empty pareto front
+# - adding same objective vector (it should not be added)

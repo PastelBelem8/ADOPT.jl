@@ -1,4 +1,4 @@
-using .Metamodels
+# using .Metamodels
 using .Pareto: ParetoResult
 
 using DelimitedFiles: readdlm, writedlm
@@ -326,6 +326,8 @@ end
 surrogates(m::MetaModel) = objectives(m)
 unsafe_surrogates(m::MetaModel) = unsafe_objectives(m)
 original_objectives(m::MetaModel) = flatten(map(objectives, surrogates(m)))
+
+nobjectives(m::MetaModel) = sum(map(nobjectives, m.objectives))
 
 # Create different Models from MetaModel
 cheap_model(m::MetaModel; dynamic::Bool=false) =

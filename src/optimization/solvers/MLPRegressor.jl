@@ -1,5 +1,4 @@
 using Flux
-using Dates
 using Random
 
 # ---------------------------------------------------------------------------
@@ -94,7 +93,7 @@ train_test_split(es::EarlyStopping, X, y, shuffle) =
 # ---------------------------------------------------------------------------
 # Flux Utils
 # ---------------------------------------------------------------------------
-call(f, xs...) = f(xs...)
+# call(f, xs...) = f(xs...)
 
 # Flux Optimisers -----------------------------------------------------------
 ADADelta(;ρ=0.9, ϵ=1e-8, decay=0) =
@@ -194,7 +193,7 @@ batch_size(maxsize, bsize=-1) = bsize == -1 ?
 
 # Selectors ----------------------------------------------------------------
 batch_size(r::MLPRegressor) = r.batch_size
-shuffle(r::MLPRegressor) = r.shuffle
+Random.shuffle(r::MLPRegressor) = r.shuffle
 
 early_stopping(r::MLPRegressor) = r.early_stopping
 epochs(r::MLPRegressor) = r.epochs

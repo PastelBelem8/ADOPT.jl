@@ -49,7 +49,7 @@ function convert(::Type{Platypus.Problem}, m::Model)
   # 1. Create Base Problem
   nvars, nobjs, nconstrs = nvariables(m), nobjectives(m), nconstraints(m)
   problem = Platypus.Problem(nvars, nobjs, nconstrs)
-
+  
   # 2. Refine the Problem instance
   # 2.1. Convert types
   # TODO - fix PLATYPUS_WRAPPER TO be something more specific - e.g. PlatypusType

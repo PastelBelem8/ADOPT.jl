@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------- #
-# Example 01 - Variable                                                     #
+# Example 03 - 2 Variables                                                  #
 # @date: 29/11/2018                                                         #
 # ------------------------------------------------------------------------- #
 using Main.MscThesis
 using Main.MscThesis.Metamodels
 using Main.MscThesis.Platypus
 using Main.MscThesis.Sampling
-test_id = 1
+test_id = 3
 # ------------------------------------------------------------------------- #
 # Available models are:                                                     #
 #   - DecicionTree                                                          #
@@ -28,11 +28,12 @@ model = LinearRegression(multi_output=false)
 
 # Define a single variable with lower bound -10 and upper bound 10
 v1 = IntVariable(-10, 10)
-vars = [v1]
+v2 = IntVariable(-10, 10)
+vars = [v1, v2]
 nvars = length(vars)
 
 # Define a single objective described by the f(x) = x²
-f0(x) = x.^2
+f0(x) = x[1]^2
 o1 = Objective(f0)
 
 # To automate code below
@@ -41,12 +42,12 @@ nobjs = sum(map(nobjectives, objs))
 
 # Create a surrogate associating the model previously defined to the objective
 # to be modelled
-surrogate = Surrogate(model, objectives=objs, variables_indices=[2])
+surrogate = Surrogate(model, objectives=objs, variables_indices=[1])
+# Main.MscThesis.evaluation_function(surrogate, [0, 1])
 
 # Create the Meta Problem that is composed by the variable o1 and the surrogate
 # representing the objective
 meta_problem = MetaModel(vars, [surrogate])
-
 # ..............................................................................
 # Step 2. Create the MetaSolver
 # ..............................................................................
@@ -75,16 +76,6 @@ meta_solver = MetaSolver(solver,
                          nobjs=nobjs,
                          max_eval=10,
                          sampling_params=sampling_params)
-try
 
-    # Step 3. Solve it!
-    sols = solve(meta_solver, meta_problem)
-
-catch y
-    if isa(y, BoundsError)
-        @info "Test Run Successfully (throws BoundsError)"
-    else
-        @warn "Test did not run as planned..."
-        y
-    end
-end
+# Step 3. Solve it!
+sols = solve(meta_solver, meta_problem)

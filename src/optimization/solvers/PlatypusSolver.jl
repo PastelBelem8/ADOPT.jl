@@ -4,9 +4,6 @@ using .Platypus
 # Imports
 import Base: convert
 
-"Converts a dictionary to an array of pairs to be passed as kwargs"
-dict2expr(dict::Dict) = [kv for kv in dict]
-
 # Converter routines ----------------------------------------------------
 # These routines provide the interface between the solver and the
 # Platypus Python library.
@@ -20,7 +17,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     function profile(f, args...)
       st = time();
       res = f(args...)
-      @info "[$(now())] Objective function result $(args...):\n[$res]"
+      # @info "[$(now())] Objective function result $(args...):\n[$res]"
       push!(profiling_results, res...)
       push!(profiling_times, time() - st)
       res
@@ -111,7 +108,7 @@ convert(::Type{Platypus.RandomGenerator}, ::Dict{Symbol, T}) where{T} =
 # ------------------------------------------------------------------------
 # FIXME - There is no support to other dominance objects
 convert(::Type{Platypus.TournamentSelector}, params::Dict{Symbol, T}) where{T} =
-  Platypus.TournamentSelector(:($(dict2expr(params)...)))
+  Platypus.TournamentSelector(;params...)
 
 # ------------------------------------------------------------------------
 # Variators Converter Routines
@@ -119,7 +116,7 @@ convert(::Type{Platypus.TournamentSelector}, params::Dict{Symbol, T}) where{T} =
 function convert(::Type{Platypus.SimpleVariator}, params::Dict{Symbol, T}) where{T}
   variator, variator_args = params[:name], filter(p -> first(p) != :name, params)
   mandatory_params_satisfied(variator, variator_args)
-  variator(:($(dict2expr(variator_args))...))
+  variator(;variator_args...)
 end
 
 """
@@ -143,7 +140,7 @@ function convert(::Type{Platypus.CompoundVariator}, params::Dict{Symbol, T}) whe
   for (k, v) in variator_args
     args[k] = [mkconv(vi) for vi in v]
   end
-  variator(:($(dict2expr(args)...)))
+  variator(;args...)
 end
 
 function convert_params(params::Dict{Symbol, T}) where{T}
@@ -288,8 +285,6 @@ function check_params(solver::PlatypusSolver, model::Model)
   end
 end
 
-
-export PlatypusSolver, PlatypusSolverException, solve
 """
   The steps to solve a problem are the following:
 
@@ -347,9 +342,12 @@ function solve(solver::PlatypusSolver, model::Model)
     extra_params = convert_params(extra_params)
 
     # Create the algorithm and solve it
-    algorithm = algorithm_type(problem; dict2expr(extra_params)...)
+    algorithm = algorithm_type(problem; extra_params...)
 
     sols = Platypus.solve(algorithm, max_eval=evals,
                           nondominated=nondominated)
     convert(Vector{Solution}, sols)
 end
+
+
+export PlatypusSolver, PlatypusSolverException, solve

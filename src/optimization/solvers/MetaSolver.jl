@@ -481,6 +481,7 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
             # Step 3. Evaluate solutions from 2, using the expensive model
             # Guarantee that the number of Max Evals is satisfied
             candidate_solutions, evals_left = clip(candidate_solutions, evals_left)
+            @info "[$(now())] Found $(length(candidate_solutions)) candidate solutions... \n\tExpensive evaluations left: $evals_left"
             solutions = evaluate(expensiv_model, candidate_solutions)
 
             # Step 4. Add results from Step 3. to ParetoResult

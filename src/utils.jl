@@ -96,7 +96,7 @@ minMaxScale(nmin::Number, nmax::Number, A::AbstractMatrix, dim::Int) =
     mapslices(a -> min_max_scale(nmin, nmax, a), A, dims=dim)
 
 unscale(value, nmin, nmax, omin=0, omax=1) =
-    (value - omin) / (omax - omin) * (nmax - nmin) - nmin
+    (value - omin) / (omax - omin) * (nmax - nmin) + nmin
 
 unscale(values::AbstractArray, nmins::AbstractVector, nmaxs::AbstractVector,
         omins::AbstractVector, omaxs::AbstractVector) =

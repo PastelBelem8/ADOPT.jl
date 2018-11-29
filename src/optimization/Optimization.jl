@@ -122,9 +122,9 @@ values(var::SetVariable) = var.values
     invoke(==, Tuple{AbstractVariable, AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
 # Unscalers
-unscale(var::AbstractVariable, values::Vector, old_min, old_max) =
-    [unscale(values[j], lower_bound(var), upper_bound(var), old_min, old_max)
-        for j in 1:length(values)]
+unscale(var::T, values::AbstractArray{Y}, old_min, old_max) where{T<:AbstractVariable,Y<:Number} =
+        [unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
+            for value in values]
 
 unscale(var::T, value, old_min, old_max) where{T<:AbstractVariable} =
     unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
@@ -471,8 +471,8 @@ nconstraints(m::AbstractModel) = length(m.constraints)
 nobjectives(m::AbstractModel) = throw(MethodError("method is not supported"))
 nvariables(m::AbstractModel) = length(m.variables)
 
-unscalers(m::AbstractModel) = map(variables(m)) do var
-    (val, old_min, old_max) -> unscale(var, val, old_min, old_max)
+unscalers(m::AbstractModel, old_min::Int=0, old_max::Int=1) = map(variables(m)) do var
+    (val) -> unscale(var, val, old_min, old_max)
     end
 
 # ---------------------------------------------------------------------
@@ -496,7 +496,7 @@ end
 nobjectives(m::Model) = length(m.objectives)
 
 aggregate_function(model::Model, transformation=flatten) =
-    length(constraints) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),
+    nconstraints(model) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),
                                           transformation([apply(c, x...) for c in constraints(model)])) :
                                ((x...) -> transformation([apply(o, x...) for o in objectives(model)]))
 
@@ -544,7 +544,7 @@ evaluate(model::Model, vars::Vector, transformation=flatten) =
         end
     end
 
-export AbstractModel, Model
+export AbstractModel, Model, unscalers
 
 # ---------------------------------------------------------------------
 # Solvers

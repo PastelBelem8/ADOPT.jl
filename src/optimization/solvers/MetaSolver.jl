@@ -46,11 +46,14 @@ information is already provided out-of-the-box in the specified file.
 julia>
 
 """
-generate_samples(;nvars, nsamples, sampling, evaluate, unscalers=[], clip::Bool=false, transform=identity, _...) =
-    let unscale(V) = foreach((unscale, i) -> V[i,:] = unscale(V[i,:], 0, 1), enumerate(unscalers)) #TODO - Fix hardcoded value of min and max in unscalers
+generate_samples(;  nvars, nsamples, sampling_function, evaluate, unscalers=[],
+                    clip::Bool=false, transform=identity, _...) = let
+        unscale(V) = for (index, unscaler) in enumerate(unscalers);
+                        V[index,:] = unscaler(V[index,:]); nothing
+                    end
         clip_it(val, limit) = clip ? min(val, limit) : val
 
-        X = sampling(nvars, nsamples) |> unscale
+        X = sampling_function(nvars, nsamples); unscale(X);
         X = X[:, 1:clip_it(size(X, 2), nsamples)]
         X = transform(X)
         y = mapslices(evaluate, X, dims=1)
@@ -58,7 +61,7 @@ generate_samples(;nvars, nsamples, sampling, evaluate, unscalers=[], clip::Bool=
     end
 
 store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
-    let X, y = generate_samples(;gensamples_kwargs...)
+    let (X, y) = generate_samples(;gensamples_kwargs...)
         open(filename, "w") do io
             if header != nothing
                 join(io, header, dlm)
@@ -138,16 +141,16 @@ This is necessary as there are many sampling algorithms for which the number of
 
 """
 create_samples(;kwargs...) =
-    if !has_key(kwargs, :sampling_function)
-        has_key(kwargs, :filename) ?
+    if !haskey(kwargs, :sampling_function)
+        haskey(kwargs, :filename) ?
             generate_samples(;load_samples...) :
             throw(ArgumentError("invalid sampling methods"))
     else
-        λ = get(kwargs, :sampling_function)
+        λ = kwargs[:sampling_function]
         λ = Sampling.exists(λ) ? Sampling.get_existing(λ; kwargs...) : λ
-        has_key(kwargs, :filename) ?
-            store_samples(; sampling=λ, kwargs...) :
-            generate_samples(; sampling=λ, kwargs...)
+        haskey(kwargs, :filename) ?
+            store_samples(; sampling_function=λ, kwargs...) :
+            generate_samples(; sampling_function=λ, kwargs...)
     end
 
 # ---------------------------------------------------------------------
@@ -209,8 +212,9 @@ struct Surrogate
     # obtained data, then to older one.
     exploration_decay_rate::Real
 
-    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}}, objectives_indices=(:), variables_indices=(:),
-              creation_f::Function=Metamodels.fit!, creation_params::Dict{Symbol, Any},
+    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}},
+              objectives_indices=(:), variables_indices=(:),
+              creation_f::Function=Metamodels.fit!, creation_params::Dict{Symbol, Any}=Dict{Symbol, Any}(),
               correction_f::Function=Metamodels.fit!, correction_frequency::Int=1,
               evaluation_f::Function=Metamodels.predict, decay_rate::Real=0.1) =
         begin
@@ -266,14 +270,16 @@ train!(surrogates::Vector{Surrogate}, X, y) =
     foreach(surrogate ->
                 creation_function(  surrogate,
                                     objectives(surrogate, X),
-                                    variables(surrogate, y)))
+                                    variables(surrogate, y)),
+            surrogates)
+
 train!(surrogate::Surrogate, model=nothing) =
     let evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
         params = creation_params(surrogate)
         surrogate_vars = variables_indices(surrogate)
 
         # Retrieve unscalers from model if user does not specify unscalers
-        if model != nothing && !has_key(params, :unscalers)
+        if model != nothing && !haskey(params, :unscalers)
             params[:unscalers] = unscalers(model)[surrogate_vars]
         end
 
@@ -405,7 +411,7 @@ sampling_data(s::MetaSolver) = !is_sampling_required(s) ?
 
 # Predicates
 is_sampling_required(s::MetaSolver) =
-    !(s.sampling_params[:X] && s.sampling_params[:y])
+    !haskey(s.sampling_params, :X) || !haskey(s.sampling_params, :y)
 
 "Returns the Pareto Front solutions obtained with the MetaSolver"
 ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
@@ -450,15 +456,18 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         expensiv_model = expensive_model(meta_model)
 
         # Step 1. Create each Surrogate
-        sampling_prms = sampling_params(solver)
         X, y = [], []
-        if is_sampling_required(sampling_prms)
+        if is_sampling_required(meta_solver)
             @info "[$(now())] Creating samples..."
-            X, y = create_samples(;sampling_prms...)
+            X, y = create_samples(; nvars=nvariables(cheaper_model),
+                                    evaluate=(x) -> evaluate(expensiv_model, x) |> objectives,
+                                    unscalers=unscalers(expensiv_model),
+                                    sampling_params(meta_solver)...)
         else
             @info "[$(now())] Loading provided samples..."
             X, y = sampling_data(solver)
         end
+
         @info "[$(now())] Initializing surrogates with samples..."
         train!(unsafe_surrogates(meta_model), X, y)
         @info "[$(now())] Pushing sampling data to Pareto Front..."

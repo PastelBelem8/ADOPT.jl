@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------- #
-# Example 03 - 2 Variables                                                  #
+# Example 04 - 2 Variables                                                  #
 # @date: 29/11/2018                                                         #
 # ------------------------------------------------------------------------- #
 using Main.MscThesis
 using Main.MscThesis.Metamodels
 using Main.MscThesis.Platypus
 using Main.MscThesis.Sampling
-test_id = 3
+test_id = 4
 # ------------------------------------------------------------------------- #
 # Available models are:                                                     #
 #   - DecicionTree                                                          #
@@ -42,7 +42,7 @@ nobjs = sum(map(nobjectives, objs))
 
 # Create a surrogate associating the model previously defined to the objective
 # to be modelled
-surrogate = Surrogate(model, objectives=objs, variables_indices=[1])
+surrogate = Surrogate(model, objectives=objs, variables_indices=[2])
 
 # Create the Meta Problem that is composed by the variable o1 and the surrogate
 # representing the objective

@@ -251,15 +251,12 @@ end
 @inline objectives_indices(s::Surrogate) = s.objectives_indices
 @inline nobjectives(s::Surrogate) = sum(map(nobjectives, objectives(s)))
 
-@inline correction_function(s::Surrogate) = s.correction
 @inline correction_function(s::Surrogate, X, y) =
     s.correction(surrogate(s), variables(s, X), objectives(s, y))
 
-@inline creation_function(s::Surrogate) = s.creation
 @inline creation_function(s::Surrogate, X, y) =
     s.creation(surrogate(s), variables(s, X), objectives(s, y))
 
-@inline evaluation_function(s::Surrogate) = s.evaluation
 @inline evaluation_function(s::Surrogate, X) =
     s.evaluation(s.meta_model, variables(s, X))
 
@@ -272,11 +269,7 @@ end
 
 # Modifiers
 train!(surrogates::Vector{Surrogate}, X, y) =
-    foreach(surrogate ->
-                creation_function(  surrogate,
-                                    objectives(surrogate, X),
-                                    variables(surrogate, y)),
-            surrogates)
+    foreach(surrogate -> creation_function(surrogate, X, y), surrogates)
 
 train!(surrogate::Surrogate, model=nothing) =
     let evaluate(x...) = map(o -> apply(o, x...), objectives(surrogate)) |> flatten
@@ -294,13 +287,13 @@ train!(surrogate::Surrogate, model=nothing) =
             params[:transform] = sampling_transform(s)
         end
         X, y = create_samples(;params...)
-        creation_function(surrogate, objectives(surrogate, X), variables(surrogate, y))
+        creation_function(surrogate, X, y)
         X, y
     end
 correct!(surrogate::Surrogate, data::Vector{Solution}) =
     let nsols = length(data)
-        X = hcat(map(variables, data)...)[variables_indices(surrogate),:]
-        y = hcat(map(objectives, data)...)[objectives_indices(surrogate),:]
+        X = hcat(map(variables, data)...)
+        y = hcat(map(objectives, data)...)
 
         # Fit surrogate
         correction_function(surrogate, X, y)
@@ -346,7 +339,7 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         vars = variables(m)
         constrs = constraints(m)
         objs = map(surrogates(m)) do surrogate
-            λ = (x...) -> begin evaluation_function(surrogate, x...) end
+            λ = (x...) -> evaluation_function(surrogate, x...)
             coeffs = foldl(vcat, map(coefficient, objectives(surrogate)), init=Real[]) # TODO - Broke abstraction barrier! FIX it later
             snses = foldl(vcat, map(sense, objectives(surrogate)), init=Symbol[])
 

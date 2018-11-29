@@ -220,6 +220,10 @@ struct Surrogate
         begin
             if isempty(objectives)
                 throw(DomainError("invalid argument `objectives` cannot be empty."))
+            elseif objectives_indices != (:) && minimum(objectives_indices) < 0
+                throw(DomainError("invalid argument `objective_indices` cannot be smaller than 0."))
+            elseif variables_indices != (:) && minimum(variables_indices) < 0
+                throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
             elseif correction_frequency < 0
                 throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
             elseif decay_rate < 0
@@ -249,14 +253,15 @@ end
 
 @inline correction_function(s::Surrogate) = s.correction
 @inline correction_function(s::Surrogate, X, y) =
-    s.correction(surrogate(s), X, y)
+    s.correction(surrogate(s), variables(s, X), objectives(s, y))
 
 @inline creation_function(s::Surrogate) = s.creation
 @inline creation_function(s::Surrogate, X, y) =
-    s.creation(surrogate(s), X, y)
+    s.creation(surrogate(s), variables(s, X), objectives(s, y))
 
 @inline evaluation_function(s::Surrogate) = s.evaluation
-@inline evaluation_function(s::Surrogate, X) = s.evaluation(s.meta_model, variables(s, X))
+@inline evaluation_function(s::Surrogate, X) =
+    s.evaluation(s.meta_model, variables(s, X))
 
 @inline creation_params(s::Surrogate) = s.creation_params
 @inline creation_param(s::Surrogate, param::Symbol, default) =
@@ -341,8 +346,7 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         vars = variables(m)
         constrs = constraints(m)
         objs = map(surrogates(m)) do surrogate
-            λ = (x...) -> evaluation_function(surrogate, reshape(x..., (length(vars), 1)))
-
+            λ = (x...) -> begin evaluation_function(surrogate, x...) end
             coeffs = foldl(vcat, map(coefficient, objectives(surrogate)), init=Real[]) # TODO - Broke abstraction barrier! FIX it later
             snses = foldl(vcat, map(sense, objectives(surrogate)), init=Symbol[])
 

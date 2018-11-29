@@ -493,7 +493,17 @@ struct Model <: AbstractModel
         end
 end
 # Selectors
-nobjectives(m::Model) = length(m.objectives)
+nobjectives(m::Model) =
+    try
+        sum(map(nobjectives, m.objectives))
+    catch y
+        if isa(y, UndefRefError)
+            length(m.objectives)
+        else
+            y
+        end
+    end
+
 
 aggregate_function(model::Model, transformation=flatten) =
     nconstraints(model) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),

@@ -226,6 +226,7 @@ struct Surrogate
     # Surrogates should increase exploitation with the increase of evaluations
     exploration_decay_rate::Real
 
+<<<<<<< HEAD
     Surrogate(meta_model;
               objectives, variables_indices=(:),
               creation_f=Metamodels.fit!, creation_params=Dict{Symbol, Any}(),
@@ -239,6 +240,37 @@ struct Surrogate
             creation_f, creation_params, correction_f, correction_frequency,
             evaluation_f, decay_rate)
     end
+=======
+    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}},
+              objectives_indices=(:), variables_indices=(:),
+              creation_f::Function=Metamodels.fit!, creation_params::Dict{Symbol, Any}=Dict{Symbol, Any}(),
+              correction_f::Function=Metamodels.fit!, correction_frequency::Int=1,
+              evaluation_f::Function=Metamodels.predict, decay_rate::Real=0.1) =
+        begin
+            if isempty(objectives)
+                throw(DomainError("invalid argument `objectives` cannot be empty."))
+            elseif objectives_indices != (:)
+                if minimum(objectives_indices) < 1
+                throw(DomainError("invalid argument `objective_indices` cannot be smaller than 0."))
+                elseif !unique(objectives_indices)
+                    throw(DomainError("invalid argument `objective_indices` cannot have repeated indexes."))
+                end
+            elseif variables_indices != (:)
+                if minimum(variables_indices) < 1
+                    throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
+                elseif !unique(variables_indices)
+                    throw(DomainError("invalid argument `variables_indices` cannot have repeated indexes."))
+                end
+            elseif variables_indices != (:) && minimum(variables_indices) < 0
+                throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
+            elseif correction_frequency < 0
+                throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
+            elseif decay_rate < 0
+                throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
+            end
+            new(meta_model, objectives, objectives_indices, variables_indices, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
+        end
+>>>>>>> b14295d652aa70ad62cf302061a3291db5950137
 end
 
 # Arguments Validation

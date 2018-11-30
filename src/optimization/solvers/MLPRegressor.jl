@@ -269,5 +269,5 @@ mlptrain!(r::MLPRegressor, X, y; cb=() -> ()) =
     end
 mlppredict(r::MLPRegressor, X) = Tracker.data(r.model(X))
 
-fit!(r::MLPRegressor, X, y) = begin mlptrain!(r, X, y); return r end
-predict(r::MLPRegressor, X) = mlppredict(r, X)
+ScikitLearnBase.fit!(r::MLPRegressor, X, y) = begin mlptrain!(r, X, y); return r end
+ScikitLearnBase.predict(r::MLPRegressor, X) = mlppredict(r, X)

@@ -219,7 +219,7 @@ nobjectives(::Objective) = 1
 apply(o::Objective, args...) = func(o)(args...)
 
 "Evaluates the true value of the objective"
-evaluate(o::Objective, args...) = coefficient(o) * apply(o, args...)
+evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
 
 """
     SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])

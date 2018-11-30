@@ -17,7 +17,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     function profile(f, args...)
       st = time();
       res = f(args...)
-      # @info "[$(now())] Objective function result $(args...):\n[$res]"
+      @info "[$(now())] Objective function result $(args...):\n[$res]"
       push!(profiling_results, res...)
       push!(profiling_times, time() - st)
       res
@@ -49,7 +49,7 @@ function convert(::Type{Platypus.Problem}, m::Model)
   # 1. Create Base Problem
   nvars, nobjs, nconstrs = nvariables(m), nobjectives(m), nconstraints(m)
   problem = Platypus.Problem(nvars, nobjs, nconstrs)
-  
+
   # 2. Refine the Problem instance
   # 2.1. Convert types
   # TODO - fix PLATYPUS_WRAPPER TO be something more specific - e.g. PlatypusType

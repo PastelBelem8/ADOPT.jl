@@ -37,7 +37,7 @@ o1 = Objective(f0)
 o2 = Objective(f0)
 
 # To automate code below
-objs = (o1, o2)
+objs = [o1, o2]
 nobjs = sum(map(nobjectives, objs))
 
 # Create a surrogate associating the model previously defined to the objective

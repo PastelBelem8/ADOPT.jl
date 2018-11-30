@@ -156,6 +156,22 @@ create_samples(;kwargs...) =
 # ---------------------------------------------------------------------
 # Surrogate
 # ---------------------------------------------------------------------
+index_objectives(objectives) = let
+    nobjs = map(nobjectives ∘ first, objectives)
+    objs = map((o, nobj) -> length(o) == 2 ? o : (o[1], collect(1:nobj)), objectives, nobjs)
+    # Compute Indexes and Offsets
+    ix_offsets = foldl((a, b) -> push!(a, a[end]+b), nobjs, init=[0])[1:end-1]
+    objs_ix = vcat(map((o, offset) -> o[2] .+ offset, objs, ix_offsets)...)
+
+    objs, objs_ix
+    end
+
+index_objectives(objectives::Vector{T}) where{T<:AbstractObjective} =
+    index_objectives(map(tuple, objectives))
+
+index_objectives(objectives::Tuple{Vararg{Any}}) where{T} =
+    index_objectives([tuple(o) for o in objectives])
+
 """
     Surrogate(type, (objective1, ..., objectiven))
     Surrogate(type, (objective1, ..., objectiven), f, f_params)
@@ -191,9 +207,9 @@ julia> file_creation_params = Dict{Symbol, Any} {
 """
 struct Surrogate
     meta_model::Any
-    objectives::Tuple{Vararg{AbstractObjective}}
+    objectives::Vector{Tuple{AbstractObjective, Vector{Int}}}
 
-    objectives_indices::Union{Colon, Vector{Int}}
+    objectives_indices::Vector{Int}
     variables_indices::Union{Colon, Vector{Int}}
 
     # Surrogates can be loaded from files or by sampling
@@ -208,65 +224,77 @@ struct Surrogate
     evaluation::Function
 
     # Surrogates should increase exploitation with the increase of evaluations
-    # TODO - Adaptively change the surrogate to give more weight to newly
-    # obtained data, then to older one.
     exploration_decay_rate::Real
 
-    Surrogate(meta_model; objectives::Tuple{Vararg{AbstractObjective}},
-              objectives_indices=(:), variables_indices=(:),
-              creation_f::Function=Metamodels.fit!, creation_params::Dict{Symbol, Any}=Dict{Symbol, Any}(),
-              correction_f::Function=Metamodels.fit!, correction_frequency::Int=1,
-              evaluation_f::Function=Metamodels.predict, decay_rate::Real=0.1) =
-        begin
-            if isempty(objectives)
-                throw(DomainError("invalid argument `objectives` cannot be empty."))
-            elseif objectives_indices != (:)
-                if minimum(objectives_indices) < 1
-                throw(DomainError("invalid argument `objective_indices` cannot be smaller than 0."))
-                elseif !unique(objectives_indices)
-                    throw(DomainError("invalid argument `objective_indices` cannot have repeated indexes."))
-                end
-            elseif variables_indices != (:)
-                if minimum(variables_indices) < 1
-                    throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
-                elseif !unique(variables_indices)
-                    throw(DomainError("invalid argument `variables_indices` cannot have repeated indexes."))
-                end
-            elseif variables_indices != (:) && minimum(variables_indices) < 0
-                throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
-            elseif correction_frequency < 0
-                throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
-            elseif decay_rate < 0
-                throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
-            end
-            new(meta_model, objectives, objectives_indices, variables_indices, creation_f, creation_params, correction_f, correction_frequency, evaluation_f, decay_rate)
-        end
+    Surrogate(meta_model;
+              objectives, variables_indices=(:),
+              creation_f=Metamodels.fit!, creation_params=Dict{Symbol, Any}(),
+              correction_f=Metamodels.fit!, correction_frequency=1,
+              evaluation_f=Metamodels.predict, decay_rate=0.1) = begin
+        check_arguments(Surrogate, meta_model, objectives, variables_indices,
+                        creation_f, creation_params, correction_f,
+                        correction_frequency, evaluation_f, decay_rate)
+        objectives, objectives_indices = index_objectives(objectives)
+        new(meta_model, objectives, objectives_indices, variables_indices,
+            creation_f, creation_params, correction_f, correction_frequency,
+            evaluation_f, decay_rate)
+    end
 end
+
+# Arguments Validation
+check_arguments(::Type{Surrogate}, meta_model, objs, var_ixs, creation_f, creation_params, correction_f, correction_frequency,
+                evaluation_f, decay_rate) =
+    if isempty(objs)
+        throw(DomainError("invalid argument `objectives` cannot be empty."))
+    elseif any(map(o -> isa(o, Tuple) && length(o) == 2 ? any(o[2] .< 1) : false, objs))
+        throw(DomainError("invalid argument `objectives` should not non positive integers as indices."))
+    elseif any(map(o -> isa(o, Tuple) && length(o) == 2 ? nonunique(o[2]) : false, objs))
+        throw(DomainError("invalid argument `objectives` should not have repeated indexes."))
+    elseif var_ixs != (:)
+        if minimum(var_ixs) < 1
+            throw(DomainError("invalid argument `var_ixs` cannot be smaller than 0."))
+        elseif var_ixs != (:) && nonunique(var_ixs)
+            throw(DomainError("invalid argument `var_ixs` cannot have repeated indexes."))
+        end
+    elseif correction_frequency < 0
+        throw(DomainError("invalid argument `correction_frequency` must be a non-negative integer."))
+    elseif decay_rate < 0
+        throw(DomainError("invalid argument `decay_rate` must be a non-negative real."))
+    end
 
 # Selectors
 @inline sampling_transform(s::Surrogate) =
-(V) -> let  surrogate_vars = variable_indices(s)
-            V_temp = zeros(maximum(surrogate_vars), size(V, 2))
-            V_temp[surrogate_vars] = V
-            V_temp
-end
+    (V) -> let  surrogate_vars = variable_indices(s)
+                V_temp = zeros(maximum(surrogate_vars), size(V, 2))
+                V_temp[surrogate_vars] = V
+                V_temp
+        end
 
 @inline surrogate(s::Surrogate) = s.meta_model
 @inline objectives(s::Surrogate) = s.objectives
+@inline nobjectives(s::Surrogate) =
+    foldl((x ,y) -> x + length(y[2]), objectives(s), init=0)
 
-@inline objectives(s::Surrogate, y) = y[s.objectives_indices,:]
-@inline variables(s::Surrogate, X) = X[s.variables_indices,:]
+@inline true_objectives(s::Surrogate) = map(first, objectives(s))
+@inline coefficients(s::Surrogate) =
+    let coeffs = foldl(vcat, map(coefficient, true_objectives(s)), init=Real[])
+        coeffs[objectives_indices(s)]
+    end
+@inline senses(s::Surrogate) =
+    let senses = foldl(vcat, map(sense, true_objectives(s)), init=Symbol[])
+        senses[objectives_indices(s)]
+    end
 
-@inline variables_indices(s::Surrogate) = s.variables_indices
+@inline objectives(s::Surrogate, y) = y[objectives_indices(s),:]
+@inline variables(s::Surrogate, X) = X[variables_indices(s),:]
+
 @inline objectives_indices(s::Surrogate) = s.objectives_indices
-@inline nobjectives(s::Surrogate) = sum(map(nobjectives, objectives(s)))
-
-@inline correction_function(s::Surrogate, X, y) =
-    s.correction(surrogate(s), variables(s, X), objectives(s, y))
+@inline variables_indices(s::Surrogate) = s.variables_indices
 
 @inline creation_function(s::Surrogate, X, y) =
     s.creation(surrogate(s), variables(s, X), objectives(s, y))
-
+@inline correction_function(s::Surrogate, X, y) =
+    s.correction(surrogate(s), variables(s, X), objectives(s, y))
 @inline evaluation_function(s::Surrogate, X) =
     s.evaluation(s.meta_model, variables(s, X))
 
@@ -339,7 +367,7 @@ end
 # Selectors
 surrogates(m::MetaModel) = objectives(m)
 unsafe_surrogates(m::MetaModel) = unsafe_objectives(m)
-original_objectives(m::MetaModel) = flatten(map(objectives, surrogates(m)))
+original_objectives(m::MetaModel) = flatten(map(true_objectives, surrogates(m)))
 
 nobjectives(m::MetaModel) = sum(map(nobjectives, m.objectives))
 
@@ -350,8 +378,8 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         constrs = constraints(m)
         objs = map(surrogates(m)) do surrogate
             λ = (x...) -> evaluation_function(surrogate, x...)
-            coeffs = foldl(vcat, map(coefficient, objectives(surrogate)), init=Real[]) # TODO - Broke abstraction barrier! FIX it later
-            snses = foldl(vcat, map(sense, objectives(surrogate)), init=Symbol[])
+            coeffs = coefficients(surrogate)
+            snses = senses(surrogate)
 
             # Create Objective
             is_multi_target(surrogate) ? SharedObjective(λ, coeffs, snses) :
@@ -359,6 +387,7 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         end
         Model(vars, objs, constrs)
     end
+
 expensive_model(m::MetaModel) =
     Model(variables(m), original_objectives(m), constraints(m))
 
@@ -438,6 +467,7 @@ Base.push!(solver::MetaSolver, variables, objectives) =
 Base.push!(solver::MetaSolver, solutions::Vector{Solution}) =
     let vars = hcat(map(variables, solutions)...)
         objs = hcat(map(objectives, solutions)...)
+
         push!(solver, vars, objs)
     end
 
@@ -478,6 +508,7 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         @info "[$(now())] Initializing surrogates with samples..."
         train!(unsafe_surrogates(meta_model), X, y)
         @info "[$(now())] Pushing sampling data to Pareto Front..."
+
         push!(meta_solver, X, y)
 
         # Repeat until termination condition is met.

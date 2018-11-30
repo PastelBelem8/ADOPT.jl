@@ -78,6 +78,5 @@ meta_solver = MetaSolver(solver,
                          max_eval=10,
                          sampling_params=sampling_params)
 
-
- # Step 3. Solve it!
- sols = solve(meta_solver, meta_problem)
+# Step 3. Solve it!
+sols = solve(meta_solver, meta_problem)

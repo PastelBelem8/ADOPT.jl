@@ -10,6 +10,15 @@ export nrows,
 
 flatten(x) = collect(Iterators.flatten(x))
 
+nonunique(arr) = let
+     unique = Set()
+     for e in arr
+         if e in unique return true end
+         push!(unique, e)
+     end
+     false
+ end
+
 # Scaling -------------------------------------------------------------------
 
 export  featureScale,

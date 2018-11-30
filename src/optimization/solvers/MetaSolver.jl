@@ -165,10 +165,8 @@ index_objectives(objectives) = let
 
     objs, objs_ix
     end
-
 index_objectives(objectives::Vector{T}) where{T<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
-
 index_objectives(objectives::Tuple{Vararg{Any}}) where{T} =
     index_objectives([tuple(o) for o in objectives])
 

@@ -220,8 +220,18 @@ struct Surrogate
         begin
             if isempty(objectives)
                 throw(DomainError("invalid argument `objectives` cannot be empty."))
-            elseif objectives_indices != (:) && minimum(objectives_indices) < 0
+            elseif objectives_indices != (:)
+                if minimum(objectives_indices) < 1
                 throw(DomainError("invalid argument `objective_indices` cannot be smaller than 0."))
+                elseif !unique(objectives_indices)
+                    throw(DomainError("invalid argument `objective_indices` cannot have repeated indexes."))
+                end
+            elseif variables_indices != (:)
+                if minimum(variables_indices) < 1
+                    throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
+                elseif !unique(variables_indices)
+                    throw(DomainError("invalid argument `variables_indices` cannot have repeated indexes."))
+                end
             elseif variables_indices != (:) && minimum(variables_indices) < 0
                 throw(DomainError("invalid argument `variable_indices` cannot be smaller than 0."))
             elseif correction_frequency < 0

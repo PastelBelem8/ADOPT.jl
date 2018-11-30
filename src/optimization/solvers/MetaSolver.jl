@@ -23,6 +23,7 @@ convert(::Type{Solution}, x, y, constraints) =
             Solution(variables, objectives)
         end
     end
+    
 convert(::Type{Vector{Solution}}, X, y, constraints) =
     map(1:size(X, 2)) do sample
         convert(Solution, X[:, sample], y[:, sample], constraints)
@@ -71,6 +72,7 @@ store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
         end
         X, y
     end
+
 load_samples(;nsamples=Colon, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
     let data = open(filename, "r") do io
                     has_header ? readline(io) : nothing;
@@ -385,7 +387,6 @@ cheap_model(m::MetaModel; dynamic::Bool=false) =
         end
         Model(vars, objs, constrs)
     end
-
 expensive_model(m::MetaModel) =
     Model(variables(m), original_objectives(m), constraints(m))
 

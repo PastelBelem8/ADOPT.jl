@@ -1,9 +1,13 @@
 module Metamodels
 
+using ScikitLearnBase
+# function fit!(model, X, y; kwargs...) end
+# function predict(model, X; kwargs...) end
+
 # ------------------------------------------------------------------------
 # Decision Tree
 # ------------------------------------------------------------------------
-using DecisionTree: DecisionTreeRegressor, RandomForestRegressor
+using DecisionTree: DecisionTreeRegressor, RandomForestRegressor, fit!, predict
 export DecisionTreeRegressor, RandomForestRegressor
 
 # ------------------------------------------------------------------------
@@ -29,9 +33,9 @@ best for numerical reasons.
 - `multi_output`: for maximum efficiency, specify `multi_output=true/false`
 """
 LinearRegression(; eltype=Float64, multi_output::Union{Nothing, Bool}=nothing) =
-    multi_output === nothing ?  LinearRegression{Array{eltype}, eltype}() : LinearRegression{Array{eltype, 2}, eltype}()
+    multi_output === nothing ? LinearRegression{Array{eltype}, eltype}() : LinearRegression{Array{eltype, 2}, eltype}()
 
-fit!(lr::LinearRegression, X::AbstractArray{XT}, y::AbstractArray{yT}) where{XT, yT} =
+ScikitLearnBase.fit!(lr::LinearRegression, X::AbstractArray{XT}, y::AbstractArray{yT}) where{XT, yT} =
     begin
         if XT == Float32 || yT == Float32
             warn("Regression on Float32 is prone to inaccuracy")
@@ -41,13 +45,13 @@ fit!(lr::LinearRegression, X::AbstractArray{XT}, y::AbstractArray{yT}) where{XT,
         lr.coefs = res[2:end,:];
         lr
     end
-predict(lr::LinearRegression, X) =
+ScikitLearnBase.predict(lr::LinearRegression, X) =
     lr.coefs' * X .+ lr.intercepts
 
 # ------------------------------------------------------------------------
 # Support Vector Regression (SVR)
 # ------------------------------------------------------------------------
-using LIBSVM: SVC, NuSVC, NuSVR, EpsilonSVR, LinearSVC
+using LIBSVM: SVC, NuSVC, NuSVR, EpsilonSVR, LinearSVC, fit!, predict
 using LIBSVM: Kernel.Linear, Kernel.RadialBasis, Kernel.Polynomial,
               Kernel.Sigmoid,Kernel.Precomputed
 
@@ -87,8 +91,8 @@ using GaussianProcesses: BernLik,
                          PoisLik,
                          StuTLik
 
-fit!(gp::GPE, X::AbstractMatrix, y::AbstractVector) = GaussianProcesses.fit!(gp, X', y)
-predict(gp::GPE, X::AbstractMatrix; eval_MSE::Bool=false) =
+ScikitLearnBase.fit!(gp::GPE, X::AbstractMatrix, y::AbstractVector) = GaussianProcesses.fit!(gp, X', y)
+ScikitLearnBase.predict(gp::GPE, X::AbstractMatrix; eval_MSE::Bool=false) =
     begin
         optimise!(gp)
         mu, Sigma = GaussianProcesses.predict_y(gp, X'; full_cov=false)
@@ -105,10 +109,5 @@ export Const, LinArd, LinIso, Matern, Mat12Iso, Mat32Iso, Mat52Iso,
        Mat12Ard, Mat32Ard, Mat52Ard, Noise, Poly, RQ, RQIso, RQArd,
        SE, SEArd, SEIso, ProdKernel, SumKernel
 export BernLik, BinLik, ExpLik, GaussLik, PoisLik, StuTLik
-
-
-function fit!(model, X, y; kwargs...) end
-function predict(model, X; kwargs...) end
-export fit!, predict
 
 end # Module

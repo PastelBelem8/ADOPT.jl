@@ -17,7 +17,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     function profile(f, args...)
       st = time();
       res = f(args...)
-      @info "[$(now())] Objective function result $(args...):\n[$res]"
+      # @info "[$(now())] Objective function result $(args...):\n[$res]"
       push!(profiling_results, res...)
       push!(profiling_times, time() - st)
       res

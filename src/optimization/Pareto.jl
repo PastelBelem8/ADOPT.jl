@@ -159,16 +159,13 @@ Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominan
             dominated = filter(i-> dominated[i], 1:length(dominated))
 
             if !isempty(dominated) && !isempty(nondominated_objs)
-                dominated_vars = nondominated_vars[:, dominated];
-                dominated_objs = nondominated_objs[:, dominated];
+                # Push dominated solutions
+                map(dominated) do j
+                    push_dominated!(pd, nondominated_vars[:, j], nondominated_objs[:, j]);
+                end
 
                 # Remove dominated solutions from nondominated
                 remove_nondominated!(pd, dominated);
-
-                # Push dominated solutions
-                map(dominated) do j
-                    push_dominated!(pd, dominated_vars[:, j], dominated_objs[:, j]);
-                end
             end
             # Push Pareto Optimal Solution
             push_nondominated!(pd, vars, objs);

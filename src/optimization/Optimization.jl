@@ -149,8 +149,8 @@ abstract type AbstractObjective end
 func(o::AbstractObjective) = o.func
 
 # Predicates
-isObjective(o::AbstractObjective)::Bool = true
-isObjective(o::Any)::Bool = false
+isAbstractObjective(::T) where{T<:AbstractObjective} = true
+isAbstractObjective(::Any) = false
 
 isminimization(o::AbstractObjective, comp) = comp(:MIN, sense(o))
 
@@ -203,6 +203,9 @@ direction(o::Objective) = o.sense == :MIN ? -1 : 1
 directions(v::Vector) = [direction(o) for o in v]
 
 # Predicate
+isObjective(::Objective)::Bool = true
+isObjective(::Any)::Bool = false
+
 isminimization(o::Objective) = invoke(isminimization, Tuple{AbstractObjective, Function}, o, ==)
 
 # Comparators
@@ -290,6 +293,9 @@ direction(o::SharedObjective, i::Union{Int,Colon}=(:)) =
 directions(v::Vector{SharedObjective}) = [direction(o) for o in v]
 
 # Predicates
+isSharedObjective(::SharedObjective) = true
+isSharedObjective(::Any) = false
+
 isminimization(o::SharedObjective) =
     invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
 
@@ -533,7 +539,6 @@ check_arguments(::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int) =
     end
 check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vector{Constraint}) where{T<:AbstractVariable, Y<:AbstractObjective} =
     check_arguments(t, length(vars), length(objs), length(constrs))
-
 
 evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
 evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]

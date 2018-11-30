@@ -54,7 +54,7 @@ meta_problem = MetaModel(vars, [surrogate])
 sampling_params = Dict{Symbol, Any}(
     :sampling_function => Sampling.randomMC,
     :nsamples => 5,
-    :filename => "examples\\metasolver\\testsimples\\resources\\t$(test_id)-sample.csv"
+    :filename => "examples\\metasolver\\testadvanced-variables\\resources\\t$(test_id)-sample.csv"
 )
 
 # Specify the algorithm that will explore and find best surrogate solutions
@@ -71,9 +71,7 @@ solver = PlatypusSolver(algorithm,
 # of vars, the number of objectives, the number of maximum expensive evaluations
 # and the parameters to be used for initiating the surrogate
 meta_solver = MetaSolver(solver,
-                         nvars=nvars,
-                         nobjs=nobjs,
-                         max_eval=10,
+                         nvars=nvars, nobjs=nobjs, max_eval=10,
                          sampling_params=sampling_params)
 
 # Step 3. Solve it!

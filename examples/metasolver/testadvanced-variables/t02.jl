@@ -54,7 +54,7 @@ meta_problem = MetaModel(vars, [surrogate])
 sampling_params = Dict{Symbol, Any}(
     :sampling_function => Sampling.randomMC,
     :nsamples => 5,
-    :filename => "examples\\metasolver\\testsimples\\resources\\t$(test_id)-sample.csv"
+    :filename => "examples\\metasolver\\testadvanced-variables\\resources\\t$(test_id)-sample.csv"
 )
 
 # Specify the algorithm that will explore and find best surrogate solutions

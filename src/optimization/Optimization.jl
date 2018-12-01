@@ -140,18 +140,37 @@ unscale(var::SetVariable, value::Real, old_min, old_max) = let
 
 # Other operations
 "Creates a new variable with the bounds decreased by `rate`"
-decrease_by_aux(var, δ; transform=identity) = let
-    lb, ub = lower_bound(var), upper_bound(var);
-    Δ = transform(abs(ub-lb) * δ / 2)
-    typeof(var)(lb + Δ, ub - Δ)
+decrease_around(var, rate; transform=identity, p=nothing) = let
+        lb, ub = lower_bound(var), upper_bound(var)
+        if p != nothing p > ub || p < lb
+            throw(ArgumentError("invalid point p: cannot decrease around point $p because it does not lie in the range [$a, $b]"))
+        end
+
+        Δ = abs(ub - lb) * rate
+        midpoint = (ub - lb) / 2 + lb;
+        p = p === nothing ? midpoint : p
+
+        if p > midpoint
+            ub = min(ub, midpoint + (p-midpoint) + Δ/2)
+            lb = ub - Δ
+        elseif p < midpoint
+            lb = max(lb, midpoint + (p-midpoint) - Δ/2)
+            ub = lb + Δ
+        else
+            lb = midpoint - Δ/2
+            ub = midpoint + Δ/2
+        end
+        typeof(var)(transform(lb), transform(ub))
     end
+decrease_around(var::SetVariable, rate; transform=identity, p=nothing) = throw(MethodError("not implemented"))
 
 decrease_by(var::IntVariable, rate) =
-    decrease_by_aux(var, rate, transform=(x) -> floor(Int, x))
+    decrease_around(var, rate, transform=(x) -> floor(Int, x))
 decrease_by(var::T, rate) where{T<:AbstractVariable} =
-    decrease_by_aux(var, rate)
+    decrease_around(var, rate)
 decrease_by(vars::Vector{T}, rate) where{T<:AbstractVariable} =
-    map(x -> decrease_bounds(x, rate), vars)
+    map(x -> decrease_by(x, rate), vars)
+
 
 # Export functions
 export lower_bound, upper_bound, initial_value, values, ==, unscale, decrease_by

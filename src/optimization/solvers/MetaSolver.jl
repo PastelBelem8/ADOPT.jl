@@ -239,7 +239,7 @@ struct Surrogate
         objectives, objectives_indices = index_objectives(objectives)
         new(meta_model, objectives, objectives_indices, variables_indices,
             creation_f, creation_params, correction_f, correction_frequency,
-            evaluation_f, 1-decay_rate)
+            evaluation_f, decay_rate)
     end
 end
 
@@ -340,8 +340,6 @@ correct!(surrogate::Surrogate, data::Vector{Solution}) =
         # TODO - Get error measurement
         0
     end
-
-
 
 export Surrogate
 # ---------------------------------------------------------------------

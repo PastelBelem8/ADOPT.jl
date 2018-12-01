@@ -23,7 +23,7 @@ convert(::Type{Solution}, x, y, constraints) =
             Solution(variables, objectives)
         end
     end
-    
+
 convert(::Type{Vector{Solution}}, X, y, constraints) =
     map(1:size(X, 2)) do sample
         convert(Solution, X[:, sample], y[:, sample], constraints)
@@ -165,12 +165,13 @@ index_objectives(objectives) = let
     ix_offsets = foldl((a, b) -> push!(a, a[end]+b), nobjs, init=[0])[1:end-1]
     objs_ix = vcat(map((o, offset) -> o[2] .+ offset, objs, ix_offsets)...)
 
-    objs, objs_ix
+    collect(objs), collect(objs_ix)
     end
-index_objectives(objectives::Vector{T}) where{T<:AbstractObjective} =
+index_objectives(objectives::Vector{Union{T, Y}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
-index_objectives(objectives::Tuple{Vararg{Any}}) where{T} =
-    index_objectives([tuple(o) for o in objectives])
+
+index_objectives(objectives::Tuple{Vararg{Union{T, Y}}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
+    index_objectives(map(tuple, objectives))
 
 """
     Surrogate(type, (objective1, ..., objectiven))

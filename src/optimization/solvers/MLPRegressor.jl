@@ -1,11 +1,12 @@
 using Flux
+using Dates
 using Random
 
 # ---------------------------------------------------------------------------
 # Training Utils: train_test_split, batches_split
 # ---------------------------------------------------------------------------
 train_test_split(X, y, test_fraction=0.25, shuffle=false) =
-    let ndims, nsamples = size(X); test_size = trunc(Int, nsamples * test_fraction)
+    let (ndims, nsamples) = size(X); test_size = trunc(Int, nsamples * test_fraction)
         ixs = shuffle ? Random.shuffle(Vector(1:nsamples)) : Vector(1:nsamples)
 
         # X_Train, X_Test, y_Train, y_Test
@@ -77,7 +78,7 @@ update_best!(es::EarlyStopping, loss, params) =
 
 update!(es::EarlyStopping, X_val, y_val, λloss, params) =
     let loss = λloss(X_val, y_val)
-        @debug "[$(now())] Early Stopping loss: $(round(loss, digits=8))"
+        @info "[$(now())] Early Stopping loss: $(round(loss, digits=8))"
         update_loss!(es, loss)
         update_epochs_nochange!(es, loss)
         update_best!(es, loss, params)
@@ -95,37 +96,10 @@ train_test_split(es::EarlyStopping, X, y, shuffle) =
 # ---------------------------------------------------------------------------
 # call(f, xs...) = f(xs...)
 
-# Flux Optimisers -----------------------------------------------------------
-ADADelta(;ρ=0.9, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.ADADelta(ps, ρ=ρ, ϵ=ϵ, decay=decay)
-ADAGrad(η=0.001; ϵ=1e-8, decay=0) =
-    (ps) -> Flux.ADAGrad(ps, η, ϵ=ϵ, decay=decay)
-ADAM(η=0.001; β1=0.9, β2=0.999, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.ADAM(ps, η, β1=β1, β2=β2, ϵ=ϵ, decay=decay)
-AdaMax(η=0.001; β1=0.9, β2=0.999, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.AdaMax(ps, η, β1=β1, β2=β2, ϵ=ϵ, decay=decay)
-ADAMW(η=0.001; β1=0.9, β2=0.999, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.ADAMW(ps, η, β1=β1, β2=β2, ϵ=ϵ, decay=decay)
-AMSGrad(η=0.001; β1=0.9, β2=0.999, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.AMSGrad(ps, η, β1=β1, β2=β2, ϵ=ϵ, decay=decay)
-Momentum(η=0.001; ρ=0.9, decay=0) =
-    (ps) -> Flux.Momentum(ps, η, ρ=ρ, decay=decay)
-NADAM(η=0.001; β1=0.9, β2=0.999, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.NADAM(ps, η, β1=β1, β2=β2, ϵ=ϵ, decay=decay)
-Nesterov(η=0.001; ρ=0.9, decay=0) =
-    (ps) -> Flux.Nesterov(ps, η, ρ=ρ, decay=decay)
-RMSProp( η=0.001; ρ=0.9, ϵ=1e-8, decay=0) =
-    (ps) -> Flux.RMSProp(ps, η, ρ=ρ, ϵ=ϵ, decay=decay)
-SGD(η=0.001; decay=0) =
-    (ps) -> Flux.SGD(ps, decay=decay)
-
-# export  ADADelta, ADAGrad, ADAM, AdaMax, ADAMW, AMSGrad,
-#         Momentum, NADAM, Nesterov, RMSProp, SGD
-
 # Getters  -----------------------------------------------------------------
 get_params(m::Chain; weights::Bool) =
     let i = weights ? 1 : 2;
-        map(Tracker.data, Flux.params(m)[i:2:end])
+        map(Tracker.data, Flux.params(m))[i:2:end]
     end
 weights(m::Chain) = get_params(m, weights=true)
 bias(m::Chain) = get_params(m, weights=false)
@@ -143,13 +117,15 @@ Chain_by_sizes(activation, layer_sizes...) =
 # ---------------------------------------------------------------------------
 # MLPRegressor
 # ---------------------------------------------------------------------------
+FluxOptimisers = Union{Flux.ADAM, Flux.ADADelta, Flux.ADAGrad, Flux.AMSGrad, Flux.NADAM, Flux.Nesterov, Flux.Optimiser, Flux.RMSProp}
+
 mutable struct MLPRegressor
     epochs::Int
     batch_size::Int
     shuffle::Bool
 
     loss::Function
-    optimiser::Function
+    optimiser::FluxOptimisers
 
     model::Chain
     losses::Vector{Real}
@@ -176,8 +152,6 @@ MLPRegressor(layer_sizes=(1, 100, 1); solver, activation=Flux.relu, λ=0.0001,
 
         # Create loss_function w/ L2 regularization
         loss(x, y) = Flux.mse(model(x), y) + λ * L2penalty(weights(model))
-
-        solver = solver(Flux.params(model))
         MLPRegressor(epochs, batch_size, shuffle, loss, solver, model, earlystop)
     end
 
@@ -201,6 +175,8 @@ epochs(r::MLPRegressor) = r.epochs
 loss_curve(r::MLPRegressor) = r.losses
 loss_function(r::MLPRegressor) = r.loss
 
+params(r::MLPRegressor; flux::Bool=false) =
+    flux ? Flux.params(r.model) : map(Tracker.data, Flux.params(r.model))
 params(r::MLPRegressor) = map(Tracker.data, Flux.params(r.model))
 optimiser(r::MLPRegressor) = r.optimiser
 
@@ -209,10 +185,10 @@ update_losses!(r::MLPRegressor, loss) = push!(r.losses, loss);
 update_params!(r::MLPRegressor, params) =
     begin
         @warn "[$(now())] Updating MLP Regressor Parameters"
-        @debug "[Before] MLP Regressor Parameters: $(Tracker.data(params(r.model)))"
+        @info "[Before] MLP Regressor Parameters: $((map(Tracker.data, params(r.model)))[:])"
         new_layers = map(layer -> Dense(layer.W, layer.b, layer.σ), r.model.layers)
         r.model = Chain(new_layers...)
-        @debug "[After] MLP Regressor Parameters: $(Tracker.data(params(r.model)))"
+        @info "[After] MLP Regressor Parameters: $((map(Tracker.data, params(r.model)))[:])"
     end
 
 # Training and Prediction Routines -----------------------------------------
@@ -227,7 +203,7 @@ batches_loss(r::MLPRegressor; cb=() -> ()) =
 
         (batches) -> begin
             accumulated_loss = 0
-            Flux.train!(loss_per_batch, batches, optimiser(r), cb=cb);
+            Flux.train!(loss_per_batch, params(r, flux=true), batches, optimiser(r), cb=cb);
             # foreach(call, cb)
             accumulated_loss
         end

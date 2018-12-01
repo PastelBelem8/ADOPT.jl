@@ -169,7 +169,6 @@ index_objectives(objectives) = let
     end
 index_objectives(objectives::Vector{Union{T, Y}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
-
 index_objectives(objectives::Tuple{Vararg{Union{T, Y}}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
 
@@ -226,19 +225,21 @@ struct Surrogate
 
     # Surrogates should increase exploitation with the increase of evaluations
     exploration_decay_rate::Real
+    perturbation::Function
 
     Surrogate(meta_model;
               objectives, variables_indices=(:),
               creation_f=Metamodels.fit!, creation_params=Dict{Symbol, Any}(),
               correction_f=Metamodels.fit!, correction_frequency=1,
-              evaluation_f=Metamodels.predict, decay_rate=0.1) = begin
+              evaluation_f=Metamodels.predict, decay_rate=0.1,
+              perturbation_strategy=identity) = begin
         check_arguments(Surrogate, meta_model, objectives, variables_indices,
                         creation_f, creation_params, correction_f,
                         correction_frequency, evaluation_f, decay_rate)
         objectives, objectives_indices = index_objectives(objectives)
         new(meta_model, objectives, objectives_indices, variables_indices,
             creation_f, creation_params, correction_f, correction_frequency,
-            evaluation_f, decay_rate)
+            evaluation_f, 1-decay_rate)
     end
 end
 
@@ -340,6 +341,8 @@ correct!(surrogate::Surrogate, data::Vector{Solution}) =
         0
     end
 
+
+
 export Surrogate
 # ---------------------------------------------------------------------
 # MetaModel (MetaProblem)
@@ -410,44 +413,54 @@ condition is met.
 """
 mutable struct MetaSolver <: AbstractSolver
     solver::AbstractSolver
+    exploitation_rate::Real # Set to 0 to have no exploitation focused behavior
 
     max_evaluations::Int
     sampling_params::Dict{Symbol, Any}
 
     pareto_result::ParetoResult
-    MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100) = begin
-            if max_eval < 0
-                throw(DomainError("invalid argument `max_eval` must be a positive integer"))
-            elseif isempty(sampling_params)
-                throw(DomainError("invalid argument `sampling_params` must provide
-                enough parameters to run the initialization routine for the surrogates"))
-            # Ready-to-use data is specified (no sampling necessary)
-            elseif haskey(sampling_params, :X) && !haskey(sampling_params, :y) ||
-                   !haskey(sampling_params, :X) && haskey(sampling_params, :y)
-                throw(DomainError("invalid argument `sampling_params` must provide
-                both `:X` and `:y` in order to run the initialization routine for the surrogates"))
-            end
-            new(solver, max_eval, sampling_params, ParetoResult(nvars, nobjs))
+    MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100, exploitation_rate=0) = begin
+            check_arguments(MetaSolver, nvars, nobjs, sampling_params, max_eval, exploitation_rate)
+            new(solver, exploitation_rate, max_eval, sampling_params, ParetoResult(nvars, nobjs))
         end
 end
 
+# Argument Validation
+check_arguments(::Type{MetaSolver}, nvars, nobjs, sampling_params, max_eval, exploitation_rate) =
+    if max_eval < 0
+        throw(DomainError("invalid argument `max_eval` must be a positive integer"))
+    elseif isempty(sampling_params)
+        throw(DomainError("invalid argument `sampling_params` must provide
+        enough parameters to run the initialization routine for the surrogates"))
+    # Ready-to-use data is specified (no sampling necessary)
+    elseif haskey(sampling_params, :X) && !haskey(sampling_params, :y) ||
+           !haskey(sampling_params, :X) && haskey(sampling_params, :y)
+        throw(DomainError("invalid argument `sampling_params` must provide
+        both `:X` and `:y` in order to run the initialization routine for the surrogates"))
+    elseif 0 > exploitation_rate || exploitation_rate > 1
+        throw(DomainError("invalid argument `exploitation_rate` must be within [0, 1]"))
+    end
+
 # Selectors
 "Returns the number of maximum expensive evaluations to run the optimisation"
-max_evaluations(s::MetaSolver) = s.max_evaluations
+@inline max_evaluations(s::MetaSolver) = s.max_evaluations
 "Returns the solver responsible for exploring the cheaper models"
-optimiser(s::MetaSolver) = s.solver
+@inline optimiser(s::MetaSolver) = s.solver
 "Returns the Pareto Results"
-results(s::MetaSolver) = s.pareto_result
+@inline results(s::MetaSolver) = s.pareto_result
 "Returns the Meta Solver initial sampling params"
-sampling_params(s::MetaSolver) = s.sampling_params
-sampling_data(s::MetaSolver) = !is_sampling_required(s) ?
-        (s.sampling_params[:X], s.sampling_params[:y]) :
-        throw(DomainError("invalid operation. The specified MetaSolver does not
-        have ready-to-use data `X` and `y`"))
+@inline sampling_params(s::MetaSolver) = s.sampling_params
+@inline sampling_data(s::MetaSolver) = !is_sampling_required(s) ? (s.sampling_params[:X], s.sampling_params[:y]) :
+        throw(DomainError("invalid operation. The specified MetaSolver does not have ready-to-use data `X` and `y`"))
+
+@inline exploitation_rate(s::MetaSolver) = s.exploitation_rate
+@inline exploration_rate(s::MetaSolver) = 1 - exploitation_rate(s)
 
 # Predicates
 is_sampling_required(s::MetaSolver) =
     !haskey(s.sampling_params, :X) || !haskey(s.sampling_params, :y)
+
+is_exploitation_required(s::MetaSolver) = exploitation_rate(s) != 0
 
 "Returns the Pareto Front solutions obtained with the MetaSolver"
 ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
@@ -508,7 +521,6 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         @info "[$(now())] Initializing surrogates with samples..."
         train!(unsafe_surrogates(meta_model), X, y)
         @info "[$(now())] Pushing sampling data to Pareto Front..."
-
         push!(meta_solver, X, y)
 
         # Repeat until termination condition is met.
@@ -518,14 +530,18 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
 
             # Step 3. Evaluate solutions from 2, using the expensive model
             # Guarantee that the number of Max Evals is satisfied
+            @info "[$(now())] Expensive evaluations left: $evals_left"
             candidate_solutions, evals_left = clip(candidate_solutions, evals_left)
-            @info "[$(now())] Found $(length(candidate_solutions)) candidate solutions... \n\tExpensive evaluations left: $evals_left"
+            @info "[$(now())] Found $(length(candidate_solutions)) candidate solutions... "
             solutions = evaluate(expensiv_model, candidate_solutions)
 
             # Step 4. Add results from Step 3. to ParetoResult
             push!(meta_solver, solutions)
             # Step 5. Update the surrogates
             foreach(correct(solutions), unsafe_surrogates(meta_model))
+
+            # Refine model by exploration rate
+            cheaper_model = drill_down_model(cheaper_model, depth=exploitation_rate(meta_solver))
         end
         # Step 7. Return Pareto Result non-dominated
         convert(Vector{Solution}, ParetoFront(meta_solver)..., constraints(expensiv_model))

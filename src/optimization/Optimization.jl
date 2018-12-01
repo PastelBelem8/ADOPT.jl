@@ -137,8 +137,24 @@ unscale(var::SetVariable, value::Real, old_min, old_max) = let
     var.values[round(Int64, nval)]
     end
 
+
+# Other operations
+"Creates a new variable with the bounds decreased by `rate`"
+decrease_by_aux(var, δ; transform=identity) = let
+    lb, ub = lower_bound(var), upper_bound(var);
+    Δ = transform(abs(ub-lb) * δ / 2)
+    typeof(var)(lb + Δ, ub - Δ)
+    end
+
+decrease_by(var::IntVariable, rate) =
+    decrease_by_aux(var, rate, transform=(x) -> floor(Int, x))
+decrease_by(var::T, rate) where{T<:AbstractVariable} =
+    decrease_by_aux(var, rate)
+decrease_by(vars::Vector{T}, rate) where{T<:AbstractVariable} =
+    map(x -> decrease_bounds(x, rate), vars)
+
 # Export functions
-export lower_bound, upper_bound, initial_value, values, ==, unscale
+export lower_bound, upper_bound, initial_value, values, ==, unscale, decrease_by
 
 # ---------------------------------------------------------------------
 # Objectives
@@ -483,6 +499,12 @@ nvariables(m::AbstractModel) = length(m.variables)
 unscalers(m::AbstractModel, old_min::Int=0, old_max::Int=1) = map(variables(m)) do var
     (val) -> unscale(var, val, old_min, old_max)
     end
+
+"Creates new model given the `solver`'s hyperparameters (e.g. exploitation rate)"
+drill_down_model(model::AbstractModel; depth) =
+    depth == 0 ? model : typeof(model)( decrease_by(variables(model), depth),
+                                        objectives(model),
+                                        constraints(model))
 
 # ---------------------------------------------------------------------
 # Model / Problem

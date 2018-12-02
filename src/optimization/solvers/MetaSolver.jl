@@ -5,28 +5,34 @@ using DelimitedFiles: readdlm, writedlm
 # ------------------------------------------------------------------------
 # Solution Converter Routines
 # ------------------------------------------------------------------------
+
+convert(::Type{Solution}, x, y) = Solution( convert(typeof_variables(Solution), x),
+                                            convert(typeof_objectives(Solution), y))
 convert(::Type{Solution}, x, y, constraints) =
     let variables = convert(typeof_variables(Solution), x)
         objectives = convert(typeof_objectives(Solution), y)
 
         # Constraints
-        if length(constraints) > 0
-            constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
-            constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
+        constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
+        constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
 
-            # Booleans
-            feasible = constraint_violation != 0
-            evaluated = true
+        # Booleans
+        feasible = constraint_violation != 0
+        evaluated = true
 
-            Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
-        else
-            Solution(variables, objectives)
-        end
+        Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+
     end
 
 convert(::Type{Vector{Solution}}, X, y, constraints) =
-    map(1:size(X, 2)) do sample
-        convert(Solution, X[:, sample], y[:, sample], constraints)
+    if isempty(constraints)
+        map(1:size(X, 2)) do sample
+            convert(Solution, X[:, sample], y[:, sample])
+        end
+    else
+        map(1:size(X, 2)) do sample
+            convert(Solution, X[:, sample], y[:, sample], constraints[:, sample])
+        end
     end
 
 # ------------------------------------------------------------------------

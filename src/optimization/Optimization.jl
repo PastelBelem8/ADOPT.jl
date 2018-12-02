@@ -260,7 +260,7 @@ evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
     SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])
 
 The shared objective is a that encloses multiple objective functions in a
-single function. This avoids evaluating multiple the same function multiple
+single function. This avoids evaluating the same function multiple
 times, which is extremely useful in the case of simulation-based optimization
 problems, where simulations are time-consuming and often simulatenously
 produce multiple outputs that can be used as objective functions.
@@ -591,7 +591,7 @@ evaluate(model::Model, vars::Vector, transformation=flatten) =
             $(length(vars))"))
         end
 
-        s_objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
+        s_objs = [apply(o, vars) for o in objectives(model)] |> transformation
 
         if nconstraints(model) > 0
             s_constrs = [evaluate(c, vars) for c in constraints(model)]

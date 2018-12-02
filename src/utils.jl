@@ -172,7 +172,6 @@ end
 export  makeWSLcompatible,
         runWSL
 
-
 function runWSL(executable, args...)
     @debug "Running WSL command. Using file $args."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")

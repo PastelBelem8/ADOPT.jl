@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 module MscThesis
 
 # Submodules
@@ -22,13 +21,3 @@ include("./optimization/solvers/Metamodels.jl")
 include("./optimization/solvers/MetaSolver.jl")
 
 end
-=======
-# using Logging
-# # io = open("log.txt", "w+")
-# # logger = SimpleLogger(io)
-# # global_logger(logger)
-
-include("configurations.jl")
-include("utils.jl")
-include("./indicators/MOOIndicators.jl")
->>>>>>> metrics

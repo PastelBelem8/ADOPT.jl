@@ -55,7 +55,7 @@ julia>
 """
 generate_samples(;  nvars, nsamples, sampling_function, evaluate, unscalers=[],
                     clip::Bool=false, transform=identity, _...) = let
-        unscale(V) = for (index, unscaler) in enumerate(unscalers);
+        unscale(V) = for (index, unscaler) in enumerate(unscalers)
                         V[index,:] = unscaler(V[index,:]); nothing
                     end
         clip_it(val, limit) = clip ? min(val, limit) : val
@@ -541,6 +541,7 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
 
             # Step 4. Add results from Step 3. to ParetoResult
             push!(meta_solver, solutions)
+
             # Step 5. Update the surrogates
             foreach(correct(solutions), unsafe_surrogates(meta_model))
 

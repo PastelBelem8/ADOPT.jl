@@ -35,7 +35,9 @@ is_acceptable_penalty(ss::Vector{Solution}, threshold) =
 is_acceptable_penalty(threshold) = (ss) -> is_acceptable_penalty(ss, threshold)
 
 # Remove solutions that are too close
-is_too_close(ss::Vector{Solution}) = begin end
+is_too_close(ss::Vector{Solution}) = begin
+    
+end
     # TODO - Merge w/ the indicators branch, which has distance based functions
 
 export is_nondominated, is_feasible, is_acceptable_penalty, is_too_close

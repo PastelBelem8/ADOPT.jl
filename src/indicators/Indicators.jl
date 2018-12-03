@@ -1,21 +1,24 @@
 module Indicators
-# ------------------------------------------------------------------------
-# Multi-Objective Optimization Indicators
-# ------------------------------------------------------------------------
 
 # System dependencies
 using Distances
 using LinearAlgebra
 using Statistics
 
+# ------------------------------------------------------------------------
+# Multi-Objective Optimization Indicators
+# ------------------------------------------------------------------------
 assertDimensions(A::AbstractMatrix, B::AbstractMatrix) =
     size(A, 1) != size(B, 1) ? throw(DimensionMismatch("Different objective-space dimensions: $(size(A, 1)) != $(size(B, 1)).")) : nothing
 assertDimensions(a::AbstractVector, A::AbstractMatrix) =
+    length(a) != size(A, 1) ?  throw(DimensionMismatch("Different objective-space dimensions: $(length(a)) != $(nrows(A)).")) : nothing
 assertDimensions(a::AbstractMatrix, A::AbstractVector) =
     assertDimensions(A, a)
 assertDimensions(a::AbstractVector, b::AbstractVector) =
     length(a) != length(b) ? throw(DimensionMismatch("Different objective-space dimensions: $(length(a)) != $(length(b)).")) : nothing
 
+contains(V::AbstractMatrix, v::AbstractVector) =
+    any([v == V[:,j] for j in 1:size(V, 2)])
 
 # ------------------------------------------------------------------------
 # Independent Indicators
@@ -42,7 +45,7 @@ large data sets.
 We provide a current state-of-the art implementation called QuickHypervolume [6].
 Motivated by the bad performance of currently available algorithms, as well as
 the high complexity of HV, Russo and Franscisco proposed an algorithm based on
-the idea of QuickSort which iteratively subdivide the HV computation to smaller
+the idea of QuickSort which iteratively subdivides the HV computation to smaller
 subproblems. When reaching smaller dimensions (ndims < 12) they use other
 algorithms which are more efficient: HSO (Hypervolume Slicing Objects) or
 the IEX (Inclusion Exclusion) algorithms. In their algorithm, Russo and
@@ -50,13 +53,15 @@ Franscico consider the **hypervolume** in [0, 1]^n and in their implementation
 they perform several optimizations such as aligning the bytes for maximizing the
 cache-hits.
 """
-function hypervolumeIndicator(A::AbstractMatrix)
+hypervolumeIndicator(A::AbstractMatrix) = let
     ndims = size(A, 1)
-    @assert 1 < ndims <= QHV_MAX_DIM MethodError("hypervolume indicator is not available for dimensions > $QHV_MAX_DIM.")
+    if 1 > ndims || ndims > QHV_MAX_DIM
+        throw(DomainError("hypervolume indicator is not available for dimensions > $QHV_MAX_DIM."))
+    end
 
     # Write PF to temp file
-    tempFile = createTempFile("$QHV_TEMP_DIR", ".in")
-    withOutputFile("$tempFile", io -> write(io, dumpQHV(A)))
+    tempFile = create_temporary_file("$QHV_TEMP_DIR", ".in")
+    with_output_file("$tempFile", io -> write(io, dumpQHV(A)))
 
     # QHV assumes maximization problem
     1 - runWSL(QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
@@ -89,13 +94,11 @@ Optionally, if the true Pareto Front `T` is known, you might opt to
 compute the ONVG Ratio (ONVGR)[3,4][`overallNDvectorgenerationRatio`](@ref).
 """
 overallNDvectorgeneration(A::AbstractMatrix) = size(A, 2)
+onvg(A) = overallNDvectorgeneration(A)
 
 "Computes the ratio of solutions between the approximation and true sets."
-overallNDvectorgenerationRatio(T::AbstractMatrix, A::AbstractMatrix) =
-    size(A, 2) / size(T, 2)
-
-onvg(A) = overallNDvectorgeneration(A)
-onvgr(A) = overallNDvectorgenerationRatio(A)
+overallNDvectorgenerationRatio(T::AbstractMatrix, A::AbstractMatrix) = size(A, 2) / size(T, 2)
+onvgr(T, A) = overallNDvectorgenerationRatio(T, A)
 
 """
     spacing(A) -> s
@@ -120,7 +123,7 @@ spacing as proposed in [4] by specifying by using [`Δ`](@ref) or
 """
 function spacing(A::AbstractMatrix)
     nsols = size(A, 2)
-    min_ds = [ minimum_distance(A[:, j], sA[:,1:nsols.!=j], Distances.cityblock)
+    min_ds = [ minimum_distance(A[:, j], A[:,1:nsols.!=j], Distances.cityblock)
                     for j in 1:nsols]
     Statistics.var(min_ds)
 end
@@ -169,11 +172,11 @@ Both of them basically attempt to project the solutions of an approximation
 set on a suitable hyperplane assigning them entropy functions that later will
 be added together to compose a normalized entropy function.
 """
-entropy(A::AbstractMatrix) =
-    error("Entropy Indicator is not implemented yet.")
-
-diversityMeasure(A::AbstractMatrix) =
-    error("Indicator Dversity Measure is not implemented yet.")
+# entropy(A::AbstractMatrix) =
+#     error("Entropy Indicator is not implemented yet.")
+#
+# diversityMeasure(A::AbstractMatrix) =
+#     error("Indicator Dversity Measure is not implemented yet.")
 
 
 # ------------------------------------------------------------------------
@@ -210,16 +213,13 @@ it is a non-cardinal Indicator.
 The lowest the value of `e` the better the approximation set.
 """
 maxPFError(T::AbstractMatrix, A::AbstractMatrix) =
-    let min_ds = [minimum_distance(A[:, j], T)
-                    for j in 1:size(A, 2)]
-        maximum(min_ds)
-    end
+    maximum([minimum_distance(A[:, j], T) for j in 1:size(A, 2)])
 
-minimum_distance(v::AbstractVector, V::AbstractMatrix,
-                    metric::Function=Distances.euclidean) =
+minimum_distance(v::AbstractVector, V::AbstractMatrix, metric::Function=Distances.euclidean) =
     minimum(distances(v, V, metric))
+
 @inline distances(v::AbstractVector, V::AbstractMatrix, metric::Function) =
-    [metric(V[:, j], v) for j in 1:size(V, 2)]
+        [metric(V[:, j], v) for j in 1:size(V, 2)]
 
 """
     GD(T, A) -> s
@@ -244,7 +244,7 @@ generationalDistance(T::AbstractMatrix, A::AbstractMatrix) =
         √(sum(squared_min_dists)) / nsols
     end
 
-GD(T, A) = generationalDistance(T,A)
+GD(T, A) = generationalDistance(T, A)
 
 """
     IGD(T, A) -> s
@@ -275,13 +275,12 @@ Can be used to measure diversity and convergence.
 d1r(T::AbstractMatrix, A::AbstractMatrix) =
     let nsols = size(T, 2)
         Λ = objs_range(T)
-        d(a, t) = maximum((t - a) * Λ)
+        d(a, t) = maximum((t - a) .* Λ)
         min_dists = [minimum_distance(T[:, j], A, d) for j in 1:nsols]
         sum(min_dists) / nsols
     end
 
-objs_range(P::AbstractMatrix) =
-        1 ./ abs(maximum(solutions, dims = 2) - minimum(solutions, dims=2))
+objs_range(P::AbstractMatrix) = 1 ./ abs.(maximum(P, dims = 2) - minimum(P, dims=2))
 
 """
     M1(T, A) -> s
@@ -402,8 +401,8 @@ just an approximation. When passing the true Pareto Front, R-metrics induce
 order. Additionally, these indicators are scaling independent and have lower
 computational overhead than the [`hypervolumeIndicator`](@ref).
 """
-# Refine description of R Indicators.
-Rmetric(A::AbstractMatrix, B::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}, λ::Function)
+# # Refine description of R Indicators.
+Rmetric(A::AbstractMatrix, B::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}, λ::Function) = begin
     assertDimensions(u, p)
     sum([λ(A, T, u[i]) * p[i] for i in length(u)])
 end
@@ -452,9 +451,11 @@ R3(T::AbstractMatrix, A::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}
         Rmetric(A, T, u, p, λ)
     end
 
+export  onvg, onvgr, spacing, spread, maximumSpread,
+        errorRatio, maxPFError, GD, IGD, d1r, M1,
+        coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3
 
 # References
-
 # [1] - Zitzler, E. (1999). Evolutionary Algorithms for Multiobjective
 # Optimization: Methods and Applications. Swiss Federal Institute of Technology.
 
@@ -479,7 +480,6 @@ R3(T::AbstractMatrix, A::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}
 # [7] - Hansen, M. P., and Jaszkiewicz, A. (1998). Evaluating the quality of
 # approximations to the non-dominated set. IMM Technical Report IMM-REP-1998-7.
 
-
 # [8] - Coello, C. a C., Lamont, G. B., and Veldhuizen, D. a Van. (2007).
 # Evolutionary Algorithms for Solving Multi-Objective Problems Second Edition.
 # Design.
@@ -496,5 +496,4 @@ R3(T::AbstractMatrix, A::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}
 # [11] - Zitzler, E., Deb, K., & Thiele, L. (2000). Comparison of
 # multiobjective evolutionary algorithms: empirical results. Evolutionary
 # Computation, 8(2), 173–195.
-
 end # Module

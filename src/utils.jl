@@ -1,7 +1,4 @@
 # module utils
-
-using Dates
-
 # Matrix  -------------------------------------------------------------------
 
 export nrows,
@@ -9,6 +6,18 @@ export nrows,
 
 @inline nrows(A::AbstractMatrix) = size(A, 1)
 @inline ncols(A::AbstractMatrix) = size(A, 2)
+
+
+flatten(x) = collect(Iterators.flatten(x))
+
+nonunique(arr) = let
+     unique = Set()
+     for e in arr
+         if e in unique return true end
+         push!(unique, e)
+     end
+     false
+ end
 
 # Scaling -------------------------------------------------------------------
 
@@ -96,7 +105,13 @@ minMaxScale(nmin::Number, nmax::Number, A::AbstractMatrix, dim::Int) =
     mapslices(a -> min_max_scale(nmin, nmax, a), A, dims=dim)
 
 unscale(value, nmin, nmax, omin=0, omax=1) =
-    (value - omin) / (omax - omin) * (nmax - nmin) - nmin
+    (value - omin) / (omax - omin) * (nmax - nmin) + nmin
+
+unscale(values::AbstractArray, nmins::AbstractVector, nmaxs::AbstractVector,
+        omins::AbstractVector, omaxs::AbstractVector) =
+    map(1:size(values, 2)) do j
+        unscale(values[:,j], nmins[j], nmaxs[j], omins[j], omaxs[j])
+    end
 
 # --------------------------------------------------------------------------
 # File
@@ -115,15 +130,14 @@ end
 create_temporary_file(dir::String, ext::String) =
     joinpath(dir, "$(Dates.format(Dates.now(), "yyyymmddHHMMSS"))") * ext
 
-
 # CSV utils
 csv_sep = ','
 "Changes the language of the CSV files to be written"
-function csv_language end
-function csv_language(lang::Symbol=:EN)
-    global csv_sep = lang == :PT ? ";" : ","
-    @debug "[$(now())] Changed CSV language to $lang"
-end
+function csv_language(lang) end
+csv_language(lang::Symbol=:EN) = begin
+        global csv_sep = lang == :PT ? ";" : ","
+        @debug "[$(now())] Changed CSV language to $lang"
+    end
 csv_language(lang::String="EN") = Symbol(lang) |> csv_language
 
 global csv_filename = "results.csv"

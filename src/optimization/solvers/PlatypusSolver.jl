@@ -4,30 +4,21 @@ using .Platypus
 # Imports
 import Base: convert
 
-"Converts a dictionary to an array of pairs to be passed as kwargs"
-dict2expr(dict::Dict) = [kv for kv in dict]
-
 # Converter routines ----------------------------------------------------
 # These routines provide the interface between the solver and the
 # Platypus Python library.
 # -----------------------------------------------------------------------
-function platypus_function(objectives, constraints)::Function
-    length(constraints) > 0  ? ((x...) -> return [func(o)(x...) for o in objectives],
-                                                 [func(c)(x...) for c in constraints]) :
-                               ((x...) -> return [func(o)(x...) for o in objectives])
-end
-
 function platypus_function_with_profiling(objectives, constraints)::Function
 
-  function aggregate_function(x...)
-    local profiling_times = Vector{Real}()
-    local profiling_results = Vector{Real}()
+  aggregate_function(x...) = let
+    profiling_times = Vector{Real}()
+    profiling_results = Vector{Real}()
 
     function profile(f, args...)
       st = time();
       res = f(args...)
       @info "[$(now())] Objective function result $(args...):\n[$res]"
-      push!(profiling_results, res)
+      push!(profiling_results, res...)
       push!(profiling_times, time() - st)
       res
     end
@@ -35,7 +26,7 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     prepend!(profiling_results, x...) # Decision variables
     start_time = time()
 
-    results = [profile(func(o), x...) for o in objectives]
+    results = flatten([profile((x...) -> apply(o, x...), x...) for o in objectives])
 
     if length(constraints) > 0
       results = results, [profile(func(c), x...) for c in constraints]
@@ -45,8 +36,8 @@ function platypus_function_with_profiling(objectives, constraints)::Function
     # Write to File
     output = vcat(profiling_times, profiling_results)
     csv_write(output)
-    # Return Results
-    return results
+    # Results
+    results
   end
 
   return (x...) -> aggregate_function(x...)
@@ -75,7 +66,8 @@ function convert(::Type{Platypus.Problem}, m::Model)
 
   # 2.3. Convert Objective Function
   objs = objectives(m)
-  Platypus.set_directions!(problem, directions(objs))
+  Platypus.set_directions!(problem, flatten(directions(objs)))
+
   Platypus.set_function!(problem, platypus_function_with_profiling(objs, constrs))
   problem
 end
@@ -116,7 +108,7 @@ convert(::Type{Platypus.RandomGenerator}, ::Dict{Symbol, T}) where{T} =
 # ------------------------------------------------------------------------
 # FIXME - There is no support to other dominance objects
 convert(::Type{Platypus.TournamentSelector}, params::Dict{Symbol, T}) where{T} =
-  Platypus.TournamentSelector(:($(dict2expr(params)...)))
+  Platypus.TournamentSelector(;params...)
 
 # ------------------------------------------------------------------------
 # Variators Converter Routines
@@ -124,7 +116,7 @@ convert(::Type{Platypus.TournamentSelector}, params::Dict{Symbol, T}) where{T} =
 function convert(::Type{Platypus.SimpleVariator}, params::Dict{Symbol, T}) where{T}
   variator, variator_args = params[:name], filter(p -> first(p) != :name, params)
   mandatory_params_satisfied(variator, variator_args)
-  variator(:($(dict2expr(variator_args))...))
+  variator(;variator_args...)
 end
 
 """
@@ -148,7 +140,7 @@ function convert(::Type{Platypus.CompoundVariator}, params::Dict{Symbol, T}) whe
   for (k, v) in variator_args
     args[k] = [mkconv(vi) for vi in v]
   end
-  variator(:($(dict2expr(args)...)))
+  variator(;args...)
 end
 
 function convert_params(params::Dict{Symbol, T}) where{T}
@@ -198,15 +190,18 @@ julia> variator =  Dict(:name => SBX,
 struct PlatypusSolver <: AbstractSolver
     algorithm::Type
     algorithm_params::Dict{Symbol,Any}
+
     max_evaluations::Int
-    function PlatypusSolver(algorithm::Type; algorithm_params=Dict{Symbol, Any}(), max_eval=100)
+    nondominated_only::Bool
+    function PlatypusSolver(algorithm::Type; algorithm_params=Dict{Symbol, Any}(), max_eval=100, nondominated_only=true)
         check_arguments(PlatypusSolver, algorithm, algorithm_params, max_eval)
-        new(algorithm, algorithm_params, max_eval)
+        new(algorithm, algorithm_params, max_eval, nondominated_only)
     end
 end
 
 get_algorithm(solver::PlatypusSolver) = solver.algorithm
 get_max_evaluations(solver::PlatypusSolver) =  solver.max_evaluations
+get_nondominated_only(solver::PlatypusSolver) =  solver.nondominated_only
 get_algorithm_params(solver::PlatypusSolver) = solver.algorithm_params
 get_algorithm_param(solver::PlatypusSolver, param::Symbol, default=nothing) =
   get(get_algorithm_params(solver), param, default)
@@ -336,19 +331,23 @@ function solve(solver::PlatypusSolver, model::Model)
     check_params(solver, model)
 
     problem = convert(Platypus.Problem, model)
-
     algorithm_type = get_algorithm(solver)
-    evals = get_max_evaluations(solver)
     extra_params = get_algorithm_params(solver)
+    evals = get_max_evaluations(solver)
+    nondominated = get_nondominated_only(solver)
 
     # Filter by the fields that are acceptable for the specified algorithm_type
     params = union( Platypus.mandatory_params(algorithm_type),
                     Platypus.optional_params(algorithm_type))
     extra_params = convert_params(extra_params)
-    # extra_params = convert_params(filter(p -> first(p) in params, extra_params))
-    # Create the algorithm and solve it
-    algorithm = algorithm_type(problem; dict2expr(extra_params)...)
 
-    sols = Platypus.solve(algorithm, max_eval=evals)
+    # Create the algorithm and solve it
+    algorithm = algorithm_type(problem; extra_params...)
+
+    sols = Platypus.solve(algorithm, max_eval=evals,
+                          nondominated=nondominated)
     convert(Vector{Solution}, sols)
 end
+
+
+export PlatypusSolver, PlatypusSolverException, solve

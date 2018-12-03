@@ -183,14 +183,14 @@ objs1 = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], 
 model = Model(vars, objs1)
 
 # Step 2. Define the Solver
-a_type = SPEA2
-a_params = Dict(:population_size => 50)
+a_type = OMOPSO
+a_params = Dict(:epsilons=>[0.1, 0.5], :swarm_size => 45, :leader_size => 45, :max_iterations => 45, :mutation_probability => 0.3, :mutation_perturbation => 0.5)
 solver = PlatypusSolver(a_type, max_eval=200, algorithm_params=a_params)
 
 for i in 1:3
   @info "============================ Starting run $i for algorithm $(string(a_type)) =================================="
   csv_file("$(string(a_type))_results0$(i).csv")
-  csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "w")
+  csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "a")
 
   solve(solver, model)
 end

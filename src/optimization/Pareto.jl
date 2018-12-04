@@ -174,8 +174,8 @@ Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominan
         end
     end
 
-Base.push!(pd::ParetoResult, V::AbstractMatrix) =
-     [Base.push!(pd, V[:, j]) for j in 1:size(V, 2)]
+Base.push!(pd::ParetoResult, V0::AbstractMatrix, V1::AbstractMatrix) =
+     [Base.push!(pd, V0[:, j], V1[:, j]) for j in 1:size(V1, 2)]
 
 Base.isempty(pd::ParetoResult) = all(map(isempty, (variables(pd), objectives(pd))))
 

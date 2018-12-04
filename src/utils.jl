@@ -1,6 +1,5 @@
 # module utils
 # Matrix  -------------------------------------------------------------------
-
 export nrows,
        ncols
 
@@ -18,9 +17,7 @@ nonunique(arr) = let
      end
      false
  end
-
 # Scaling -------------------------------------------------------------------
-
 export  featureScale,
         minMaxScale,
         unitScale
@@ -36,8 +33,6 @@ specified dimensions.
 See also: [`minMaxScale`](@ref)
 """
 unitScale(a::AbstractVector, min::Number, max::Number) = (a .- min) ./ (max .- min)
-unitScale(A::AbstractMatrix, min::Number, max::Number) =
-    mapslices(a -> unitScale(a, min, max), A, dims=dim)
 unitScale(A::AbstractMatrix, min::AbstractVector, max::AbstractVector) = begin
     if size(A, 1) != length(min) || length(min) != length(max)
         throw(DimensionMismatch("number of rows in A $(size(A,1)) should be
@@ -117,9 +112,9 @@ unscale(values::AbstractArray, nmins::AbstractVector, nmaxs::AbstractVector,
 # File
 # --------------------------------------------------------------------------
 export  create_temporary_file,
-        withOutputFile
+        with_output_file
 
-function withOutputFile(filename::String, do_f::Function)
+function with_output_file(filename::String, do_f::Function)
     @info "[$(now())] Opening file $filename in writing mode..."
     open(filename, "a") do f
         do_f(f)
@@ -164,14 +159,11 @@ function csv_read(filename::String)
     map(row-> split(row, csv_sep), rows)
 end
 
-
-
 # --------------------------------------------------------------------------
 # Command Line
 # --------------------------------------------------------------------------
 export  makeWSLcompatible,
         runWSL
-
 
 function runWSL(executable, args...)
     @debug "Running WSL command. Using file $args."

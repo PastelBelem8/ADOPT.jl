@@ -1,8 +1,8 @@
 using DelimitedFiles
 using Statistics
 
-using .Pareto
-using Main.Indicators
+using Main.MscThesis.Pareto
+using Main.MscThesis.Indicators
 
 # -----------------------------------------------------------------------
 # Files
@@ -139,8 +139,8 @@ PF = try
 PF_min = mapslices(minimum, PF, dims=2)[:]
 PF_max = mapslices(maximum, PF, dims=2)[:]
 
-X = unitScale(PF, PF_min, PF_max)
-Indicators.hypervolumeIndicator(X)
+X = Main.MscThesis.unitScale(PF, PF_min, PF_max)
+Main.MscThesis.Indicators.hypervolumeIndicator(X)
 
 # Run each indicator
 independent_indicators = [
@@ -150,7 +150,7 @@ independent_indicators = [
                             Indicators.spread,
                             Indicators.maximumSpread
                         ]
-
+#
 # reference_indicators =  [
 #                             Indicators.onvgr,
 #                             Indicators.errorRatio,

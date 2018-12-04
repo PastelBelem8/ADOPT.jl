@@ -21,7 +21,6 @@ convert(::Type{Solution}, x, y, constraints) =
         evaluated = true
 
         Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
-
     end
 
 convert(::Type{Vector{Solution}}, X, y, constraints) =

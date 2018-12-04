@@ -137,43 +137,8 @@ unscale(var::SetVariable, value::Real, old_min, old_max) = let
     var.values[round(Int64, nval)]
     end
 
-
-# Other operations
-"Creates a new variable with the bounds decreased by `rate`"
-decrease_around(var, rate; transform=identity, p=nothing) = let
-        lb, ub = lower_bound(var), upper_bound(var)
-        if p != nothing p > ub || p < lb
-            throw(ArgumentError("invalid point p: cannot decrease around point $p because it does not lie in the range [$a, $b]"))
-        end
-
-        Δ = abs(ub - lb) * rate
-        midpoint = (ub - lb) / 2 + lb;
-        p = p === nothing ? midpoint : p
-
-        if p > midpoint
-            ub = min(ub, midpoint + (p-midpoint) + Δ/2)
-            lb = ub - Δ
-        elseif p < midpoint
-            lb = max(lb, midpoint + (p-midpoint) - Δ/2)
-            ub = lb + Δ
-        else
-            lb = midpoint - Δ/2
-            ub = midpoint + Δ/2
-        end
-        typeof(var)(transform(lb), transform(ub))
-    end
-decrease_around(var::SetVariable, rate; transform=identity, p=nothing) = throw(MethodError("not implemented"))
-
-decrease_by(var::IntVariable, rate) =
-    decrease_around(var, rate, transform=(x) -> floor(Int, x))
-decrease_by(var::T, rate) where{T<:AbstractVariable} =
-    decrease_around(var, rate)
-decrease_by(vars::Vector{T}, rate) where{T<:AbstractVariable} =
-    map(x -> decrease_by(x, rate), vars)
-
-
 # Export functions
-export lower_bound, upper_bound, initial_value, values, ==, unscale, decrease_by
+export lower_bound, upper_bound, initial_value, values, ==, unscale
 
 # ---------------------------------------------------------------------
 # Objectives
@@ -260,7 +225,7 @@ evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
     SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])
 
 The shared objective is a that encloses multiple objective functions in a
-single function. This avoids evaluating the same function multiple
+single function. This avoids evaluating multiple the same function multiple
 times, which is extremely useful in the case of simulation-based optimization
 problems, where simulations are time-consuming and often simulatenously
 produce multiple outputs that can be used as objective functions.
@@ -519,12 +484,6 @@ unscalers(m::AbstractModel, old_min::Int=0, old_max::Int=1) = map(variables(m)) 
     (val) -> unscale(var, val, old_min, old_max)
     end
 
-"Creates new model given the `solver`'s hyperparameters (e.g. exploitation rate)"
-drill_down_model(model::AbstractModel; depth) =
-    depth == 0 ? model : typeof(model)( decrease_by(variables(model), depth),
-                                        objectives(model),
-                                        constraints(model))
-
 # ---------------------------------------------------------------------
 # Model / Problem
 # ---------------------------------------------------------------------
@@ -591,7 +550,7 @@ evaluate(model::Model, vars::Vector, transformation=flatten) =
             $(length(vars))"))
         end
 
-        s_objs = [apply(o, vars) for o in objectives(model)] |> transformation
+        s_objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
 
         if nconstraints(model) > 0
             s_constrs = [evaluate(c, vars) for c in constraints(model)]

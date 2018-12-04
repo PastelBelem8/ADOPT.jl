@@ -1,8 +1,9 @@
 using DelimitedFiles
 using Statistics
 
+using Main.MscThesis
 using Main.MscThesis.Pareto
-using Main.MscThesis.Indicators
+# using Main.MscThesis.Indicators
 
 # -----------------------------------------------------------------------
 # Files
@@ -90,7 +91,8 @@ Base.run(algorithm, phase, indicator, objs) = let
 collect_stats_by_phase(algorithm, indicators_labels, indicators_fs, phase, objs) =
     if isempty(filter(isfile, result_files(algorithm, phase))) return;
     else
-        let stats = describe_header(quantiles)
+        let quantiles = [0.25, 0.50, 0.75]
+            stats = describe_header(quantiles)
             headers = vcat("Indicators", stats)
             headers = reshape(headers, (1, length(headers)))
 
@@ -139,49 +141,48 @@ PF = try
 PF_min = mapslices(minimum, PF, dims=2)[:]
 PF_max = mapslices(maximum, PF, dims=2)[:]
 
-X = Main.MscThesis.unitScale(PF, PF_min, PF_max)
-Main.MscThesis.Indicators.hypervolumeIndicator(X)
+hv(X) = Main.MscThesis.unitScale(X, PF_min, PF_max) |> hypervolumeIndicator(X)
 
 # Run each indicator
 independent_indicators = [
-                            # hypervolumeIndicator,
-                            Indicators.onvg,
-                            Indicators.spacing,
-                            Indicators.spread,
-                            Indicators.maximumSpread
+                            hypervolumeIndicator,
+                            # onvg,
+                            # spacing,
+                            # spread,
+                            # maximumSpread
                         ]
-#
-# reference_indicators =  [
-#                             Indicators.onvgr,
-#                             Indicators.errorRatio,
-#                             Indicators.maxPFError,
-#                             Indicators.GD,
-#                             Indicators.IGD,
-#                             Indicators.d1r,
-#                             Indicators.M1
-#                             ]
-#
-# reference_indicators = map(i -> (A -> i(PF, A)), reference_indicators)
-# # comparative_indicators = [coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3]
-#
-# indicators_labels = [
-#                         # "HV",
-#                         "ONVG",
-#                         "SPACING",
-#                         "SPREAD",
-#                         "MAXIMUMSPREAD",
-#                         "ONVGR",
-#                         "ERRORRATIO",
-#                         "MAXPFError",
-#                         "GD",
-#                         "IGD",
-#                         "D1R",
-#                          "M1"
-#                         ]
-#
-# indicators_functions = vcat(independent_indicators, reference_indicators)
-#
-# # Create Files to plot PF
+
+reference_indicators =  [
+                            # onvgr,
+                            # errorRatio,
+                            # maxPFError,
+                            # GD,
+                            # IGD,
+                            # d1r,
+                            # M1
+                            ]
+
+reference_indicators = map(i -> (A -> i(PF, A)), reference_indicators)
+# comparative_indicators = [coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3]
+
+indicators_labels = [
+                        "HV",
+                        # "ONVG",
+                        # "SPACING",
+                        # "SPREAD",
+                        # "MAXIMUMSPREAD",
+                        # "ONVGR",
+                        # "ERRORRATIO",
+                        # "MAXPFError",
+                        # "GD",
+                        # "IGD",
+                        # "D1R",
+                        #  "M1"
+                        ]
+
+indicators_functions = vcat(independent_indicators, reference_indicators)
+
+# Create Files to plot PF
 # group_results(algorithms, collect(1:7), objs_cols)
 # collect_stats(algorithms, indicators_labels, indicators_functions, collect(1:7), objs_cols)
 

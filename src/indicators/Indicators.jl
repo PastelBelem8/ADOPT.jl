@@ -1,4 +1,4 @@
-module Indicators
+# module Indicators
 
 # ------------------------------------------------------------------------
 # Multi-Objective Optimization Indicators
@@ -50,16 +50,16 @@ cache-hits.
 """
 hypervolumeIndicator(A::AbstractMatrix) = let
     ndims = size(A, 1)
-    if 1 > ndims || ndims > QHV_MAX_DIM()
-        throw(DomainError("hypervolume indicator is not available for dimensions > $(QHV_MAX_DIM())."))
+    if 1 > ndims || ndims > MscThesis.QHV_MAX_DIM
+        throw(DomainError("hypervolume indicator is not available for dimensions > $(MscThesis.QHV_MAX_DIM)."))
     end
 
     # Write PF to temp file
-    tempFile = create_temporary_file("$(QHV_TEMP_DIR())", ".in")
+    tempFile = create_temporary_file("$(MscThesis.QHV_TEMP_DIR)", ".in")
     with_output_file("$tempFile", io -> write(io, dumpQHV(A)))
 
     # QHV assumes maximization problem
-    1 - runWSL(QHV_EXECUTABLE() * "$ndims", tempFile) # FIXME - Use DOCKER Image
+    1 - runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -491,4 +491,5 @@ export  onvg, onvgr, spacing, spread, maximumSpread, hypervolumeIndicator,
 # [11] - Zitzler, E., Deb, K., & Thiele, L. (2000). Comparison of
 # multiobjective evolutionary algorithms: empirical results. Evolutionary
 # Computation, 8(2), 173–195.
-end # Module
+
+# end # Module

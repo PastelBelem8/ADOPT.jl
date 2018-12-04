@@ -5,33 +5,28 @@ using DelimitedFiles: readdlm, writedlm
 # ------------------------------------------------------------------------
 # Solution Converter Routines
 # ------------------------------------------------------------------------
-
-convert(::Type{Solution}, x, y) = Solution( convert(typeof_variables(Solution), x),
-                                            convert(typeof_objectives(Solution), y))
 convert(::Type{Solution}, x, y, constraints) =
     let variables = convert(typeof_variables(Solution), x)
         objectives = convert(typeof_objectives(Solution), y)
 
         # Constraints
-        constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
-        constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
+        if length(constraints) > 0
+            constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
+            constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
 
-        # Booleans
-        feasible = constraint_violation != 0
-        evaluated = true
+            # Booleans
+            feasible = constraint_violation != 0
+            evaluated = true
 
-        Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+            Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+        else
+            Solution(variables, objectives)
+        end
     end
 
 convert(::Type{Vector{Solution}}, X, y, constraints) =
-    if isempty(constraints)
-        map(1:size(X, 2)) do sample
-            convert(Solution, X[:, sample], y[:, sample])
-        end
-    else
-        map(1:size(X, 2)) do sample
-            convert(Solution, X[:, sample], y[:, sample], constraints[:, sample])
-        end
+    map(1:size(X, 2)) do sample
+        convert(Solution, X[:, sample], y[:, sample], constraints)
     end
 
 # ------------------------------------------------------------------------
@@ -54,7 +49,7 @@ julia>
 """
 generate_samples(;  nvars, nsamples, sampling_function, evaluate, unscalers=[],
                     clip::Bool=false, transform=identity, _...) = let
-        unscale(V) = for (index, unscaler) in enumerate(unscalers)
+        unscale(V) = for (index, unscaler) in enumerate(unscalers);
                         V[index,:] = unscaler(V[index,:]); nothing
                     end
         clip_it(val, limit) = clip ? min(val, limit) : val
@@ -78,7 +73,7 @@ store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
         X, y
     end
 
-load_samples(;nsamples=Colon, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
+load_samples(;nsamples=(:), vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
     let data = open(filename, "r") do io
                     has_header ? readline(io) : nothing;
                     readdlm(io, dlm, Float64, '\n')
@@ -150,7 +145,7 @@ This is necessary as there are many sampling algorithms for which the number of
 create_samples(;kwargs...) =
     if !haskey(kwargs, :sampling_function)
         haskey(kwargs, :filename) ?
-            generate_samples(;load_samples...) :
+            load_samples(;kwargs...) :
             throw(ArgumentError("invalid sampling methods"))
     else
         λ = kwargs[:sampling_function]
@@ -174,6 +169,7 @@ index_objectives(objectives) = let
     end
 index_objectives(objectives::Vector{Union{T, Y}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
+
 index_objectives(objectives::Tuple{Vararg{Union{T, Y}}}) where{T<:AbstractObjective, Y<:AbstractObjective} =
     index_objectives(map(tuple, objectives))
 
@@ -230,14 +226,12 @@ struct Surrogate
 
     # Surrogates should increase exploitation with the increase of evaluations
     exploration_decay_rate::Real
-    perturbation::Function
 
     Surrogate(meta_model;
               objectives, variables_indices=(:),
               creation_f=Metamodels.fit!, creation_params=Dict{Symbol, Any}(),
               correction_f=Metamodels.fit!, correction_frequency=1,
-              evaluation_f=Metamodels.predict, decay_rate=0.1,
-              perturbation_strategy=identity) = begin
+              evaluation_f=Metamodels.predict, decay_rate=0.1) = begin
         check_arguments(Surrogate, meta_model, objectives, variables_indices,
                         creation_f, creation_params, correction_f,
                         correction_frequency, evaluation_f, decay_rate)
@@ -416,54 +410,44 @@ condition is met.
 """
 mutable struct MetaSolver <: AbstractSolver
     solver::AbstractSolver
-    exploitation_rate::Real # Set to 0 to have no exploitation focused behavior
 
     max_evaluations::Int
     sampling_params::Dict{Symbol, Any}
 
     pareto_result::ParetoResult
-    MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100, exploitation_rate=0) = begin
-            check_arguments(MetaSolver, nvars, nobjs, sampling_params, max_eval, exploitation_rate)
-            new(solver, exploitation_rate, max_eval, sampling_params, ParetoResult(nvars, nobjs))
+    MetaSolver(solver; nvars, nobjs, sampling_params, max_eval=100) = begin
+            if max_eval < 0
+                throw(DomainError("invalid argument `max_eval` must be a positive integer"))
+            elseif isempty(sampling_params)
+                throw(DomainError("invalid argument `sampling_params` must provide
+                enough parameters to run the initialization routine for the surrogates"))
+            # Ready-to-use data is specified (no sampling necessary)
+            elseif haskey(sampling_params, :X) && !haskey(sampling_params, :y) ||
+                   !haskey(sampling_params, :X) && haskey(sampling_params, :y)
+                throw(DomainError("invalid argument `sampling_params` must provide
+                both `:X` and `:y` in order to run the initialization routine for the surrogates"))
+            end
+            new(solver, max_eval, sampling_params, ParetoResult(nvars, nobjs))
         end
 end
 
-# Argument Validation
-check_arguments(::Type{MetaSolver}, nvars, nobjs, sampling_params, max_eval, exploitation_rate) =
-    if max_eval < 0
-        throw(DomainError("invalid argument `max_eval` must be a positive integer"))
-    elseif isempty(sampling_params)
-        throw(DomainError("invalid argument `sampling_params` must provide
-        enough parameters to run the initialization routine for the surrogates"))
-    # Ready-to-use data is specified (no sampling necessary)
-    elseif haskey(sampling_params, :X) && !haskey(sampling_params, :y) ||
-           !haskey(sampling_params, :X) && haskey(sampling_params, :y)
-        throw(DomainError("invalid argument `sampling_params` must provide
-        both `:X` and `:y` in order to run the initialization routine for the surrogates"))
-    elseif 0 > exploitation_rate || exploitation_rate > 1
-        throw(DomainError("invalid argument `exploitation_rate` must be within [0, 1]"))
-    end
-
 # Selectors
 "Returns the number of maximum expensive evaluations to run the optimisation"
-@inline max_evaluations(s::MetaSolver) = s.max_evaluations
+max_evaluations(s::MetaSolver) = s.max_evaluations
 "Returns the solver responsible for exploring the cheaper models"
-@inline optimiser(s::MetaSolver) = s.solver
+optimiser(s::MetaSolver) = s.solver
 "Returns the Pareto Results"
-@inline results(s::MetaSolver) = s.pareto_result
+results(s::MetaSolver) = s.pareto_result
 "Returns the Meta Solver initial sampling params"
-@inline sampling_params(s::MetaSolver) = s.sampling_params
-@inline sampling_data(s::MetaSolver) = !is_sampling_required(s) ? (s.sampling_params[:X], s.sampling_params[:y]) :
-        throw(DomainError("invalid operation. The specified MetaSolver does not have ready-to-use data `X` and `y`"))
-
-@inline exploitation_rate(s::MetaSolver) = s.exploitation_rate
-@inline exploration_rate(s::MetaSolver) = 1 - exploitation_rate(s)
+sampling_params(s::MetaSolver) = s.sampling_params
+sampling_data(s::MetaSolver) = !is_sampling_required(s) ?
+        (s.sampling_params[:X], s.sampling_params[:y]) :
+        throw(DomainError("invalid operation. The specified MetaSolver does not
+        have ready-to-use data `X` and `y`"))
 
 # Predicates
 is_sampling_required(s::MetaSolver) =
     !haskey(s.sampling_params, :X) || !haskey(s.sampling_params, :y)
-
-is_exploitation_required(s::MetaSolver) = exploitation_rate(s) != 0
 
 "Returns the Pareto Front solutions obtained with the MetaSolver"
 ParetoFront(s::MetaSolver) = Pareto.ParetoFront(results(s))
@@ -524,6 +508,7 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
         @info "[$(now())] Initializing surrogates with samples..."
         train!(unsafe_surrogates(meta_model), X, y)
         @info "[$(now())] Pushing sampling data to Pareto Front..."
+
         push!(meta_solver, X, y)
 
         # Repeat until termination condition is met.
@@ -533,19 +518,14 @@ solve(meta_solver::MetaSolver, meta_model::MetaModel) =
 
             # Step 3. Evaluate solutions from 2, using the expensive model
             # Guarantee that the number of Max Evals is satisfied
-            @info "[$(now())] Expensive evaluations left: $evals_left"
-            candidate_solutions, evals_left = clip(candidate_solutions, evals_left)
-            @info "[$(now())] Found $(length(candidate_solutions)) candidate solutions... "
+            candidate_solutions, evals_left = clip(candidate_solutions, min(20, evals_left))
+            @info "[$(now())] Found $(length(candidate_solutions)) candidate solutions... \n\tExpensive evaluations left: $evals_left"
             solutions = evaluate(expensiv_model, candidate_solutions)
 
             # Step 4. Add results from Step 3. to ParetoResult
             push!(meta_solver, solutions)
-
             # Step 5. Update the surrogates
             foreach(correct(solutions), unsafe_surrogates(meta_model))
-
-            # Refine model by exploration rate
-            cheaper_model = drill_down_model(cheaper_model, depth=exploitation_rate(meta_solver))
         end
         # Step 7. Return Pareto Result non-dominated
         convert(Vector{Solution}, ParetoFront(meta_solver)..., constraints(expensiv_model))

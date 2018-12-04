@@ -1,17 +1,15 @@
 module MscThesis
-
 # -----------------------------------------------------------------------
 # Configurations
 # -----------------------------------------------------------------------
 # Folders
-DEPENDENCY_DIR() = "deps"
-TEMP_DIR() = tempdir()
-
+DEPENDENCY_DIR = "deps"
+TEMP_DIR = tempdir()
 # Indicators
 # -----------------
-QHV_TEMP_DIR() = mktempdir(TEMP_DIR)
-QHV_EXECUTABLE() = "$(DEPENDENCY_DIR())/QHV/d"
-QHV_MAX_DIM() = 15
+QHV_TEMP_DIR = mktempdir(TEMP_DIR)
+QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
+QHV_MAX_DIM = 15
 
 export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 

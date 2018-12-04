@@ -166,7 +166,7 @@ export  makeWSLcompatible,
         runWSL
 
 function runWSL(executable, args...)
-    @debug "Running WSL command. Using file $args."
+    @info "Running WSL command. Using file $(args)."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
     res = chomp(read(`wsl ./$executable $args`, String))
     res = parse(Float64, res)

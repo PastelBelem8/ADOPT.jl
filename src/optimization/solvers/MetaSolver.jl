@@ -73,7 +73,7 @@ store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
         X, y
     end
 
-load_samples(;nsamples=Colon, vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
+load_samples(;nsamples=(:), vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
     let data = open(filename, "r") do io
                     has_header ? readline(io) : nothing;
                     readdlm(io, dlm, Float64, '\n')
@@ -145,7 +145,7 @@ This is necessary as there are many sampling algorithms for which the number of
 create_samples(;kwargs...) =
     if !haskey(kwargs, :sampling_function)
         haskey(kwargs, :filename) ?
-            generate_samples(;load_samples...) :
+            load_samples(;kwargs...) :
             throw(ArgumentError("invalid sampling methods"))
     else
         λ = kwargs[:sampling_function]
@@ -292,7 +292,7 @@ check_arguments(::Type{Surrogate}, meta_model, objs, var_ixs, creation_f, creati
 @inline objectives_indices(s::Surrogate) = s.objectives_indices
 @inline variables_indices(s::Surrogate) = s.variables_indices
 
-@inline creation_function(s::Surrogate, X, y) =
+@inline creation_function(s::Surrogate, X, y) = 
     s.creation(surrogate(s), variables(s, X), objectives(s, y))
 @inline correction_function(s::Surrogate, X, y) =
     s.correction(surrogate(s), variables(s, X), objectives(s, y))

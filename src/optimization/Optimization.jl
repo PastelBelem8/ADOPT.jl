@@ -550,7 +550,11 @@ evaluate(model::Model, vars::Vector, transformation=flatten) =
             $(length(vars))"))
         end
 
+        st = time();
         s_objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
+        # Write to File
+        output = vcat(time()-st, vcat(vars,  s_objs))
+        csv_write(output)
 
         if nconstraints(model) > 0
             s_constrs = [evaluate(c, vars) for c in constraints(model)]

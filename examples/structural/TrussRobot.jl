@@ -171,26 +171,46 @@ solver = PlatypusSolver(a_type, max_eval=5, algorithm_params=a_params)
 sols = solve(solver, model)
 
 =#
+using Dates
+using Main.MscThesis
+using Main.MscThesis.Metamodels
+using Main.MscThesis.Platypus
+using Main.MscThesis.Sampling
 
 vars = [RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π)]
-objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
-        Objective(x -> spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MAX)]
-objs1 = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
-        Objective(x -> -spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MIN)]
+nvars = length(vars)
+# objs = [Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
+#         Objective(x -> spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MAX)]
+objs1 = (Objective(x -> spiked_truss_displacement(x[1], x[2], x[3], x[4], x[5], x[6]), 1, :MIN),
+        Objective(x -> -spiked_truss_style(x[1], x[2], x[3], x[4], x[5], x[6]), :MIN))
+nobjs = length(objs1)
 
-model = Model(vars, objs1)
+model = LinearRegression(multi_output=true)
+surrogate = Surrogate(model, objectives=objs1)
+
+meta_problem = MetaModel(vars, [surrogate])
+
+# Sampling Params
+sampling_params = Dict{Symbol, Any}(
+  # :filename => "$(Dates.format(Dates.now(), "yyyymmddHHMMSS")).csv",
+  :filename => "OMOPSO_LinearRegression_results_01.csv",
+  :vars_cols => collect(2:7),
+  :objs_cols => [8, 9])
 
 # Step 2. Define the Solver
 a_type = OMOPSO
-a_params = Dict(:epsilons=>[0.1, 0.5], :swarm_size => 45, :leader_size => 45, :max_iterations => 45, :mutation_probability => 0.3, :mutation_perturbation => 0.5)
-solver = PlatypusSolver(a_type, max_eval=200, algorithm_params=a_params)
+a_params = Dict(:epsilons=>[0.1, 0.5], :swarm_size => 10, :leader_size => 10, :max_iterations => 50, :mutation_probability => 0.3, :mutation_perturbation => 0.5)
+solver = Main.MscThesis.PlatypusSolver(a_type, max_eval=250, algorithm_params=a_params)
 
-for i in 1:3
-  @info "============================ Starting run $i for algorithm $(string(a_type)) =================================="
-  csv_file("$(string(a_type))_results0$(i).csv")
-  csv_write(["Total time (s)", "Time-O1 (s)", "Time-O2 (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "a")
+meta_solver = MetaSolver(solver, nvars=nvars, nobjs=nobjs, max_eval=140, sampling_params=sampling_params)
 
-  solve(solver, model)
-end
+# for i in 1:3
+  # @info "============================ Starting run $i for algorithm LR with $(string(a_type)) =================================="
+  # Main.MscThesis.csv_file("$(string(a_type))_LinearRegression_results_0$(i).csv")
+  # if i > 1
+  #   Main.MscThesis.csv_write(["Total time (s)", "v1", "v2", "v3", "v4", "v5", "v6", "O1", "O2"], "a")
+  # end
+  Main.MscThesis.solve(meta_solver, meta_problem)
+# end

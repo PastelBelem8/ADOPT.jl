@@ -1,5 +1,6 @@
 # module Indicators
 
+using DelimitedFiles: writedlm
 # ------------------------------------------------------------------------
 # Multi-Objective Optimization Indicators
 # ------------------------------------------------------------------------
@@ -56,7 +57,12 @@ hypervolumeIndicator(A::AbstractMatrix) = let
 
     # Write PF to temp file
     tempFile = create_temporary_file("$(MscThesis.QHV_TEMP_DIR)", ".in")
-    with_output_file("$tempFile", io -> write(io, dumpQHV(A)))
+
+    # Write Input File
+    qhv_input_text = mapslices(dumpQHV, A, dims=1)
+    open(tempFile, "w") do io
+            write(io, "#\n"); writedlm(io, A', ' '); write(io, "#\n")
+    end
 
     # QHV assumes maximization problem
     1 - runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
@@ -67,8 +73,6 @@ dumpQHV(a::AbstractVector) =
         for v in a res *= "$v " end
         res
     end
-dumpQHV(A::AbstractMatrix) =
-    "#\n$(join(mapslices(dumpQHV, A, dims=1), "\n", "\n"))\n#"
 
 """
     onvg(A) -> s
@@ -116,12 +120,13 @@ distances are not properly normalized. Consider the normalized version
 spacing as proposed in [4] by specifying by using [`Δ`](@ref) or
 [`debSpacing`](@ref).
 """
-function spacing(A::AbstractMatrix)
-    nsols = size(A, 2)
-    min_ds = [ minimum_distance(A[:, j], A[:,1:nsols.!=j], Distances.cityblock)
-                    for j in 1:nsols]
-    Statistics.var(min_ds)
-end
+spacing(A::AbstractMatrix) =
+    let nsols = size(A, 2)
+        if nsols == 1 return -1; end
+        min_ds = [ minimum_distance(A[:, j], A[:,1:nsols.!=j], Distances.cityblock)
+                        for j in 1:nsols]
+        Statistics.var(min_ds)
+    end
 
 """
     Δ(A) -> s
@@ -130,12 +135,13 @@ end
 Computes the Deb's spacing Indicator using the Euclidean distance, which
 measures the consecutive distances among the solutions in `A`.
 """
-function Δ(A::AbstractMatrix)
-    nsols = size(A, 2)
-    min_ds = [minimum_distance(A[:, j], A[:,1:nsols.!=j]) for j in 1:nsols]
-    mean_d = Statistics.mean(min_ds)
-    sum(abs.(mean_d .- min_ds)) / (nsols-1)
-end
+Δ(A::AbstractMatrix) =
+    let nsols = size(A, 2)
+        if nsols == 1 return -1; end
+        min_ds = [minimum_distance(A[:, j], A[:,1:nsols.!=j]) for j in 1:nsols]
+        mean_d = Statistics.mean(min_ds)
+        sum(abs.(mean_d .- min_ds)) / (nsols-1)
+    end
 spread(A::AbstractMatrix) = Δ(A)
 
 """

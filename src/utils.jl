@@ -32,7 +32,7 @@ specified dimensions.
 
 See also: [`minMaxScale`](@ref)
 """
-unitScale(a::AbstractVector, min::Number, max::Number) = (a .- min) ./ (max .- min)
+unitScale(a::AbstractVector, min::Number, max::Number) = (a .- min) ./ (max - min)
 unitScale(A::AbstractMatrix, min::AbstractVector, max::AbstractVector) = begin
     if size(A, 1) != length(min) || length(min) != length(max)
         throw(DimensionMismatch("number of rows in A $(size(A,1)) should be
@@ -41,7 +41,7 @@ unitScale(A::AbstractMatrix, min::AbstractVector, max::AbstractVector) = begin
 
     sA = copy(A')
     for j in 1:length(min)
-        sA[:, j] = unitScale(A[j,:], min[j], max[j])
+        sA[:, j] = unitScale(sA[:, j], min[j], max[j])
     end
     sA'
 end
@@ -166,7 +166,7 @@ export  makeWSLcompatible,
         runWSL
 
 function runWSL(executable, args...)
-    @info "Running WSL command. Using file $(args)."
+    # @info "Running WSL command. Using file $(args)."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
     res = chomp(read(`wsl ./$executable $args`, String))
     res = parse(Float64, res)

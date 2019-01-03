@@ -3,7 +3,6 @@ using Statistics
 
 using Main.MscThesis
 using Main.MscThesis.Pareto
-# using Main.MscThesis.Indicators
 
 # -----------------------------------------------------------------------
 # Files
@@ -44,17 +43,22 @@ describe_header(quantiles=[0.25, 0.5, 0.75]) =
 # Pareto Front
 # -----------------------------------------------------------------------
 "Receives a list of matrices and returns the Non dominated solutions within the matrices"
-create_pareto_front(Xs) =
-    let nobjs = size(Xs[1], 1)
-        vars(n) = ones((1, n))
-        pf = Pareto.ParetoResult(1, nobjs)
-
-        for X in Xs
-            push!(pf, vars(size(X, 2)), X)
+create_pareto_front(Xs, ys) =
+    let nobjs = size(ys[1], 1)
+        nvars = 1
+        vars(_, _) = nothing
+        if Xs === nothing
+            vars(_, y) = ones((1, size(y, 2)))
+        else
+            vars(X, _) = X
+            nvars = size(Xs[1], 1)
         end
+        pareto_front = Pareto.ParetoResult(nvars, nobjs)
 
-        pf
+        map((X, y) -> push!(pareto_front, X, y), Xs, ys)
+        pareto_front
     end
+
 
 "Receives a list of filenames and retrieves the pareto front "
 collect_pareto_front(algorithms, objs) = let
@@ -65,14 +69,35 @@ collect_pareto_front(algorithms, objs) = let
         end
 
         filenames = filter(isfile, collect(Iterators.flatten([result_files(a, i) for (a,i) in Iterators.product(algorithms, 1:7)])))
-        Xs = map(get_data, filenames)
-        pf = create_pareto_front(Xs)
+        ys = map(get_data, filenames)
+        pf = create_pareto_front(nothing, ys)
+
+        ds = Pareto.dominated_objectives(pf)
+        nds = Pareto.nondominated_objectives(pf)
+        # Compute max_min
+        ds_min = mapslices(minimum, ds, dims=2)[:]
+        nds_min = mapslices(minimum, nds, dims=2)[:]
+
+        ds_max = mapslices(maximum, ds, dims=2)[:]
+        nds_max = mapslices(maximum, nds, dims=2)[:]
 
         writefile(algorithms, "outputs/pf/collect_pf_algorithms.txt")
-        writefile(Pareto.dominated_objectives(pf), "outputs/pf/pf_dominated-ALL.csv")
-        writefile(Pareto.nondominated_objectives(pf), "outputs/pf/pf_nondominated-ALL.csv")
-        Pareto.nondominated_objectives(pf) # ndims x nsamples
+        writefile(ds, "outputs/pf/pf_dominated-ALL.csv")
+        writefile(nds, "outputs/pf/pf_nondominated-ALL.csv")
+        writefile(hcat(ds_min, nds_min, ds_max, nds_max), "outputs/pf/min_max.txt")
+        nds # ndims x nsamples
     end
+
+
+get_pareto_front(filenames) = let
+    get_vars(filename) = readfile(filename, header=true)[:, [4, 5, 6, 7, 8, 9]]'
+    get_objs(filename) = readfile(filename, header=true)[:, [10, 11]]'
+
+    Xs = map(get_vars, filenames)
+    ys = map(get_objs, filenames)
+    println(size(Xs), size(ys))
+    create_pareto_front(Xs, ys)
+end
 
 # -----------------------------------------------------------------------
 # Execution
@@ -91,7 +116,7 @@ Base.run(algorithm, phase, indicator, objs) = let
 collect_stats_by_phase(algorithm, indicators_labels, indicators_fs, phase, objs) =
     if isempty(filter(isfile, result_files(algorithm, phase))) return;
     else
-        let quantiles = [0.25, 0.50, 0.75]
+            quantiles = [0.25, 0.50, 0.75]
             stats = describe_header(quantiles)
             headers = vcat("Indicators", stats)
             headers = reshape(headers, (1, length(headers)))
@@ -100,15 +125,16 @@ collect_stats_by_phase(algorithm, indicators_labels, indicators_fs, phase, objs)
             for (i, indicator) in enumerate(indicators_fs)
                 _, stats[i,:] = run(algorithm, phase, indicator, objs)
             end
-            writefile(vcat(headers, hcat(indicators_labels, stats)), "outputs/stats/Results_Stats_$algorithm.csv")
+            writefile(vcat(headers, hcat(indicators_labels, stats)), "outputs/stats/Results_Stats_$(algorithm)_ph$(phase).csv")
             stats
-        end
+
     end
 
 collect_stats(algorithms, indicators_labels, indicators_fs, phases, objs) =
     for algorithm in algorithms
         for phase in phases
-            collect_stats_by_phase(algorithm, indicators_labels, indiators_fs, phases, objs)
+            println("$algorithm, $phase")
+            collect_stats_by_phase(algorithm, indicators_labels, indicators_fs, phase, objs)
         end
     end
 
@@ -117,7 +143,7 @@ group_results_by_phase(algorithm, phase, objs) =
         if !isempty(files)
             Xs = map(file -> read_objectives(file, objs, header=true), files)
             X = hcat(Xs...)
-            writefile(X', "outputs/$(algorithm)_ph$(phase)_joined.csv")
+            writefile(X', "outputs/plots/$(algorithm)_ph$(phase)_joined.csv")
         end
     end
 group_results(algorithms, phases, objs) =
@@ -130,62 +156,74 @@ group_results(algorithms, phases, objs) =
 # ######################## Global names ########################
 objs_cols = [10, 11]
 algorithms = ["IBEA", "EpsMOEA", "MOEAD", "NSGAII", "OMOPSO", "PAES", "PESA2", "SMPSO", "SPEA2"]
+filename = "OMOPSO_results_01.csv"
 
-# True Pareto Front
-PF = try
-        collect_pareto_front(algorithms, objs_cols)
-    catch
-        readfile("outputs\\pf\\pf_nondominated-ALL.csv", header=false)
-    end
+pf = get_pareto_front([filename])
 
-PF_min = mapslices(minimum, PF, dims=2)[:]
-PF_max = mapslices(maximum, PF, dims=2)[:]
+writedlm("PF_nondominated_vars.csv", Main.MscThesis.Pareto.nondominated_variables(pf), ',')
+writedlm("PF_nondominated_objs.csv", Main.MscThesis.Pareto.nondominated_objectives(pf), ',')
 
-hv(X) = Main.MscThesis.unitScale(X, PF_min, PF_max) |> hypervolumeIndicator(X)
+#
+# # True Pareto Front
+# PF = try
+#         collect_pareto_front(algorithms, objs_cols)
+#     catch y
+#         if isa(y, ErrorException)
+#             readfile("outputs\\pf\\pf_nondominated-ALL.csv", header=false)
+#         else
+#             throw(y)
+#         end
+#     end
+#
+# pf_mins = read_objectives("outputs/pf/min_max.txt", [1, 2], header=false)'
+# PF_min = mapslices(minimum, pf_mins, dims=2)[:]
+# pf_maxs = read_objectives("outputs/pf/min_max.txt", [3, 4], header=false)'
+# PF_max = mapslices(maximum, pf_maxs, dims=2)[:]
+#
+# hv(X) = Main.MscThesis.unitScale(X, PF_min, PF_max) |> hypervolumeIndicator
+#
+# # Run each indicator
+# independent_indicators = [
+#                             hv,
+#                             onvg,
+#                             spacing,
+#                             spread,
+#                             maximumSpread
+#                         ]
+#
+# reference_indicators =  [
+#                             onvgr,
+#                             errorRatio,
+#                             maxPFError,
+#                             GD,
+#                             IGD,
+#                             d1r,
+#                             M1
+#                             ]
+#
+# reference_indicators = map(i -> (A -> i(PF, A)), reference_indicators)
+# # comparative_indicators = [coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3]
+#
+# indicators_labels = [
+#                         "HV",
+#                         "ONVG",
+#                         "SPACING",
+#                         "SPREAD",
+#                         "MAXIMUMSPREAD",
+#                         "ONVGR",
+#                         "ERRORRATIO",
+#                         "MAXPFError",
+#                         "GD",
+#                         "IGD",
+#                         "D1R",
+#                          "M1"
+#                         ]
 
-# Run each indicator
-independent_indicators = [
-                            hypervolumeIndicator,
-                            # onvg,
-                            # spacing,
-                            # spread,
-                            # maximumSpread
-                        ]
-
-reference_indicators =  [
-                            # onvgr,
-                            # errorRatio,
-                            # maxPFError,
-                            # GD,
-                            # IGD,
-                            # d1r,
-                            # M1
-                            ]
-
-reference_indicators = map(i -> (A -> i(PF, A)), reference_indicators)
-# comparative_indicators = [coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3]
-
-indicators_labels = [
-                        "HV",
-                        # "ONVG",
-                        # "SPACING",
-                        # "SPREAD",
-                        # "MAXIMUMSPREAD",
-                        # "ONVGR",
-                        # "ERRORRATIO",
-                        # "MAXPFError",
-                        # "GD",
-                        # "IGD",
-                        # "D1R",
-                        #  "M1"
-                        ]
-
-indicators_functions = vcat(independent_indicators, reference_indicators)
+# indicators_functions = vcat(independent_indicators, reference_indicators)
 
 # Create Files to plot PF
 # group_results(algorithms, collect(1:7), objs_cols)
 # collect_stats(algorithms, indicators_labels, indicators_functions, collect(1:7), objs_cols)
-
 
 #= Test
 readfile("Results-Phase1/IBEA/IBEA_results01.csv", header=true)
@@ -197,7 +235,15 @@ p = load_pareto_front(A)
 ND = Pareto.nondominated_objectives(p)
 writefile(ND, "PARETO_FRONT.csv")
 
+hv(PF)
+run(algorithms[1], 5, independent_indicators[1], objs_cols)
 collect_stats_by_phase(algorithms[1], indicators_labels, indicators_functions, 1, objs_cols)
+collect_stats_by_phase("NSGAII", indicators_labels, indicators_functions, 4, objs_cols)
 group_results_by_phase("IBEA", 1, objs_cols)
 
+
+# Collect Parameters and Objectives
+# pf = get_pareto_front(algorithms)
+# writedlm("PF_nondominated_vars.txt", Main.MscThesis.Pareto.nondominated_variables(pf), ',')
+# writedlm("PF_nondominated_objs.txt", Main.MscThesis.Pareto.nondominated_objectives(pf), ',')
 =#

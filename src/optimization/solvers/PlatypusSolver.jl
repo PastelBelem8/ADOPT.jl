@@ -78,6 +78,7 @@ convert(::Type{Platypus.Constraint}, c::Constraint) = "$(operator(c))0"
 # ------------------------------------------------------------------------
 convert(::Type{Platypus.PlatypusWrapper}, variable::IntVariable) =
     Platypus.Integer(lower_bound(variable), upper_bound(variable))
+
 convert(::Type{Platypus.PlatypusWrapper}, variable::RealVariable) =
     Platypus.Real(lower_bound(variable), upper_bound(variable))
 

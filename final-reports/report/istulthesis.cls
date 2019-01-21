@@ -260,8 +260,8 @@
 % DEFINE COMMAND FOR: Acknowledgwments depending on language
 \newcommand{\tlangAcknowledgments}{\IfLanguageName{english}{Acknowledgments}{Agradecimentos}}
 %
-% DEFINE COMMAND FOR: Publications depending on language
-\newcommand{\tlangPublications}{\IfLanguageName{english}{Publications}{Publicações}}
+% DEFINE COMMAND FOR: Contributions depending on language
+\newcommand{\tlangContributions}{\IfLanguageName{english}{Contributions}{Contribuições}}
 %
 % DEFINE COMMAND FOR: Acronyms listing Title depending on language
 \newcommand{\tlangAcronyms}{\IfLanguageName{english}{Acronyms}{Acr\'onimos}}
@@ -436,11 +436,11 @@
 	\cleardoublepage
 }
 
-% The Publications
+% The Contributions
 
-\newenvironment{publications}{\vspace*{3cm}
+\newenvironment{contributions}{\vspace*{3cm}
     {\parindent \z@ \raggedright \normalfont
-        \hspace*{0\p@}\huge\bfseries \tlangPublications
+        \hspace*{0\p@}\huge\bfseries \tlangContributions
         \par\nobreak
         \vspace*{1cm}
     }

@@ -19,63 +19,21 @@
 % #############################################################################
 \section{Derivative-Free Optimization}
 
+	Different optimization algorithms can solve more or less efficiently specific optimization problems, depending on their characteristics. Particularly, classical gradient-based algorithms are very efficient solvers for optimization problems explicitly defined by mathematical formulations. This results from the fact that gradient-based algorithms explore information about the derivatives extracted from the mathematical formulation to guide the search for optimal solutions. However, when neither the mathematical form is easily available, nor is the information about the derivatives, it becomes necessary to explore other classes of algorithms. In these cases, the class of derivative-free algorithms is remarkably suitable for addressing these problems, as they do not use information about the objective functions' derivatives to find optimal solutions, instead, treating the objective functions as \textit{black-boxes} and guiding the search based on the result of previously evaluated solutions~\cite{Rios2013}.
+	
+	In architecture, it is often impossible to mathematically model the underlying objective functions for complex designs. Alternatively, architects use simulation tools as means to replace closed-form mathematical expressions that relate the design's parameters to the objective functions: simulation tools' results and other quantitative measures for different configurations of a design define the objective functions to optimize~\cite{Wortmann2016BBO}. Additionally, information about underlying objective functions is not easily attainable, often requiring excessive amounts of resources. The absence of information about objective functions prompts the need for algorithms that treat these functions as \textit{black-boxes}. One simple approach is to systematicly experiment with different parameter values until the best solutions are found, whereas a second, and more complex, approach is to use derivative-free optimization algorithms, also commonly referred to as black-box optimization algorithms within the architectural community~\cite{Wortmann2016BBO}. Despite its simplicity, experimentation-based approaches, such as \ac{MCS} and \ac{LHS}\cite{Giunta2003DOE}, might not always be advisable, particularly when dealing with time-consuming functions as is the case of architecture. In such cases, derivative-free algorithms might be more appropriate, yielding better solutions in less time.
 
+	Building design's complexity has been raising for the past few years, leading to more complex objective functions, for which analytical forms are difficult to derive~\cite{Machairas2014}. For this reason, derivative-free algorithms are sought as useful tools to optimize designs, having been applied extensively to optimize building designs' manifold aspects. Among the numerous studies that apply derivative-free optimization algorithms to optimize building designs, we refer to the distinct works of Wortmann~\cite{Wortmann2016BBO,Wortmann2015AdvSBO,Wortmann2017GABESTCHOICE,Wortmann2017Opossum}, Evins~\cite{Evins2011,Evins2012MOO,Evins2013}, and Waibel~\cite{Waibel2018} which cover the optimization of various aspects, including, among others, the structural, the lighting, the thermal, the energy consumption, and the carbon-emissions. 
+	
+	For the past decades, the constant development and improvement of derivative-free optimization algorithms led to a diversified tools' gamut, each with its own characteristics and limitations. While the main ideas behind each algorithm's category seem to be more or less recognized throughout the architectural community, the lack of standards make it difficult to decide which definitions to convey~\cite{Rios2013, Wortmann2017ADO}. The currently most relevant classifications are: (1) the one presented by Rios et al.~\cite{Rios2013} that, based on the functions being used to guide the search process, classifies the algorithms into direct search or model-based algorithms; and (2) the classification provided by Wortmann et al.~\cite{Wortmann2017ADO}, which first subdivides the algorithms in two groups according to the number of solutions generated in each iteration, namely metaheuristics and iterative algorithms, and only then proceeds to classify iterative algorithms as direct search or model-based algorithms depending on the function that was applied during the search for optimal solutions. 
+
+	This thesis will consider an approach similar to the one proposed by Wortmann~\cite{Wortmann2017ADO} by exploring the concepts of metaheuristics, direct-search, and model-based algorithms. Albeit the apparent chasm between these classifications, some algorithms draw ideas from distinct classes, thus emphasizing not only the blurred lines of such categorizations, but also the difficulties that lie with the definition of more standardized classifications. 
+	
+	The following sections describe each class and its intrinsic characteristics, proceeded by a brief comparison among them in light of the architectural design practice. 	
 % #############################################################################
 \section{Single-Objective Optimization}
 
-% #############################################################################
 
-%Sed pulvinar, \enquote{felis id consectetuer} malesuada, enim nisl mattis elit, a facilisis tortor nibh quis leo \Cref{tab:streamingtech}.
-%
-%\begin{table}[htb]
-%\centering
-%\normalsize
-%{\footnotesize
-%    \caption{Streaming Technologies Comparison}
-%    \label{tab:streamingtech}
-%    \begin{tabular}{ | c | c | c | c |}
-%    \hline
-%    & Dynamic & Smooth & HLS\\
-%    & Streaming & Streaming & \\ \hline \hline
-%
-%    Streaming Protocol & RTMP & HTTP & HTTP \\
-%    %\textbf{Protocol} & & & \\ 
-%    \hline
-%    
-%    Video Codec & H.264, VP6 & H.264 & H.264 \\ 
-%    %\textbf{Codec} & &  & \\ 
-%    \hline
-%    
-%    Audio Codec & AAC, MP3 & WMA, AAC & AAC, MP3  \\
-%    %\textbf{Codec} & & & \\ 
-%    \hline
-%    
-%    Container Format & MP4, FLV, & MP4 & MPEG2-TS \\
-%    %\textbf{Format} & F4V & & \\ 
-%    \hline
-%    
-%     iOS & NO & YES & YES \\ \hline
-%     
-%    Android & NO & YES & YES \\ \hline
-%    
-%    \end{tabular}
-%    }
-%\end{table} 
-%
-%Suspendisse vestibulum dignissim quam. Integer vel augue. Phasellus nulla purus, interdum ac, venenatis non, varius rutrum, leo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas \cite{RFC-VP8}. Duis a eros. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Fusce magna mi, porttitor quis, convallis eget, sodales ac, urna \cite{Chiang:2011fk}. \textcolor{violet}{\Cref{tab:spreadtb} illustrates the use of a Spreadsheet-like table producing calculations by columns and by lines (observe the code).} 
-%
-%\begin{table}[htb]
-%\centering
-%    \caption{A nice Spreadsheet using package ``spreadtab''. Notice the calculations.}
-%    \label{tab:spreadtb}
-%\begin{spreadtab}{{tabular}{rr|r}} 
-%22       & 54       & a1+b1 \\
-%43       & 65       & a2+b2 \\ 
-%49       & 37       & a3+b3 \\
-%\hline
-%a1+a2+a3 & b1+b2+b3 & a4+b4
-%\end{spreadtab}
-%\end{table} 
 % #############################################################################
 \subsection{Optimization Tools in Architecture}
 
@@ -125,5 +83,3 @@ Nunc tincidunt convallis tortor. Duis eros mi, dictum vel, fringilla sit amet, f
 %\end{tabular}
 %}
 %\end{table}
-
-Cras lobortis tempor velit. Phasellus nec diam ac nisl lacinia tristique. Nullam nec metus id mi dictum dignissim. Nullam quis wisi non sem lobortis condimentum. Phasellus pulvinar, nulla non aliquam eleifend, tortor wisi scelerisque felis, in sollicitudin arcu ante lacinia leo.

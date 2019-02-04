@@ -41,6 +41,10 @@
 
 	Some examples of relevant direct-search algorithms include \ac{HJ}~\cite{Hooke1961}, \ac{NMS} method~\cite{Nelder1964}, SUBPLEX~\cite{Rowan1990}, \ac{DIRECT}~\cite{Jones1993DIRECT}, among others.
 	
+	
+	\todo{Give a tiny description of each algorithm}
+
+	
 % ----------- Subsection
 \subsection{Metaheuristics Algorithms}
 \label{ssec:metaheuristics}
@@ -52,6 +56,8 @@
 	Metaheuristics are efficient optimization algorithms when provided with sufficient amount of time to do the necessary objective function evaluations~\cite{Conn2009}. However, advantages can quickly become disadvantageous by simply changing the application context. This is the case of \ac{BPO} in the architectural practice, where each evaluation is a time-consuming task and the execution of thousands of evaluations rapidly becomes an infeasible scenario. Due to their stochastic nature, limiting the number of evaluations has severe repercussions both on the convergence and performance guarantees~\cite{Hasancebi2009}. 
 	
 	In the architectural design context, some of the most relevant metaheuristics algorithms include the \ac{PSO} algorithms, some evolutionary algorithms, such as \ac{GA} and \acp{ES}, and even local search algorithms like tabu search and simulated annealing. We refer the interested reader to~\cite{BlumRoli2003Metaheuristics,Glover2003Metaheuristics} for more details about these metaheuristics algorithms.
+	
+	\todo{Give a tiny description of each algorithm}
 
 % ----------- Subsection
 \subsection{Model-based Algorithms}
@@ -65,7 +71,7 @@
 	\begin{figure}
 	\centering
 	\includegraphics[width=8cm]{Images/Background/sbosexample.JPG}
-	\caption{Original function and corresponding surrogate model, created based on three initial solutions (squares). This image was retrieved from~\cite{Koziel2011}.}
+	\caption[Example of a surrogate model]{Original function and corresponding surrogate model, created based on three initial solutions (squares). This image was retrieved from~\cite{Koziel2011}.}
 	\label{fig:sbosexample}
 	\end{figure}
 	% End Figure -------------------------------------------------------
@@ -73,6 +79,9 @@
 	Nowadays, the existing plethora of techniques applicale to the generation of surrogate models, range from trust region methods to \ac{ML} techniques. These techniques can be used to create (1) local surrogates, i.e., models where the approximation to the objective function is built around a certain point, and (2) global surrogates, i.e, models where the approximation is generated from all the obtained points. Whilst the former relies on the construction of simple, partial models of the objective function, the latter relies on the creation of a full model. The creation of the full model, requires balancing the need for improving the accuracy of the model by exploring broader regions in the solution space, with the need for improving the value of the objective function by exploiting promising regions~\cite{Koziel2011}. This balance is determined by a strategy that selects the next promising solution to evaluate.
 	
 	Undoubtedly, the best feature of model-based algorithms is the reduction in the total optimization time. This is particularly relevant in the context of \ac{BPO}, where each simulation may take seconds, minutes, hours, days, or even weeks to complete. However, despite their benefits, the low availability and the technical knowledge frequently required to implement or incorporate these algorithms into optimization processes is not easily accessible to architects. Thus, despite the existence of different reports involving \ac{ML} techniques for the creation of full surrogate models~\cite{Koziel2011, Forrester2009SBO}, such as \acp{NN}, \acp{SVM}, \ac{RBF}, and \acp{RF}, among others, only a few have actually been applied in the context of architecture. This scenario is even more self-evident when we shift from the single- to multi-objective optimization context.
+	
+	\todo{Give a tiny description of each algorithm}
+
 
 % ----------- 
 \subsection{Comparison}
@@ -84,9 +93,9 @@ This section considers the applicability of different classes of derivative-free
 	
 	Inevitably, the same building design description might yield different problem descriptions according to the performance aspects being considered. Some algorithms might explore certain descriptions more effectively than others, for example, because the objective functions describing the lighting and structural behavior of a certain design may have completely different properties. In an attempt to exploit this property, \ac{BPO} practitioners often dedicate a small amount of their total time budget to test various algorithms and different setup parameters, before finally settling for an optimization algorithm~\cite{Hamdy2016}.	
 	
-	Regarding the different algorithms' categories, it is interesting to see the metaheuristics' popularity among researchers and practitioners. The main reasons behind the idolization of the metaheuristics are their: (1) inherent simplicity, (2) ease of implementation, and (3) wide applicability to different domains\todo{check if any other properties are relevant, for example in wortmann's works}~\cite{Wortmann2017ADO}. Unfortunately, other categories do not benefit from such properties, which is a limitation towards their application in architectural domains. For architecture, the major limitations to other categories lie in the absence of easy-to-use tools. Firstly, these tools are usually available as programming frameworks instead of integrated in architectural design workflows. As a result, to use the framework's optimization algorithms, architects often need some programming knowledge to create the scripts to integrate the algorithms into the design workflow. Unfortunately, since architects typically lack the required knowledge, they tend to struggle with the scripts production and, eventually, opt for using friendlier metaheuristics ready-to-use tools. Given this facts, it is not surprising that most of the existing building design optimization literature ends up focusing on the application of algorithms from the metaheuristics category~\cite{Hamdy2016, Nguyen2014, Evins2013}. 
+	Regarding the different algorithms' categories, it is interesting to see the metaheuristics' popularity among researchers and practitioners. The main reasons behind the idolization of the metaheuristics are their: (1) inherent simplicity, (2) ease of implementation, and (3) wide applicability to different domains\todo{check if any other properties are relevant, for example in wortmann's works}~\cite{Wortmann2017ADO}. Unfortunately, other categories do not benefit from such properties, which is a limitation towards their application in architectural domains. For architecture, the major limitations to other categories lie in the absence of easy-to-use tools. Firstly, these tools are usually available as programming frameworks instead of integrated in architectural design workflows. As a result, to use the framework's optimization algorithms, architects often need some programming knowledge to create the scripts to integrate the algorithms into the design workflow. Unfortunately, since architects typically lack the required knowledge, they tend to struggle with the scripts production and, eventually, opt for using friendlier metaheuristics ready-to-use tools. Given this facts, it is not surprising that most of the existing building design optimization literature ends up focusing on the application of algorithms from the metaheuristics category~\cite{Hamdy2016,Nguyen2014,Evins2013}. 
 		
-	However, in the light of the \acp{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools exposing algorithms with different properties. Particularly, the plug-ins Goat\todo{CITE} and Opossum~\cite{Wortmann2017Opossum} enable the usage of algorithms from both direct search and model based classes. These tools expose optimization algorithms from the NLopt ~\cite{NLOPT} and RBFOpt\todo{CITE} frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper\todo{Cite}, a visual programming environment that enables the parametric design and performance evaluation of building designs for different values of the parameters. For the past few years, few works have compared different algorithms using these tools with the ones available in metaheuristics tools, such as Galapagos \todo{CITE}, Octopus \todo{CITE}, Optimo\todo{CITE}, Silvereye\todo{CITE}, among others.
+	However, in the light of the \acp{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools exposing algorithms with different properties. Particularly, the plug-ins Goat~\cite{GOAT} and Opossum~\cite{Wortmann2017Opossum} enable the usage of algorithms from both direct search and model based classes. These tools expose optimization algorithms from the NLopt~\cite{NLOPT} and RBFOpt~\cite{RBFOPT} frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper~\cite{GRASSHOPPER}, a visual programming environment that enables the parametric design and performance evaluation of building designs for different values of the parameters. For the past few years, few works have compared different algorithms using these tools with the ones available in metaheuristics tools, such as Galapagos~\cite{GALAPAGOS}, Octopus\cite{OCTOPUS}, Optimo~\cite{OPTIMO}, Silvereye~\cite{Cichocka2017SILVEREYE}, among others.
 	
 	Although the results may vary, in general, direct search and surrogate-based algorithms seem to be more effective than the metaheuristics ones in initial stages of the optimization process~\cite{Wortmann2017,Wortmann2016BBO,Wortmann2017GABESTCHOICE}. Even some metaheuristics algorithms can be very effective approaches for some optimization problems~\cite{Waibel2018}. 
 One can explore these performance fluctuations to find the most effective optimization algorithm for a specific problem. This performance gain can be determining in the overall optimization time, especially, when complex and time-consuming simulations are involved. Indeed, several authors ~\cite{Wortmann2016BBO,Hamdy2016} suggest that the selection of the optimization algorithm should be based on the results of several tests with different methods for a fixed number of evaluations or a fixed amount of time. 
@@ -99,87 +108,141 @@ One can explore these performance fluctuations to find the most effective optimi
 	
 % #############################################################################
 \section{Single-Objective Optimization}
+	
+	\ac{SOO} processes aim to find the best solution with respect to a unique objective function. This function is described in terms of the values of the problem's parameters. \Cref{eq:soo} illustrates an example of a mathematical unconstrained minimization \ac{SOO} problem, where $f$ represents the single objective function and $x$ represents the problem's parameters'.
+		
+    \begin{equation} \label{eq:soo}
+    	\min f(x) 
+    \end{equation}
 
-\todo{O QUE FALAR AQUI ?? } 
-?????
-
-% #############################################################################
-\subsection{Optimization Tools in Architecture}
-
-	Most \ac{SOO} problems 
-
-% ****** 
-\subsubsection{Galapagos}
-
-% ****** 
-\subsubsection{Goat}
-
+	Generally, the computational complexity of optimization processes is exponential on the number of objectives and, consequently, the more objectives, the more expensive these processes are. In particular, \ac{SOO} processes rely exclusively on a single objective function and, therefore, are usually less time-consuming than the \ac{MOO} processes. The gains in computational resources become particularly relevant when considering simulation-based objective functions. For instance, in the case of building design, most problems include simulation-based objective functions. As a result, architects commonly opt for \ac{SOO} processes: either by simply considering a single objective, or, in the case of problems involving multiple conflicting objectives, by combining them in a unique function as it will be further explained in \cref{subsec:preferencesarticulation}.
+	
+	A literature review over the architectural practice will evidence the prevalence of \ac{SOO} algorithms. Firstly, single-objective problems are easier to model. Secondly, plug-ins, like Galapagos and Goat, allow to address single objective building design problems, hence enabling to solve simpler optimization problems and reducing the total complexity of optimization processes. Finally, these plug-ins expose different derivative-free optimization algorithms, enabling the selection of the best algorithm to specific problems and potentially improving optimization processes' complexity~\cite{Wortmann2016BBO}. 
+			
+	Despite its lower optimization time, for multi-objective problems,  these processes are also usually less informative than the \ac{MOO} ones. Particularly, in the architectural practice, building design often simultaneously involves different conflicting aspects, such as thermal, energy consumption, structural, cost, among others. In such situations, one is interested in obtaining a view over the compromises between conflicting aspects in order to make a informed decision.
+	
 % #############################################################################
 \section{Multi-Objective Optimization}
 
-Due to the multiplicity of potentially conflicting goals involved in \ac{MOO} problems, the concept of optimality significantly differs from the one commonly used in \ac{SOO} problems. In \ac{MOO}, the best possible configuration for one objective is rarely the best configuration for all the other objectives as well, since these objectives are often contradictory. A possible way to define a solution’s optimality is through the Pareto optimality concept: a solution is considered to be Pareto-optimal if, given its objectives, it is impossible to improve an objective value without deteriorating the others. The solutions for which the previous property verify are said to dominate the other solutions from which it is possible to improve. For that reason, we say that the former ones are non-dominated, whilst the latter are dominated. In the context of \ac{MOO}, one is commonly interested in retrieving the set of non-dominated solutions, which is known as the Pareto Front (or Pareto Frontier). An example of a two-objective minimization problem is illustrated in ~\cref{fig:paretofrontier}. The two objectives are $f_1$ and $f_2$ and the solutions shown in orange are non-dominated. The optimization algorithm will try to find design solutions in the search space that lie on the Pareto Front.
+	\ac{MOO} belongs to the set of problems concerned with the optimization of more than one objective simultaneously. The addition of other, potentially conflicting, objectives to the optimization process requires the re-definition of \textit{optimality}. 
 
+	While in \ac{SOO} problems we expect the optimal solution to be the set of parameters that achieve the best\footnote{For simplification purposes we simply refer to the optimal solution as being the best. When dealing with a minimization problem, the best solution is the one that achieves the lowest value of the objective function, whereas in maximization problems, the best solution is the one achieving the highest value of the objective function.} objective value possible, in multi-objective the best possible configuration for one of the objectives is rarely the best possible configuration for all other objectives as well, which results from the fact that these objectives are often contradictory. In order to be able to compare different multi-objective solutions, these problems are often addressed considering the Pareto optimality (or Pareto Efficiency) concept. This concept, named after the economist Vilfredo Pareto, defines an optimal solution as being a solution for which it is impossible to improve an objective value without deteriorating others. Such a solution is also said to be non-dominated or noninferior, and the set of non-dominated solutions is called the Pareto Frontier or Pareto Front. An example of a two-objective minimization problem is illustrated in Figure~\ref{fig:paretofrontier}. The two objectives are $f_1$ and $f_2$ and the solutions shown in orange are non-dominated. The goal of optimization algorithms is to find, in the search space, design solutions that lie on the Pareto Front.
 
 % Begin Pareto-Optimization Figure -------------------------------------------------------
 \begin{figure}
 \centering
 \includegraphics[width=5cm]{Images/Background/pareto-front.JPG}
-\caption{Representation of the set of non-dominated (orange squares) and dominated (gray squares) solutions for a two-objective minimization problem. The Pareto front is composed of all the non-dominated solutions.}
+\caption[Example of a bi-objective optimization problem]{Representation of the set of non-dominated (orange squares) and dominated (gray squares) solutions for a two-objective minimization problem. The Pareto front is composed of all the non-dominated solutions.}
 \label{fig:paretofrontier}
 \end{figure}
 % End Figure -------------------------------------------------------
 
-
-
-	According to the knowledge and level of expertise of the designers, \ac{MOO} problems might be approached differently. The following sections provide a more detailed description of the three main \ac{MOO} approaches.
-
+Building design is a complex task that frequently involves dealing with multiple conflicting objectives, such as maximum lighting comfort versus maximum thermal comfort, or minimum energy consumption versus maximum thermal comfort. The architect might apply follow different approaches depending on his knowledge and on his level of expertise. The following three sections describe the benefits and limitations of each approach. 
 
 % ----------- 
 \subsection{Experimental Approach}
 
-	The experimental or design of experiments approach is widely used in research and in practice to address both single and multi-objective problems~\cite{Fang2017}. Besides being intuitive and flexible, it can achieve a potentially better solution without having to deal with complex optimization algorithms. Sampling methods, such as Full-factorial, Monte Carlo Sampling, and Latin Hypercube Sampling ~\cite{Giunta2003DOE} are used to randomly generate different combinations of the design parameters, which are then evaluated. One advantage of having multiple solutions instead of just one is that the choice of the best solutions can be exclusively relegated to the architect, who analyses all the generated variations, and subsequently decides on the solutions he
-thinks are the best (e.g., using preference articulation, pondering the conflicting criteria).
+	The experimental or design of experiments approach is widely used in research and in practice to address both single and multi-objective problems~\cite{Fang2017}. Besides being intuitive and flexible, it can achieve a potentially better solution without having to deal with complex optimization algorithms. In fact, these processes typically use sampling methods, such as Full-factorial, Monte Carlo Sampling, and Latin Hypercube Sampling~\cite{Giunta2003DOE} to generate different combinations of the design parameters, hence producing multiple design alternatives to be evaluated. One advantage of having multiple solutions instead of just one is that the choice of the best solutions can be exclusively relegated to the architect, who analyses all the generated variations, and subsequently decides on the solutions he thinks are the best (e.g., using preference articulation, pondering the conflicting criteria).	
 
-	Unfortunately this approach does not guarantee that good solutions will be found. In fact, in most cases input configurations are generated a priori and do not take advantage of any additional information. Consequently, the performance of previously evaluated design candidates is not used to guide the search towards the most efficient designs. Concretely, this means that because the information of previous design variations is not used in the process, useless candidate designs can be sometimes evaluated.
+	Unfortunately this approach does not guarantee that good solutions will be found. In fact, in most cases input configurations are generated a priori and do not take advantage of any additional information. Consequently, the performance of previously evaluated design candidates is not used to guide the search towards the most efficient designs. Concretely, this means that because the process does not use the information of previous design variations, useless candidate designs can be sometimes evaluated.
 	
 	On the other hand, given its simplicity and flexibility, this approach allows to easily assemble more complex processes which are capable of directing the search towards better design variations. For example, consider an optimization problem where an architect selects a sampling method to generate different design variations, which are then evaluated. After analysing the results, the architect may wish to explore design regions around the most promising solutions. In that case, he must limit the design variations to lie within the promising regions, by updating the problem’s definition. The redefined problem is then subsequently sampled and redefined until the architect is satisfied with the quality of the obtained solutions.
 	
-	Despite the constant need for manual intervention, the previous technique can be adapted to extract information about the design problem itself. Using an automated version of this technique, we are able to study the behavior of the different objective functions, when the input variables are changed. This process is known as \textit{sensitivity analysis}~\cite{Saltelli2007} and has been applied to multiple problems in the context of building design optimization~\cite{Tian2013}, either to enhance the performance of existing optimization algorithms, or to achieve better solutions.
+	Despite the constant need for manual intervention, the previous technique can be adapted to extract information about the design problem itself. Using an automated version of this technique, we are able to study the behavior of the different objective functions, when the input variables are changed. This process is commonly known as \textit{sensitivity analysis}~\cite{Saltelli2007} and has been applied to multiple problems in the context of building design optimization~\cite{Tian2013}, either to enhance the performance of existing optimization algorithms, or to achieve better solutions.
 
-	Overall, while it does not provide guarantees on the solutions’ optimality, this approach is simple, easy to use, and it is available in numerous tools. Moreover, although this process is not intelligent \textit{per si}, since the decisions are always made by the architect, it enables a more intelligent and informed design process, as it provides the full disclosure of the design variations generated, as well as their associated performance.
-
+	Overall, while it does not provide guarantees on the solutions’ optimality, this approach is simple, easy to use, and it is available in numerous tools and frameworks\todo{examples??}. Moreover, although this process is not intelligent \textit{per si}, since the decisions are always made by the architect, it enables a more intelligent and informed design process, as it provides the full disclosure of the generated design variations, as well as their associated performance.
+	
 % #############################################################################
 \subsection{A Priori Articulation Approach}
+\label{subsec:preferencesarticulation}
 
-	This approach allows combining multiple objectives according to one’s preferences using an utility function \cite{Marler2004}. Among all the possible utility functions, the most commonly used is the weighted sum or linear scalarization \cite{Wortmann2017Opossum}. This function reduces multi-objective problems to single-objective by defining the objective functions to be the weighted sum of multiple objectives. The weights (or coefficients) represent the relative importance of each objective to the architect. These must be defined before
-the optimization and, in general, they require expertise and experience, as this optimization approach is highly sensitive to the selected coefficients and that a different articulation of preferences might yield completely different results. The
-final objective function is then provided to a \ac{SOO} algorithm, which tries to find an optimal (or near optimal) solution. In architecture, the ease of use, the availability,
-the heterogeneity of ready-to-use \ac{SOO} tools (e.g. Opossum, Goat, Galapagos, Silvereye), and the time required by this optimization process are virtues of this approach.
+	This approach allows combining multiple objectives according to one’s preferences using an utility function \cite{Marler2004}. Among all the possible utility functions, the most commonly used is the weighted sum or linear scalarization \cite{Wortmann2017Opossum}. This utility function reduces multi to single-objective problems by defining the objective functions to be the weighted sum of multiple objectives. The weights (or coefficients) represent the relative importance of each objective to the architect. These must be defined before the optimization and, in general, they require expertise and experience, as this optimization approach is highly sensitive to the selected coefficients and that a different articulation of preferences might yield completely different results. The
+final objective function is then provided to a \ac{SOO} algorithm, which tries to find an optimal (or a near optimal) solution.~\Cref{eq:scalarization} represents an unconstrained example of the mathematical definition of such approach, where $w_i$ is the coefficient associated to the objective $f_i$, and $n$ is the total number of objectives of the problem. 
 
-	Overall, this approach enables a more intelligent design process because there is an algorithm that uses some knowledge about the previously evaluated solutions to guide the search towards optimal regions of the design space. However, because these algorithms are usually autonomous and independent of external
-interventions, architects are often removed from the optimization loop, thus losing control over the design optimization process. Moreover, most of these algorithms
-retrieve a single optimum and provide no other design options. This is a drawback~\cite{Cichocka2017SURVEY}, as the architect either complies to the retrieved solution or he must rerun the optimization with another articulation of preferences. Either
-way, the optimization no longer provides enough information to make informed decisions.
+    \begin{equation} \label{eq:scalarization}
+    	\min_{x \in X} \sum_{i=1}^n w_i f_i(x)
+    \end{equation}
+
+	In architecture, the ease of use, the availability,
+the heterogeneity of ready-to-use \ac{SOO} tools (e.g., Opossum, Goat, Galapagos, Silvereye), as well as the overall time of a priori articulation processes are virtues of this approach when compared to other \ac{MOO} approaches. In general, because this preference-based approach focus in the retrieval of a single optimal solution that satisfies the previously defined preferences, it becomes more effective and less time consuming than other \ac{MOO} approaches, that either lack a more guided search or that aim at finding solutions that are optimal under different preference articulations. 
+
+	Overall, the \textit{a priori} articulation approach enables a more intelligent design process because there exists an algorithm that exploits the knowledge about the previously evaluated solutions to guide the search towards optimal regions of the design space. However, because these algorithms are usually autonomous and independent of external manual interventions, architects are not usually integrated in the optimization loop, thus losing control over the design optimization process. Moreover, most of these algorithms retrieve a single optimum and provide no other design options. This is a drawback~\cite{Cichocka2017SURVEY}, as the architect either complies to the retrieved solution or he must rerun the optimization with another articulation of preferences. Either way, the optimization no longer provides enough information to make informed decisions.
 
 % #############################################################################
 \subsection{Pareto-based Approach}
 
-	A more informative approach consists in the retrieval of a diverse and potentially heterogeneous set of Pareto-optimal solutions. When confronted with this set of optimal solutions, architects can compare different design options according to different performance aspects and make informed decisions about the compromises taken.
-
+	A more informative approach consists in the retrieval of a diverse and potentially heterogeneous set of Pareto-optimal solutions. When confronted with this set of optimal solutions, architects can compare different design options according to different performance criteria and make informed decisions about the compromises taken. \Cref{eq:pareto-based} is an example of a mathematical unconstrained minimization Pareto-based \ac{MOO} problem, where $F(x)$ represents the vector of the $k$ objectives, and $f_i$ represent the objective function $i$.
+		
+    \begin{equation} \label{eq:pareto-based}
+    	\min \left\lbrace F(x) = \left[f_1(x), f_2(x), ..., f_k(x)\right] \right\rbrace
+    \end{equation}
+    
 	When compared to previous approaches, one must consider (1) the number of function evaluations, which is larger due to the need to find a set of optimal solutions instead of focusing in a single one, (2) the visual representation of the solution space, which becomes problematic when the number of objectives is
 greater than three, and (3) the modeling of the optimization problem itself, which directly impacts the quality of the solutions. 
 
-	Notwithstanding the considerations above, a few studies concerning Pareto-based Optimization have emerged in the past years~\cite{Evins2013,Hamdy2016}. Indeed, the utility of Pareto optimization approaches has been recognized by architects as a useful decision support tool to building design \cite{Cichocka2017SURVEY}. Moreover, recent surveys show that even though scalarization approaches are are less time-consuming, they are not as desirable as Pareto optimization, since they do not aid in the decision-making process, nor
-do they provide a clear trade-off between the different objectives involved \cite{Attia2013, Cichocka2017SURVEY}.
-Despite the growing trend of Pareto optimization approaches~\cite{Evins2013}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident, which justifies a comprehensive comparison among the performance of several algorithms applied to different problems in the
-architectural context.
+	Notwithstanding the considerations above, a few studies concerning Pareto-based Optimization have emerged in the past years~\cite{Evins2013,Hamdy2016}. Indeed, the utility of Pareto optimization approaches has been recognized by architects as a useful decision support tool to building design \cite{Cichocka2017SURVEY}. Moreover, recent surveys show that even though scalarization approaches are are less time-consuming, they are not as desirable as Pareto optimization, since they do not aid in the decision-making process, nor do they provide a clear trade-off between the different objectives involved \cite{Attia2013, Cichocka2017SURVEY}.
+Despite the growing trend of Pareto optimization approaches~\cite{Evins2013}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident, which justifies a comprehensive comparison among the performance of several algorithms applied to different problems in the architectural context.
 
 % #############################################################################
-\subsection{Metrics for Multi-Objective Optimization}
+\section{Quantitative Performance Indicators}
+\todo{OMG AINDA FALTA TANTO}
+	The performance of each optimization algorithm is very 
+
+	In architectural design, the performance of \ac{SOO} algorithms is evaluated according to the number of necessary evaluations to reach a good solution and the solutions‘ optimality. However, when shifting to a multi-objective context, there is a lack of consensus regarding the criteria for evaluating the algorithm’s results. A literature review evidences the existing struggle to define a single metric to accurately represent the quality of MOOAs’ results, i.e., of
+the approximated Pareto Fronts (Knowles et Corne 2002, Riquelme et al. 2015).
+Nevertheless, there are three properties of the results that should be considered when evaluating their quality (Zitzler et al. 2000, Riquelme et al. 2015): (1) accuracy, meaning that solutions should be as close as possible to the true Pareto
+Front, (2) diversity, meaning that solutions should be as uniformly distributed along the true Pareto Front as possible, so as to obtain a representative and diverse set of design variants covering to larger extents the different trade-offs, and (3) cardinality, meaning larger sets of solutions.
 
 % #############################################################################
-\subsection{Optimization Tools in Architecture}
+\section{Optimization Tools in Architecture}
+	
+	For years, multiple optimization frameworks have been developed. However, in order to be used within architectural practices, architects had to code the integration scripts to connect the simulation models for different variations of the parametric models  and the optimization frameworks~\cite{Attia2013}. Moreover, these frameworks often lacked post-processing and visual features which antagonized the readability and comprehension of the results ~\cite{Attia2013,Nguyen2014}.
+	
+	Several plug-ins have been developed in an attempt to reduce the limitations associated to the coupling of simulation tools and mathematical optimization frameworks, thus providing a seamless connection between the parametric models produced in computational design tools, like \ac{CAD} and \ac{BIM}, the simulation or analytical models, and the optimization frameworks. Given the visual nature of architects, these plug-ins provide friendly, ready-to-use optimization interfaces, usually coupled with a few post-processing and visual features to enhance the intelligibility of the optimization results. 
+	
+	Currently, most optimization plug-ins are implemented on top of the visual parametric tools~\cite{Cichocka2017SURVEY} Grasshopper~\cite{GRASSHOPPER} and Dynamo~\cite{DYNAMOBIM}. In \cref{fig:opt-plugins}, we represent the most relevant optimization plug-ins among \ac{BPO} practitioners: Galapagos, Goat, Octopus, Opossum, and Silvereye implemented on top of Grasshopper, and Optimo implemented on top of Dynamo. In the following sections we briefly discuss each plug-in.
+	
+% Begin Optimization Plug-ins Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{Images/Background/opt-plugins.PNG}
+\caption[Optimization Frameworks in the Architectural Practice]{Optimization frameworks currently used in architectural practices.}
+\label{fig:opt-plugins}
+\end{figure}
+% End Figure -------------------------------------------------------
 
-\subsubsection{Octopus}
-\subsubsection{Opossum}
-\subsubsection{Optimo}
+	
+\subsection{Galapagos}
+
+	Galapagos is a well-known metaheuristic-based optimization plug-in developed for designers and implemented on top of Grasshopper. David Rutten developed Galapagos, a generic platform designed to allow the application of metaheuristics algorithms by non-programmers to solve a wide variety of problems. Moreover, to enable its usage by non-experts, the optimization solver assumes default values for the different algorithms. 
+
+	Galapagos provides two metaheuristics algorithms, namely, the genetic algorithm, inspired by biological evolution processes, and the simulated annealing, motivated by the metallurgical process of annealing~\cite{Brownlee2011}. Although both algorithms are basis for large variety of extensions and/or specializations, supporting different heuristics, we will not provide a full description of such extensions, instead referring the interested reader proper literature. 
+	
+	As evolutionary algorithms, genetic algorithms also explore Darwinian natural selection concepts, such as heredity, reproduction, and natural selection, and genetics concepts and mechanisms, including genes, chromosomes, recombination, crossover, and mutation, in order to search for better solutions in the solution space. More concretely, genetic algorithms generate an initial random set of solutions, called population, which is then iteratively evolved, creating new generations. The evolution process is comprised of four main phases: (1) adaptability, where individuals of the population are assigned a suitability or fitness value, (2) selection, where pairs of individuals are selected for reproduction, based on a probabilistic function which is proportional to each individual's fitness value, (3) crossover, where the genotypes of the selected individuals are recombined to produce new individuals, and (4) mutation, where new individuals are subjected to random copying errors with a certain probability. While earlier generations are usually diverse, final generations are often very similar to the fittest individuals, i.e., we observe an intensification of the traits of the most suitable individuals, thus emulating the mechanism of natural selection, described by Darwin~\cite{Brownlee2011}. Besides genetic algorithms~\cite{Golberg1989,Holland1992}, evolutionary algorithms encompass other algorithms such as Genetic Programming~\cite{Koza1992}, Evolution Strategies~\cite{Schwefel1981}, Differential Evolution~\cite{Storn1997}, among others. 
+	
+	Besides genetic algorithms, Galapagos also provides a metaheuristics global optimization physical algorithm, the simulated annealing algorithm. Resemblant of hill climbing algorithms, where new candidate solutions are randomly sampled, this algorithm iteratively re-samples the solution space aiming at finding an optimal solution. During the search, the algorithm is propitious to accept the re-sampled solutions with lower performance, according to a probabilistic function that becomes more discerning of the quality of the samples over the execution of the algorithm, thus resembling the natural annealing process~\cite{Brownlee2011}. 
+
+	To use one of Galapagos' optimization solvers, architects must define a Grasshopper's script in three parts: (1) Input, where he specifies the his design's parameters, (2) Generation, where he creates his design's algorithmic model, that when instantiated with the parameters' values will generate the 3D model, and (3) Analysis, where he defines the analysis function or objective function which he ought to optimize. To that end, the architect uses Grasshopper's components, such as \textit{Sliders}, values lists, area, distance, and other analytical-like components to define the program. In order to use Galapagos, optimization variables must be defined in terms of \textit{Sliders}, which enable the specification of numerical ranges with both lower and upper bounds, whereas the value of the objective function must be a Number component. Both the \textit{Sliders} and the \textit{Number} (\textit{Num}) components connect to the input entry and to the output entry of the Galapagos' component, i.e., the genome and the fitness entries, respectively. 
+
+	After defining the problem, the architect double clicks the Galapagos component and is presented with its \ac{GUI} (see \cref{fig:galapagossetup}). This interface is friendlier, simpler, and easier to use than previous approaches, requiring no integration efforts, nor any programming or algorithm's knowledge in order to setup and use it. For all these reasons, Galapagos is particularly popular amongst architects~\cite{Wortmann2017ADO}, that not only satisfies the visual nature of architects, but also supports four graphical views reporting the evolution of the optimization process: (1) fitness graph, representing the distribution of fitness values in the population per generation, (2) similarity representation graph, where genetically similar solutions are closer to each other and where solutions contributing to the next offspring and solutions that do not contribute are represented with a black dot and a red cross, respectively, (3) parallel coordinates graph, where solutions are represented as connected line segments and each vertical line corresponds to a parameter, (4) ranked list of the best solutions found so far. Although Galapagos views exhibit all the results of the most recent generation and highlights its best solution, it also provides the user with the flexibility to select multiple generations and to reinstate a particular solution, allowing the materialization of this design solution in the corresponding Grasshopper's script.
+	
+% Begin Galapagos Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{Images/Background/Galapagos/Galapagos-setup-2.PNG}
+\caption[Galapagos Setup Menus]{Galapagos' default setup menus}
+\label{fig:galapagossetup}
+\end{figure}
+% End Figure -------------------------------------------------------
+
+\subsection{Goat}
+
+Goat is an optimization plugin integrated into Grasshopper that was developed by Simon Flory. 
+
+Focus on single-objective optimization, but can also be used as a form of a priori preference articulation. It exposes the derivative-free algorithms existing in the NLopt framework in a friendlier and graphical interface. 
+
+
+
+\subsection{Octopus}
+\subsection{Opossum}
+\subsection{Optimo}

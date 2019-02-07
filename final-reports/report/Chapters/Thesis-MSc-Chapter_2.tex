@@ -40,11 +40,7 @@
 	The main limitations of the algorithms in this class is their performance deterioration with the increase on the number of input variables and their slow asymptotic convergence rates as they become closer to the optimal solution~\cite{Kolda2003}.
 
 	Some examples of relevant direct-search algorithms include \ac{HJ}~\cite{Hooke1961}, \ac{NMS} method~\cite{Nelder1964}, SUBPLEX~\cite{Rowan1990}, \ac{DIRECT}~\cite{Jones1993DIRECT}, among others.
-	
-	
-	\todo{Give a tiny description of each algorithm}
-
-	
+		
 % ----------- Subsection
 \subsection{Metaheuristics Algorithms}
 \label{ssec:metaheuristics}
@@ -57,8 +53,6 @@
 	
 	In the architectural design context, some of the most relevant metaheuristics algorithms include the \ac{PSO} algorithms, some evolutionary algorithms, such as \ac{GA} and \acp{ES}, and even local search algorithms like tabu search and simulated annealing. We refer the interested reader to~\cite{BlumRoli2003Metaheuristics,Glover2003Metaheuristics} for more details about these metaheuristics algorithms.
 	
-	\todo{Give a tiny description of each algorithm}
-
 % ----------- Subsection
 \subsection{Model-based Algorithms}
 \label{ssec:model-based}
@@ -79,8 +73,6 @@
 	Nowadays, the existing plethora of techniques applicale to the generation of surrogate models, range from trust region methods to \ac{ML} techniques. These techniques can be used to create (1) local surrogates, i.e., models where the approximation to the objective function is built around a certain point, and (2) global surrogates, i.e, models where the approximation is generated from all the obtained points. Whilst the former relies on the construction of simple, partial models of the objective function, the latter relies on the creation of a full model. The creation of the full model, requires balancing the need for improving the accuracy of the model by exploring broader regions in the solution space, with the need for improving the value of the objective function by exploiting promising regions~\cite{Koziel2011}. This balance is determined by a strategy that selects the next promising solution to evaluate.
 	
 	Undoubtedly, the best feature of model-based algorithms is the reduction in the total optimization time. This is particularly relevant in the context of \ac{BPO}, where each simulation may take seconds, minutes, hours, days, or even weeks to complete. However, despite their benefits, the low availability and the technical knowledge frequently required to implement or incorporate these algorithms into optimization processes is not easily accessible to architects. Thus, despite the existence of different reports involving \ac{ML} techniques for the creation of full surrogate models~\cite{Koziel2011, Forrester2009SBO}, such as \acp{NN}, \acp{SVM}, \ac{RBF}, and \acp{RF}, among others, only a few have actually been applied in the context of architecture. This scenario is even more self-evident when we shift from the single- to multi-objective optimization context.
-	
-	\todo{Give a tiny description of each algorithm}
 
 
 % ----------- 

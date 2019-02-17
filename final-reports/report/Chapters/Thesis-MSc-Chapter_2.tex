@@ -18,6 +18,7 @@
 	
 % #############################################################################
 \section{Derivative-Free Optimization}
+\label{sec:dfo}
 
 	Different optimization algorithms can solve more or less efficiently specific optimization problems, depending on their characteristics. Particularly, classical gradient-based algorithms are very efficient solvers for optimization problems explicitly defined by mathematical formulations. This results from the fact that gradient-based algorithms explore information about the derivatives extracted from the mathematical formulation to guide the search for optimal solutions. However, when neither the mathematical form is easily available, nor is the information about the derivatives, it becomes necessary to explore other classes of algorithms. In these cases, the class of derivative-free algorithms is remarkably suitable for addressing these problems, as they do not use information about the objective functions' derivatives to find optimal solutions, instead, treating the objective functions as \textit{black-boxes} and guiding the search based on the result of previously evaluated solutions~\cite{Rios2013}.
 	
@@ -177,13 +178,35 @@ Despite the growing trend of Pareto optimization approaches~\cite{Evins2013}, th
 
 % #############################################################################
 \section{Quantitative Performance Indicators}
-\todo{OMG AINDA FALTA TANTO}
-	The performance of each optimization algorithm is very 
 
-	In architectural design, the performance of \ac{SOO} algorithms is evaluated according to the number of necessary evaluations to reach a good solution and the solutions‘ optimality. However, when shifting to a multi-objective context, there is a lack of consensus regarding the criteria for evaluating the algorithm’s results. A literature review evidences the existing struggle to define a single metric to accurately represent the quality of MOOAs’ results, i.e., of
-the approximated Pareto Fronts (Knowles et Corne 2002, Riquelme et al. 2015).
-Nevertheless, there are three properties of the results that should be considered when evaluating their quality (Zitzler et al. 2000, Riquelme et al. 2015): (1) accuracy, meaning that solutions should be as close as possible to the true Pareto
-Front, (2) diversity, meaning that solutions should be as uniformly distributed along the true Pareto Front as possible, so as to obtain a representative and diverse set of design variants covering to larger extents the different trade-offs, and (3) cardinality, meaning larger sets of solutions.
+Despite the large interest in \ac{MOO}, the question of how to quantitatively compare the performance of different algorithms still remains unanswered. Firstly, in multi-objective problems, the number of objectives in the objective space is greater than the number of objectives in single-objective problems: the former consider a collection of vectors representing the Pareto-optimal solutions, whereas the latter consider real numbers. Secondly, it is often the case that the application of exact methods to \ac{MOO} contexts is impracticable due to the complexity introduced by underlying applications (e.g., simulation tools, physical experiments). In these cases, the generation of the Pareto-optimal set is often infeasible, requiring vast computational resources to be generated. Thirdly, despite the availability of alternatives to exact methods, such as metaheuristics algorithms (e.g., evolutionary algorithms, particle swarm), these are not guaranteed to identify optimal trade-offs, instead yielding good approximations~\cite{Zitzler2003Metrics}. Finally, we are interested in knowing which of the non-exact algorithms yields better approximations for a given problem, hence prompting the need for assessing the performance of \acp{MOOA}.
+
+The notion of performance includes not only the quality of the results, but also of the computational resources needed to generate such results. While the latter aspect is usually identical for both \ac{SOO} and \ac{MOO}, which either typically consider the number of expensive evaluations or the overall run-time on a particular computer, the quality aspect is considerably different. Because \acp{SOO} consider real-valued objective spaces, the quality is defined in terms of the objective function: the smaller (or larger) the value, the better the solution. However, \acp{MOO} consider vector-valued objective spaces, thus requiring other concepts, such as Pareto dominance. Unfortunately, other issues arise when considering such concept, such as the possibility of two solutions being incomparable, i.e., when neither dominates the other, or having solutions in one set that either dominate or are incomparable to those in the other set of solutions and vice versa. 
+
+Literature review evidences the existing struggle to define what quality means with respect to approximation of Pareto-optimal sets~\cite{Knowles2002Metrics,Riquelme2015}. Nevertheless, most quantitative indicators consider three aspects: (1) cardinality, meaning larger sets of solutions, (2) diversity, meaning that solutions should be as uniformly distributed as possible, so as to obtain a representative set of solutions covering to larger extents the different trade-offs, and (3) accuracy, meaning that solutions should be as close as possible to the true Pareto-optimal set or Pareto Front. 
+
+Several studies in the literature propose different ways to address this problem, ranging from unary quality measures, which assign each approximation set a number that reflects a certain quality aspect, to binary quality measures, which assign numbers to pairs of approximation sets, among others. Unary indicators that consider the accuracy aspect, often require a reference solution or an estimate of the true Pareto-optimal set~\cite{Zitzler2003Metrics,Riquelme2015}. This thesis consider a small but representative set of quantitative indicators to measure the quality of \acp{MOOA}' results with respect to the three aspects: cardinality, diversity, and accuracy. 
+
+\subsection{Unary Indicators}
+% ---------------------------
+% Unary Indicators 
+% ---------------------------
+% https://github.com/PastelBelem8/MscThesis/blob/metrics/src/indicators/MOOIndicators.jl
+% Cardinality 
+
+In terms of cardinality we have the \ac{ONVG}, \ac{ONVGR}
+
+
+% Diversity / Distribution
+
+In terms of diversity and distribution, we have the Spacing, the \Delta (Deb's Spacing), maximum spread (or m3 or overallParetoSpread), entropy and diversity measure.
+
+% Accuracy 
+
+In terms of accuracy, we have the \ac{HV}, error ratio, maximum pareto front error, \ac{GD}, \ac{IGD}, d1r,  m1,
+\subsection{Binary Indicators}
+
+coverage, epsilon indicators, R-metrics family (R1, R2, R3)
 
 % #############################################################################
 \section{Optimization Tools in Architecture}
@@ -192,7 +215,7 @@ Front, (2) diversity, meaning that solutions should be as uniformly distributed 
 	
 	Several plug-ins have been developed in an attempt to reduce the limitations associated to the coupling of simulation tools and mathematical optimization frameworks, thus providing a seamless connection between the parametric models produced in computational design tools, like \ac{CAD} and \ac{BIM}, the simulation or analytical models, and the optimization frameworks. Given the visual nature of architects, these plug-ins provide friendly, ready-to-use optimization interfaces, usually coupled with a few post-processing and visual features to enhance the intelligibility of the optimization results. 
 	
-	Currently, most optimization plug-ins are implemented on top of the visual parametric tools~\cite{Cichocka2017SURVEY} Grasshopper~\cite{GRASSHOPPER} and Dynamo~\cite{DYNAMOBIM}. In \cref{fig:opt-plugins}, we represent the most relevant optimization plug-ins among \ac{BPO} practitioners: Galapagos, Goat, Octopus, Opossum, and Silvereye implemented on top of Grasshopper, and Optimo implemented on top of Dynamo. In the following sections we briefly discuss each plug-in.
+	Currently, the existing optimization plug-ins are implemented on top of the visual parametric tools Grasshopper~\cite{GRASSHOPPER} and Dynamo~\cite{DYNAMOBIM}. In \cref{fig:opt-plugins}, we represent the most relevant optimization plug-ins among \ac{BPO} practitioners: Galapagos, Goat, Octopus, Opossum, and Silvereye implemented on top of Grasshopper, and Optimo implemented on top of Dynamo. In the following sections we briefly discuss each plug-in.
 	
 % Begin Optimization Plug-ins Figure -------------------------------------------------------
 \begin{figure}
@@ -205,15 +228,19 @@ Front, (2) diversity, meaning that solutions should be as uniformly distributed 
 
 	
 \subsection{Galapagos}
-
+\label{subsec:galapagos}
+% General description of Galapagos, intuition
 	Galapagos is a well-known metaheuristic-based optimization plug-in developed for designers and implemented on top of Grasshopper. David Rutten developed Galapagos, a generic platform designed to allow the application of metaheuristics algorithms by non-programmers to solve a wide variety of problems. Moreover, to enable its usage by non-experts, the optimization solver assumes default values for the different algorithms. 
 
+% Available Algorithms
 	Galapagos provides two metaheuristics algorithms, namely, the genetic algorithm, inspired by biological evolution processes, and the simulated annealing, motivated by the metallurgical process of annealing~\cite{Brownlee2011}. Although both algorithms are basis for large variety of extensions and/or specializations, supporting different heuristics, we will not provide a full description of such extensions, instead referring the interested reader proper literature. 
-	
+
+% Algorithms description
 	As evolutionary algorithms, genetic algorithms also explore Darwinian natural selection concepts, such as heredity, reproduction, and natural selection, and genetics concepts and mechanisms, including genes, chromosomes, recombination, crossover, and mutation, in order to search for better solutions in the solution space. More concretely, genetic algorithms generate an initial random set of solutions, called population, which is then iteratively evolved, creating new generations. The evolution process is comprised of four main phases: (1) adaptability, where individuals of the population are assigned a suitability or fitness value, (2) selection, where pairs of individuals are selected for reproduction, based on a probabilistic function which is proportional to each individual's fitness value, (3) crossover, where the genotypes of the selected individuals are recombined to produce new individuals, and (4) mutation, where new individuals are subjected to random copying errors with a certain probability. While earlier generations are usually diverse, final generations are often very similar to the fittest individuals, i.e., we observe an intensification of the traits of the most suitable individuals, thus emulating the mechanism of natural selection, described by Darwin~\cite{Brownlee2011}. Besides genetic algorithms~\cite{Golberg1989,Holland1992}, evolutionary algorithms encompass other algorithms such as Genetic Programming~\cite{Koza1992}, Evolution Strategies~\cite{Schwefel1981}, Differential Evolution~\cite{Storn1997}, among others. 
 	
 	Besides genetic algorithms, Galapagos also provides a metaheuristics global optimization physical algorithm, the simulated annealing algorithm. Resemblant of hill climbing algorithms\todo{citação}, where new candidate solutions are randomly sampled, this algorithm iteratively re-samples the solution space aiming at finding an optimal solution. During the search, the algorithm is propitious to accept the re-sampled solutions with lower performance, according to a probabilistic function that becomes more discerning of the quality of the samples over the execution of the algorithm, thus resembling the natural annealing process~\cite{Brownlee2011}. 
 
+% Usability, how to use it
 	To use one of Galapagos' optimization solvers, architects must define a Grasshopper's script in three parts: (1) Input, where he specifies the his design's parameters, (2) Generation, where he creates his design's algorithmic model, that when instantiated with the parameters' values will generate the 3D model, and (3) Analysis, where he defines the analysis function or objective function which he ought to optimize. To that end, the architect uses Grasshopper's components, such as \textit{Sliders}, values lists, area, distance, and other analytical-like components to define the program. In order to use Galapagos, optimization variables must be defined in terms of \textit{Sliders}, which enable the specification of numerical ranges with both lower and upper bounds, whereas the value of the objective function must be a Number component. Both the \textit{Sliders} and the \textit{Number} (\textit{Num}) components connect to the input entry and to the output entry of the Galapagos' component, i.e., the genome and the fitness entries, respectively. 
 
 % Begin Galapagos-Options Figure -------------------------------------------------------
@@ -224,9 +251,11 @@ Front, (2) diversity, meaning that solutions should be as uniformly distributed 
 \label{fig:galapagossetup}
 \end{figure}
 % End Figure -------------------------------------------------------	
-	
+
+% Graphical interface, benefits of interface
 	After defining the problem, the architect double clicks the Galapagos component and is presented with its \ac{GUI} (see \cref{fig:galapagossetup}). This interface is friendlier, simpler, and easier to use than previous approaches, requiring no integration efforts, nor any programming or algorithm's knowledge in order to setup and use it. For all these reasons, Galapagos is particularly popular amongst architects~\cite{Wortmann2017ADO}, that not only satisfies the visual nature of architects, but also supports graphical views reporting the evolution of the optimization process. 
-	
+
+% Graphical interface
 	Particularly, Galapagos supports four graphical views for the genetic algorithm (see \cref{fig:galapagosvisualmenu}-left), namely the (1) fitness graph, representing the distribution of fitness values in the population per generation, the (2) similarity representation graph, where genetically similar solutions are closer to each other and where solutions contributing to the next offspring and solutions that do not contribute are represented with a black dot and a red cross, respectively, the (3) parallel coordinates graph, where solutions are represented as connected line segments and each vertical line corresponds to a parameter, and the (4) ranked list of the best solutions found so far. These views exhibit all the results of the most recent generation and highlights its best solution, however Galapagos provides the user with the flexibility to select multiple generations and to reinstate a particular solution, allowing the materialization of this design solution in the corresponding Grasshopper's script. When using the simulated annealing solver, Galapagos provide a slightly different view of the optimization process (see \cref{fig:galapagosvisualmenu}-right): (1) a fitness graph depicting each solution's fitness value at each step, a (2) temperature graph, representing the temperature decrease rate with each time step, and a (4) ranked list of the best solutions found so far.
 	
 % Begin Galapagos Figure -------------------------------------------------------
@@ -240,12 +269,148 @@ Front, (2) diversity, meaning that solutions should be as uniformly distributed 
 
 \subsection{Goat}
 
-Goat is an optimization plugin integrated into Grasshopper that was developed by Simon Flory. 
+% General description, intuition
+	Goat is an optimization plug-in that is available in Grasshopper and exposes in a graphical interface the optimization algorithms from the NLopt mathematical optimization library~\cite{NLOPT}. Simon Flöry developed Goat as a generic platform designed that allows to use algorithms from the different classes of derivative-free algorithms (as discussed in ~\cref{sec:dfo}. Goat exposes these algorithms via an interface resemblant of the Galapagos's interface, making it easier for non-programmers to solve different problems. 
 
-Focus on single-objective optimization, but can also be used as a form of a priori preference articulation. It exposes the derivative-free algorithms existing in the NLopt framework in a friendlier and graphical interface. 
+% Available Algorithms
+	One of the key differences from Goat to Galapagos is the number and diversity of the algorithms available in each plug-in. Whilst Galapagos supports two global metaheuristics algorithms, Goat supports five distinct algorithms: one metaheuristic, two direct-search, and two model-based algorithms, called CRS2, DIRECT, SUBPLEX, COBYLA, and BOBYQA, respectively. Due to space constraints, a full description of these algorithms will not be provided, instead we refer the interested reader for literature.  
+	
+	% METAHEURISTICS METHODS ------------------------------------
+	% CRS2
+	The CRS2 algorithm is a variant of the \ac{CRS} algorithm for global optimization~\cite{Price1983}. A \ac{CRS} algorithm is a population-based random search algorithm that creates an initial set of points, the population, which are then randomly evolved by means of heuristic rules. In the original \ac{CRS} algorithms, heuristic rules modify a point at a time, replacing the worst point with a better one (called trial point), using a technique resemblant of the \ac{NMS} algorithm~\cite{Nelder1964}. Similarly to \ac{NMS}, \ac{CRS} algorithms use a simplex, i.e., a generalized triangle in N dimensions, to envelope a region described by a random subset of points in the population. The worst point of the population is replaced with the reflection of the worst point in the simplex~\cite{Kaelo2006CRS2}. The CRS2 variant differs from the original in that it assumes that the worst population point will always be a part of the simplex. The actual version that is made available by Goat is a modified version of the CRS2 algorithm that introduces a local mutation component in an attempt to overcome situations where heuristic rules constantly fail to find a trial points that actually improve the worst point. Fundamentally, this local mutation generates a second trial point that results from the exploitation of the region around the best point in the population~\cite{Kaelo2006CRS2}.  \todo{Vantagens e desvantagens ? Lack sound convergence properties, robustness and performance are highly problem dependent ~ler Kaelo}
+	
+	% DIRECT-SEARCH METHODS ------------------------------------
+	% DIRECT
+	The second algorithm is a global deterministic direct search algorithm that relies on the division of rectangles, as explained in ~\cite{Jones1993DIRECT}. DIRECT, the DIviding RECTangles algorithm, recursively subdivides the design space into smaller multidimensional hyper-rectangles, estimating the quality value of each rectangle. DIRECT uses these values to focus the search on more promising regions of the design space and to further subdivide those in smaller hyper-rectangles. 
+	% SUBPLEX	
+	The SUBPLEX algorithm is an unconstrained local optimization algorithm~\cite{Rowan1990}. As a generalization of the \ac{NMS} algorithm, SUBPLEX subdivides the design space in low-dimensional subspaces and then applies the \ac{NMS} algorithm to a set of these subspaces in order to seek for a better solution. In contrast to \ac{NMS}, which has difficulties in high-dimensional problems, SUBPLEX reduces the limitations through the decomposition of the problem in low-dimensional subspaces which are more efficiently optimized by \ac{NMS}.
+	
+	% MODEL-BASED METHODS ------------------------------------
+	Besides metaheuristics and direct-search algorithms, Goat also provides two local model-based implementations, namely the COBYLA (or Constrained Optimization BY Linear Approximation) algorithm~\cite{Powell1994COBYLA}, and the BOBYQA (or Bound Optimization BY Quadratic Approximation) algorithm~\cite{Powell2009BOBYQA}, that rely on the construction of simple, partial models of the objective function~\cite{Koziel2011}. The former uses the concept of simplex to iteratively generate linear approximations of the objective function, whereas the latter generates quadratic approximations instead. 
+	
+	One of the main advantages of Goat is the algorithms' diversity. By providing algorithms with different characteristics and strategies, architects can test the suitability of each algorithm to their problem and, thus, select the most effective. The right choice may result in large optimization gains, especially when complex and time-consuming simulations are necessary~\cite{Wortmann2016BBO}. For this reason and due to the uniqueness of each \ac{BPO}, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different algorithms for a fixed number of evaluations or a fixed amount of time~\cite{Hamdy2016,Wortmann2016BBO}. Moreover, the distinction between global and optimal algorithms is also critical when striving for accurate and precise optimal solutions. Most global optimization algorithms invest most of their effort searching for the truly optimal solution across large regions of the search space and rarely focusing on promising regions. Consequently, they might return a not so precise global optimum. To overcome this lack of precision and accuracy, one should apply a local optimization algorithm providing the globally imprecise optimum as input.
 
+% Usability, how to use it
+	In terms of usability, Goat is very similar to Galapagos, with the only difference being the name of the input and output entries in the Goat's Grasshopper component. In Goat, the variables are connected to the entry labelled \textit{Variables}, whereas the objective function is connected to the \textit{Objective} entry. 
+		
+% Graphical interface, benefits of interface
+	After modelling the problem, the architect accesses Goat's \ac{GUI}. \Cref{fig:goat} depicts Goat's interface, which is simple and easy to use for non-experts, requiring no integration efforts to use an optimization solver, nor any programming or algorithm's knowledge in order to setup and use it. Notwithstanding the absence of options for parametrizing optimization solvers, Goat supports the specify specification of a starting point for the search, which can be particularly useful for multi-modal problems, i.e., problems where there are multiple locally optimal solutions. The starting points can be configured using Grasshopper's \textit{Sliders} components which should be modified so as to the desired parameters values. 
+	
+	Unfortunately, Goat lacks the visual, and post-processing features of Galapagos, providing no information about the course of the optimization process. In fact, except for a final report stating the termination criteria (e.g., reach a threshold, running time exceeded), Goat provides no feedback regarding the course of the search for optimal solutions. As a result of the optimization process, Goat returns a single solution. The values for this optimal solution are configured in the Grasshopper's \textit{Sliders}, which is not very robust (e.g., susceptible to unwilling modifications, or to information loss). In addition to bad scalability and representation of the result, Goat provides no information about other close to optimal solutions, which spurs no confidence on the achieved results. \todo{lacks conclusion?? - Review others}
 
+	
+% for example, a plot depicting the best optimal value found, or a dispersion plot of the design solutions that have been explored so far, and 
+% Focus on single-objective optimization, but can also be used as a form of a priori preference articulation. It exposes the derivative-free algorithms existing in the NLopt framework in a friendlier and graphical interface. 
+	
+% Begin Goat-Options Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Images/Background/Goat/general-view.png}
+\caption[Goat optimization plug-in menus]{Simple example of a Grasshopper's problem definition with two variables and a function. The Goat component is represented in green and the \textit{goat - Optimization Settings} menu lists the supported algorithms}
+\label{fig:goat}
+\end{figure}
+% End Figure -------------------------------------------------------	
 
 \subsection{Octopus}
+
+Octopus is a multi-objective plug-in developed for Grasshopper. Designed in the same way as Galapagos, Octopus exploits evolutionary principles to search for multiple Pareto optimal solutions.  
+
+The installation of Octopus creates a new tab within Grasshopper, which encloses seven menus discriminated by functionality: Evolutionary Learning, Explicit Components, Loop, Octopus, Supervised Learning, Utilities, and View.
+
+Octopus enables the enables the simultaneous search for more than one objective, producing a set of possible optimal solutions that ideally represent the real compromises between each objective. Octopus provides two \acp{MOEA} to tackle these problems under a Pareto-based approach: \ac{SPEA}2 and \ac{HypE}. On the one hand, due to their population-based nature, evolutionary algorithms are able to approximate the Pareto Front in a single run~\cite{Zhou2011}. On the other hand, these algorithms have been reported to yield promising results on numerous test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}.
+
+	Similarly to evolutionary algorithms, \acp{MOEA} adopt the evolutionary principles discussed in \cref{subsec:galapagos} but, generally, have an additional archive to store the non-dominated solutions found~\cite{Zitzler2001SPEA2}. The archive technique is incorporated to prevent losing current non-dominated solutions due to random mutations or recombinations. Most \acp{MOEA} differ in the selection and reproduction operators used to iteratively evolve populations. These differences are usually related to the very own goals of approximating the Pareto Front: (1) maximize the accuracy of the approximation (by minimizing the distance to the optimal front) and (2) maximize the diversity of the solutions within the front. While the first goal is related to the search strategy and how to assign fitness values in such a way that the individuals selected for offspring production will be closer to the Pareto optimal front, the second goal is related to the time and storage constrains of the evolution process and which individuals to keep in each generation~\cite{Zitzler2001SPEA2}. Although a thorough description of different \acp{MOEA} and their mechanisms is not herein presented, we refer the interested reader to \cite{Zhou2011}. 
+	
+	Most modern \acp{MOEA} concretize the accuracy and diversity ideas through some implementation of the following mechanisms~\cite{Zitzler2001SPEA2}:	
+	\begin{itemize}
+	\item Selection (or environmental selection): Besides the population, most \acp{MOEA} maintain an archive with the non-dominated front among all the solutions that were evaluated. The archive preserves individuals during several generations, only removing them if (1) a new solution is found to dominate them, or (2) if the archive size is exceeded and they happen to be in crowded regions of the front.
+
+	\item Reproduction (or mating selection): At each generation, individuals are evaluated in two stages. The first stage compares them regarding the relation of Pareto dominance, using this information to define a ranking among these individuals. The second stage refines these rankings through the incorporation of density information, i.e., if the individuals lie in crowded regions.
+	\end{itemize}
+
+	These mechanisms can be completely indifferent from one another, e.g., the first one applying a Pareto-based criteria and the second one applying weighting approach. However, many \acp{MOEA} implement both concepts similarly. In the particular case of \ac{SPEA}2, the algorithm explores two independent sets of individuals: the population and the archive. In this algorithm, the archive size is fixed and, therefore, whenever the number of non-dominated individuals is less that its size, some dominated individuals are added to the archive. At each iteration, the algorithm computes each individual's fitness value (a \textit{strength} value, defined as terms of the number of solutions it dominates, the \textit{raw fitness} value, defined in terms of the strength of its dominators, and a density estimate, defined as the inverse of the distance to the \textit{k-th} to the nearest neighbor) and copies the non-dominated individuals from the population to the archive, removing any individual that is dominated, whose objective values are duplicated, or that, when the size of the updated archive is exceeded, lies in crowded regions of the non-dominated front. After filling the archive, pairs of individuals are chosen from the archive to reproduce and produce the offspring through recombination and mutation operators that will make the population of the next generation~\cite{Zitzler2001SPEA2}.
+	
+	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use \ac{HypE}, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, \ac{HypE} uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
+
+% 	https://pdfs.semanticscholar.org/dbc6/99826d7d28a75a304e715b796c8d2ee3dc90.pdf
+	
+	
+% Begin Octopus-Options Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{Images/Background/Octopus/octopus-menu.png}
+\caption[Octopus optimization plug-in Editor]{Octopus Editor: (1) Solutions' Objective Space, (2) Solution's context menu, (3) Generation's history slider, (4) Process control options, (5) Algorithm Settings, (6) Display Settings, (7) Statistics, (8) Parallel Coordinates Graph, (9) List of Objectives (10) Convergence graphs per Objective}
+\label{fig:octopus}
+\end{figure}
+% End Figure -------------------------------------------------------	
+
+% Usability
+Similarly to Galapagos, in order to use Octopus' optimization solvers, the architects must define the script in Grasshopper that entails (1) the components representing the variables, such as \textit{Number Sliders}, (2) the components responsible for the generation of the model using the values assigned to the variables, and (3) the components responsible for the analysis of the generated model that will yield the final value of the objective functions. The Octopus component must then be connected to the components representing the variables, whose values will be explored during the search for optimal solutions, and to the components representing the objective functions. In order to configure and start the optimization process, architects must double click on the Octopus component to open its editor. \Cref{fig:octopus} illustrates the Octopus editor after running \ac{SPEA}2 for fourteen generations for a 3-objective optimization problem. This interface lacks organization of its functionalities and is overloaded in information, thus hindering its overall usability and comprehension.
+% there is not a clear separation of different menus and their position in the menu seems to be counter intuitive (e.g., algorithm and process control options on the right, and display options on the left). 
+
+One key aspect of this interface is the ability to configure multiple parameters of the algorithm and of the optimization run itself, inclusively during runtime. Moreover, with the aim to reduce time penalizations associated to real-time design generation of candidate solutions in the \ac{CAD} tool, Octopus disables it by default. However, this yields an optimization process where no information is provided to the user.
+
+Another key aspect of this interface is the visualization On the one hand, it provides multiple views of the evolution of the optimization process (see views 1, 8, and 10 of \cref{fig:octopus}). While these views provide a comprehensive feedback about the course of optimization for problems with less than or equal to five objectives (e.g., using color and dimension as additional features), it is unclear how Octopus represents solutions with more than five objectives in the main view port. On the other hand, it allows the user to export different information to files. 
+
 \subsection{Opossum}
+
+Opossum (OPtimizatiOn Systems with SUrrogate Models) is a single-objective plug-in developed for Grasshopper that interfaces the model-based RBFOpt library~\cite{RBFOPT}. Its \ac{GUI} is similar to the one of Galapagos.
+
+Opossum is a model-based optimization tool for Grasshopper that uses the \ac{RBF} machine learning technique to create global approximations of the objective function~\cite{Forrester2009SBO}. These approximations are simply the weighted sum of other simpler real-valued functions, the radial functions. These functions are defined on the Euclidean space $\mathbb{R}^n$ and their value depends on the distance to a center $c$, so that $\phi(x, c) = \phi(\left\lVert x-c \right\rVert)$. In a \acp{RBF} technique, the weights are estimated based on the interpolation of data. A comprehensive detailed explanation of the \ac{RBF}'s estimation process is provided in~\cite{Forrester2009SBO}. 
+
+Since its invention, multiple implementations of \ac{RBF} have been proposed. RBFOpt implements two of well-known versions, namely, the Gutmann's~\cite{Gutmann2001} and the Regis and Shoemaker's~\cite{Regis2007}, commonly known as MSRSM. These techniques differ in the search strategy for the next candidate solution to be evaluated using the original objective function. The former uses the solution which is likely to yield the largest improvement in the surrogate's accuracy, whereas the latter tries to balance the surrogate's accuracy amelioration with the exploitation of promising solutions, using other search strategies, such as genetic algorithms, sampling algorithms, or other mathematical solvers~\cite{Wortmann2017Opossum}. Moreover, RBFOpt provides five different types of radial basis function: linear, multi-quadratic, cubic, thin plate spline, and automatic selection, which are also provided in the Opossum interface.
+
+	In terms of usability, Opossum resembles Galapagos, requiring the creation of \textit{Sliders} components and of a component that maps the values of the variables to a single numerical value. These components have to be connected to the Opossum's component in Grasshopper in the \texttt{Variables} and \texttt{Objective} entries, respectively. In contrast to other plug-ins, Opossum provides a more flexible interface, with menus tailored for different expertise levels, offering different levels of control in each one. By providing multiple menus (see~\cref{fig:opossum}, both less and more experienced users are able to use a tool that suits their needs, while providing the more experienced ones the ability to fine-tune the optimization solvers more accurately, thus potentially achieving more efficient optimization processes.
+	
+	One other important aspect of Opossum is concerned with the exposition of results. On the one hand, Opossum provides a graphical view of the best value ever found up to each iteration (see~\cite{fig:opossum}~left), thus providing immediate feedback to the architect about the state of the optimization process. On the other hand, Opossum can create a log file with the record of all the solutions explored during the optimization process. This log file can then be used with other post-processing tools for purposes of more insightful visualizations about the data, or even to re-use this information to perform sensitivity analysis or to run other optimization algorithms (e.g., benchmarks).
+	
+% Begin Opossum-Options Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{Images/Background/Opossum/opossum_1.png}
+\caption[Opossum optimization plug-in menus]{The three menus of the Opossum's \ac{GUI}}
+\label{fig:opossum}
+\end{figure}
+% End Figure -------------------------------------------------------
+
 \subsection{Optimo}
+\label{subsec:Optimo}
+
+Implemented on top of Dynamo, Optimo is an evolutionary-based multi-objective optimization plugin that enables users to optimize both single and multi-objective problems. The current version of Optimo uses an \ac{NSGA}-II \cite{Deb2002NSGA-II} from the jMetal.NET library to seek for Pareto Optimal solutions. 
+
+As a \ac{MOEA}, \ac{NSGA}-II attempts to achieve an approximation to the Pareto front that is both accurate and diverse. In this particular algorithm, both the selection and reproduction mechanisms use identical selection criteria
+
+
+
+The same holds for another promising algorithm, NSGA-II (Nondominated Sorting Genetic Algorithm) (Deb, Agrawal, Pratap, and Meyarivan 2000). Here, the pool of individuals is first split into different fronts according to the concept of Pareto dominance. Individuals belonging to the first nondominated front are assigned highest rank, those in the second nondominated front the second highest rank and so forth. Within each rank, a specific crowding measure, which represents the sum of distances to the two closest individuals along each objective, is used to define an order among the individuals. On the basis of this ranking both environmental and mating selection are performed. By combining parent population (which can actually be regarded as the archive) and offspring population and then deleting the worst 50%, the pool of individuals is truncated. Afterwards binary tournaments are carried out on the remaining individuals (the archive members) in order to generate the next offspring population.
+
+
+
+% USABILIDADE (ligações caixinhas, parametros)
+In order to help designers optimize multiple conflicting objectives and approach to a set of optimal solutions, Optimo includes four nodes in Dynamo: (1) Initial Solution List, which generates the initial set of random design configurations within a provided range and with the specified size of population, (2) Assign Fitness Function Results, which evaluates and assigns the objective values to each configuration, (3) Generation Algorithm, which takes the parent population and generates the children population, (4) Sorting, which uses the Pareto Front sorting to sort the solutions. 
+
+% Visual
+- menus de visualização e post processing features.
+
+
+
+
+\subsection{Silvereye}
+
+Silvereye is an optimization plug-in for Grasshopper, developed under the same user interface design as Galapagos, and that enables non-experts to solve complex optimization problems. Silvereye interfaces a \texttt{C\#} implementation of a single-objective \ac{PSO} algorithm.
+
+% Algorithm
+The \ac{PSO} algorithm is a global metaheuristic algorithm inspired by biological systems, such as the collective behavior of flocking birds and schooling fish, which interact and learn from one another to solve problems~\cite{Brownlee2011}. In \ac{PSO}, the intelligence is decentralized, self-organized, and distributed throughout the participating particles, also known as swarm. These particles maintain information about their velocity, their current and personal best positions, and also the global best position known to the swarm. At each time step, the position and velocity of each particle are updated according to the best swarm or close neighbor position~\cite{Brownlee2011}.
+
+In terms of usability, Silvereye is resemblant of Galapagos, requiring the definition of Grasshopper's \textit{Sliders} as variables and a Grasshopper's \textit{Num} component as the objective function, which are then connected to the input and output entries, respectively. Upon double-clicking the Silvereye component, the user is presented with the settings menu (see \cref{fig:silvereye} where he is able to fine-tune the optimization solver: (1) \texttt{maximum velocity}: in each iteration, a variable can change its value by an amount that is less or equal than the value specified for this option, (2) \texttt{swarm size}: the number of particles used by the \ac{PSO} algorithm, and (3) \texttt{Use initial position}: to define one starting point, users must narrow down the range of the slider's variables, update the velocity in the solver's settings, and check this option in the Settings Menu. Moreover, Silvereye enables the user to save the solver's configurations and use them in the next run.
+
+In terms of information, Silvereye has two information mechanisms, neither of them being graphical. The first mechanism is a time log of the optimization run discriminated by iteration and by particle. This log enables the user to control the optimization run and detect any irregularity in the analysis. Unfortunately, the log does not have information about the values of the solution's parameters, which makes the traceback of errors impractical. The second mechanism is a list of the best result obtained in each iteration, which can be either exported to a file or reinstantiated in Grasshopper to see its the solution. Nevertheless, similarly to the first mechanism, this list presents no explicit information about the parameters' values of explored solutions and the user is restricted to the best result listed, not being able to verify other close to optimal solutions that might have been explored in the course of the optimization.
+
+% Begin Silvereye-Options Figure -------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Images/Background/Silvereye/general-view.png}
+\caption[Silvereye optimization plug-in menus]{The Silvereye Editor menus: (left) Settings menu, (right) Optimization results}
+\label{fig:silvereye}
+\end{figure}
+% End Figure -------------------------------------------------------	

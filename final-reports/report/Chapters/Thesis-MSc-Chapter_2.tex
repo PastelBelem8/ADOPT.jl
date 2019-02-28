@@ -28,7 +28,7 @@
 
 	Derivative-free algorithms allow to overcome the difficulty of deriving analytical forms that has has been rising with the increase of building design's complexity.~\cite{Machairas2014}. For this reason, derivative-free algorithms are sought as useful tools to optimize designs, having been applied extensively to optimize building designs' manifold aspects. Among the numerous studies that apply derivative-free optimization algorithms to optimize building designs, we refer to the distinct works of Wortmann~\cite{Wortmann2016BBO,Wortmann2015AdvSBO,Wortmann2017GABESTCHOICE,Wortmann2017Opossum}, Evins~\cite{Evins2011,Evins2012MOO,Evins2013}, and Waibel~\cite{Waibel2018} which cover the optimization of various aspects, including, among others, structural, lighting, thermal, energy consumption, and carbon-emissions. 
 	
-	For the past decades, the constant development and improvement of derivative-free optimization algorithms led to a diversified tools' gamut, each with its own characteristics and limitations. While the main ideas behind each algorithm's category seem to be more or less recognized throughout the architectural community, the lack of standards make it difficult to decide which definitions to convey~\cite{Rios2013, Wortmann2017ADO}. The currently most relevant classifications are: (1) the one presented by Rios et al.~\cite{Rios2013} that, based on the functions being used to guide the search process, classifies the algorithms into direct search or model-based algorithms; and (2) the classification provided by Wortmann et al.~\cite{Wortmann2017ADO}, which first subdivides the algorithms in two groups according to the number of solutions generated in each iteration, namely metaheuristics and iterative algorithms, and only then proceeds to classify iterative algorithms as direct search or model-based algorithms, depending on the function that is used during the search. 
+	For the past decades, the constant development and improvement of derivative-free optimization algorithms led to a diversified tools' gamut, each with its own characteristics and limitations. While the main ideas behind each algorithm's category seem to be more or less recognized throughout the architectural community, the lack of standards make it difficult to decide which definitions to convey~\cite{Rios2013, Wortmann2017ADO}. The currently most relevant classifications are: (1) the one presented by \cite{Rios2013} that, based on the functions being used to guide the search process, classifies the algorithms into direct search or model-based algorithms; and (2) the classification provided by \cite{Wortmann2017ADO}, which first subdivides the algorithms in two groups according to the number of solutions generated in each iteration, namely metaheuristics and iterative algorithms, and only then proceeds to classify iterative algorithms as direct search or model-based algorithms, depending on the function that is used during the search. 
 
 	This thesis will consider an approach similar to the one proposed by Wortmann~\cite{Wortmann2017ADO} by exploring the concepts of metaheuristics, direct-search, and model-based algorithms. Albeit the apparent chasm between these classifications, some algorithms draw ideas from distinct classes, thus emphasizing not only the blurred lines of such categorizations, but also the difficulties that lie with the definition of more standardized classifications. 
 	
@@ -177,7 +177,7 @@ approaches based on the \textit{a priori} definition of preferences are less tim
 Despite the growing trend of Pareto optimization approaches~\cite{Evins2013, Hamdy2016}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident. 
 
 % #############################################################################
-\section{Quantitative Performance Indicators}
+\section{Performance Indicators}
 
 Despite the large interest in \ac{MOO}, the question of how to quantitatively compare the performance of different algorithms still remains unanswered. Firstly, in multi-objective problems, the number of objectives is greater than the number of objectives in single-objective problems: the former considers a collection of vectors representing the Pareto-optimal solutions, whereas the latter considers real numbers. Secondly, it is often the case that the application of exact methods to \ac{MOO} contexts is impracticable due to the complexity introduced by underlying applications (e.g., simulation tools, physical experiments). In these cases, the generation of the true Pareto-optimal set is often infeasible, requiring vast computational resources to be generated. Thirdly, despite the availability of alternatives to exact methods, such as metaheuristics algorithms (e.g., evolutionary algorithms, particle swarm), these are not guaranteed to identify optimal trade-offs, instead yielding good approximations~\cite{Zitzler2003Metrics}. Finally, we are interested in knowing which of the non-exact algorithms yields better approximations for a given problem, hence prompting the need for assessing the performance of \acp{MOOA}.
 
@@ -187,10 +187,8 @@ Literature review evidences the existing struggle to define the meaning of quali
 
 For the past decades, several indicators have been proposed to measure the quality of Pareto sets, ranging from unary quality measures, which assign each approximation set a number that reflects a certain quality aspect, to binary quality measures, which assign numbers to pairs of approximation sets, among others. This thesis considers a small but representative set of quantitative indicators to measure the quality of \acp{MOOA}' results with respect to the three aspects: cardinality, diversity, and accuracy. 
 
-Literature review reveals the existence of dozens of indicators that consider either one of the mentioned aspects or a combination of them. In the following definitions we use the term \textit{approximation set} to denote the Pareto Front returned by the optimization algorithm, and we use the term \textit{reference set} to denote the true Pareto Front or, whenever that is not possible, an estimate of the true Pareto front. 
+Literature review reveals the existence of dozens of indicators that consider either one of the mentioned aspects or a combination of them. In the following definitions we use the term \textit{approximation set} to denote the Pareto Front returned by an optimization algorithm, and we use the term \textit{reference set} to denote the true Pareto Front or, whenever that is not possible, an estimate of the true Pareto front. 
 In this section, we list some of the most used indicators for assessing the performance of evolutionary \acp{MOO}~\cite{Riquelme2015}. 
-
-\todo{Should I discuss disadvantages of these indicators?}
 
 \subsection{Unary Indicators}
 % ---------------------------
@@ -200,46 +198,59 @@ In this section, we list some of the most used indicators for assessing the perf
 % Cardinality 
 With regards to the cardinality aspect, there are essentially two indicators:
 \begin{itemize}
-\item \textbf{\ac{ONVG}} computes the number of non-dominated solutions in the approximation set.
-\item \textbf{\ac{ONVGR}} computes the ratio of non-dominated solutions in the approximation set with regards to a reference set.
+\item \textbf{\ac{ONVG}} computes the number of non-dominated solutions in the approximation set ~\cite{Veldhuizen1999GD}.
+\item \textbf{\ac{ONVGR}} computes the ratio of non-dominated solutions in the approximation set with regards to a reference set~\cite{Veldhuizen1999GD}.
 \end{itemize}
+
+Cardinality indicators are based on the intuition that a good approximation set would have many optimal solutions. However, these indicators alone do not suffice to provide an accurate measure, as they privilege quantity over quality of solutions~\cite{Veldhuizen1999GD}, i.e., they often qualify approximation sets having dozens or hundreds of dominated solutions as being better than sets that provide fewer non-dominated solutions. This completely distorts the initial idea of finding the best Pareto front, i.e., set of non-dominated solutions.
 
 % || Diversity / Distribution ||
-Conversely, there are more indicators that measure the distribution of solutions in the objective space, i.e., the diversity aspect of the approximation set:
+To complement cardinality indicators, it is often advisable to consider the diversity aspect of approximation sets as well. A few well known diversity-based indicators are:
 \begin{itemize}
 \item  \textbf{Spacing} (or Set Spacing) computes the variance of the Manhattan distances between each non-dominated solution and its closest neighbor. It measures how well-spaced the solutions from the approximation set are. A value of zero represents equally spaced non-dominated solutions. 
-\item \textbf{Delta Indicator} (spread or $\Delta$) is similar to Spacing. However it calculates the normalized variance and uses the Euclidean distance instead.
+\item \textbf{Spread} (or $\Delta$) is similar to Spacing. However, it calculates the normalized variance and uses the Euclidean distance instead.
 \item \textbf{Maximum Spread} (or \textbf{$M_3^\ast$}) computes the Euclidean distance between the bounds of each objective dimension. It measures the extent of the objective space in each dimension by calculating the distance between the maximum and minimum of each objective. A greater value indicates larger coverage of the objective space.
+
 \item \textbf{Entropy} uses the Shannon's entropy concept to measure the uniformity of the approximation set distribution. This indicator makes the assumption that each solution provides some information about its vicinities, thus modeling each solution with Gaussian distributions. These distributions add up to form a density function capable of identifying peaks and valleys in the objective space, corresponding to dense and sparse zones, respectively. 
-\item \textbf{Diversity Metric} is similar to the Entropy indicator. However it projects the solutions of both the approximation set and the reference set to an hyperplane which is then subdivided uniformly. Then it computes the ratio between the number of intervals that have at least one non-dominated solution from both sets and the number of intervals that have at least one non-dominated solution of the reference set. Higher values of the diversity metric imply a better distribution and higher diversity of the approximation set when compared to the reference set itself. 
+
+\item \textbf{Diversity Metric} is similar to the Entropy indicator. However, it projects the solutions of both the approximation set and the reference set to an hyperplane which is subdivided uniformly. It assigns each interval two numbers: one number marking whether that interval contains at least one optimal solution in the reference set, and the second number marking whether the interval in addition to the optimal solution in the reference set, also contained at least one solution in the approximation set. Then, the diversity measure is the sum of the score of each interval, which are assigned using a sliding window technique (considering one interval and its immediate neighbors) based on the value of the marks\footnote{The scoring function considers the distribution of the marks in three consecutive grids. The function's proper definition can be found in \cite{Deb2002DM}.}. So, the diversity of the reference set considers the value of the first marks, whereas the diversity of the approximation set considers the values of the second marks. In the end, the diversity metric is given by the relative difference between the diversity of the approximation set and the diversity of the reference set. The best diversity possible is achieved if all intervals enclose at least one point\cite{Deb2002DM}.
+% Then, it computes the ratio between the number of intervals that have at least one non-dominated solution from both sets and the number of intervals that have at least one non-dominated solution of the reference set. Higher values of the diversity metric imply a better distribution and higher diversity of the approximation set when compared to the reference set itself. 
+
 \end{itemize}
+
+While these indicators are more robust, considering these indicators alone will not necessarily identify sets having Pareto optimal solutions, as they prioritize sets where solutions are spaced evenly apart or that cover broader regions of the objective space~\cite{Veldhuizen1999GD}. Moreover, because most of them assume that the Pareto front will be continuous, they may behave erroneously when facing problems with disconnected Pareto fronts. The diversity metric attempts to alleviate these limitations by comparing the non-dominated solutions of the approximation set with those of the reference set \cite{Deb2002DM}.
 
 % || Accuracy ||
-In terms of accuracy, the following indicators are frequently used to measure the convergence of the approximation set:
+Previous metrics are not good indicators of how close the approximation sets really are to the reference set. To obtain a measure of the convergence of the results, one should consider accuracy indicators, such as:
 \begin{itemize}
 % ER
-\item \textbf{\ac{ER}} computes the proportion of false-positives in the approximation set, i.e., the ratio of optimal solutions in the approximation set that are not optimal in a given reference set. Lower values of \ac{ER}, represent better the approximated sets. 
+\item \textbf{\ac{ER}} computes the proportion of false-positives in the approximation set, i.e., the ratio of optimal solutions in the approximation set that are not optimal in a given reference set~\cite{Veldhuizen1999GD}. Lower values of \ac{ER}, represent better approximation sets. 
 % MPFE
-\item \textbf{\ac{MPFE}} computes, for each solution in the approximated set, the minimum Euclidean distance to the closest solution in a given reference set, returning the maximum of those distances. In other words, it returns the maximum error of the approximated Pareto Front. Lower values of \ac{MPFE} imply better approximation sets. 
+\item \textbf{\ac{MPFE}} computes, for each solution in the approximation set, the minimum Euclidean distance to the closest solution in a given reference set, returning the maximum of those distances~\cite{Veldhuizen1999GD}. In other words, it returns the maximum error of the approximated Pareto Front. Lower values of \ac{MPFE} imply better approximation sets. 
 % Generational Distance
-\item \textbf{\ac{GD}} computes the average distance of an approximation set to a given reference set by computing the average distance of the solutions in the approximation set to the nearest points in a given reference set. A value of $0$ indicates that all the solutions in the approximation set are in the reference set. This metric has also been called \textbf{$M_1^\ast$} in other works~\cite{Zitzler2000m1m3}.
+\item \textbf{\ac{GD}} computes the average distance of an approximation set to a given reference set by computing the distance of the solutions in the approximation set to the nearest points in a given reference set averaged on the number of solutions in the approximation set~\cite{Veldhuizen1999GD}. A value of $0$ indicates that all the solutions in the approximation set are in the reference set. Different authors\cite{Zitzler2000m1m3} refer to this metric as \textbf{$M_1^\ast$}.
 \end{itemize}
 
-Finally, there are also some indicators that provide insights about both the distribution of the solutions of the approximation set and its accuracy:
+Accuracy indicators, like the previous indicators, can also produce misleading results and, therefore, should be considered together with other metrics. In general, all these three indicators have flaws, for instance, \ac{ER} focus on errors instead of focusing on the optimal solutions. As a result, it penalizes larger approximation sets that, despite having a more representative set of the real optimal solutions, have made more errors than other approximation sets with fewer solutions and, potentially, less errors. On the other hand, \ac{MPFE} focus on the maximum error of an optimal solution in the approximation set, when compared to the reference set. As a result, approximation sets, whose points are closer to the Pareto front but that have an outlier, will have higher values of \ac{MPFE} than other approximation sets, whose points are further away from the reference set but at a smaller distance than the outlier is from the reference set. At last, \ac{GD} has also been shown to behave erroneously, especially due to its dependency on the cardinality of the approximation set~\cite{Ishibuchi2005GDIGD}.
+
+The final set of indicators considers the accuracy and diversity aspects simultaneously:
 \begin{itemize}
 % Hypervolume
 \item \textbf{\ac{HV}} (or Lebesgue measure or S-metric) measures the size of the objective space covered by an approximation set, i.e., it measures the volume of the dominated space. It provides the unique and desirable properties of (i) Pareto \textit{compliance}, i.e., an approximation set which completely dominates another, will necessarily have a greater volume than the latter, and (ii) convergence guarantees, i.e., any approximation set that achieves the maximum possible volume is guaranteed to contain all Pareto-optimal solutions.
 % Inverted GD
-\item \textbf{\ac{IGD}} is the opposite of \ac{GD}, instead computing the average distance between a given reference set and the approximation set. \ac{IGD} computes the distance between each solution in the reference set and its closest solution in the approximation front, averaged over the size of the reference set. Smaller values of \ac{IGD} suggest better approximation sets, given that the reference set is well distributed.  \ac{IGD} is identical to a previous metric, known as \textbf{$D1_R$}. 
+\item \textbf{\ac{IGD}} is the opposite of \ac{GD}, instead computing the average distance between a given reference set and the approximation set. \ac{IGD} computes the distances between each solution in the reference set and its closest solution in the approximation front, averaged over the size of the reference set. When the solutions in the reference set are well distributed, smaller values of \ac{IGD} suggest better and well-distributed approximation sets. Previous works have referred to this metric as \textbf{$D1_R$}~\cite{Ishibuchi2005GDIGD}\todo{Save REFs, a verdadeira ref está no Hansen1998}. 
 \end{itemize}
 
+Despite considering the diversity and accuracy aspects of Pareto fronts, \ac{IGD} is still Pareto non-compliant and has been shown to behave erroneously under certain conditions~\cite{Ishibuchi2005GDIGD}. Conversely, \ac{HV} is the only metric that exhibits the Pareto-compliance property. However, its usage is often impractical in problems, where the number of objectives is greater than ten, due to the its exponential grow with the number of objectives \cite{Ishibuchi2005GDIGD}.
 
 \subsection{Binary Indicators}
 
-In situations where the original Pareto-optimal set is not available, the binary indicators provide a way to compare approximation sets with respect to all the aspects. Among the most used indicators, there are:
+In situations where the original Pareto-optimal set is not available, the binary indicators provide a way to compare approximation sets with respect to all the aspects. Among the most frequently used indicators, we emphasize:
 \begin{itemize}
-\item \textbf{Two set coverage} (or C-metric) yields the number of solutions in one approximation set that are dominated by at least one of the solutions of the other approximation set. A value of $1$ suggests that the second approximation set is completely dominated by some solutions in the first one, whereas a value of $0$ represents the situation when none of the solutions of the second approximation set is covered by the first approximation set.
-\item \textbf{Epsilon Indicators} ($\epsilon$) that gives a factor by which an approximation set is worse than another considering all objectives, i.e., given two approximation sets $A$ and $B$, it computes the smallest amount $\epsilon$ by which $A$ must be translated, so that every solution in $B$ is dominated by at least one solution in A. 
+\item \textbf{Two set coverage} (or $C$) yields the number of solutions in one approximation set that are dominated by at least one of the solutions of the other approximation set. A value of $1$ suggests that the second approximation set is completely dominated by some solutions in the first one, whereas a value of $0$ represents the situation when none of the solutions of the second approximation set is covered by the first approximation set.
+
+\item \textbf{Epsilon Indicators} ($\epsilon$) that gives a factor by which an approximation set is worse than another considering all objectives, i.e., given two approximation sets $A$ and $B$, it computes the smallest amount $\epsilon$ by which $A$ must be translated, so that every solution in $B$ is dominated by at least one solution in $A$.
+ 
 \item \textbf{R-metrics} consider a family of indicators where the quality of each approximation set is defined according to a set of utility functions, and the larger the utility value of some set, the better the quality. R-metrics declare that the best approximation set will be the one that is better with regards to most utility functions:
 	\begin{itemize}
 	\item \textbf{$R1$} determines whether the an approximation set is better, equal, or worse than the other. 
@@ -248,10 +259,13 @@ In situations where the original Pareto-optimal set is not available, the binary
 	\end{itemize}
 \end{itemize}
 
+When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
+
 % #############################################################################
 \section{Optimization Tools in Architecture}
+\label{sec:plugins}
 	
-For years, multiple derivative-free optimization libraries have been developed (e.g., NLopt, RBOpt, Platypus, Deap, Pyomo, PISA, jMetal, MOEAFramework). However, in order to use them within architectural practices, architects had to code the integration scripts to connect the simulation models for different variations of the parametric models and the optimization libraries\cite{Attia2013}. Moreover, these frameworks often lacked post-processing and visual features, which antagonized the readability and comprehension of the results~\cite{Attia2013,Nguyen2014}.
+For years, multiple derivative-free optimization libraries have been developed (e.g., NLopt, RBOpt, Platypus, DEAP, Pyomo, PISA, jMetal, MOEAFramework). However, in order to use them within architectural practices, architects had to code the integration scripts to connect the simulation models for different variations of the parametric models and the optimization libraries\cite{Attia2013}. Moreover, these frameworks often lacked post-processing and visual features, which antagonized the readability and comprehension of the results~\cite{Attia2013,Nguyen2014}.
 	
 Several plug-ins have been developed in an attempt to reduce the limitations associated to the coupling of simulation tools and mathematical optimization frameworks, thus providing a seamless connection between the parametric models produced in computational design tools, like \ac{CAD} and \ac{BIM} tools, the simulation or analytical models, and the optimization frameworks. Given the visual nature of architects, these plug-ins provide friendly, ready-to-use optimization interfaces, which are usually coupled with a few post-processing and visual features to enhance the intelligibility of optimization results. 
 	
@@ -334,7 +348,7 @@ Despite requiring no additional efforts to use Goat's optimization capabilities,
 
 % ----------------- [SILVEREYE] ------------------
 \subsection{Silvereye}
-Silvereye is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. 
+Silvereye \cite{Cichocka2017SILVEREYE} is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. 
 
 Silvereye interfaces a C\# implementation of a global single-objective \ac{PSO} algorithm.
 
@@ -386,7 +400,7 @@ One other disadvantage of this plug-in is the fact that the result of the optimi
 % ------------- [ Octopus ] -----------------
 \subsection{Octopus}
 
-Octopus is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. 
+Octopus \cite{OCTOPUS} is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. 
 
 Octopus exposes two global metaheuristics algorithms, that explore evolutionary principles to search for Pareto-optimal solutions: \ac{SPEA2} and \ac{HypE} algorithms. These algorithms have been reported to yield promising results on numerous \ac{MOO} test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}. 
 
@@ -426,14 +440,22 @@ One other important feature of Octopus is the ability to create logs with the in
 \subsection{Optimo}
 \label{subsec:Optimo}
 
-Implemented on top of Dynamo, Optimo is an evolutionary-based multi-objective optimization plugin that enables users to optimize both single and multi-objective problems. The current version of Optimo uses an \ac{NSGA-II} \cite{Deb2002} from the jMetal.NET library to seek for Pareto-Optimal solutions. 
+Optimo \cite{OPTIMO} is a generic plug-in, implemented on top of Dynamo, that allows non-programmers to address a wide variety of \ac{MOO} problems in the context of a \ac{BIM} tool. 
 
+Optimo interfaces the \ac{MOO} metaheuristics library, jMetal.NET and its current version merely supports the \ac{NSGA-II} algorithm\cite{Deb2002}.
 
-% USABILIDADE (ligações caixinhas, parametros)
-In order to help designers optimize multiple conflicting objectives and approach to a set of optimal solutions, Optimo includes four nodes in Dynamo: (1) Initial Solution List, which generates the initial set of random design configurations within a provided range and with the specified size of population; (2) Assign Fitness Function Results, which evaluates and assigns the objective values to each configuration; (3) Generation Algorithm, which takes the parent population and generates the children population; and (4) Sorting, which uses the Pareto Front sorting to sort the solutions. Comparing to the other plug-ins, Optimo presents more detailed and complex node structure, as it provides the user four different blocks to manipulated instead of enclosing them in a single abstraction.
+To use the solver, users must create the Dynamo script that encodes the problem definition, but also encode the optimization algorithm. To create the latter, Optimo provides four Dynamo nodes:
+\begin{itemize}
+	\item Initial Solution list, which generates the initial set of random design configurations within a provided range and with the specified size of population;
+	\item Assign Fitness Function Results, which evaluates and assigns the objective values to each configuration; 
+	\item Generation Algorithm, which takes the parent population and generates the children population;
+	\item Sorting, which uses the Pareto Front sorting to sort the solutions
+\end{itemize} 
+
+When compared to the previous plug-ins, Optimo demands larger initial investments for the production of the script. As a result, whereas less experienced users might find it more difficult to use, more experienced ones might adjust the algorithm to their needs, which directly results from the finer-grain control of Optimo. Moreover, instead of providing a default template, Optimo foster the constant arrangement of the algorithm's nodes everytime a new optimization process is to be applied, which can quickly become monotonous and tiresome. Moreover, Optimo does not have a explicit \ac{GUI} editor, instead being directly integrated in the Dynamo environment in the form of nodes.
 
 % Visual
-Regarding the post-processing features, Optimo creates a CSV file with the results of the optimization run. However, it provides no visual feedback about the evolution of the optimization run nor about the best evaluated solutions, thus lacking post-processing features and requiring the usage of external applications or frameworks.
+Regarding the visual mechanisms, it does not support feedback mechanisms during the optimization run, only presenting a small side-by-side view of the initial design variation and the optimal designs, thus allowing the user to visualize and compare the results of the optimization process. Finally, we were not able to conclude whether Optimo enabled the creation of log files or not. 
 
 % Comparison
 \subsection{Comparison}
@@ -448,7 +470,7 @@ Regarding the third aspect, there are no mechanism explicitly designed to enhanc
 
 Finally, regarding the user experience, all plug-ins are straightforward to use, except for Octopus and Optimo. Both plug-ins require the user to elaborate the program in order to be run, but they differ, however the former requires a single component to be added, whereas the latter requires the definition of the solver using the provided nodes.
 
-
+\todo{Tratar disto. Resize box está a escalar a fonte também}
 \begin{table}[]
 \centering
 \resizebox{\textwidth}{!}{%
@@ -469,7 +491,7 @@ Finally, regarding the user experience, all plug-ins are straightforward to use,
 	\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++ & ++ \\ \hline
 \end{tabular}%
 }
-\caption{A comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
+\caption[Comparison between the analysed optimization plug-ins]{A comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
 \label{table:pluginscompare}
 \end{table}
 % Falar de cada 
@@ -478,12 +500,39 @@ Finally, regarding the user experience, all plug-ins are straightforward to use,
 % #############################################################################
 \section{Problems to Address}
 
+Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 
-The tools analysis provides a clear idea of the important features for a better user experience optimization tools and also evidences drawbacks of each one. This thesis tackles some of these obstacles to improve the architectural practice.
+Several optimization tools integrated in the architectural design workflow have been proposed throughout the years (see \cref{sec:plugins}). In general, these tools are easy to learn and use, which also results from the fact that they make use of visual programming languages. However, the visual programming paradigm often leads to scalability and program's legibility issues, hence impacting the way users interact with these optimization tools. 
 
-All these tools explore visual programming languages, which are easy to learn and use, but often lead to scalability issues and poor legibility of programs. 
+On the other hand, the textual paradigm does not face from these scalability issues. Currently existing \ac{AD} tools (e.g., Khepri) do not support optimization, but already provide the primitive mechanisms to create automated optimization processes. Moreover, \ac{AD} tools usually offer portability of their programs, thus allowing architects to visualize and analyze their models in different 3D modeling and analysis tools, without the need to change the program.
+
+In contrast to the multi-objective view of most \ac{BPO} problems, where architects aim to optimize multiple aspects simultaneously, most of these tools focus on \ac{SOO}. The usage of these tools often requires the simplification of the corresponding \ac{MOO} problem either by relaxing the objectives or by assigning preferences to each objective (see \cref{subsec:preferencesarticulation}).
+
+All but one tool
+
+< Global optimization
+- Bom para encotnrar soluções aproximadas, mas não é bom quando se precisa de soluções exatas. Ferramentas deveriam ser versáteis e apresentar mais alternativas. 
+- Algoritmos locais são mais rápidos a encontrar soluções, quando já se tem informação à partida (e.g. starting point)
+
+< Unconstrained optimization
+- A maior parte destes plug-ins não considera, ou não manifesta apoio explicito a restrições. Os problemas tipicamente apenas podem apresentar restrições ao nível das variáveis. 
+
+< Metaheuristic Optimization
+- Algoritmos metaheuristic não tem garantias de convergÊncia e tipicamente requerem centenas ou milhares de avaliações para chegarem a bons resultados, o que é impraticável em simulation-based optimization problems, como é o caso de arquitetura. 
+- Isto é particularmente importante em contexto multi-objectivo onde o número de avaliações cresce exponencialmente com o número de objectivos.
+- É importante que, dada a diferente natureza dos problemas, uma ferramenta de otimização disponibilize diferentes algoritmos, de entre os quais o utilizador possa escolher aqueles que mais lhe afetam
+
+< Feedback visual
+- A maior parte dos plug-ins de otimização não providenciam bons mecanismos para visualização de resultados nem produzem ficheiros que possam ser processados de forma fácil por outros mecanismos externos de visualização, ou mesmo para permitir o traceback ou a compreensão de resultados (e.g., associar parametros aos valores de performance correspondente)
+
+< Interactividade
+- A maior parte das ferramentas não oferece a possibilidade de o utilizador interagir com a própria. 
+- Também seria importante o utilizador poder parar um processo de otimização e poder recuperá-lo mais tarde. Algo que não é possivel atualmente em nenhuma ferramenta.
 
 
+
+
+% #############################################################################
 \section{TROUBLEMAKERS}
 - GALAPAGOS
 % Available Algorithms

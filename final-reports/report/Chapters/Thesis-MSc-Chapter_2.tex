@@ -502,34 +502,39 @@ Finally, regarding the user experience, all plug-ins are straightforward to use,
 
 Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 
+% Scalablity, portability, code legibility
 Several optimization tools integrated in the architectural design workflow have been proposed throughout the years (see \cref{sec:plugins}). In general, these tools are easy to learn and use, which also results from the fact that they make use of visual programming languages. However, the visual programming paradigm often leads to scalability and program's legibility issues, hence impacting the way users interact with these optimization tools. 
 
 On the other hand, the textual paradigm does not face from these scalability issues. Currently existing \ac{AD} tools (e.g., Khepri) do not support optimization, but already provide the primitive mechanisms to create automated optimization processes. Moreover, \ac{AD} tools usually offer portability of their programs, thus allowing architects to visualize and analyze their models in different 3D modeling and analysis tools, without the need to change the program.
 
+% Single-Objective
 In contrast to the multi-objective view of most \ac{BPO} problems, where architects aim to optimize multiple aspects simultaneously, most of these tools focus on \ac{SOO}. The usage of these tools often requires the simplification of the corresponding \ac{MOO} problem either by relaxing the objectives or by assigning preferences to each objective (see \cref{subsec:preferencesarticulation}).
 
-All but one tool
+% Global optimization
+Most tools only provide global optimization support. While global optimization algorithms are good for obtaining close to optimal solutions, these often fail to provide more exact solutions. Particularly, not only are local optimization algorithms able to find more exact solutions but they also do so faster, especially if provided with useful initial information, such as the starting point.
 
-< Global optimization
-- Bom para encotnrar soluções aproximadas, mas não é bom quando se precisa de soluções exatas. Ferramentas deveriam ser versáteis e apresentar mais alternativas. 
-- Algoritmos locais são mais rápidos a encontrar soluções, quando já se tem informação à partida (e.g. starting point)
+% Unconstrained Optimization
+% Moreover, the analyzed plug-ins do not provide explicit support for hard constraints on the variables, other than the lower and upper bounds on the values of variables. While that suffices for some cases, it is not enough for many other cases in building design, where variables must relate to other according some specific relation (e.g., size of a window must be smaller than the size of the enclosing wall). 
 
-< Unconstrained optimization
-- A maior parte destes plug-ins não considera, ou não manifesta apoio explicito a restrições. Os problemas tipicamente apenas podem apresentar restrições ao nível das variáveis. 
+% Metaheuristic Optimization
+Also, in terms of the optimization algorithms, most tools adopt metaheuristics algorithms. While these algorithms are flexible and applicable to nearly almost domain, they lack convergence guarantees, often requiring hundreds or thousands of evaluations to reach good results. Especially for simulation-based problems with time-consuming evaluations, these numbers are a main obstacle for the application of optimization. The situation becomes even more complicated  in the \ac{MOO} context, as the number of evaluations raises exponentially with the number of objectives. This problem can be partially reduced by using model-based algorithms, where a secondary and faster model is used for evaluation.
 
-< Metaheuristic Optimization
-- Algoritmos metaheuristic não tem garantias de convergÊncia e tipicamente requerem centenas ou milhares de avaliações para chegarem a bons resultados, o que é impraticável em simulation-based optimization problems, como é o caso de arquitetura. 
-- Isto é particularmente importante em contexto multi-objectivo onde o número de avaliações cresce exponencialmente com o número de objectivos.
-- É importante que, dada a diferente natureza dos problemas, uma ferramenta de otimização disponibilize diferentes algoritmos, de entre os quais o utilizador possa escolher aqueles que mais lhe afetam
+% Visualization
+Regarding the visualization, most plug-ins do not provide enough visual information about the optimization state and the results themselves. Inclusively, most of them generate poorly formatted files with insufficient information, thus impeding to trace back the process and even hindering the comprehension of the results (e.g., associate the design parameters' configurations with the corresponding performance values). Even if users use external tools to produce visualization mechanisms based on the information exported from the optimization plug-ins, these are often only available in the end of the optimization run. As a result, the computer or the system crashes during the optimization run (e.g., energy failure), no log file will be produced and all the information collected by the plug-in will be lost. 
 
-< Feedback visual
-- A maior parte dos plug-ins de otimização não providenciam bons mecanismos para visualização de resultados nem produzem ficheiros que possam ser processados de forma fácil por outros mecanismos externos de visualização, ou mesmo para permitir o traceback ou a compreensão de resultados (e.g., associar parametros aos valores de performance correspondente)
+At last, most tools do not offer the possibility for interacting with them, nor do they provide means to pause and resume optimization runs. This is an inconvenience because it impedes users to add the knowledge they have learned, i.e., during the optimization run users would ideally extract information from good visualization mechanisms, that they could add to the process to make it more efficient.
 
-< Interactividade
-- A maior parte das ferramentas não oferece a possibilidade de o utilizador interagir com a própria. 
-- Também seria importante o utilizador poder parar um processo de otimização e poder recuperá-lo mais tarde. Algo que não é possivel atualmente em nenhuma ferramenta.
+Taking all the \textit{pros} and \textit{cons} of the analyzed tools into consideration, our solution enables the user to use a derivative-free optimization tool to address not only \ac{SOO} but also \ac{MOO} problems. The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
 
+Additionally, our solution is flexible enough to allow the user to select between a set of algorithms with different properties \cite{Wolpert1997NFLT}, including algorithms that handle time-consuming evaluations. By providing algorithms from different classes, our solution potentiates the efficiency of optimization processes. In order to help in the choice of the algorithms, our solution also adds support to easily run benchmarks with multiple algorithms, providing a quantitative measure of their performance. 
 
+Our solution also values the traceability of results especially for enhancing user comprehension. To improve existing mechanisms, our solution produces files involving all the necessary information about the configurations (e.g., algorithm parameters) and the solutions evaluated during the optimization process. Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
+
+At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
+
+Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
+
+In the next chapter, we describe the architecture of our solution and explain how each component achieves the features highlighted in this section.
 
 
 % #############################################################################

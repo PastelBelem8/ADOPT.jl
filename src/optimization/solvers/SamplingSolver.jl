@@ -20,25 +20,24 @@ collect_statistics(ss::Vector{Solution}) = begin end
 # -----------------------------------------------------------------------
 # Filtering Functions
 # -----------------------------------------------------------------------
-is_nondominated(ss::Vector{Solution}) = let
-    V = hcat(map(objectives, ss)...)
-    [ss[i] for i in length(ss)
+is_nondominated(solutions::Vector{Solution}) = let
+    V = hcat(map(objectives, solutions)...)
+    [solutions[i] for i in length(solutions)
                 if Pareto.is_nondominated(V[:, i], V[:,1:end .!=i])]
     end
-is_nondominated() = (ss) -> is_nondominated(ss)
+is_nondominated() = (solutions) -> is_nondominated(solutions)
 
-is_feasible(ss::Vector{Solution}) = filter(isfeasible, ss)
-is_feasible() = (ss) -> is_feasible(ss)
+is_feasible(solutions::Vector{Solution}) = filter(isfeasible, solutions)
+is_feasible() = (solutions) -> is_feasible(solutions)
 
-is_acceptable_penalty(ss::Vector{Solution}, threshold) =
-    filter(s -> s ≤ threshold, ss)
-is_acceptable_penalty(threshold) = (ss) -> is_acceptable_penalty(ss, threshold)
+is_acceptable_penalty(solutions::Vector{Solution}, threshold) =
+    filter(s -> s ≤ threshold, solutions)
+is_acceptable_penalty(threshold) = (solutions) -> is_acceptable_penalty(solutions, threshold)
 
 # Remove solutions that are too close
-is_too_close(ss::Vector{Solution}) = begin
+is_too_close(solutions::Vector{Solution}) = begin
     
 end
-    # TODO - Merge w/ the indicators branch, which has distance based functions
 
 export is_nondominated, is_feasible, is_acceptable_penalty, is_too_close
 
@@ -110,7 +109,7 @@ solve(solver::SamplingSolver, model::Model) =
         nobjs = nobjectives(model)
         ncnstrs = nconstraints(model)
         unsclrs = unscalers(model)
-        algorithm_params = algorithm_params(s)
+        algorithm_params = algorithm_params(solver)
         function evaluation_f(x)
             sol = evaluate(model, x);
             hcat(objectives(sol), constraints(sol)...)
@@ -118,7 +117,7 @@ solve(solver::SamplingSolver, model::Model) =
 
         @info "[$(now())] Creating samples..."
         X, y = create_samples(; nvars=nvars, evaluate=evaluate_f, unscalers=unsclrs,
-                                algorithm_params..., nsamples=max_evaluations(s))
+                                algorithm_params..., nsamples=max_evaluations(solver))
         y_objs, y_constrs = size(y, 1) == nobjs ? (y, Real[]) : (y[1:nobjs], y[nobjs:end])
 
         @info "[$(now())] Successfully loaded $(size(X, 2)) samples..."

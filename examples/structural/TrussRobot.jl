@@ -134,9 +134,46 @@ spiked_truss_style(α1, y1, α2, y2, α3, y3) = begin
   with(attractors, [sph(10, 0, α1)+vy(y1),
                     sph(10, 0, α2)+vy(y2),
                     sph(10, 0, α3)+vy(y3)]) do
-    maximum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
+    sum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
   end
 end
+
+
+backend(autocad)
+
+spiked_truss(α1, y1, α2, y2, α3, y3) =
+  with(attractors, [sph(10, 0, α1)+vy(y1),
+                    sph(10, 0, α2)+vy(y2),
+                    sph(10, 0, α3)+vy(y3)]) do
+    delete_all_shapes()
+    trelica_ondulada(xyz(0, 0, 0),10,9,1.0,10,0,-pi/2,pi/2,0,4*pi,pi/8,0.1)
+  end
+
+spiked_truss(1.714078537,
+    6.159993571,
+    -0.875714915,
+    12.56637061,
+    -1.688686029,
+    30 )
+
+
+using DelimitedFiles
+
+X = open("PF_nondominated_vars.csv", "r") do io
+      readdlm(io, ',', Float64, '\n')
+end
+
+ys = open("PF_nondominated_objs.csv", "r") do io
+      readdlm(io, ',', Float64, '\n')
+end
+
+produce_truss(i) = begin
+  println("Vars: $(X[:,i])")
+  spiked_truss(X[:, i]...)
+  println("Objs: Displacement: $(ys[1,i]), Sum distance: $(ys[2,i])")
+end
+
+produce_truss(6)
 #=
 println(spiked_truss_displacement(pi/4, 5, -pi/3, 20, pi/10, 25))
 println(spiked_truss_style(pi/4, 5, -pi/3, 20, pi/10, 25))
@@ -170,7 +207,6 @@ solver = PlatypusSolver(a_type, max_eval=5, algorithm_params=a_params)
 # Step 3. Solve it!
 sols = solve(solver, model)
 
-=#
 using Dates
 using Main.MscThesis
 using Main.MscThesis.Metamodels

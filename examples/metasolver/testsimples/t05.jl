@@ -27,7 +27,7 @@ model = LinearRegression(multi_output=true)
 # problem, and, therefore, called MetaModel.
 
 # Define a single variable with lower bound -10 and upper bound 10
-v1 = IntVariable(-10, 10)
+v1 = RealVariable(0, 10)
 vars = [v1]
 nvars = length(vars)
 
@@ -55,9 +55,7 @@ meta_problem = MetaModel(vars, [surrogate])
 # Define the parameters to be used in the initialization of the surrogate
 sampling_params = Dict{Symbol, Any}(
     :sampling_function => Sampling.randomMC,
-    :nsamples => 5,
-    :filename => "examples\\metasolver\\testsimples\\resources\\t$(test_id)-sample.csv"
-)
+    :nsamples => 5)
 
 # Specify the algorithm that will explore and find best surrogate solutions
 algorithm = SPEA2
@@ -67,7 +65,7 @@ algorithm_params = Dict(:population_size => 50)
 solver = PlatypusSolver(algorithm,
                         algorithm_params=algorithm_params,
                         nondominated_only = false,
-                        max_eval=500)
+                        max_eval=100)
 
 # Finally create the MetaSolver by specifying its exploitation solver, the number
 # of vars, the number of objectives, the number of maximum expensive evaluations
@@ -76,7 +74,8 @@ meta_solver = MetaSolver(solver,
                          nvars=nvars,
                          nobjs=nobjs,
                          max_eval=10,
-                         sampling_params=sampling_params)
+                         sampling_params=sampling_params,
+                         exploitation_rate=0.2)
 
 # Step 3. Solve it!
 sols = solve(meta_solver, meta_problem)

@@ -149,9 +149,9 @@ Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominan
         nondominated_objs = nondominated_objectives(pd);
 
         if length(vars) != nrows(nondominated_vars)
-            throw(DimensionMismatch("`vars` does not have the same dimension as `ndvars`"))
+            throw(DimensionMismatch("`vars` does not have the same dimension as `ndvars`: $(length(vars))!= $(nrows(nondominated_vars))"))
         elseif length(objs) != nrows(nondominated_objs)
-            throw(DimensionMismatch("`objs` does not have the same dimension as `ndobjs`"))
+            throw(DimensionMismatch("`objs` does not have the same dimension as `ndobjs`: $(length(objs))!= $(nrows(nondominated_objs))"))
         end
 
         if is_nondominated(objs, nondominated_objs)
@@ -174,8 +174,8 @@ Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominan
         end
     end
 
-Base.push!(pd::ParetoResult, V::AbstractMatrix) =
-     [Base.push!(pd, V[:, j]) for j in 1:size(V, 2)]
+Base.push!(pd::ParetoResult, V0::AbstractMatrix, V1::AbstractMatrix) =
+     [Base.push!(pd, V0[:, j], V1[:, j]) for j in 1:size(V1, 2)]
 
 Base.isempty(pd::ParetoResult) = all(map(isempty, (variables(pd), objectives(pd))))
 

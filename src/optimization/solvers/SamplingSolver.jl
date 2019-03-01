@@ -1,136 +1,103 @@
 # TODO
 # 2. Case: 2+ points, transform the 2 points
 # 3. Case: 2+ points + transform each point, filter
-
-# -----------------------------------------------------------------------
-#  Statistics Utils
-# -----------------------------------------------------------------------
-# TODO - Indicators
-# 1. COLLECT MEASURE OF DISTRIBUTION / Diversity
-# 2. Average Spacing
-# 3. Ratio OVNG
-# 4.
-collect_statistics(ss::Vector{Solution}) = begin end
-
-# -----------------------------------------------------------------------
-#  Clustering / Distribution Utils
-# -----------------------------------------------------------------------
-
+using .Sampling
 
 # -----------------------------------------------------------------------
 # Filtering Functions
 # -----------------------------------------------------------------------
-is_nondominated(solutions::Vector{Solution}) = let
-    V = hcat(map(objectives, solutions)...)
-    [solutions[i] for i in length(solutions)
-                if Pareto.is_nondominated(V[:, i], V[:,1:end .!=i])]
-    end
-is_nondominated() = (solutions) -> is_nondominated(solutions)
+hard_constraints(solutions::Vector{Solution}) = filter(isfeasible, solutions)
 
-is_feasible(solutions::Vector{Solution}) = filter(isfeasible, solutions)
-is_feasible() = (solutions) -> is_feasible(solutions)
-
-is_acceptable_penalty(solutions::Vector{Solution}, threshold) =
-    filter(s -> s ≤ threshold, solutions)
-is_acceptable_penalty(threshold) = (solutions) -> is_acceptable_penalty(solutions, threshold)
-
-# Remove solutions that are too close
-is_too_close(solutions::Vector{Solution}) = begin
-    
-end
-
-export is_nondominated, is_feasible, is_acceptable_penalty, is_too_close
-
+soft_constraints(solutions::Vector{Solution}, threshold) =
+    filter(s -> constraint_violation(s) ≤ threshold, solutions)
+soft_constraints(threshold) = (solutions) -> soft_constraints(solutions, threshold)
 
 # -----------------------------------------------------------------------
 # Solution Convert Routines
 # -----------------------------------------------------------------------
-convert(::Type{Solution}, x, y) = Solution( convert(typeof_variables(Solution), x),
+convert(::Type{Solution}, x, y) = Solution(convert(typeof_variables(Solution), x),
                                             convert(typeof_objectives(Solution), y))
-convert(::Type{Solution}, x, y, constraints) =
-    let variables = convert(typeof_variables(Solution), x)
-        objectives = convert(typeof_objectives(Solution), y)
+convert(::Type{Solution}, x, y, cs::Vector{Constraint}, cs_values) = let
+    variables = convert(typeof_variables(Solution), x)
+    objectives = convert(typeof_objectives(Solution), y)
 
-        # Constraints
-        constraints = convert(typeof_constraints(Solution), map(c -> evaluate(c, x...), constrs))
-        constraint_violation = convert(typeof_constraint_violation(Solution), evaluate_penalty(constrs, x...))
+    # Constraints
+    constraints = convert(typeof_constraints(Solution), cs_values)
+    constraint_violation = penalty(cs, cs_values)
 
-        # Booleans
-        feasible = constraint_violation != 0
-        evaluated = true
+    feasible = constraint_violation != 0
+    Solution(variables, objectives, constraints, constraint_violation, feasible, true)
+end
 
-        Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
-    end
-
-convert(::Type{Vector{Solution}}, X, y, constraints) =
-    if isempty(constraints)
+convert(::Type{Vector{Solution}}, X, y, cs, cs_values) =
+    isempty(cs) ?
         map(1:size(X, 2)) do sample
-            convert(Solution, X[:, sample], y[:, sample]) end
-    else
+            convert(Solution, X[:, sample], y[:, sample]) end :
         map(1:size(X, 2)) do sample
-            convert(Solution, X[:, sample], y[:, sample], constraints[:, sample]) end
-    end
+            convert(Solution, X[:, sample], y[:, sample], cs, cs_values[:, sample]) end
 
 # -----------------------------------------------------------------------
 # Sampling Solver
 # -----------------------------------------------------------------------
 struct SamplingSolver <: AbstractSolver
     algorithm_params::Dict{Symbol,Any}
+    feasible_filter::Function
 
     max_evaluations::Int
-    filtering_function::Function
-
     nondominated_only::Bool
 
-    SamplingSolver(;algorithm_params=Dict{Symbol, Any}(), max_evaluations=100,
-                    filtering_f=(_...)->true, nondominated_only=true) =
-        begin
-            check_arguments(algorithm, algorithm_params, max_evaluations)
-            new(algorithm, algorithm_params, max_evaluations, nondominated_only)
-        end
+    SamplingSolver(;algorithm_params, max_eval=100, constraint_type=:hard, threshold=0.01, nondominated_only=true) = begin
+        check_arguments(algorithm_params, max_eval, constraint_type, threshold)
+
+        feasible_filter = constraint_type == :hard ? hard_constraints : soft_constraints(threshold)
+        new(algorithm_params, feasible_filter, max_eval, nondominated_only)
+    end
 end
 
 # Arguments Validation
-check_arguments(::Type{SamplingSolver}, algorithm, algorithm_params, max_evaluations) =
-    if max_evaluations < 0
-        throw(DomainError("invalid value of $max_evaluations for parameter `max_evaluations` must be positive"))
+check_arguments(::Type{SamplingSolver}, algorithm_params, max_eval, constraint_type, threshold) =
+    if max_eval < 0
+        throw(DomainError("invalid value of $max_eval for parameter `max_eval` must be positive"))
+    elseif ! constraint_type in (:hard, :soft)
+        throw(DomainError("invalid value of $constraint_type for parameter `constraint_type` must be :hard or :soft"))
+    elseif constraint_type == :soft && threshold < 0
+        throw(DomainError("invalid value of $threshold for parameter `threshold` must be positive"))
     end
 
 # Selectors
 algorithm(s::SamplingSolver) = s.algorithm
 algorithm_params(s::SamplingSolver) = s.algorithm_params
-
 max_evaluations(s::SamplingSolver) = s.max_evaluations
-filtering_function(s::SamplingSolver, Xs) = s.filtering_function(Xs)
+
+"Returns the solutions in ss that are feasible"
+get_feasibles(solver::SamplingSolver, ss::Vector{Solution}) = solver.feasible_filter(ss)
+
+# Predicates
+nondominated_only(solver::SamplingSolver) =  solver.nondominated_only
+
 
 # Solver routines -------------------------------------------------------
 solve(solver::SamplingSolver, model::Model) =
     let nvars = nvariables(model)
         nobjs = nobjectives(model)
-        ncnstrs = nconstraints(model)
         unsclrs = unscalers(model)
-        algorithm_params = algorithm_params(solver)
+        a_params = algorithm_params(solver)
         function evaluation_f(x)
             sol = evaluate(model, x);
-            hcat(objectives(sol), constraints(sol)...)
+            vcat(objectives(sol), constraints(sol))
         end
 
         @info "[$(now())] Creating samples..."
-        X, y = create_samples(; nvars=nvars, evaluate=evaluate_f, unscalers=unsclrs,
-                                algorithm_params..., nsamples=max_evaluations(solver))
-        y_objs, y_constrs = size(y, 1) == nobjs ? (y, Real[]) : (y[1:nobjs], y[nobjs:end])
+        X, y = create_samples(; nvars=nvars, evaluate=evaluation_f, unscalers=unsclrs,
+                                a_params..., nsamples=max_evaluations(solver))
+        y_objs, y_constrs = size(y, 1) == nobjs ? (y, Real[]) : (y[1:nobjs,:], y[nobjs+1:end,:])
 
-        @info "[$(now())] Successfully loaded $(size(X, 2)) samples..."
-        solutions = convert(Vector{Solution}, X, y_objs, y_constrs)
+        @info "[$(now())] Successfully evaluated $(size(X, 2)) samples..."
+        solutions = convert(Vector{Solution}, X, y_objs, constraints(model), y_constrs)
 
-        @info "[$(now())] Collecting statistical measurements before filtering..."
-        solutions_stats = collect_statistics(solutions)
+        @info "[$(now())] Removing infeasible solutions..."
+        solutions = get_feasibles(solver, solutions)
 
-        @info "[$(now())] Filtering solutions..."
-        final_solutions = filtering_function(solver, solutions)
-
-        @info "[$(now())] Collecting statistical measurements to filtered solutions..."
-        final_solutions_stats = collect_statistics(solutions)
-
-        return final_solutions
+        nondominated_only(solver) ? Pareto.is_nondominated(solutions) : solutions
+        solutions
     end

@@ -163,6 +163,11 @@ end
 #                             Optimization
 # -------------------------------------------------------------------------
 #=
+using Dates
+using Main.MscThesis
+using Main.MscThesis.Metamodels
+using Main.MscThesis.Platypus
+using Main.MscThesis.Sampling
 # Angle, longitudinal position, ...
 vars = [RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π),
@@ -175,7 +180,7 @@ model = Model(vars, objs)
 
 # Step 2. Define the Solver
 a_params = Dict(:population_size => 5)
-solver = Main.MscThesis.PlatypusSolver(Platypus.NSGAII, max_eval=50, algorithm_params=a_params)
+solver = Main.MscThesis.PlatypusSolver(NSGAII, max_eval=50, algorithm_params=a_params)
 
 # Step 3. Solve it
 solve(solver, model)

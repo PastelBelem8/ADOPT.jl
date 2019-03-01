@@ -357,22 +357,39 @@ check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Functio
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
-"Evaluates the value of the constraint relative to 0"
-issatisfied(c::Constraint, args...)::Bool = operator(c)(apply(c, args...), 0)
-
 "Evaluates the value of constraint"
-evaluate(c::Constraint, args...) = issatisfied(c, args...) ? 0 : apply(c, args...)
+evaluate(c::Constraint, args...) = operator(c)(apply(c, args...), 0) ? 0 : apply(c, args...)
 
-"Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
-evaluate_penalty(c::Constraint, args...)::Real =
-    begin
-        if Symbol(operator(c)) == :(!=)
+"Evaluates the value of the constraint relative to 0"
+issatisfied(c::Constraint, c_value) = operator(c)(c_value, 0)
+
+# "Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
+# evaluate_penalty(c::Constraint, args...)::Real =
+#     begin
+#         if Symbol(operator(c)) == :(!=)
+#             throw(MethodError("penalty constraint for symbol $(operator(c)) is not defined"))
+#         end
+#         issatisfied(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
+#     end
+# evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
+#     sum([evaluate_penalty(c, args...) for c in Cs])
+
+penalty(cs::Vector{Constraint}, cs_values) = let
+    unsatisfied = map((c, cval) -> !issatisfied(c, cval), cs, cs_values)
+    cs_unsatisfied = cs[unsatisfied]
+
+    if isempty(cs_unsatisfied) 0 else
+        # TODO - There is no default behavior to classify the penalty for != constraints
+        if :(!=) in map(operator, cs_unsatisfied)
             throw(MethodError("penalty constraint for symbol $(operator(c)) is not defined"))
         end
-        issatisfied(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
+
+        cs_unsatisfied_coeffs = map(coefficient, cs_unsatisfied)
+        cs_unsatisfied_values = map(abs, cs_values[unsatisfied])
+
+        sum(cs_unsatisfied_coeffs .* cs_unsatisfied_values)
     end
-evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
-    sum([evaluate_penalty(c) for c in Cs])
+end
 
 export Constraint
 # ---------------------------------------------------------------------
@@ -513,7 +530,6 @@ nobjectives(m::Model) =
         end
     end
 
-
 aggregate_function(model::Model, transformation=flatten) =
     nconstraints(model) > 0  ? ((x...) -> transformation([apply(o, x...) for o in objectives(model)]),
                                           transformation([apply(c, x...) for c in constraints(model)])) :
@@ -543,28 +559,26 @@ check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vecto
 evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
 evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
 evaluate(model::Model, vars::Vector, transformation=flatten) =
-    let
-        if nvariables(model) != length(vars)
-            throw(DimensionMismatch("the number of variables in the model
-            $(nvariables(model)) does not correspond to the number of variables
-            $(length(vars))"))
-        end
+    nvariables(model) != length(vars) ?
+        throw(DimensionMismatch("the number of variables in the model $(nvariables(model)) does not correspond to the number of variables $(length(vars))")) :
+        let  st = time();
+            objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
+            # Write to File
+            output = vcat(time()-st, vcat(vars,  objs))
+            csv_write(output)
 
-        st = time();
-        s_objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
-        # Write to File
-        output = vcat(time()-st, vcat(vars,  s_objs))
-        csv_write(output)
+            if nconstraints(model) > 0
+                cnstrs = constraints(model)
+                cnstrs_values = [evaluate(c, vars) for c in cnstrs]
 
-        if nconstraints(model) > 0
-            s_constrs = [evaluate(c, vars) for c in constraints(model)]
-            s_penalty = evaluate_penalty(constrs, vars)
-            s_feasible = s_penalty != 0
-            Solution(vars, s_objs, s_constrs, s_penalty, s_feasible)
-        else
-            Solution(vars, s_objs)
+                # Compute penalty
+                cnstrs_penalty = penalty(cnstrs, cnstrs_values)
+                feasible = cnstrs_penalty != 0
+                Solution(vars, objs, cnstrs_values, cnstrs_penalty, feasible, true)
+            else
+                Solution(vars, objs)
+            end
         end
-    end
 
 export AbstractModel, Model, unscalers
 

@@ -29,132 +29,6 @@ convert(::Type{Vector{Solution}}, X, y, constraints) =
         convert(Solution, X[:, sample], y[:, sample], constraints)
     end
 
-# ------------------------------------------------------------------------
-# Creation Routines
-# ------------------------------------------------------------------------
-"""
-There are two main creation approaches: (1) Sampling-based and (2) File-based.
-The first one consists on using a sampling method to create multiple
-configurations for the parameters and then evaluate each sample using an
-`evaluator`. Note that it is also possible to read the samples from a file,
-instead of invoking a sampling method.
-
-The second approach consists in loading the whole information from a file, i.e.,
-it is not necessary to generate new samples, nor to evaluate them because that
-information is already provided out-of-the-box in the specified file.
-
-# Examples
-julia>
-
-"""
-generate_samples(;  nvars, nsamples, sampling_function, evaluate, unscalers=[],
-                    clip::Bool=false, transform=identity, _...) = let
-        unscale(V) = for (index, unscaler) in enumerate(unscalers);
-                        V[index,:] = unscaler(V[index,:]); nothing
-                    end
-        clip_it(val, limit) = clip ? min(val, limit) : val
-
-        X = sampling_function(nvars, nsamples); unscale(X);
-        X = X[:, 1:clip_it(size(X, 2), nsamples)]
-        X = transform(X)
-        y = mapslices(evaluate, X, dims=1)
-        X, y
-    end
-
-store_samples(;filename, header=nothing, dlm=',', gensamples_kwargs...) =
-    let (X, y) = generate_samples(;gensamples_kwargs...)
-        open(filename, "w") do io
-            if header != nothing
-                join(io, header, dlm)
-                write(io, '\n')
-            end
-            writedlm(io, vcat(X, y)', dlm)
-        end
-        X, y
-    end
-
-load_samples(;nsamples=(:), vars_cols, objs_cols, filename, has_header::Bool=true, dlm=',', _...) =
-    let data = open(filename, "r") do io
-                    has_header ? readline(io) : nothing;
-                    readdlm(io, dlm, Float64, '\n')
-                end
-        X, y = data[nsamples, vars_cols], data[nsamples, objs_cols]
-        X', y'
-    end
-
-"""
-    create_samples(; kwargs...)
-
-Dispatches the sampling routines according to the provided arguments.
-There are three main sampling routines:
-- [`load_samples`](@ref): given a `filename`, loads the samples from the file.
-It is necessary to know which columns refer to the variables and which columns
-refer to the objectives, and therefore it requires the `vars_cols` and `objs_cols`
-to be specified. If the argument `nsamples` is supplied, then it will return
-the first `nsamples` that were loaded from the file `filename`, otherwise it
-will return all the samples.
-
-- [`generate_samples`](@ref): given a `sampling_function`, the number of
-dimensions `nvars`, and the number of samples `nsamples`, applies the sampling
-function to the `nvars` and `nsamples` parameters and obtains a set of samples.
-Since not all sampling routines depend on both parameters, if `clipped` is
-specified, the number of samples will be clipped, i.e., it will return at most
-the specified nsamples. If `clipped` is not specified, then the result of
-applying the sampling function will be returned. If `unscalers` are specified
-they will unscale the result of the sampling routines. The unscalers should be
-an array of unscaling functions receiving a new value, the current minimum and
-the current maximum per dimension. It is assumed that the unscaling functions
-already possess the knowledge of the variables bounds within the function as
-free variables.
-
-- [`store_samples`](@ref): given a `sampling_function` and a `filename` it
-first generate samples using the [`generate_samples`](@ref) method and then
-stores it in the specified `filename`.
-
-# Arguments
-- `nvars::Int`: the number of variables, i.e., dimensions of the samples.
-- `nsamples::Int`: the number of samples to be created.
-- `sampling::Function`: the sampling function to be used. It must be a function
-    receiving two parameters: the number of variables and the number of samples
-- `evaluate::Function`: the function that will receive a sample and produce the
-    corresponding objective value.
-- `unscalers::Vector{Function}=[]`: an array with the unscalers for each variable.
-The provided sampling algorithms are unitary, producing samples with ranges in
-    the interval [0, 1]. Each unscaler function must receive a value to be unscaled,
-    as well as the old minimum and the old maximum. Defaults to empty vector, in
-    which case no unscalers will be applied.
-- `clip::Bool=false`: variable indicating if we strictly want the specified `nsamples`.
-This is necessary as there are many sampling algorithms for which the number of
-    samples is exponential in the number of dimensions (`nvars`).
-- `transform::Function=identity`: function that allows to apply a transformation to the
-    samples that are produced by the sampling algorithm. It receives as argument
-    the matrix with the unscaled samples produced by the sampling function.
-- `filename::String`: the filename to read samples from or to store samples to.
-    Mandatory when reading samples from file.
-- `header::Vector{String}=nothing`: the header to insert in the file when storing the
-    samples. If not specified, the file will not have header.
-- `has_header::Bool=false`: indicator of whether there exists an header in the file
-    from which the samples will be read. Defaults to false.
-- `dlm::Char=','`: the delimiter of the sample values in the file.
-- `vars_cols::Vector{Int}`: the columns corresponding to the variables that will
-    be loaded from the file.
-- `objs_cols::Vector{Int}`: the columns corresponding to the objectives that
-    will be loaded from the file.
-
-"""
-create_samples(;kwargs...) =
-    if !haskey(kwargs, :sampling_function)
-        haskey(kwargs, :filename) ?
-            load_samples(;kwargs...) :
-            throw(ArgumentError("invalid sampling methods"))
-    else
-        λ = kwargs[:sampling_function]
-        λ = Sampling.exists(λ) ? Sampling.get_existing(λ; kwargs...) : λ
-        haskey(kwargs, :filename) ?
-            store_samples(; sampling_function=λ, kwargs...) :
-            generate_samples(; sampling_function=λ, kwargs...)
-    end
-
 # ---------------------------------------------------------------------
 # Surrogate
 # ---------------------------------------------------------------------
@@ -292,7 +166,7 @@ check_arguments(::Type{Surrogate}, meta_model, objs, var_ixs, creation_f, creati
 @inline objectives_indices(s::Surrogate) = s.objectives_indices
 @inline variables_indices(s::Surrogate) = s.variables_indices
 
-@inline creation_function(s::Surrogate, X, y) = 
+@inline creation_function(s::Surrogate, X, y) =
     s.creation(surrogate(s), variables(s, X), objectives(s, y))
 @inline correction_function(s::Surrogate, X, y) =
     s.correction(surrogate(s), variables(s, X), objectives(s, y))

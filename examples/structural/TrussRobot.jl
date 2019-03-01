@@ -139,8 +139,6 @@ spiked_truss_style(α1, y1, α2, y2, α3, y3) = begin
 end
 
 
-backend(autocad)
-
 spiked_truss(α1, y1, α2, y2, α3, y3) =
   with(attractors, [sph(10, 0, α1)+vy(y1),
                     sph(10, 0, α2)+vy(y2),

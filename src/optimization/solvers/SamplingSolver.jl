@@ -99,5 +99,4 @@ solve(solver::SamplingSolver, model::Model) =
         solutions = get_feasibles(solver, solutions)
 
         nondominated_only(solver) ? Pareto.is_nondominated(solutions) : solutions
-        solutions
     end

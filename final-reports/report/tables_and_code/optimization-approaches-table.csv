@@ -1,0 +1,14 @@
+;Single-objective optimization;Design of experiments;A priori preference articulation;Pareto-based optimization
+Fundamentals;Maximization / Minimization;Sampling Methods;Definition of preferences;Pareto Dominance
+Human intervention;None;Constant;A priori definition of preferences;A posteriori definition of preferences (to select optimal solution)
+Optimal solutions;Largest (maximization) / Smallest (minimization);Any;Maximize utility;Pareto
+Quality solutions;Single;Unknown;Single;Multiple
+Information provided;Best solution;Every solution;Best solution;Optimal solutions
+Optimization time;++;+;+++;+++++
+Configurable ;Nothing;All;Preferences;Nothing
+Ease of use;+++;+++;++;+
+Ease of comprehension;Difficult;Easy;Difficult;Accessible
+Support in architecture;++;+++;++;+
+Main advantages;Time complexity;Control level;Search guided towards a single objective;Obtain different trade-offs
+Main Disadvantages;Few information;Constant manual intervention;Few information;Time complexity
+;;Quality of solutions is not guaranteed;;Representation of results

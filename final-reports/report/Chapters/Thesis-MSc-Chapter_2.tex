@@ -80,7 +80,39 @@
 \subsection{Comparison}
 \label{ssec:comparison}
 
-This section considers the applicability of different classes of derivative-free optimization algorithms for architectural design. The multidisciplinary aspect of building design raises distinct problems, ranging from well-behaved problems with simple, unimodal, convex functions to more ill-behaved problems with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. In addition to problem's diversity, the time complexity associated to function evaluations also becomes an important factor to consider, when pondering each category's impact on \ac{BPO} problems.
+This section compares the different classes of derivative-free optimization algorithms mentioned in this chapter. \Cref{table:compare-dfo-algos} presents a summarized view of main properties of these classes and, in the following paragraphs we compare them regarding their applicability in architecture. 
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \usepackage{graphicx}
+\begin{table}[]
+	\centering
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{r|c|c|c|}
+			\cline{2-4}
+			& Direct search & Metaheuristic & Model-based \\ \hline
+			\multicolumn{1}{|r|}{Main Mechanism / Strategy} & \begin{tabular}[c]{@{}c@{}}Sequential evaluation of \\ candidate designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Combine and randomly modify \\ previous known best designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Optimize a secondary model, \\ instead of the expensive one\end{tabular} \\ \hline
+			\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline
+			\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline
+			\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline
+			\multicolumn{1}{|r|}{Number of solutions} & 1 & More than 1 & 1 \\ \hline
+			\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline
+			\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline
+			\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline
+			\multicolumn{1}{|r|}{Support in architecture} & + & +++ & + \\ \hline
+			\multicolumn{1}{|r|}{\multirow{2}{*}{Main advantages}} & Deterministic & Applicable to any domain & Time complexity decrease \\
+			\multicolumn{1}{|r|}{} & Convergence rate & Flexible & Convergence rate \\ \hline
+			\multicolumn{1}{|r|}{\multirow{2}{*}{Main disadvantages}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} & Low convergence rate & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} \\
+			\multicolumn{1}{|r|}{} &  & No convergence guarantees &  \\ \hline
+		\end{tabular}%
+	}
+	\caption{Comparison between the derivative-free algorithms' classes.}
+	\label{table:compare-dfo-algos}
+\end{table}
+
+
+The multidisciplinary aspect of building design raises distinct problems, ranging from well-behaved problems with simple, unimodal, convex functions to more ill-behaved problems with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. In addition to problem's diversity, the time complexity associated to function evaluations also becomes an important factor to consider, when pondering each category's impact on \ac{BPO} problems.
 
 The problems' plethora within performance-based design is vast: a specific optimization algorithm may perform well for some problems and have a terrible performance in other problems~\cite{Wortmann2017GABESTCHOICE, Fang2017}. This idea resembles the ones captured in Wolpert's \acp{NFLT} for optimization, which state that any algorithm's worse performance over some classes of problems offsets its better performance in other classes. Because of the distinct nature of architectural design problems, the arguments applied in architecture are not necessarily applicable to the other fields, like science and engineering. 
 	
@@ -175,6 +207,31 @@ Notwithstanding the considerations above, a few studies concerning Pareto-based 
 approaches based on the \textit{a priori} definition of preferences are less time-consuming, they are not as desirable as Pareto-based approaches, as they return a single solution instead of multiple alternative solutions~\cite{Attia2013,Hamdy2016,Cichocka2017SURVEY}. In fact, Pareto-based approaches support the decision making process, providing a clear trade-off between the different objectives involved. Moreover, these multiple compromises represent different articulation of preferences from which the architect selects one. This approach is also called \textit{a posteriori} articulation of preferences.
 
 Despite the growing trend of Pareto optimization approaches~\cite{Evins2013, Hamdy2016}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident. 
+
+\todo{WHERE TO PUT THE REFERENCE TO THIS TABLE?}
+\begin{table}[]
+	\centering
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{r|c|c|c|c|}
+			\multicolumn{1}{l|}{} & Single-objective optimization & Design of experiments & A priori preference articulation & Pareto-based optimization \\ \hline
+			Fundamentals & Maximization / minimization & Sampling algorithms & Definition of preferences & Pareto dominance \\
+			Human intervention & None & Constant & A priori definition of preferences & \begin{tabular}[c]{@{}c@{}}A posteriori definition of preferences \\ (to select optimal solution)\end{tabular} \\
+			Optimal solutions & \begin{tabular}[c]{@{}c@{}}Largest (maximization) / \\ Smallest (minimization)\end{tabular} & Any & Maximize utility & Pareto \\
+			Quality solutions & Single & Unknown & Single & Multiple \\
+			Information provided & Best solution & Every solution & Best solution & Optimal solutions \\
+			Optimization time & ++ & + & +++ & +++++ \\
+			Configurable & Nothing & All & Preferences & Nothing \\
+			Ease of use & +++ & +++ & ++ & + \\
+			Ease of comprehension & Difficult & Easy & Difficult & Accessible \\
+			Support in architecture & ++ & +++ & ++ & + \\
+			\begin{tabular}[c]{@{}r@{}}Main\\   advantages\end{tabular} & Time complexity & Control level & \begin{tabular}[c]{@{}c@{}}Search guided towards a single\\   objective\end{tabular} & Obtain different trade-offs \\
+			\multicolumn{1}{l|}{\multirow{2}{*}{Main Disadvantages}} & \multirow{2}{*}{Few information} & Constant manual intervention & \multirow{2}{*}{Few information} & Time complexity \\
+			\multicolumn{1}{l|}{} &  & Quality of solutions is not guaranteed &  & Representation of results
+		\end{tabular}%
+	}
+	\caption{Comparison between different optimization approaches}
+	\label{table:optimization-approaches}
+\end{table}
 
 % #############################################################################
 \section{Performance Indicators}

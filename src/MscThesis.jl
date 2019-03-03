@@ -26,6 +26,7 @@ using Statistics
 # -------------
 
 # Utils
+include("./Parameters.jl")
 include("./Utils.jl")
 
 # Internals
@@ -46,7 +47,6 @@ Pareto.ParetoResult(solutions::Vector{Solution}) =
         end
         pd
     end
-
 Pareto.is_nondominated(solutions::Vector{Solution}) =
     isempty(solutions) ? true :
     let V = hcat(map(objectives, solutions)...)
@@ -62,7 +62,6 @@ include("./optimization/Sampling.jl")
 include("./optimization/solvers/SamplingSolver.jl")
 export PlatypusSolver, SamplingSolver
 
-# include("./optimization/solvers/Metamodels.jl")
 include("./optimization/solvers/ScikitLearnModels.jl")
 include("./optimization/solvers/MetaSolver.jl")
 

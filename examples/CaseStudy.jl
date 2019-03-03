@@ -77,24 +77,32 @@ kursawe_sols = solve(solver, kursawe)
 # -------------------------------------------------------------------------
 # Meta Solver
 # -------------------------------------------------------------------------
-
+#=
+using Main.MscThesis.Platypus
 using Main.MscThesis.Sampling
 using Main.MscThesis.ScikitLearnModels: sk_fit!, sk_predict, LinearRegression
 
-surrogate = Surrogate(  LinearRegression(),
+sklearn_model = DecisionTreeRegressor() # LinearRegression
+surrogate = Surrogate(  sklearn_model,
                         objectives=schaffer1_objs,
                         creation_f=sk_fit!,
                         update_f=sk_fit!,
                         evaluation_f=sk_predict)
 meta_params = Dict(:sampling_function => randomMC, :nsamples => 30)
-optimiser = SamplingSolver(;algorithm_params=Dict(:sampling_function => latinHypercube), max_eval=200, nondominated_only=false)
-solver = Main.MscThesis.MetaSolver(optimiser; surrogates=[surrogate], max_eval=200,
+
+# Sampling Solver
+optimiser1 = SamplingSolver(;algorithm_params=Dict(:sampling_function => latinHypercube), max_eval=200, nondominated_only=false)
+
+# Platypus Solver
+optimiser2 = Main.MscThesis.PlatypusSolver(NSGAII, max_eval=500, algorithm_params=Dict(:population_size => 50), nondominated_only=true)
+
+solver = Main.MscThesis.MetaSolver(optimiser2; surrogates=[surrogate], max_eval=200,
                 sampling_params=meta_params, nondominated_only=true)
 
-# schaffer1_sols = solve(solver, schaffer1)
+schaffer1_sols = solve(solver, schaffer1)
 binhkorn_sols = solve(solver, binhkorn)
 kursawe_sols = solve(solver, kursawe)
-
+=#
 # -------------------------------------------------------------------------
 # Visualization
 # -------------------------------------------------------------------------

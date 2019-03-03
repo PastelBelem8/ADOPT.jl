@@ -1,4 +1,3 @@
-# module utils
 # Matrix  -------------------------------------------------------------------
 export nrows,
        ncols
@@ -109,61 +108,21 @@ unscale(values::AbstractArray, nmins::AbstractVector, nmaxs::AbstractVector,
     end
 
 # --------------------------------------------------------------------------
-# File
-# --------------------------------------------------------------------------
-export  create_temporary_file,
-        with_output_file
-
-function with_output_file(filename::String, do_f::Function)
-    @info "[$(now())] Opening file $filename in writing mode..."
-    open(filename, "a") do f
-        do_f(f)
-    end
-    @info "[$(now())] Closing file $filename..."
-end
-
-create_temporary_file(dir::String, ext::String) =
-    joinpath(dir, "$(Dates.format(Dates.now(), "yyyymmddHHMMSS"))") * ext
-
-# CSV utils
-csv_sep = ','
-"Changes the language of the CSV files to be written"
-function csv_language(lang) end
-csv_language(lang::Symbol=:EN) = begin
-        global csv_sep = lang == :PT ? ";" : ","
-        @debug "[$(now())] Changed CSV language to $lang"
-    end
-csv_language(lang::String="EN") = Symbol(lang) |> csv_language
-
-global csv_filename = "results.csv"
-csv_file(filename)  = global csv_filename = filename
-
-"Writes a set of `values` in a CSV format in file `filename`"
-function csv_write(values, mode="a", el="\n")
-    @debug "[$(now())] Writing to file $csv_filename the values:\n$(values)"
-    open(csv_filename, mode) do f
-        join(f, values, csv_sep)
-        write(f, el)
-    end
-end
-
-function csv_read(filename::String)
-    @debug "[$(now())] Reading file $filename"
-    content = ""
-    open(filename, "r") do f
-        content = read(f, String)
-    end
-
-    rows = split(rstrip(content), "\n")
-    # Return cells
-    map(row-> split(row, csv_sep), rows)
-end
-
-# --------------------------------------------------------------------------
 # Command Line
 # --------------------------------------------------------------------------
 export  makeWSLcompatible,
         runWSL
+
+# Folders
+DEPENDENCY_DIR = "deps"
+TEMP_DIR = tempdir()
+# Indicators
+# -----------------
+QHV_TEMP_DIR = mktempdir(TEMP_DIR)
+QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
+QHV_MAX_DIM = 15
+
+export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 
 function runWSL(executable, args...)
     # @info "Running WSL command. Using file $(args)."
@@ -176,4 +135,17 @@ makeWSLcompatible(filepath) =
     replace(filepath, "\\" => "/") |> x -> replace(x, r"(\w+)?:" => lowercase) |> x ->
     replace(x, r"(\w+)?:" => s"/mnt/\1")
 
-# end # Module
+
+# Profiling
+macro profile(iter, f)
+    quote
+        times = Float64[]
+        results = map($(esc(iter))) do e
+            start_t = time()
+            e_val = $(esc(f))(e)
+            push!(times, time()-start_t)
+            e_val
+        end
+        results, times
+    end
+end

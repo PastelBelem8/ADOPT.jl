@@ -1,119 +1,78 @@
 # Using
 using .Platypus
 
-# Imports
 import Base: convert
+#= ----------------------------------------------------------------------- #
+  PlatypusSolver - Converter routines
+  Routines that interface the Platypus solver and the Platypus Library (Python)
+# ----------------------------------------------------------------------- =#
+platypus_fitness(objs, cnstrs) =
+    (vars...) -> let  sol = evaluate(vars..., objs, cnstrs)
+                      os, cs = objectives(sol), constraints(sol)
+                      isempty(cs) ? os : (os, cs)
 
-# Converter routines ----------------------------------------------------
-# These routines provide the interface between the solver and the
-# Platypus Python library.
-# -----------------------------------------------------------------------
-function platypus_function_with_profiling(objectives, constraints)::Function
+                  end
 
-  aggregate_function(x...) = let
-    profiling_times = Vector{Real}()
-    profiling_results = Vector{Real}()
+"Converts the Model into a Platypus Problem"
+convert(::Type{Platypus.Problem}, m::Model) = let
+    # 1. Create Base Problem
+    nvars, nobjs, nconstrs = nvariables(m), nobjectives(m), nconstraints(m)
+    problem = Platypus.Problem(nvars, nobjs, nconstrs)
 
-    function profile(f, args...)
-      st = time();
-      res = f(args...)
-      # @info "[$(now())] Objective function result $(args...):\n[$res]"
-      push!(profiling_results, res...)
-      push!(profiling_times, time() - st)
-      res
+    # 2. Refine the Problem instance
+    # 2.1. Convert types
+    Platypus.set_types!(problem, map(v -> convert(Platypus.PlatypusWrapper, v), variables(m)))
+
+    # 2.2. Convert Constraints
+    constrs = []
+    if nconstrs > 0
+        constrs = constraints(m)
+        Platypus.set_constraints!(problem, map((c) -> convert(Platypus.Constraint, c), constrs))
     end
-    @debug "[$(now())] Running aggregate objective function for parameters: $(x...)"
-    prepend!(profiling_results, x...) # Decision variables
-    start_time = time()
 
-    results = flatten([profile((x...) -> apply(o, x...), x...) for o in objectives])
+    # 2.3. Convert Objective Function
+    objs = objectives(m)
+    Platypus.set_directions!(problem, flatten(directions(objs)))
+    Platypus.set_function!(problem, platypus_fitness(objs, constrs))
 
-    if length(constraints) > 0
-      results = results, [profile(func(c), x...) for c in constraints]
+    problem
     end
-    prepend!(profiling_times, time() - start_time)
 
-    # Write to File
-    output = vcat(profiling_times, profiling_results)
-    csv_write(output)
-    # Results
-    results
-  end
-
-  return (x...) -> aggregate_function(x...)
-end
-# ------------------------------------------------------------------------
-# Problem Converter Routines
-# ------------------------------------------------------------------------
-function convert(::Type{Platypus.Problem}, m::Model)
-  # 1. Create Base Problem
-  nvars, nobjs, nconstrs = nvariables(m), nobjectives(m), nconstraints(m)
-  problem = Platypus.Problem(nvars, nobjs, nconstrs)
-
-  # 2. Refine the Problem instance
-  # 2.1. Convert types
-  # TODO - fix PLATYPUS_WRAPPER TO be something more specific - e.g. PlatypusType
-  Platypus.set_types!(problem, [convert(Platypus.PlatypusWrapper, v)
-                                        for v in variables(m)])
-
-  # 2.2. Convert Constraints
-  constrs = []
-  if nconstrs > 0
-    constrs = constraints(m)
-    Platypus.set_constraints!(problem, [convert(Platypus.Constraint, c)
-                                                      for c in constrs])
-  end
-
-  # 2.3. Convert Objective Function
-  objs = objectives(m)
-  Platypus.set_directions!(problem, flatten(directions(objs)))
-
-  Platypus.set_function!(problem, platypus_function_with_profiling(objs, constrs))
-  problem
-end
+"Converts a Constraint into a Platypus.Constraint"
 convert(::Type{Platypus.Constraint}, c::Constraint) = "$(operator(c))0"
 
-# ------------------------------------------------------------------------
-# Variable Converter Routines
-# ------------------------------------------------------------------------
+"Converts integer variables into Platypus.Integer"
 convert(::Type{Platypus.PlatypusWrapper}, variable::IntVariable) =
     Platypus.Integer(lower_bound(variable), upper_bound(variable))
 
+"Converts real variables into Platypus.Real"
 convert(::Type{Platypus.PlatypusWrapper}, variable::RealVariable) =
     Platypus.Real(lower_bound(variable), upper_bound(variable))
 
-# ------------------------------------------------------------------------
-# Solution Converter Routines
-# ------------------------------------------------------------------------
-function convert(::Type{Solution}, s::Platypus.Solution)
-  variables = convert(typeof_variables(Solution), Platypus.get_variables(s))
-  objectives = convert(typeof_objectives(Solution), Platypus.get_objectives(s))
-  constraints = convert(typeof_constraints(Solution), Platypus.get_constraints(s))
-  constraint_violation = convert(typeof_constraint_violation(Solution), Platypus.get_constraint_violation(s))
-  feasible = convert(typeof_feasible(Solution), Platypus.get_feasible(s))
-  evaluated = convert(typeof_evaluated(Solution),Platypus.get_evaluated(s))
+"Converts the solutions returned by Platypus into our solutions"
+convert(::Type{Solution}, s::Platypus.Solution) = let
+    variables = convert(typeof_variables(Solution), Platypus.get_variables(s))
+    objectives = convert(typeof_objectives(Solution), Platypus.get_objectives(s))
+    constraints = convert(typeof_constraints(Solution), Platypus.get_constraints(s))
+    constraint_violation = convert(typeof_constraint_violation(Solution), Platypus.get_constraint_violation(s))
+    feasible = convert(typeof_feasible(Solution), Platypus.get_feasible(s))
+    evaluated = convert(typeof_evaluated(Solution),Platypus.get_evaluated(s))
 
-  Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
-end
-convert(::Type{Vector{Solution}}, ss::Vector{Platypus.Solution}) =
-    [convert(Solution, s) for s in ss]
+    Solution(variables, objectives, constraints, constraint_violation, feasible, evaluated)
+    end
 
-# ------------------------------------------------------------------------
-# Generators Converter Routines
-# ------------------------------------------------------------------------
+convert(::Type{Vector{Solution}}, solutions::Vector{Platypus.Solution}) =
+    map(s -> convert(Solution, s), solutions)
+
+# Generators
 convert(::Type{Platypus.RandomGenerator}, ::Dict{Symbol, T}) where{T} =
     Platypus.RandomGenerator()
 
-# ------------------------------------------------------------------------
-# Selectors Converter Routines
-# ------------------------------------------------------------------------
-# FIXME - There is no support to other dominance objects
+# Selectors FIXME - There is no support to other dominance objects
 convert(::Type{Platypus.TournamentSelector}, params::Dict{Symbol, T}) where{T} =
   Platypus.TournamentSelector(;params...)
 
-# ------------------------------------------------------------------------
-# Variators Converter Routines
-# ------------------------------------------------------------------------
+# Variators
 function convert(::Type{Platypus.SimpleVariator}, params::Dict{Symbol, T}) where{T}
   variator, variator_args = params[:name], filter(p -> first(p) != :name, params)
   mandatory_params_satisfied(variator, variator_args)
@@ -158,9 +117,10 @@ function convert_params(params::Dict{Symbol, T}) where{T}
   params
 end
 
-# ------------------------------------------------------------------------
-# Solver Routines
-# ------------------------------------------------------------------------
+#= ----------------------------------------------------------------------- #
+  PlatypusSolver
+  Main solver, encloses all logic
+# ----------------------------------------------------------------------- =#
 """
     PlatypusSolver
 
@@ -218,13 +178,13 @@ Base.showerror(io::IO, e::PlatypusSolverException) =
 
 # Argument Verification --------------------------------------------------
 "Verifies if the mandatory parameters of a certain `func` are all present in `params`"
-function mandatory_params_satisfied(func::Type, params; param_exceptions=[nothing])
-  func_params = filter(x -> !(x in param_exceptions), Platypus.mandatory_params(func))
+mandatory_params_satisfied(func::Type, params; param_exceptions=[nothing]) = let
+    func_params = filter(x -> !(x in param_exceptions), Platypus.mandatory_params(func))
 
-  params = keys(params)
-  satisfied_params = map(p -> p in params, func_params)
-  all(satisfied_params)
-end
+    params = keys(params)
+    satisfied_params = map(p -> p in params, func_params)
+    all(satisfied_params)
+    end
 
 """
   check_arguments(PlatypusSolver, algorithm, algorithm_params, max_eval)
@@ -234,21 +194,15 @@ if the algorithm is supported by the platypus solver, if the mandatory
 parameters for a certain algorithm are specified, andi f the number of maximum
 evaluations in greater than 0.
 """
-function check_arguments(solver::Type{PlatypusSolver}, algorithm, algorithm_params, max_eval)
-  if  max_eval < 1
-    throw(PlatypusSolverException(
-            :max_eval,
-            e,
-            " is invalid. The number of maximum evaluations should be positive",
-            "Specify a number of evaluations greater than zero."))
+check_arguments(solver::Type{PlatypusSolver}, algorithm, algorithm_params, max_eval) =
+  if  max_eval < 1 throw(PlatypusSolverException( :max_eval, e,
+        " is invalid. The number of maximum evaluations should be positive",
+        "Specify a number of evaluations greater than zero."))
   elseif !mandatory_params_satisfied(algorithm, algorithm_params, param_exceptions=[:problem])
-    throw(PlatypusSolverException(
-            :algorithm_params,
-            algorithm_params,
-            " not sufficient. The algorithm's mandatory parameters were not supplied.",
-            "Ensure you have specified all $(keys(algorithm_params)) except the parameter problem."))
+    throw(PlatypusSolverException( :algorithm_params, algorithm_params,
+        " not sufficient. The algorithm's mandatory parameters were not supplied.",
+        "Ensure you have specified all $(keys(algorithm_params)) except the :problem parameter."))
   end
-end
 
 """
   check_params(solver, model)
@@ -257,34 +211,25 @@ Verifies if the conditions on the model and the solver are compliant. Depending
 on the algorithm different rules must be satisfied. For instance, in the case
 of mixed type variable problems, a variator must be specified.
 """
-function check_params(solver::PlatypusSolver, model::Model)
+check_params(solver::PlatypusSolver, model::Model) =
   if ismixedtype(model) && get_algorithm_param(solver, :variator) == nothing
-    throw(PlatypusSolverException(
-            :variables,
-            variables(model),
-            "is a mixed integer problem",
-            "Please specify one `variator` capable of handling both Integer and Real variables"))
+    throw(PlatypusSolverException(:variables, variables(model),
+        "is a mixed integer problem",
+        "Please specify one `variator` capable of handling both Integer and Real variables"))
   elseif get_algorithm(solver) in (Platypus.GeneticAlgorithm, Platypus.EvolutionaryStrategy) &&
     nobjectives(model) > 1
-      throw(PlatypusSolverException(
-              :nobjectives,
-              nobjectives(model),
-              " a multi objective problem (nobjectives > 1)",
-              "Specify an Multi Objective Algorithm or reduce the number of objectives to 1"))
+      throw(PlatypusSolverException( :nobjectives, nobjectives(model),
+        " a multi objective problem (nobjectives > 1)",
+        "Specify an Multi Objective Algorithm or reduce the number of objectives to 1"))
   elseif get_algorithm_param(solver, :population_size, -1) > get_max_evaluations(solver)
-      throw(PlatypusSolverException(
-              :population_size,
-              get_algorithm_param(solver, :population_size),
-              "is greater than the population size with value $(get_algorithm_param(solver, :population_size)).",
-              "Population size should be smaller or equal to max_evaluations."))
+      throw(PlatypusSolverException(:population_size, get_algorithm_param(solver, :population_size),
+        "is greater than the population size with value $(get_algorithm_param(solver, :population_size)).",
+        "Population size should be smaller or equal to max_evaluations."))
   elseif get_algorithm_param(solver, :offspring_size, -1) > get_max_evaluations(solver)
-      throw(PlatypusSolverException(
-              :max_evaluations,
-              get_algorithm_param(solver, :offspring_size),
-              "is greater than the offpsring size with value $(get_algorithm_param(solver, :offspring_size)).",
-              "Offpsring size should be smaller or equal to max_evaluations."))
+      throw(PlatypusSolverException(:max_evaluations,  get_algorithm_param(solver, :offspring_size),
+        "is greater than the offpsring size with value $(get_algorithm_param(solver, :offspring_size)).",
+        "Offpsring size should be smaller or equal to max_evaluations."))
   end
-end
 
 """
   The steps to solve a problem are the following:
@@ -328,7 +273,7 @@ end
 
     julia> res = solve(solver, model);
 """
-function solve(solver::PlatypusSolver, model::Model)
+solve(solver::PlatypusSolver, model::Model) = begin
     check_params(solver, model)
 
     problem = convert(Platypus.Problem, model)
@@ -348,7 +293,6 @@ function solve(solver::PlatypusSolver, model::Model)
     sols = Platypus.solve(algorithm, max_eval=evals,
                           nondominated=nondominated)
     convert(Vector{Solution}, sols)
-end
-
+    end
 
 export PlatypusSolver, PlatypusSolverException, solve

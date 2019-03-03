@@ -304,7 +304,6 @@ isminimization(o::SharedObjective) =
 "Evaluates the true value of the objective"
 evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)'
 
-
 # Comparators
 ==(o1::SharedObjective, o2::SharedObjective) =
     func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
@@ -581,29 +580,34 @@ check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vecto
 
 evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
 evaluate(model::Model, Ss::Vector{Solution}) = [evaluate(model, s) for s in Ss]
-evaluate(model::Model, vars::Vector, transformation=flatten) =
+evaluate(model::Model, vars::Vector, transformation::Function=flatten) =
     nvariables(model) != length(vars) ?
         throw(DimensionMismatch("the number of variables in the model $(nvariables(model)) does not correspond to the number of variables $(length(vars))")) :
-        let  st = time();
-            objs = [evaluate(o, vars) for o in objectives(model)] |> transformation
-            # Write to File
-            output = vcat(time()-st, vcat(vars,  objs))
-            csv_write(output)
+        evaluate(vars, objectives(model), constraints(model), transformation)
 
-            if nconstraints(model) > 0
-                cnstrs = constraints(model)
-                cnstrs_values = [evaluate(c, vars) for c in cnstrs]
+evaluate(vars::Vector, objs::Vector, cnstrs::Vector; transformation::Function=flatten) = let
+    start_time = time();
+    objs_values, objs_time = @profile objs (o) -> evaluate(o, vars)
+    objs_values = objs_values |> transformation
 
-                # Compute penalty
-                cnstrs_penalty = penalty(cnstrs, cnstrs_values)
-                feasible = cnstrs_penalty != 0
-                Solution(vars, objs, cnstrs_values, cnstrs_penalty, feasible, true)
-            else
-                Solution(vars, objs)
-            end
-        end
+    if isempty(cnstrs)
+        # write_result(:evaluate, time()-start_time, objs_time, vars, objs_values)
+        Solution(vars, objs_values)
+    else
+        cnstrs_values, cnstrs_time = @profile cnstrs (c) -> evaluate(c, vars)
 
-export AbstractModel, Model, unscalers
+        # Compute penalty
+        cnstrs_penalty = penalty(cnstrs, cnstrs_values)
+        feasible = iszero(cnstrs_penalty)
+
+        # write_result(:evaluate, time()-start_time, cnstrs_time, objs_time, vars,
+        #             cnstrs_values, cnstrs_penalty, feasible, objs_values)
+        Solution(vars, objs_values, cnstrs_values, cnstrs_penalty, feasible, true)
+    end
+end
+
+
+export AbstractModel, Model, unscalers, constraints, variables, objectives
 
 # ---------------------------------------------------------------------
 # Solvers

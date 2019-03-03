@@ -585,7 +585,7 @@ evaluate(model::Model, vars::Vector, transformation::Function=flatten) =
         throw(DimensionMismatch("the number of variables in the model $(nvariables(model)) does not correspond to the number of variables $(length(vars))")) :
         evaluate(vars, objectives(model), constraints(model), transformation)
 
-evaluate(vars::Vector, objs::Vector, cnstrs::Vector; transformation::Function=flatten) = let
+evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=flatten) = let
     start_time = time();
     objs_values, objs_time = @profile objs (o) -> evaluate(o, vars)
     objs_values = objs_values |> transformation

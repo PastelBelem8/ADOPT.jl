@@ -216,7 +216,7 @@ isminimization(o::Objective) = invoke(isminimization, Tuple{AbstractObjective, F
 nobjectives(::Objective) = 1
 
 "Applies the objective's function to provided arguments"
-apply(o::Objective, args...) = func(o)(args...)
+apply(o::T, args...) where {T <: AbstractObjective} = func(o)(args...)
 
 "Evaluates the true value of the objective"
 evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
@@ -300,11 +300,9 @@ isminimization(o::SharedObjective) =
     invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
 
 # Application
-"Applies the objective's function to provided arguments"
-apply(o::SharedObjective, args...) = func(o)(args...)
 
 "Evaluates the true value of the objective"
-evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)
+evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)'
 
 
 # Comparators
@@ -478,6 +476,31 @@ check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector
     # elseif constraint_violation != 0 && all(constrs)
     #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
+
+# -----------------------------------------------------------------------
+# Solution Convert Routines FIXME - Not in the best place
+# -----------------------------------------------------------------------
+import Base: convert
+Base.convert(::Type{Solution}, x, y) = Solution(convert(typeof_variables(Solution), x),
+                                            convert(typeof_objectives(Solution), y))
+Base.convert(::Type{Solution}, x, y, cs::Vector{Constraint}, cs_values) = let
+    variables = convert(typeof_variables(Solution), x)
+    objectives = convert(typeof_objectives(Solution), y)
+
+    # Constraints
+    constraints = convert(typeof_constraints(Solution), cs_values)
+    constraint_violation = penalty(cs, cs_values)
+
+    feasible = constraint_violation != 0
+    Solution(variables, objectives, constraints, constraint_violation, feasible, true)
+end
+
+Base.convert(::Type{Vector{Solution}}, X, y, cs, cs_values) =
+    isempty(cs) ?
+        map(1:size(X, 2)) do sample
+            convert(Solution, X[:, sample], y[:, sample]) end :
+        map(1:size(X, 2)) do sample
+            convert(Solution, X[:, sample], y[:, sample], cs, cs_values[:, sample]) end
 
 export Solution
 

@@ -2,12 +2,13 @@ module ScikitLearnModels
 
 using PyCall
 using MacroTools
+using ..LinearAlgebra
 
 const scikitlearn = PyNULL()
 
 function __init__()
     copy!(scikitlearn, pyimport_conda("sklearn", "scikit-learn"))
-    version = VersionNumber(scikitlearn.__version__)
+    version = VersionNumber(scikitlearn[:__version__])
     @info("Your Python's scikit-learn has version $version.")
 end
 
@@ -26,13 +27,12 @@ importpy(name::AbstractString) =  try pyimport(name)
 sklearn() = scikitLearn         # importpy("sklearn")
 sk_base() = scikitlearn[:base]  # importpy("sklearn.base")
 
+clone(py_model::PyObject) = sklearn()[:clone](py_model, safe=true)
 
-clone(py_model::PyObject) = sklearn().clone(py_model, safe=true)
+is_regressor(py_model::PyObject) = sk_base()[:is_regressor](py_model)
 
-is_regressor(py_model::PyObject) = sk_base().is_regressor(py_model)
-
-get_classes(py_estimator::PyObject) = py_estimator.classes_
-get_components(py_estimator::PyObject) = py_estimator.components_
+get_classes(py_estimator::PyObject) = py_estimator[:classes_]
+get_components(py_estimator::PyObject) = py_estimator[:components_]
 
 #  ------------------------- Julia -> Python -------------------------
 # Julia => Python (methods)
@@ -59,7 +59,7 @@ api_map = Dict(:decision_function => :decision_function,
 tweak_rval(x) = x
 function tweak_rval(x::PyObject)
    numpy = importpy("numpy")
-   if pyisinstance(x, numpy.ndarray) && length(x.shape) == 1
+   if pyisinstance(x, numpy[:ndarray]) && length(x[:shape]) == 1
        return collect(x)
    else
        x
@@ -68,13 +68,13 @@ end
 
 for (jl_fun, py_fun) in api_map
    @eval $jl_fun(py_model::PyObject, args...; kwargs...) =
-       tweak_rval(py_model.$(py_fun)(args...; kwargs...))
+       tweak_rval(py_model[$(Expr(:quote, py_fun))](args...; kwargs...))
 end
 
 """ `predict_nc(model, X)` calls predict on the Python `model`, but returns
 the result as a `PyArray`, which is more efficient than the usual path. See
 PyCall.jl """
-predict_nc(model::PyObject, X) = pycall(model.predict, PyArray, X)
+predict_nc(model::PyObject, X) = pycall(model[:predict], PyArray, X)
 predict_nc(model::Any, X) = predict(model, X) # default
 
 # Get symbols inside an expression
@@ -106,12 +106,22 @@ macro sk_import(expr)
     mod_string = "sklearn.$mod"
     quote
         mod_obj = pyimport($mod_string)
-        $([:(const $(esc(w)) = mod_obj.$w) for w in members]...)
+        $([:(const $(esc(w)) = mod_obj[$(Expr(:quote, w))]) for w in members]...)
         $([:(export $(esc(w))) for w in members]...)
     end
 end
 
 @sk_import linear_model: (LinearRegression, LogisticRegression)
+
+
+# FIXME - Hack to make this work. !! PLEASE DO NOT MIMICK! THIS IS AWFUL! :(
+PyObject(x::LinearAlgebra.Adjoint) = PyObject(copy(x))
+PyObject(x::Transpose) = PyObject(copy(x))
+
+sk_fit!(model, X, y; kwargs...) = fit!(model, X', y'; kwargs...)
+sk_predict(model, X; kwargs...) = predict(model, X'; kwargs...)
+export sk_fit!, sk_predict
+
 end # module
 
 # Step 0. Check if it work for multi-objectives in pythn first
@@ -121,10 +131,10 @@ end # module
 
 # Step 4. Test Metasolver - easy
 #=
-using Main.ScikitLearnModels
-@macroexpand Main.ScikitLearnModels.@sk_import linear_model: (LinearRegression, LogisticRegression)
-Main.ScikitLearnModels.@sk_import linear_model: (LinearRegression, LogisticRegression)
-model = Main.ScikitLearnModels.fit!(LinearRegression(), [[1, 2], [3, 4]], [1, 3])
-Main.ScikitLearnModels.get_params(model)
-Main.ScikitLearnModels.score(model, [[1, 2], [3, 4]], [3, 7])
+using Main.MscThesis.ScikitLearnModels
+@macroexpand Main.MscThesis.ScikitLearnModels.@sk_import linear_model: (LinearRegression, LogisticRegression)
+Main.MscThesis.ScikitLearnModels.@sk_import linear_model: (LinearRegression, LogisticRegression)
+model = Main.MscThesis.ScikitLearnModels.fit!(Main.MscThesis.ScikitLearnModels.LinearRegression(), [[1, 2], [3, 4]], [1, 3])
+Main.MscThesis.ScikitLearnModels.get_params(model)
+Main.MscThesis.ScikitLearnModels.score(model, [[1, 2], [3, 4]], [3, 7])
 =#

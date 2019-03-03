@@ -61,8 +61,10 @@ include("./optimization/solvers/PlatypusSolver.jl")
 include("./optimization/Sampling.jl")
 include("./optimization/solvers/SamplingSolver.jl")
 export PlatypusSolver, SamplingSolver
+
 # include("./optimization/solvers/Metamodels.jl")
-# include("./optimization/solvers/MetaSolver.jl")
+include("./optimization/solvers/ScikitLearnModels.jl")
+include("./optimization/solvers/MetaSolver.jl")
 
 # Benchmarks
 # include("./indicators/Indicators.jl")

@@ -8,6 +8,8 @@ const platypus = PyNULL()
 
 function __init__()
    copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
+   version = VersionNumber(platypus[:__version__])
+   @info("Your Python's Platypus has version $version.")
 end
 
 # Platypus Wrappers ---------------------------------------------------------
@@ -29,8 +31,6 @@ Creates the corresponding Julia class and its constructors.
 """
 macro pytype(name, parent=:PlatypusWrapper)
   parent = Symbol(parent)
-  pyclass = () -> platypus["$name"] # For Unwrapping
-
   constructor_symbol = esc(Symbol(name))
 
   quote

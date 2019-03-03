@@ -19,12 +19,12 @@ schaffer1_objs = [Objective(schaffer1_f1), Objective(schaffer1_f2)]
 
 schaffer1 = Model(schaffer1_vars, schaffer1_objs)
 
-# Kursawe function (Unonstrained)
+# Kursawe function (Unconstrained)
 kursawe_vars = [RealVariable(-5, 5), RealVariable(-5, 5), RealVariable(-5, 5)]
 kursawe_f1(x) = sum([-10 * exp(-0.2 * √(x[i]^2 + x[i+1]^2)) for i in 1:2])
 kursawe_f2(x) = sum([abs(x[i])^0.8 + 5sin(x[i]^3) for i in 1:3])
-kursawe_objs = [Objective(kursawe_f1), Objective(kursawe_f2)]
 
+kursawe_objs = [Objective(kursawe_f1), Objective(kursawe_f2)]
 kursawe = Model(kursawe_vars, kursawe_objs)
 
 # Binh and Korn function (Constrained)
@@ -46,15 +46,16 @@ binhkorn = Model(binhkorn_vars, binhkorn_objs, binhkorn_cnstrs)
 #=
 using Main.MscThesis.Platypus
 
-ea_params = Dict(:population_size => 100)
+ea_params = Dict(:population_size => 50)
 # Platypus Solver
 solver = Main.MscThesis.PlatypusSolver(NSGAII,
-                max_eval=200,
+                max_eval=300,
                 algorithm_params=ea_params,
                 nondominated_only=true)
 
 schaffer1_sols = solve(solver, schaffer1)
 binhkorn_sols = solve(solver, binhkorn)
+kursawe_sols = solve(solver, kursawe)
 =#
 
 # -------------------------------------------------------------------------
@@ -65,12 +66,35 @@ using Main.MscThesis.Sampling
 # Sampling Solver
 sampling_params = Dict(:sampling_function => randomMC)
 solver = SamplingSolver(;algorithm_params=sampling_params,
-                        max_eval=300,
+                        max_eval=500,
                         nondominated_only=true)
 
 schaffer1_sols = solve(solver, schaffer1)
 binhkorn_sols = solve(solver, binhkorn)
+kursawe_sols = solve(solver, kursawe)
 =#
+
+# -------------------------------------------------------------------------
+# Meta Solver
+# -------------------------------------------------------------------------
+
+using Main.MscThesis.Sampling
+using Main.MscThesis.ScikitLearnModels: sk_fit!, sk_predict, LinearRegression
+
+surrogate = Surrogate(  LinearRegression(),
+                        objectives=schaffer1_objs,
+                        creation_f=sk_fit!,
+                        update_f=sk_fit!,
+                        evaluation_f=sk_predict)
+meta_params = Dict(:sampling_function => randomMC, :nsamples => 30)
+optimiser = SamplingSolver(;algorithm_params=Dict(:sampling_function => latinHypercube), max_eval=200, nondominated_only=false)
+solver = Main.MscThesis.MetaSolver(optimiser; surrogates=[surrogate], max_eval=200,
+                sampling_params=meta_params, nondominated_only=true)
+
+# schaffer1_sols = solve(solver, schaffer1)
+binhkorn_sols = solve(solver, binhkorn)
+kursawe_sols = solve(solver, kursawe)
+
 # -------------------------------------------------------------------------
 # Visualization
 # -------------------------------------------------------------------------
@@ -84,4 +108,5 @@ end
 
 myplot(schaffer1_sols)
 myplot(binhkorn_sols)
+myplot(kursawe_sols)
 =#

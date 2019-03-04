@@ -33,9 +33,10 @@ config_file = Parameter("$(results_dir())/default.config")
 
 try
     mkdir(results_dir())
+    @info "[$(now())] Creating directory $(results_dir()) to place the results of subsequent optimization runs..."
 catch e
     if isa(e, SystemError)
-        @info "[$(now())] Results directory $(results_dir()) already exists. Optimization output files will be placed in that folder."
+        @info "[$(now())] Results directory $(results_dir()) already exists. Optimization output files will be placed in that directory."
     end
 end
 

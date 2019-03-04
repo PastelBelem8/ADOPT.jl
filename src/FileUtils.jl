@@ -22,10 +22,9 @@ end
 
 write_result(method, args...) = write_content(method, results_file(), vcat(args...))
 
-write_config(method, args...) = begin
-    # FIXME - Process the arguments accordingly
-    write_content(method, config_file(), args...)
-end
+write_config(method, args...) = with(file_sep, "\n") do
+        write_content(method, config_file(), args)
+    end
 
 read(method; typ=nothing, header=false) = begin
     @debug "[$(now())][Logging][$method] Invoked read on file $(results_file())) with type $typ and with values: $(args...)"

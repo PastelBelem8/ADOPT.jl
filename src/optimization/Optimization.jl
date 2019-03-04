@@ -606,7 +606,6 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
     end
 end
 
-
 export AbstractModel, Model, unscalers, constraints, variables, objectives
 
 # ---------------------------------------------------------------------
@@ -619,7 +618,7 @@ solve(solver::AbstractSolver, model::Model) = let
     OPTIMIZATION_FILES = "$(results_dir())/$(get_unique_string())"
     with(results_file, "$(OPTIMIZATION_FILES)-results.csv",
          config_file, "$(OPTIMIZATION_FILES).config") do
-        # write_config("AbstractSolver::solve", solver, model)
+        write_config("AbstractSolver::solve", solver, model)
 
         # Create header - Form:
         # <total_time> <time_cnstr>* <time_objs>+ <var>+ <cnstr>* [<penalty>, <feasible>] <obj>+

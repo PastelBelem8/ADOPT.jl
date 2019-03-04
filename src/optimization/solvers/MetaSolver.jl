@@ -305,7 +305,7 @@ solve_it(meta_solver::MetaSolver, model::Model) = let
 
         # Step 3. Apply Solver to optimize the surrogates
         @debug "[$(now())][MetaSolver] Optimizing surrogates..."
-        candidate_solutions = with(results_file, "metamodels.dump") do
+        candidate_solutions = with(results_file, "$(results_dir())/metamodels.dump") do
                                 solve_it(solver, cheap_model) end
         ncandidates = length(candidate_solutions);
 

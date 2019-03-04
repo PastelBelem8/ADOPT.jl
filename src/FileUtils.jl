@@ -12,20 +12,19 @@ file_mode = Parameter("a")
 file_lang = Parameter(:EN)
 
 # Operations
-write(method, args...) = let
+write_content(method, filename, args...) = let
     @debug "[$(now())][$method] Invoked write on file $(results_file())) in mode $(file_mode()) with values: $(args...)"
-    open(results_file(), file_mode()) do file
-        join(file, args, file_sep())
+    open(filename, file_mode()) do file
+        join(file, args..., file_sep())
         write(file, file_eol())
     end
 end
 
-write_result(method, args...) = write(method, vcat(args...))
+write_result(method, args...) = write_content(method, results_file(), vcat(args...))
 
 write_config(method, args...) = begin
     # FIXME - Process the arguments accordingly
-    args = vcat(args...)
-    write(method, args...)
+    write_content(method, config_file(), args...)
 end
 
 read(method; typ=nothing, header=false) = begin

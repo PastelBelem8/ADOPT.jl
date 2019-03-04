@@ -273,7 +273,7 @@ check_params(solver::PlatypusSolver, model::Model) =
 
     julia> res = solve(solver, model);
 """
-solve(solver::PlatypusSolver, model::Model) = begin
+solve_it(solver::PlatypusSolver, model::Model) = begin
     check_params(solver, model)
 
     problem = convert(Platypus.Problem, model)

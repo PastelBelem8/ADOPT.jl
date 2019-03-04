@@ -53,7 +53,7 @@ nondominated_only(solver::SamplingSolver) =  solver.nondominated_only
 
 
 # Solver routines -------------------------------------------------------
-solve(solver::SamplingSolver, model::Model) = let
+solve_it(solver::SamplingSolver, model::Model) = let
     nvars = nvariables(model)
     nobjs = nobjectives(model)
     unsclrs = unscalers(model)

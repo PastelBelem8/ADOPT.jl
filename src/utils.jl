@@ -5,7 +5,6 @@ export nrows,
 @inline nrows(A::AbstractMatrix) = size(A, 1)
 @inline ncols(A::AbstractMatrix) = size(A, 2)
 
-
 flatten(x) = collect(Iterators.flatten(x))
 
 nonunique(arr) = let

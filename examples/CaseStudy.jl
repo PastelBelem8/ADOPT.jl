@@ -57,7 +57,6 @@ schaffer1_sols = solve(solver, schaffer1)
 binhkorn_sols = solve(solver, binhkorn)
 kursawe_sols = solve(solver, kursawe)
 =#
-
 # -------------------------------------------------------------------------
 # Sampling Solver
 # -------------------------------------------------------------------------

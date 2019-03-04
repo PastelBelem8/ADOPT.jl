@@ -591,7 +591,7 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
     objs_values = objs_values |> transformation
 
     if isempty(cnstrs)
-        # write_result(:evaluate, time()-start_time, objs_time, vars, objs_values)
+        write_result("evaluate", time()-start_time, objs_time, vars, objs_values)
         Solution(vars, objs_values)
     else
         cnstrs_values, cnstrs_time = @profile cnstrs (c) -> evaluate(c, vars)
@@ -600,8 +600,8 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
         cnstrs_penalty = penalty(cnstrs, cnstrs_values)
         feasible = iszero(cnstrs_penalty)
 
-        # write_result(:evaluate, time()-start_time, cnstrs_time, objs_time, vars,
-        #             cnstrs_values, cnstrs_penalty, feasible, objs_values)
+        write_result("evaluate", time()-start_time, cnstrs_time, objs_time, vars,
+                    cnstrs_values, cnstrs_penalty, feasible, objs_values)
         Solution(vars, objs_values, cnstrs_values, cnstrs_penalty, feasible, true)
     end
 end
@@ -615,6 +615,40 @@ export AbstractModel, Model, unscalers, constraints, variables, objectives
 abstract type AbstractSolver end
 
 "Solves the modeled problem using the given solver"
-function solve(solver::AbstractSolver, model::Model) end
+solve(solver::AbstractSolver, model::Model) = let
+    OPTIMIZATION_FILES = "$(results_dir())/$(get_unique_string())"
+    with(results_file, "$(OPTIMIZATION_FILES)-results.csv",
+         config_file, "$(OPTIMIZATION_FILES).config") do
+        # write_config("AbstractSolver::solve", solver, model)
+
+        # Create header - Form:
+        # <total_time> <time_cnstr>* <time_objs>+ <var>+ <cnstr>* [<penalty>, <feasible>] <obj>+
+        header = ["Total Time(s)"]
+
+        cnstrs = map(i -> "c$i", 1:nconstraints(model))
+        if !isempty(cnstrs)
+            push!(header, map(c -> "Time_$c(s)", cnstrs)...)
+        end
+
+        objs = map(i -> "o$i", 1:nobjectives(model))
+        time_objs = map(o -> "Time_$o(s)", objs)
+        push!(header, time_objs...)
+
+        vars = map(i -> "var$i", 1:nvariables(model))
+        push!(header, vars...)
+
+        if !isempty(cnstrs)
+            push!(header, cnstrs...)
+            push!(header, ["penalty", "feasible"]...)
+        end
+        push!(header, objs...)
+
+        # Write header
+        write_result("AbstractSolver::solve", header)
+
+        # Solve the problem
+        solve_it(solver, model)
+    end
+end
 
 export AbstractSolver, solve

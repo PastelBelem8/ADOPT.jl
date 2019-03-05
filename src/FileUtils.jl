@@ -39,3 +39,10 @@ read_matrix(method; header=false) =
     read(method; typ=Float64, header=false)
 
 export write_result, write_config, read, read_matrix
+
+failsafe_mkdir(method, dir) =
+    try
+        mkdir(dir)
+    catch
+        @warn "[$(now())][failsafe_mkdir][$method] Could not create $(dir). Ignoring..."
+    end

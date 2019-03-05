@@ -650,4 +650,7 @@ solve(solver::AbstractSolver, model::Model) = let
     end
 end
 
+get_solver(::Type{T}, algorithm::Symbol, params, evals, nd_only) where{T<:AbstractSolver} =
+    throw("get_solver not implemented for class")
+
 export AbstractSolver, solve

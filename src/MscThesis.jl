@@ -7,23 +7,23 @@ using Statistics
 using LinearAlgebra
 
 
-include("./Parameters.jl")
-include("./Utils.jl")
-include("./FileUtils.jl")
+include("./Parameters.jl");
+include("./Utils.jl");
+include("./FileUtils.jl");
 #= ---------------------------------------------------------------------- #
     Configurations
 # ---------------------------------------------------------------------- =#
 # Step 1. Log Level, by default we write all the logs to a file
 using Logging
 
-log_level = Logging.Info
-# log_level = Logging.Debug
-logger = ConsoleLogger(stdout, log_level); global_logger(logger);
-@info "[$(now())] Starting logger with $(log_level) level."
+loglevel!(level) = let
+    logger = ConsoleLogger(stdout, level);
+    global_logger(logger);
+    @info "[$(now())] Global logger switched to ConsoleLogger with $(level) level."
+    end
 
-# TODO - Log to file and console (check other frameworks, e.g., Memento, MiniLogging, Micrologging)
-Logging.min_enabled_level(global_logger())
-
+loglevel!(Logging.Info)
+# loglevel!(Logging.Debug)
 
 # Step 2. Application logs - By default we write all the results of optimization processes to files
 # We also log the state of every optimization run, so that users are aware of the state
@@ -39,12 +39,6 @@ catch e
         @info "[$(now())] Results directory $(results_dir()) already exists. Optimization output files will be placed in that directory."
     end
 end
-
-#= ---------------------------------------------------------------------- #
-    Utils
-# ---------------------------------------------------------------------- =#
-
-# Utils
 
 # Optimization Internals
 include("./optimization/Optimization.jl")
@@ -70,6 +64,7 @@ Pareto.is_nondominated(solutions::Vector{Solution}) =
     end
 
 # Benchmarks
+include("./Benchmark.jl")
 # include("./indicators/Indicators.jl")
 
 #= ---------------------------------------------------------------------- #
@@ -86,4 +81,43 @@ include("./optimization/solvers/ScikitLearnModels.jl")
 include("./optimization/solvers/MetaSolver.jl")
 export MetaSolver, Surrogate
 
+algs_to_solvers = Dict()
+
+# Design Of Experiments
+map(alg -> algs_to_solvers[alg] = SamplingSolver,
+    [randomMC, stratifiedMC, latinHypercube, kfactorial, boxbehnken])
+
+# Metaheuristics (Pareto-Based Optimization)
+map(alg -> algs_to_solvers[alg] = PlatypusSolver, [
+    CMAES, EpsMOEA, EpsNSGAII, GDE3, IBEA, MOEAD,
+    NSGAII, NSGAIII, PAES, PESA2, OMOPSO, SMPSO, SPEA2])
+
+# Syntax
+# solve(algorithm=:randomMC,
+#       params=Dict(:max_evals => 100, :nondominated_only => true),
+#       problem=Model(...))
+solve(;algorithm, params=Dict(), problem) = let
+    # Change `params` to avoid any entropy later in the call chain
+    nps = copy(params)
+    evs = pop!(nparams, :max_evals, 100)
+    nd_only = pop!(nparams, :nondominated_only, 100)
+
+    solve(algorithm=algorithm, params=nps, max_evals=evs, nondominated_only=nd_only)
 end
+
+# Syntax
+# solve(algorithm=:NSGAII,
+#       params=Dict(:population_size => 15),
+#       max_evals=50,
+#       nondominated_only=false,
+#       problem=Model(...))
+#
+solve(;algorithm, params=Dict(), max_evals=100, nondominated_only=true, problem) =
+    if algorithm in keys(algs_to_solvers)
+        solver = get_solver(algs_to_solvers[algorithm], algorithm, params, max_evals, nondominated_only);
+        solve(solver, problem)
+    else
+        throw(DomainError("Algorithm $(string(algorithm)) is currently not supported..."))
+    end
+
+end # Module

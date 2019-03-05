@@ -52,7 +52,6 @@ get_feasibles(solver::SamplingSolver, ss::Vector{Solution}) = solver.feasible_fi
 nondominated_only(solver::SamplingSolver) =  solver.nondominated_only
 
 
-# Solver routines -------------------------------------------------------
 solve_it(solver::SamplingSolver, model::Model) = let
     nvars = nvariables(model)
     nobjs = nobjectives(model)
@@ -76,3 +75,8 @@ solve_it(solver::SamplingSolver, model::Model) = let
 
     nondominated_only(solver) ? Pareto.is_nondominated(solutions) : solutions
 end
+
+get_solver(::Type{SamplingSolver}, algorithm, params, evals, nd_only) =
+    SamplingSolver(;algorithm_params=merge(params,
+                                            Dict(:sampling_function => algorithm)), 
+                    max_eval=evals, nondominated_only=nd_only)

@@ -26,7 +26,7 @@ set_seed!(s::Int) = Random.seed!(s)
 export  randomMC,
         stratifiedMC,
         latinHypercube,
-        fullfactorial,
+        kfactorial,
         boxbehnken
 
 "Generate a new random sample with `ndims` dimensions."
@@ -37,7 +37,7 @@ function random_sample(ndims::Int)
 end
 
 "Generate `n` random samples with `ndims` dimensions."
-function random_samples(ndims::Int, n::Int)
+function randomMC(ndims::Int, n::Int)
     if ndims < 0 || n < 0 throw(DomainError("ndims and n must be positive integers")) end
     samples = zeros(ndims, n)
     for j in 1:n
@@ -45,7 +45,6 @@ function random_samples(ndims::Int, n::Int)
     end
     samples
 end
-randomMC = random_samples
 
 "Generate one random sample with `ndims` dimensions for each bin."
 function stratifiedMC(ndims::Int, bins::Vector{Int})
@@ -79,7 +78,7 @@ function latinHypercube(ndims::Int, nbins::Int)
     samples
 end
 
-function fullfactorial(ndims::Int, level::Int=2)
+function kfactorial(ndims::Int, level::Int=2)
     if ndims < 0
         throw(DomainError("invalid argument value: ndims $(ndims)")) end
     if level < 2
@@ -98,7 +97,7 @@ function boxbehnken(ndims::Int)
         throw(DomainError("invalid argument error. ndims $ndims < 3"))
     end
     # Block parameters
-    X0 = fullfactorial(2, 2)'
+    X0 = kfactorial(2, 2)'
     bsize = size(X0, 1)
     nblines = convert(Int, 0.5*ndims*(ndims-1)) * bsize
     # Create the samples for each combination
@@ -116,21 +115,21 @@ function boxbehnken(ndims::Int)
 end
 
 get_existing(sampling_f; kwargs...) =
-    if sampling_f in (randomMC, random_samples)
+    if sampling_f == randomMC
         (ndims, nsamples) -> random_sample(ndims, nsamples)
     elseif sampling_f == stratifiedMC
         (ndims, _) -> stratifiedMC(ndims, kwargs[:bins])
     elseif sampling_f == latinHypercube
         (ndims, _) -> latinHypercube(ndims, kwargs[:nbins])
-    elseif sampling_f == fullfactorial
-        (ndims, _) -> fullfactorial(ndims, kwargs[:level])
+    elseif sampling_f == kfactorial
+        (ndims, _) -> kfactorial(ndims, kwargs[:level])
     elseif sampling_f == boxbehnken
         (ndims, _) -> boxbehnken(ndims)
     else
         throw(error("unimplemented sampling function"))
     end
 
-exists(f) = f ∈ (boxbehnken, fullfactorial, latinHypercube, random_samples, randomMC, stratifiedMC)
+exists(f) = f ∈ (boxbehnken, kfactorial, latinHypercube, randomMC, stratifiedMC)
 
 
 

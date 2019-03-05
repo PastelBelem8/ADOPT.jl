@@ -296,3 +296,6 @@ solve_it(solver::PlatypusSolver, model::Model) = begin
     end
 
 export PlatypusSolver, PlatypusSolverException, solve
+
+get_solver(::Type{PlatypusSolver}, algorithm, params, evals, nd_only) =
+    PlatypusSolver(algorithm; algorithm_params=params, max_eval=evals, nondominated_only=nd_only)

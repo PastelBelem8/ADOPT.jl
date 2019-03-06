@@ -14,7 +14,6 @@ A benchmark plan will have the following structure
 create_benchmark_plan(ids, as, ps) =
     map((i, a, p) -> "[ID-$i] = $a $p", ids, as, ps)
 
-
 init_benchmark(bdir, bplan) =
     with(results_dir, bdir, file_sep, "\n") do
         @info "[$(now())][Benchmark][$init_benchmark] Create benchmarkdir $(bdir)"
@@ -26,10 +25,17 @@ log_error(err_file, e) =
     write_content("error", err_file, ["\n>>>>> Error <<<<<\n",
     sprint(showerror, e, catch_backtrace())])
 
+get_algorithm(config::Tuple) = first(config)
+get_algorithm(config) = config
+
+get_params(config::Tuple) = length(config) == 2 ? config[2] : Dict()
+get_params(config::T) where{T<:AbstractSolver} = Dict() # Assumes all configurations have been set
 
 """
     benchmark(;[bname,] nruns, [(alg1, params1), (alg2,), ...], problem, max_evals)
     benchmark(;nruns, [(alg1, params1), (alg2,), ...], problem, max_evals)
+    benchmark(;nruns, [(alg1, params1), Solver, ...], problem, max_evals)
+    benchmark(;nruns, [alg1, (alg2, params1), Solver, ...], problem, max_evals)
 
     Sequentially runs all algorithms `alg_i` with the configuration provided
     in params1. All parameters that are not passed in `params_i` are assumed
@@ -38,12 +44,12 @@ log_error(err_file, e) =
     To verify their default value, please consult the documentation of the
     referred libraries (e.g., Platypus for MOEAs, ScikitLearn for ML methods).
 """
-benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals) = let
+benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals=100) = let
     BENCHMARK_ID = "$(results_dir())/$(bname)-$(get_unique_string())"
 
     alg_ids = 1:length(algorithms)
-    algs = map(first, algorithms)
-    algs_params = map(t -> length(t) == 2 ? t[2] : Dict(), algorithms)
+    algs = map(get_algorithm, algorithms)
+    algs_params = map(get_params, algorithms)
     plan = create_benchmark_plan(alg_ids, algs, algs_params)
 
     init_benchmark(BENCHMARK_ID, plan);
@@ -55,7 +61,7 @@ benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals) = let
             for run in 1:nruns
                 try
                     @info "[$(now())][benchmark] Starting run $(run) (out of $(nruns))."
-                    solve(algorithm=algs[id], params=algs_params[id], max_evals=max_evals, problem=problem)
+                    solve(algs[id], algs_params[id], problem, max_evals, true)
                 catch e
                     @error "[$(now())][benchmark] Error $(sprint(show, e))\nCheck error.log file for more information.."
                     log_error("$(BENCHMARK_ID)/error.log", e) end

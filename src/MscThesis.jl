@@ -6,7 +6,6 @@ using Distances
 using Statistics
 using LinearAlgebra
 
-
 include("./Parameters.jl");
 include("./Utils.jl");
 include("./FileUtils.jl");
@@ -98,11 +97,11 @@ map(alg -> algs_to_solvers[alg] = PlatypusSolver, [
 #       problem=Model(...))
 solve(;algorithm, params=Dict(), problem) = let
     # Change `params` to avoid any entropy later in the call chain
-    nps = copy(params)
-    evs = pop!(nparams, :max_evals, 100)
-    nd_only = pop!(nparams, :nondominated_only, 100)
+    new_params = copy(params)
+    evs = pop!(new_params, :max_evals, 100)
+    nd_only = pop!(new_params, :nondominated_only, true)
 
-    solve(algorithm=algorithm, params=nps, max_evals=evs, nondominated_only=nd_only)
+    solve(algorithm, new_params, problem, evs, nd_only)
 end
 
 # Syntax
@@ -111,13 +110,23 @@ end
 #       max_evals=50,
 #       nondominated_only=false,
 #       problem=Model(...))
-#
-solve(;algorithm, params=Dict(), max_evals=100, nondominated_only=true, problem) =
+solve(algorithm, params, problem, max_evals, nondominated_only) =
     if algorithm in keys(algs_to_solvers)
         solver = get_solver(algs_to_solvers[algorithm], algorithm, params, max_evals, nondominated_only);
         solve(solver, problem)
     else
         throw(DomainError("Algorithm $(string(algorithm)) is currently not supported..."))
     end
+
+# Syntax
+# solve(algorithm=PlatypusSolver(...),
+#       max_evals=50,
+#       nondominated_only=false,
+#       problem=Model(...))
+solve(algorithm::AbstractSolver, _, problem, max_evals, nondominated_only) = begin
+     max_evaluations!(algorithm, max_evals)
+     nondominated_only!(algorithm, nondominated_only)
+     solve(algorithm, problem)
+ end
 
 end # Module

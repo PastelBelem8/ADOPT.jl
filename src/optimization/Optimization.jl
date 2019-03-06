@@ -612,6 +612,10 @@ export AbstractModel, Model, unscalers, constraints, variables, objectives
 # Solvers
 # ---------------------------------------------------------------------
 abstract type AbstractSolver end
+max_evaluations!(solver::T, evals) where{T<:AbstractSolver} =
+    solver.max_evaluations = evals
+nondominated_only!(solver::T, nd_only) where{T<:AbstractSolver} =
+    solver.nondominated_only = nd_only
 
 "Solves the modeled problem using the given solver"
 solve(solver::AbstractSolver, model::Model) = let

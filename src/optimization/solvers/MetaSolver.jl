@@ -209,7 +209,7 @@ mutable struct MetaSolver <: AbstractSolver
     surrogates::Vector{Surrogate}
     sampling_params::Dict{Symbol, Any}
 
-    max_evals::Int
+    max_evaluations::Int
     nondominated_only::Bool
 
     MetaSolver(solver; surrogates, sampling_params, max_eval=100, nondominated_only::Bool=true) = begin
@@ -233,7 +233,7 @@ check_arguments(::Type{MetaSolver}, surrogates, nvars, nobjs, sampling_params, m
     end
 
 # Selectors
-@inline max_evals(s::MetaSolver) = s.max_evals
+@inline max_evaluations(s::MetaSolver) = s.max_evaluations
 @inline optimiser(s::MetaSolver) = s.solver
 @inline surrogates(s::MetaSolver) = s.surrogates
 
@@ -287,7 +287,7 @@ solve_it(meta_solver::MetaSolver, model::Model) = let
     solver = optimiser(meta_solver)
     surrogatez = surrogates(meta_solver)
     cheap_model = cheaper_model(surrogatez, model)
-    evals_left = max_evals(meta_solver)
+    evals_left = max_evaluations(meta_solver)
 
     # Step 1. Obtain initial data (e.g., sample, read file)
     @debug "[$(now())][MetaSolver] Obtaining initial data..."

@@ -1,79 +1,54 @@
 % #############################################################################
-% This is Chapter 5
+% This is Chapter 4
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Conclusion}
+\fancychapter{Evaluation}
 \cleardoublepage
-% The following line allows to ref this chapter
-\label{chap:evaluation}
+ 
+This chapter focuses on the evaluation of the proposed framework, from different perspectives, which include the diversity of the algorithms currently supported by the solution's prototype, their performance, and the visual mechanisms. To this end, we divide the evaluation in two phases: in \Cref{sec:qualitative}, we discuss the qualitative properties of the current prototype, outlining the flexibility and heterogeneity of the provided algorithms, while in \Cref{sec:quantitative}, we assess the viability of the current prototype in the architectural practice by using it to address three real case studies. These case studies use the Khepri tool and the optimizer prototype previously described, following the algorithmic framework described in \Cref{chap:implement}.
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis. Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi. Nulla libero. Vivamus pharetra posuere sapien. Nam consectetuer. Sed aliquam, nunc eget euismod ullamcorper, lectus nunc ullamcorper orci, fermentum bibendum enim nibh eget ipsum. Donec porttitor ligula eu dolor. Maecenas vitae nulla consequat libero cursus venenatis. Nam magna enim, accumsan eu, blandit sed, blandit a, eros. 
+Overall, we aim to answer the following questions:
+\begin{enumerate}
+	\item Is our tool 
+\end{enumerate}
+
+\section{Qualitative Evaluation}
+\label{sec:qualitative}
+
+The quantitative evaluation of optimization frameworks involve considering multiple aspects, including the flexibility, adaptability, diversity of algorithms, ease of use, among others. Calling upon the \acp{NFLT} discussed in \Cref{ssec:comparisondfo}, some algorithms are really good solvers for some problems and very poor solvers for others. Selecting the right algorithm can have a great impact in the efficiency of optimization processes. Particularly, in building design, to benefit from such performance gains, diversity of algorithms allows to face each problems' characteristics differently, enabling the identification of most promising algorithms. In addition to the algorithms' diversity, in order to be easily used by less experienced users, algorithms should be effortlessly run, without the need for many manual changes. Notwithstanding their innate simplicity, optimization frameworks should also be flexible enough to enable more experienced users to fine-tune them according to their expertise, thus fostering more efficient optimization processes. At last, a good framework should be easily adaptable to handle different problems.
+
+Regarding the adaptability of the current prototype, it provides mechanisms to address both single- and multi-objective problems: 15 \ac{SOO} algorithms and 13 \acp{MOEA}, respectively. Simpler approaches, like the design of experiments approach discussed in \Cref{ssec:doe}, are also possible using one of the 5 sampling methods available in the prototype. Moreover, the time complexity is also taken into account in this prototype, which provides a large number of \ac{ML} models to be used within model-based algorithms.
+
+\todo{Tabela / Imagem - discriminativa sobre os tipos de algoritmos e as classes}
+
+\todo{Table X} presents a view of the algorithms supported by the prototype discriminated by class and domain. When comparing to existing tools in architecture, our solution presents a more extense and diverse set of algorithms, which can be explored to address a wider variety of problems. Moreover, while the existing tools rely on a unique optimization approach (e.g., \ac{SOO}, or Pareto-based optimization), our solution adapts to the user needs, providing the necessary mechanisms to several approaches.
+
+Unlike existing tools, the prototype does not present a visual \ac{GUI}, instead requiring textual programming techniques. Nevertheless, to make it more appealing to less experienced users, the prototype includes a ready-to-use format, where every algorithm is configured by default. 
+
+- flexible - t provides enough mechanisms to allow more experienced users to use their knowledge and fine-tune the different algorithms
+- benchmarks easily run - how many modifications need to be done vs grasshoppers frameworks
+
+- visualization mechanisms?
+-
+
+- Differences / Benefits / Disadvantages when compared to Grasshopper's frameworks
+
+
 % #############################################################################
-\section{Maecenas vitae nulla consequat} 
-Aliquam aliquet, est a ullamcorper condimentum, tellus nulla fringilla elit, a iaculis nulla turpis sed wisi. Fusce volutpat. Etiam sodales ante id nunc. Proin ornare dignissim lacus. Nunc porttitor nunc a sem. Sed sollicitudin velit eu magna. Aliquam erat volutpat. Vivamus ornare est non wisi. Proin vel quam. Vivamus egestas. Nunc tempor diam vehicula mauris. Nullam sapien eros \Cref{fig:test_env}, facilisis vel, eleifend non, auctor dapibus, pede.
+\section{Quantitative of Applications}
+\label{sec:quantitative}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\textwidth]{./Images/test_env}
-\caption{Test Environment}
-\label{fig:test_env}
-\end{figure}
+- Dizer que de um modo geral começámos de forma incremental por considerar problemas single-objective, nomeadamente a casa da ericeira, que remonta a primeira publicação. Depois evoluimos para a avaliação bi-objetivo de dois casos de estudo reais - Pavilhão Preto para exposições e de uma arc-shaped space frame.
 
-Aliquam aliquet, est a ullamcorper condimentum, tellus nulla fringilla elit, a iaculis nulla turpis sed wisi. Fusce volutpat. Etiam sodales ante id nunc. Proin ornare dignissim lacus. Nunc porttitor nunc a sem. Sed sollicitudin velit eu magna. Aliquam erat volutpat. Vivamus egestas. Nunc tempor diam vehicula mauris. Nullam sapien eros, facilisis vel, eleifend non, auctor dapibus, pede \Cref{tab:network_profiles} used in the tests. The Network Link Conditioner allows to force/simulate fluctuations in fixed network segments.
+- Comentar a facilidade c/ que alguém que já tem um programa AD consegue acopolar optimização a AD.
 
-\begin{table}[htb]
-\centering
-\normalsize
-    \caption{Network Link Conditioner Profiles}
-    \label{tab:network_profiles}
-{\footnotesize
-    \begin{tabular}{ | c | c | c | c | }
-    \hline 
-    \textbf{Network Profile}	& \textbf{Bandwidth} & \textbf{Packets Droped} & \textbf{Delay}\\ \hline \hline
-    Wifi  & 40 mbps  &  0\%  &   1 ms \\ \hline
-    3G  & 780 kbps  &  0\%  &   100 ms \\ \hline 
-    Edge  & 240 kbps  &  0\%  &   400 ms \\ \hline
-    \end{tabular}
-    }
-\end{table}
-
-Aliquam aliquet, est a ullamcorper condimentum, tellus nulla fringilla elit, a iaculis nulla turpis sed wisi. Fusce volutpat. Etiam sodales ante id nunc. Proin ornare dignissim lacus. Nunc porttitor nunc a sem. Sed sollicitudin velit eu magna. Aliquam erat volutpat. Vivamus ornare est non wisi. Proin vel quam. Vivamus egestas. Nunc tempor diam vehicula mauris. Nullam sapien eros, facilisis vel, eleifend non, auctor dapibus, pede.
 % #############################################################################
-\section{Proin ornare dignissim lacus}
-Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis.
+\subsection{Ericeira House: Solarium}
 
-Et ``optimistic'' nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui $G_j$, nec ligula et lorem consequat ullamcorper $p$ ut mauris eu mi mollis luctus $j$, porttitor ut, \Cref{unchoke_gain}, uctus posuere justo:
+% #############################################################################
+\subsection{Black Pavilion: Arts Exhibit}
 
-\begin{description}
-  \item[$N_j$] Is the number of times peer $j$ has been optimistically unchoked.
-  \item[$n_j$] Among the $N_j$ unchokes, the number of times that peer $j$ responded with unchoke or supplied segments to peer $p$.
-  \item[$C_{r[j]}$] The cooperation ratio of peer $j$. If peer $j$ never supplied peer $p$, the information of $C_{r[j]}$ may not be available.
-  \item[$C_{r (max)}$] The maximum cooperation ratio of peer $p$’s neighbors, i.e., $C_{r (max)} = max(C_r)$.
-\end{description}
+\subsubsection{Skylights Optimization}
+\subsubsection{Arc-shaped Space Frame Optimization}
 
-\begin{equation}
-\label{unchoke_gain}
- G_j =
-  \begin{dcases}
-    \frac{n_j C_{r[j]}}{N_j} &\quad \text{if } n_j > 0\\
-    \frac{C_{r (max)}}{N_j + 1} &\quad \text{if } n_j = 0
-  \end{dcases}
-\end{equation}
-
-Cursus $C_{r (max)}$ conubia nostra, per inceptos hymenaeos $j$ gadipiscing mollis massa $N_j = 0$, unc ut dui eget nulla venenatis aliquet $G_j = C_{r (max)}$.
-
-Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Phasellus eget nisl ut elit porta ullamcorper. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. 
-
-Both \Cref{fig:tx_layer_4,fig:tx_layer_5} Phasellus eget nisl ut elit porta ``perfect'' tincidunt. Class aptent taciti sociosqu ad litora torquent per conubia nostra.
-
-\begin{figure}[h]
-%\centering
-       \subfigure[Adaptation System Test 4]{\label{fig:tx_layer_4}\includegraphics[width=0.5\textwidth]{./Images/tx_layer_4}}  
-   %    \centering 
-       \subfigure[Adaptation System Test 5]{\label{fig:tx_layer_5}\includegraphics[width=0.5\textwidth]{./Images/tx_layer_5}}   
-        \caption{Adaptation System Behavior Test}
-        \label{fig:fig:adapt_behave_2}
-\end{figure}
-
-Cras sed ante. Phasellus in massa. Curabitur dolor eros, gravida et, hendrerit ac, cursus non, massa. Aliquam lorem. In hac habitasse platea dictumst. Cras eu mauris. Quisque lacus. Donec ipsum. Nullam vitae sem at nunc pharetra ultricies. Vivamus elit eros, ullamcorper a, adipiscing sit amet, porttitor ut, nibh. Maecenas adipiscing mollis massa. Nunc ut dui eget nulla venenatis aliquet. Sed luctus posuere justo. Cras vehicula varius turpis. Vivamus eros metus, tristique sit amet, molestie dignissim, malesuada et, urna.

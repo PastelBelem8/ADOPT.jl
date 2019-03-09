@@ -17,7 +17,7 @@ create_benchmark_plan(ids, as, ps) =
 init_benchmark(bdir, bplan) =
     with(results_dir, bdir, file_sep, "\n") do
         @info "[$(now())][Benchmark][$init_benchmark] Create benchmarkdir $(bdir)"
-        mkdir(bdir)
+        mkdir(results_dir())
         write_content("benchmark", "$(bdir)/benchmark.plan", bplan)
     end
 

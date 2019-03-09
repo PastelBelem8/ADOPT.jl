@@ -22,7 +22,7 @@ loglevel!(level) = let
     end
 
 loglevel!(Logging.Info)
-# loglevel!(Logging.Debug)
+#loglevel!(Logging.Debug)
 
 # Step 2. Application logs - By default we write all the results of optimization processes to files
 # We also log the state of every optimization run, so that users are aware of the state

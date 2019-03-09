@@ -40,7 +40,7 @@ macro pytype(name, parent=:PlatypusWrapper)
 
       # Create Constructor
       function $(constructor_symbol)(args...; kwargs...)
-        platypus_method = platypus[$(QuoteNode(name))]
+        platypus_method = platypus.$(name)
         new(pycall(platypus_method, PyObject, args...; kwargs...))
       end
     end
@@ -65,7 +65,7 @@ function set_attr(class, name, typ=nothing)
 
   quote
     $(esc(setter_name))(o :: $(esc(class)), $(param)) =
-        o.pyo[$(QuoteNode(name))] = t
+        o.pyo.$(name) = t
   end
 end
 
@@ -99,7 +99,7 @@ function get_attr(class, name, out)
 
   quote
     $(esc(getter_name))(receiver :: $(esc(class))) =
-        $(esc(out))(receiver.pyo[$(QuoteNode(name))])
+        $(esc(out))(receiver.pyo.$(name))
   end
 end
 
@@ -129,13 +129,14 @@ end
                 constraint_violation::Base.Real,
                 feasible::Bool,
                 evaluated::Bool)
+
 function get_variables(solution::Solution; toDecode::Bool=true)
-  vars = solution.pyo[:variables]
+  vars = solution.pyo.variables
   if toDecode
-    types = solution.pyo[:problem][:types]
+    types = solution.pyo.problem.types
     decoded_vars = Vector()
     for i in 1:size(vars, 1)
-      decoded_vars = vcat(decoded_vars, types[i][:decode](vars[i,:]))
+      decoded_vars = vcat(decoded_vars, types[i].decode(vars[i]))
     end
     decoded_vars
   else
@@ -233,13 +234,13 @@ export CompoundMutation, Insertion, NonUniformMutation, PM, Replace, Swap, UM,
 
 # Algorithm Routines --------------------------------------------------------
 get_all_results(algorithm::PlatypusAlgorithm) =
-  [Solution(sol) for sol in algorithm.pyo[:result]]
+  [Solution(sol) for sol in algorithm.pyo.result]
 get_unique(solutions::Vector{Solution}; objectives=true) =
-  [Solution(sol) for sol in platypus[:unique](solutions, objectives)]
+  [Solution(sol) for sol in platypus.unique(solutions, objectives)]
 get_feasible(solutions::Vector{Solution}) =
   filter(s -> get_feasible(s), solutions)
 get_nondominated(solutions::Vector{Solution}) =
-  [Solution(sol) for sol in platypus[:nondominated](solutions)]
+  [Solution(sol) for sol in platypus.nondominated(solutions)]
 
 function results(algorithm::PlatypusAlgorithm; unique::Bool,
                   unique_objectives::Bool, feasible::Bool, nondominated::Bool)
@@ -256,7 +257,7 @@ Algorithm(algorithm::Type{T}, problem::Problem; kwargs...) where {T<:PlatypusAlg
 
 function solve(algorithm::T; max_eval::Int, unique::Bool=true,
                 unique_objectives::Bool=true, feasible::Bool=true, nondominated::Bool=true) where{T<:PlatypusAlgorithm}
-  algorithm.pyo[:run](max_eval)
+  algorithm.pyo.run(max_eval)
   results(algorithm, unique=unique, unique_objectives=unique_objectives, feasible=feasible, nondominated=nondominated)
 end
 

@@ -1,5 +1,4 @@
 using Khepri
-
 # -------------------------------------------------------------------------
 #                                 Primitives
 # -------------------------------------------------------------------------
@@ -111,9 +110,9 @@ trelica_ondulada(p, rac, rb, l, n, fi, psi0, psi1, alfa0, alfa1, d_alfa, d_r) =
 #                       Truss Algorithmic Model
 # -------------------------------------------------------------------------
 spiked_truss(α1, y1, α2, y2, α3, y3) =
-  with(attractors, [sph(10, 0, α1)+vy(y1),
-                    sph(10, 0, α2)+vy(y2),
-                    sph(10, 0, α3)+vy(y3)]) do
+  Khepri.with(attractors, [ sph(10, 0, α1)+vy(y1),
+                            sph(10, 0, α2)+vy(y2),
+                            sph(10, 0, α3)+vy(y3)]) do
     delete_all_shapes()
     trelica_ondulada(xyz(0, 0, 0),10,9,1.0,10,0,-pi/2,pi/2,0,4*pi,pi/8,0.1)
   end
@@ -134,7 +133,7 @@ project_kind(Khepri.I_PT_SHELL)
 # -------------------------------------------------------------------------
 # Minimize the maximum displacement
 spiked_truss_displacement(α1, y1, α2, y2, α3, y3) =
-  with(attractors, [sph(10, 0, α1)+vy(y1),
+  Khepri.with(attractors, [sph(10, 0, α1)+vy(y1),
                     sph(10, 0, α2)+vy(y2),
                     sph(10, 0, α3)+vy(y3)]) do
     delete_all_shapes()
@@ -152,7 +151,7 @@ end
 
 # Measure of irregularity: Minimize the euclidean distance
 spiked_truss_style(α1, y1, α2, y2, α3, y3) = begin
-  with(attractors, [sph(10, 0, α1)+vy(y1),
+  Khepri.with(attractors, [sph(10, 0, α1)+vy(y1),
                     sph(10, 0, α2)+vy(y2),
                     sph(10, 0, α3)+vy(y3)]) do
     sum(distance(p0, p1) for (p0, p1) in combinations(attractors(), 2))
@@ -162,12 +161,8 @@ end
 # -------------------------------------------------------------------------
 #                             Optimization
 # -------------------------------------------------------------------------
-#=
-using Dates
 using Main.MscThesis
-using Main.MscThesis.Metamodels
-using Main.MscThesis.Platypus
-using Main.MscThesis.Sampling
+
 # Angle, longitudinal position, ...
 vars = [RealVariable(-π, π), RealVariable(0, 4π),
         RealVariable(-π, π), RealVariable(0, 4π),
@@ -176,12 +171,95 @@ vars = [RealVariable(-π, π), RealVariable(0, 4π),
 objs = [Objective(x -> spiked_truss_displacement(x...), 1, :MIN), # 20s - 140s
         Objective(x -> spiked_truss_style(x...), :MIN)] # 0.0s
 
-model = Model(vars, objs)
+problem = Model(vars, objs)
 
 # Step 2. Define the Solver
-a_params = Dict(:population_size => 5)
-solver = Main.MscThesis.PlatypusSolver(NSGAII, max_eval=50, algorithm_params=a_params)
+using Main.MscThesis.Platypus
+using Main.MscThesis.Sampling
+using Main.MscThesis.ScikitLearnModels
 
-# Step 3. Solve it
-solve(solver, model)
-=#
+# -------------------------------------------------------------------------
+#                   1ST TEST - 1x surrogate - 2 objs
+# -------------------------------------------------------------------------
+iter = 10
+nparticles = 50 # > 6*(6+1)
+nevals_mtsolver = nparticles * iter
+maxevals= 225
+
+# Metaheuristic
+ea_solver() = let
+  params = Dict(:population_size => nparticles)
+  Main.MscThesis.PlatypusSolver(NSGAII, max_eval=nevals_mtsolver, algorithm_params=params, nondominated_only=true)
+end
+
+pso_solver() = let
+  params = Dict(:leader_size => nparticles,
+                :swarm_size => nparticles,
+                :max_iterations => nparticles,
+                :mutation_probability => 0.3,
+                :mutation_perturbation => 0.5)
+  PlatypusSolver(SMPSO, max_eval=nevals_mtsolver, algorithm_params=params, nondominated_only=true)
+end
+
+sampling_solver() = let
+  params = Dict(:sampling_function => randomMC,
+                :nsamples => nevals_mtsolver)
+  SamplingSolver(;algorithm_params=params, max_eval=nevals_mtsolver, nondominated_only=true)
+end
+
+# Meta Solver
+meta_solver(metamodel, solver, X, y) = let
+  params = Dict(:X => X, :y => y)
+  surrogate = Surrogate(  metamodel, objectives=objs, creation_f=sk_fit!,
+                          update_f=sk_fit!, evaluation_f=sk_predict)
+  MetaSolver(solver; surrogates=[surrogate], max_eval=225, sampling_params=params, nondominated_only=true)
+end
+
+# Test 1 - GPR
+gpr_1 = (X, y) -> meta_solver(GaussianProcessRegressor(), pso_solver(), X, y)
+gpr_2 = (X, y) -> meta_solver(GaussianProcessRegressor(), ea_solver(), X, y)
+gpr_3 = (X, y) -> meta_solver(GaussianProcessRegressor(), sampling_solver(), X, y)
+# Test 2 - Random Forest
+random_forest_1 = (X, y) -> meta_solver(RandomForestRegressor(), pso_solver(), X, y)
+random_forest_2 = (X, y) -> meta_solver(RandomForestRegressor(), ea_solver(), X, y)
+random_forest_3 = (X, y) -> meta_solver(RandomForestRegressor(), sampling_solver(), X, y)
+
+# Test 3 - SVR
+svr_1 = (X, y) -> meta_solver(SVR(), pso_solver(), X, y)
+svr_2 = (X, y) -> meta_solver(SVR(), ea_solver(), X, y)
+svr_3 = (X, y) -> meta_solver(SVR(), sampling_solver(), X, y)
+
+using DelimitedFiles
+readdata(filename) = let
+  data = readdlm(filename, ',', Float64, '\n'; header=false)
+  data[:,1:6]', data[:, 7:8]'
+end
+
+X1, y1 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample1.csv")
+X2, y2 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample2.csv")
+X3, y3 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample3.csv")
+
+# Depois de testar estes tres e ver se há diferença entre os tres, logo se ve se faz sentido fazer tantos testes, destes...
+# Main.MscThesis.solvers_benchmark(nruns=3,
+#                                  Xs=[X1, X2, X3],
+#                                  ys=[y1, y2, y3],
+#                                  solvers=[gpr_1, gpr_2, gpr_3],
+#                                  problem=problem,
+#                                  max_evals=maxevals)
+
+solve(gpr_1(X1, y1), problem)
+# Fica a faltar
+# 1. Outros testes (random_forest, svr) - difernetes variantes dependem dos testes de GPR
+# 2. 2x surrogates - 2 objs
+
+
+
+# Step 1. Define the algorithms to be run:
+#   2 tests: 1x surrogate - 2 objs
+#            2x surrogates - 2 objs
+#   Algorithms: GP + PSO, GP + NSGAII, GP + LHS
+#               RT + PSO, RT + NSGAII, RT + LHS
+#               SVR + PSO, SVR + NSGAII, SVR + LHS
+# Step 2. Create files with initial samples: n_init = 100
+# Step 3. Each algorithm will run 3x 115 analysis (the other 100 will be read from the files)
+# Step 4. Create the routines

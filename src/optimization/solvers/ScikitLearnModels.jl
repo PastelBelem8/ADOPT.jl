@@ -7,7 +7,7 @@ const scikitlearn = PyNULL()
 
 function __init__()
     copy!(scikitlearn, pyimport_conda("sklearn", "scikit-learn"))
-    version = VersionNumber(scikitlearn[:__version__])
+    version = VersionNumber(scikitlearn.__version__)
     @info("Your Python's scikit-learn has version $version.")
 end
 
@@ -26,12 +26,12 @@ importpy(name::AbstractString) =  try pyimport(name)
 sklearn() = scikitLearn         # importpy("sklearn")
 sk_base() = scikitlearn[:base]  # importpy("sklearn.base")
 
-clone(py_model::PyObject) = sklearn()[:clone](py_model, safe=true)
+clone(py_model::PyObject) = sklearn().clone(py_model, safe=true)
 
-is_regressor(py_model::PyObject) = sk_base()[:is_regressor](py_model)
+is_regressor(py_model::PyObject) = sk_base().is_regressor(py_model)
 
-get_classes(py_estimator::PyObject) = py_estimator[:classes_]
-get_components(py_estimator::PyObject) = py_estimator[:components_]
+get_classes(py_estimator::PyObject) = py_estimator.classes_
+get_components(py_estimator::PyObject) = py_estimator.components_
 
 #  ------------------------- Julia -> Python -------------------------
 # Julia => Python (methods)
@@ -58,7 +58,7 @@ api_map = Dict(:decision_function => :decision_function,
 tweak_rval(x) = x
 function tweak_rval(x::PyObject)
    numpy = importpy("numpy")
-   if pyisinstance(x, numpy[:ndarray]) && length(x[:shape]) == 1
+   if pyisinstance(x, numpy.ndarray) && length(x.shape) == 1
        return collect(x)
    else
        x
@@ -121,7 +121,7 @@ macro sk_import(expr)
     mod_string = "sklearn.$mod"
     quote
         mod_obj = pyimport($mod_string)
-        $([:(const $(esc(w)) = mod_obj[$(Expr(:quote, w))]) for w in members]...)
+        $([:(const $(esc(w)) = mod_obj.$(w)) for w in members]...)
         $([:(export $(esc(w))) for w in members]...)
     end
 end

@@ -271,7 +271,7 @@ end
 "Obtain the initial data from the model to create the surrogates with"
 initial_data(meta_solver::MetaSolver, model::Model) = let
     nobjs = nobjectives(model)
-    X, y = !sampling_required(meta_solver) ? sampling_data(solver) : begin
+    X, y = !sampling_required(meta_solver) ? sampling_data(meta_solver) : begin
         function evaluation_f(x)
             sol = evaluate(model, x);
             vcat(objectives(sol), constraints(sol))
@@ -294,7 +294,7 @@ solve_it(meta_solver::MetaSolver, model::Model) = let
     X, y, cs = initial_data(meta_solver, model)
 
     results = convert(Vector{Solution}, X, y, constraints(model), cs) # In optimization
-    if sampling_required(meta_solver) evals_left -= length(results) end
+    evals_left -= length(results)
 
     # Step 2. Create initial surrogates
     @debug "[$(now())][MetaSolver] Creating initial Surrogates..."

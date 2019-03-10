@@ -620,8 +620,7 @@ nondominated_only!(solver::T, nd_only) where{T<:AbstractSolver} =
 "Solves the modeled problem using the given solver"
 solve(solver::AbstractSolver, model::Model) = let
     OPTIMIZATION_FILES = "$(results_dir())/$(get_unique_string())"
-    with(results_file, "$(OPTIMIZATION_FILES)-results.csv",
-         config_file, "$(OPTIMIZATION_FILES).config") do
+    with(results_file, "$(OPTIMIZATION_FILES)-results.csv", config_file, "$(OPTIMIZATION_FILES).config") do
         write_config("AbstractSolver::solve", solver, model)
 
         # Create header - Form:

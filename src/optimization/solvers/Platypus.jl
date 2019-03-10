@@ -8,7 +8,7 @@ const platypus = PyNULL()
 
 function __init__()
    copy!(platypus, pyimport_conda("platypus", "platypus-opt", "conda-forge"))
-   version = VersionNumber(platypus[:__version__])
+   version = VersionNumber(platypus.__version__)
    @info("Your Python's Platypus has version $version.")
 end
 

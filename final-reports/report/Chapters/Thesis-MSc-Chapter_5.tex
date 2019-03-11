@@ -7,12 +7,16 @@
 \cleardoublepage
 \label{chap:evaluation}
  
-This chapter focuses on the evaluation of the proposed framework, from different perspectives, which include the diversity of the algorithms currently supported by the solution's prototype, their performance, and the visual mechanisms. To this end, we divide the evaluation in two phases: in \Cref{sec:qualitative}, we discuss the qualitative properties of the current prototype, outlining the flexibility and heterogeneity of the provided algorithms, while in \Cref{sec:quantitative}, we assess the viability of the current prototype in the architectural practice by using it to address three real case studies. These case studies use the Khepri tool and the optimizer prototype previously described, following the algorithmic framework described in \Cref{chap:implement}.
+This chapter focuses on the evaluation of the proposed framework, from different perspectives, which include the diversity of the algorithms currently supported by the solution's prototype, their performance, and the visual mechanisms. To this end, we divide the evaluation in two phases: in \Cref{sec:qualitative}, we discuss the qualitative properties of the current prototype, outlining the flexibility and heterogeneity of the provided algorithms, while in \Cref{sec:quantitative}, we assess the viability of the current prototype in the architectural practice by using it to address three real case studies. These case studies corroborate the suitability of the algorithmic framework described in\Cref{chap:implement}, by using the optimizer prototype and the Khepri \ac{AD} tool to enable the application of different optimization algorithms. 
 
-Overall, we aim to answer the following questions:
-\begin{enumerate}
-	\item Is our tool 
-\end{enumerate}
+Overall, this evaluation aims to answer the following questions: 
+\begin{itemize}
+	\item Do the studied algorithms present benefits for the architectural practice? Particularly, are they able to reduce the impact of the expensive performance analysis that are typically employed in building design?
+	\item Is there any algorithm or class of algorithms that constantly outperforms others?
+	\item Is there any difference between different \ac{MOO} approaches?
+	\item Is the proposed framework applicable to the architectural practice? 
+	\item ...\todo{Melhorar estas research paths...}
+\end{itemize}
 
 \section{Qualitative Evaluation}
 \label{sec:qualitative}
@@ -33,20 +37,57 @@ Moreover, given the importance of testing different algorithms before settling f
 
 Regarding the post-processing and logging mechanisms, the proposed prototype is automatically configured to produce extensive log files, including all the information about the algorithms and problems being addressed, as well as a real-time log of the different solutions explored during the optimization run. This differs from existing tools, which only made the log files available in the end of the run. That being said, some of the currently existing tools still outperform the proposed prototype in terms of the visualization and interactivity features. The proposed prototype provides visual interactive Python scripts that read the log files and produce the corresponding plots. However, this plots are not updated in real time, instead requiring the user to re-run the script.
 
+\todo{Comentar a facilidade c/ que alguém que já tem um programa AD consegue acopolar optimização a AD.}
 % #############################################################################
-\section{Quantitative of Applications}
+\section{Quantitative Evaluation}
 \label{sec:quantitative}
 
-- Dizer que de um modo geral começámos de forma incremental por considerar problemas single-objective, nomeadamente a casa da ericeira, que remonta a primeira publicação. Depois evoluimos para a avaliação bi-objetivo de dois casos de estudo reais - Pavilhão Preto para exposições e de uma arc-shaped space frame.
+In order to study and explore the behavior of algorithms within building design domains, we evaluate the performance of different algorithms using the optimizer prototype,  discussed in \Cref{chap:implement}, to assess their performance in the context of building design problems. Initially, we consider the optimization of the daylighting conditions of a solarium in an Ericeira house. Subsequently, we consider the evaluation of an arts exhibition pavillion involving two distinct components: an arc-shaped space frame structure and an interior gallery. These components involved the optimization of two simultaneously conflicting aspects, thus enabling a more comprehensive study about the performance of different \acp{MOOA}.
 
-- Comentar a facilidade c/ que alguém que já tem um programa AD consegue acopolar optimização a AD.
+- Falamaos c/ arquitetos de um atelier que nos deram os casos de studo e portanto, os casos tem uma aplicação directa na arquitetura. 
+- Os problemas foram por eles definidos
+\todo{Falta transição} 
 
 % #############################################################################
 \subsection{Ericeira House: Solarium}
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_1.jpg}
+	\caption{Representation of the shading panels' geometric pattern and its design variables.}
+	\label{fig:ericeira_panels_explanation}
+\end{figure}
+
+The first case study involves the optimization of the lighting conditions of a room in an isolated private house in Portugal. The room was designed with a set of façade shading panels that modulates the daylight conditions on the interior. Depicted in \Cref{fig:ericeira_panels_explanation}, the panels are composed of a set of horizontal wood bars of different sizes, which alternate between one full-length bar and a set of smaller bars. The size and the position of the smaller bars along the panel's width are randomized for aesthetics reasons. In the end, the problem is defined in terms of four variables: the minimum and maximum lengths of smaller bars, the length’s step, and the maximum distance separating two consecutive bars. The different design variations were evaluated with regards to their daylight conditions, measured in terms of the \ac{sUDI} \todo{Nabiland Mardaljevic 2006}. \Cref{fig:ericeira_multiple_panels} represents some variations of our case study with different \ac{sUDI} values.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_2.png}
+	\caption{Representation ofshading panels’geometric patternwith different sUDI values (from left to right, 7\%, 62\%, 90\% and 100\%).}
+	\label{fig:ericeira_multiple_panels}
+\end{figure}
+
+
+For this particular problem we subdivided the tests in two phases: (1) we compared both global and local model methods’ performance; and (2) we analyzed the impact of the starting point’s choice in theoverall performance of local methods. The impact of the starting point was tested by providing each algorithm with two initial guesses: both a good and a bad solution, i.e., with values of sUDI of 78\% and 7\%, respectively. 
+
+
+- correr caso de estudo 
+- avaliar 
+- colocar grafico e tirar conclusões (podemos ir buscar algumas ao paper...)
+
 % #############################################################################
 \subsection{Black Pavilion: Arts Exhibit}
 
-\subsubsection{Skylights Optimization}
-\subsubsection{Arc-shaped Space Frame Optimization}
+Write something about the black pavillion...
 
+\subsubsection{Space Frame Optimization}
+
+- INVOLVE otimização estrutural e eleancia...
+
+\subsubsection{Skylights Optimization}
+
+- INVOLVE OPTIMIZAÇÃO LUMINICA E DE CUSTO.
+
+
+\subsection{Adaptive Façades: Thermal}
+ \todo{nnao pode ficar assim...}

@@ -60,8 +60,8 @@
 	& \underset{x \in \mathbb{R}^n}{\text{minimize}}
 	& & f(x) \\
 	& \text{subject to}
-	& & g_j(x) = 0, \; j = 1, \ldots, J, \\ 
-	&&& h_k(x) < 0, \; k = 1, \ldots, K.
+	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
+	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
 	\end{aligned}
 	\end{equation}
 	
@@ -74,8 +74,34 @@
 	Although \ac{SOO} yields less time-consuming processes, these are also less informative than \ac{MOO}, as they usually focus on a single optimal solution. As a case in point, building design often involve different conflicting aspects (e.g., thermal, energy consumption, cost), for which information about the different compromises would aid in the comprehension and making of more informed decisions.
 	
 	% #############################################################################
-	\subsection{Multi-Objective Optimization}
-	\label{ssec:moo}
+	\subsection{\textit{A Priori} Articulation of Preferences}
+	\label{ssec:preferencesarticulation}
+	
+	This approach comprises a simplified way of handling \ac{MOO} that is very resemblant of the \ac{SOO} approach previously discussed, but without disregarding any of the performance aspects. Particularly, this approach combines multiple objective functions according to one’s preferences, using what is called a utility function \cite{Marler2004}, i.e., a function which ranks alternatives according to their utility for global performance. 
+	
+	Among all the possible utility functions, the most common one is the weighted sum~\cite{Wortmann2017Opossum}, also referred to as linear \textit{scalarization}, in the literature. This utility function reduces \ac{MOO} problems to \ac{SOO} problems by weighting the different objectives and combining them into a single function, as depicted in~\Cref{eq:scalarization}. The weights ($w_i$) assigned to each objective function ($f_i$) represent their relative importance to the architect and they must be set during the modeling of the optimization problem, that is, before starting the search for optimal solutions. The resulting function is then provided to a \ac{SOO} algorithm as the function to optimize. 
+	
+	\begin{equation} \label{eq:scalarization}
+	\begin{aligned}
+	& \underset{x \in \mathbb{R}^n}{\text{minimize}}
+	& & \sum_{i=1}^n w_i f_i(x), & \; i &= 1, \ldots, n, \\
+	& \text{subject to}
+	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
+	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
+	\end{aligned}
+	\end{equation}
+	
+	Despite its similarity to \ac{SOO}, this approach incurs into a much more computationally complex process than the latter one, as it still involves the evaluation of multiple objective functions. As a result, the time complexity process is considerably increased and, instead of taking seconds, minutes, hours, or days, per function evaluation, takes that value multiplied by the number of objectives. Nevertheless, this approach still manages to be less time-consuming than the analogous Pareto-based \ac{MOO} approach (that will be discussed in \Cref{ssec:pareto}), as it focus on the optimization of a single preference, instead of attempting to find the trade-offs among all the objectives. 
+	
+	As a case in point, in architecture, this approach can be particularly useful, when more experienced architects can use additional knowledge to define an appropriate set of preferences, instead of resorting to the analogous Pareto-based approach, which would yield a far more complex optimization process. In terms of the impacts in the design process itself, this approach yields a more intelligent, but less informed design process. On the one hand, it confers intelligence because the involved optimization algorithms usually exploit the knowledge of previously evaluated solutions to guide the search towards optimal regions of the design space. On the other hand, it is less informed, because architects no longer control or have information about the optimization process. The loss of control results from the automated character of the optimization algorithms involved in the architectural practice, which frequently exclude architects from the optimization loop. As a consequence, in general, the architect has no information about the solutions evaluated during the optimization process and is only provided with a single solution\footnote{The interest in having a subset of optimal solutions led to the development of mechanisms to provide a subset of optimal solutions instead of a single one.}. The lack of information is perceived as a limitation ~\cite{Cichocka2017SURVEY} and it restricts the architect to either comply with the retrieved solution or to rerun the optimization again. Either way, this optimization approach does not provide in general enough information to understand the optimization results, and, consequently, make more informed decisions. \todo{Falar de ferramentas? Ou posso só falar na comparação?}
+	
+	
+	% Virtues of this approach, in architecture, include the ease of use, the availability, the heterogeneity of ready-to-use \ac{SOO} tools (e.g., Opossum, Goat, Galapagos, Silvereye), and the time required. %when compared to other \ac{MOO} approaches. % In general, because this preference-based approach focus in the retrieval of a single optimal solution that satisfies the previously defined preferences, it becomes more effective and less time consuming than other \ac{MOO} approaches, that either lack a more guided search or that aim at finding solutions that are optimal under different preference articulations. 
+	
+	
+	% #############################################################################
+	\subsection{Pareto-based Optimization}
+	\label{ssec:pareto}
 	\todo{work this transition...}
 	\ac{MOO} belongs to the set of problems concerned with the optimization of more than one objective simultaneously. The addition of other, potentially conflicting, objectives to the optimization process requires the re-definition of \textit{optimality}. 
 	
@@ -92,6 +118,26 @@
 	
 	Building design is a complex task that frequently involves dealing with multiple conflicting objectives, such as maximum lighting comfort \textit{versus} maximum thermal comfort, or minimum energy consumption \textit{versus} maximum thermal comfort. The architect might follow different approaches depending on his knowledge and on his level of expertise. The following three sections describe the benefits and limitations of each approach. 
 	
+	A more informative approach consists in the retrieval of a diverse and potentially heterogeneous set of Pareto-optimal solutions. When confronted with this set of optimal solutions, architects can compare different design options, according to different performance criteria, and make informed decisions about the compromises taken. \Cref{eq:pareto-based} is an example of a mathematical unconstrained minimization Pareto-based \ac{MOO} problem, where $F(x)$ represents the vector of $k$ objectives, and $f_i$ represent the objective function $i$.
+	
+	
+	\begin{equation} \label{eq:pareto-based}
+	\begin{aligned}
+	& \underset{x \in \mathbb{R}^n}{\text{minimize}}
+	& & \left\lbrace F(x) = \left[f_1(x), f_2(x), ..., f_n(x)\right]  \right\rbrace \\
+	& \text{subject to}
+	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
+	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
+	\end{aligned}
+	\end{equation}
+	
+	On the other hand, in this approach, (1) the number of function evaluations is larger due to the need to find a set of optimal solutions instead of focusing on a single one, (2) the visual representation of the solutions’ objectives values becomes problematic when the number of objectives is greater than three, and (3) the way the optimization problem is modeled has a direct impact on the quality of the solutions.
+	
+	Notwithstanding the considerations above, a few studies concerning Pareto-based optimization emerged in the past years, evidencing its utility~\cite{Evins2013,Hamdy2016}. Moreover, recent works show that even though
+	approaches based on the \textit{a priori} definition of preferences are less time-consuming, they are not as desirable as Pareto-based approaches, as they return a single solution instead of multiple alternative solutions~\cite{Attia2013,Hamdy2016,Cichocka2017SURVEY}. In fact, Pareto-based approaches support the decision making process, providing a clear trade-off between the different objectives involved. Moreover, these multiple compromises represent different articulation of preferences from which the architect selects one. This approach is also called \textit{a posteriori} articulation of preferences.
+	
+	Despite the growing trend of Pareto optimization approaches~\cite{Evins2013, Hamdy2016}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident. 
+	
 	% ----------- 
 	\subsection{Design of Experiments}
 	\label{ssec:doe}
@@ -107,64 +153,45 @@
 	Overall, while it does not provide guarantees about the solutions’ optimality, this approach is simple, easy to use, and it is available in numerous tools. Moreover, although this process is not intelligent \textit{per si}, since the decisions are always made by the architect, it enables a more intelligent and informed design process, as it presents all the design variations generated and their associated performance.
 	
 	% #############################################################################
-	\subsection{\textit{A Priori} Articulation of Preferences}
-	\label{ssec:preferencesarticulation}
-	This approach allows combining multiple objectives according to one’s preferences, using what is called a utility function \cite{Marler2004}, i.e., a function which ranks alternatives according to their utility for global performance. Among all the possible utility functions, the most commonly used is the weighted sum or linear scalarization \cite{Wortmann2017Opossum}. This function reduces multi-objective problems to single-objective ones by defining the objective function as the weighted sum of multiple objectives. The weights represent the relative importance of each objective to the architect and must be
-	defined before the optimization. The final objective function is then provided to a \ac{SOO} algorithm, which tries to find an optimal (or a near optimal) solution. \Cref{eq:scalarization} represents an unconstrained example of the mathematical definition of such approach, where $w_i$ is the weight associated to the objective $f_i$, and $n$ is the total number of objectives of the problem. 
-	
-	\begin{equation} \label{eq:scalarization}
-	\min_{x \in X} \sum_{i=1}^n w_i f_i(x)
-	\end{equation}
-	
-	One important consideration to have when following this approach is its sensitivity to the chosen weights, as different weights can yield potentially distinct results. Architects often use their experience or knowledge about the problem itself to set these weights properly, thus ensuring they obtain an optimal (or near optimal) solution.
-	
-	Virtues of this approach, in architecture, include the ease of use, the availability, the heterogeneity of ready-to-use \ac{SOO} tools (e.g., Opossum, Goat, Galapagos, Silvereye), and the time required. %when compared to other \ac{MOO} approaches. % In general, because this preference-based approach focus in the retrieval of a single optimal solution that satisfies the previously defined preferences, it becomes more effective and less time consuming than other \ac{MOO} approaches, that either lack a more guided search or that aim at finding solutions that are optimal under different preference articulations. 
-	
-	Overall, this approach enables a more intelligent design process because the algorithm uses knowledge about previously evaluated solutions to guide the search towards optimal regions of the design space. However, since the algorithms used are usually autonomous, architects are often removed from the optimization loop, thus losing control over the design optimization process. Moreover, most of these algorithms retrieve a single optimum and provide no other design options. This is a major drawback~\cite{Cichocka2017SURVEY}, as the architect either complies to the retrieved solution or he must rerun the optimization with another articulation of preferences. Either way, this optimization approach no longer provides enough information to make informed decisions.
-	
-	% #############################################################################
-	\subsection{Pareto-based Optimization}
-	
-	A more informative approach consists in the retrieval of a diverse and potentially heterogeneous set of Pareto-optimal solutions. When confronted with this set of optimal solutions, architects can compare different design options, according to different performance criteria, and make informed decisions about the compromises taken. \Cref{eq:pareto-based} is an example of a mathematical unconstrained minimization Pareto-based \ac{MOO} problem, where $F(x)$ represents the vector of $k$ objectives, and $f_i$ represent the objective function $i$.
-	
-	\begin{equation} \label{eq:pareto-based}
-	\min \left\lbrace F(x) = \left[f_1(x), f_2(x), ..., f_k(x)\right] \right\rbrace
-	\end{equation}
-	
-	On the other hand, in this approach, (1) the number of function evaluations is larger due to the need to find a set of optimal solutions instead of focusing on a single one, (2) the visual representation of the solutions’ objectives values becomes problematic when the number of objectives is greater than three, and (3) the way the optimization problem is modeled has a direct impact on the quality of the solutions.
-	
-	Notwithstanding the considerations above, a few studies concerning Pareto-based optimization emerged in the past years, evidencing its utility~\cite{Evins2013,Hamdy2016}. Moreover, recent works show that even though
-	approaches based on the \textit{a priori} definition of preferences are less time-consuming, they are not as desirable as Pareto-based approaches, as they return a single solution instead of multiple alternative solutions~\cite{Attia2013,Hamdy2016,Cichocka2017SURVEY}. In fact, Pareto-based approaches support the decision making process, providing a clear trade-off between the different objectives involved. Moreover, these multiple compromises represent different articulation of preferences from which the architect selects one. This approach is also called \textit{a posteriori} articulation of preferences.
-	
-	Despite the growing trend of Pareto optimization approaches~\cite{Evins2013, Hamdy2016}, the lack of relevant benchmarks comparing the performance of different \acp{MOOA} in architecture is evident. 
 	
 	\subsection{Comparison}
-	\todo{Write some paragraphs??}
+	\Cref{table:optimization-approaches} presents a summarized view of four optimization ways to address \ac{SOO} and \ac{MOO} problems.
+
 	\begin{table}[]
 		\centering
 		\resizebox{\textwidth}{!}{%
-			\begin{tabular}{r|c|c|c|c|}
-				\multicolumn{1}{l|}{} & Single-objective optimization & Design of experiments & A priori preference articulation & Pareto-based optimization \\ \hline
-				Fundamentals & Maximization / minimization & Sampling algorithms & Definition of preferences & Pareto dominance \\
-				Human intervention & None & Constant & A priori definition of preferences & \begin{tabular}[c]{@{}c@{}}A posteriori definition of preferences \\ (to select optimal solution)\end{tabular} \\
-				Optimal solutions & \begin{tabular}[c]{@{}c@{}}Largest (maximization) / \\ Smallest (minimization)\end{tabular} & Any & Maximize utility & Pareto \\
-				Quality solutions & Single & Unknown & Single & Multiple \\
-				Information provided & Best solution & Every solution & Best solution & Optimal solutions \\
-				Optimization time & ++ & + & +++ & +++++ \\
-				Configurable & Nothing & All & Preferences & Nothing \\
-				Ease of use & +++ & +++ & ++ & + \\
-				Ease of comprehension & Difficult & Easy & Difficult & Accessible \\
-				Support in architecture & ++ & +++ & ++ & + \\
-				\begin{tabular}[c]{@{}r@{}}Main\\   advantages\end{tabular} & Time complexity & Control level & \begin{tabular}[c]{@{}c@{}}Search guided towards a single\\   objective\end{tabular} & Obtain different trade-offs \\
-				\multicolumn{1}{l|}{\multirow{2}{*}{Main Disadvantages}} & \multirow{2}{*}{Few information} & Constant manual intervention & \multirow{2}{*}{Few information} & Time complexity \\
-				\multicolumn{1}{l|}{} &  & Quality of solutions is not guaranteed &  & Representation of results
+			\begin{tabular}{l|l|l|l|l|}
+				\cline{2-5}
+				& \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Single-objective \\ optimization\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}A priori preference \\ articulation\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Pareto-based \\ optimization\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Design of \\ experiments\end{tabular}} \\ \hline
+				\multicolumn{1}{|l|}{Fundamentals} & \multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Maximization / \\ minimization\end{tabular}} & \multirow{2}{*}{Preferences} & \multirow{2}{*}{Pareto Front} & \multirow{2}{*}{Sampling} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Manual intervention} & \multirow{2}{*}{None} & \multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a priori)\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a posteriori)\end{tabular}} & \multirow{2}{*}{Constant} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Optimal solutions} & \multirow{2}{*}{Maximal / Minimal} & \multirow{2}{*}{Utility-based} & \multirow{2}{*}{Pareto optimal} & \multirow{2}{*}{Any} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Number of optima} & \multirow{2}{*}{1} & \multirow{2}{*}{1} & \multirow{2}{*}{1+} & \multirow{2}{*}{Unknown} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Provided information} & \multirow{2}{*}{Best solution} & \multirow{2}{*}{Best solution} & \multirow{2}{*}{Optimal solutions} & \multirow{2}{*}{Evaluated solutions} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Time Complexity} & \multirow{2}{*}{++} & \multirow{2}{*}{+++} & \multirow{2}{*}{+++++} & \multirow{2}{*}{+} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Configurable in process} & \multirow{2}{*}{Nothing} & \multirow{2}{*}{Preferences} & \multirow{2}{*}{Nothing} & \multirow{2}{*}{All} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Ease of use} & \multirow{2}{*}{+++} & \multirow{2}{*}{++} & \multirow{2}{*}{+} & \multirow{2}{*}{+++} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Ease of comprehension} & \multirow{2}{*}{Difficult} & \multirow{2}{*}{Difficult} & \multirow{2}{*}{Accessible} & \multirow{2}{*}{Easy} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Support in architecture} & \multirow{2}{*}{++} & \multirow{2}{*}{++} & \multirow{2}{*}{+} & \multirow{2}{*}{+++} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Main advantages} & \multirow{2}{*}{Time complexity} & \multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Search guided \\ towards a single objective\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Obtain different \\ trade-offs\end{tabular}} & \multirow{2}{*}{Full control} \\
+				\multicolumn{1}{|l|}{} &  &  &  &  \\ \hline
+				\multicolumn{1}{|l|}{Main Disadvantages} & \multirow{2}{*}{Lack of information} & \multirow{2}{*}{Lack of information} & Time complexity & Manual intervention \\
+				\multicolumn{1}{|l|}{} &  &  & Results representation & No optima guarantees \\ \hline
 			\end{tabular}%
 		}
-		\caption{Comparison between different optimization approaches}
-		\label{table:optimization-approaches}
+	\caption{Comparison between different optimization approaches}
+	\label{table:optimization-approaches}
 	\end{table}
-	
-	
 	
 	
 	

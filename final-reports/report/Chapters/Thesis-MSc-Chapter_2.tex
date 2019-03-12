@@ -8,15 +8,15 @@
 % The following line allows to ref this chapter
 \label{chap:back}
 
-	The development of an algorithmic-based framework for optimization, applicable to architectural domains, requires a careful review over the current literature on \ac{BPO} practices and limitations. 
+	The development of an algorithmic-based framework for optimization, applicable to architectural domains, requires a careful review over the current literature on \ac{BPO} practices and their limitations. 
 	
-	Firstly, the \textit{ad-hoc} nature of the functions used for performance assessment in \ac{BPO} motivates the application of a special class of optimization algorithms, the derivative-free algorithms. Within this class, different categories emerge, emphasizing the algorithms' different properties and search strategies. Applying the adequate algorithm to a certain problem may potentially increase the efficiency of an optimization process, especially for problems involving time-consuming evaluations.
+	Firstly, building design is a multi-disciplinary practice that involves a wide variety of different problems. According to their characteristics, some optimization algorithms may be more or less adequate to address them, as algorithms often adopt different strategies or techniques. To maximize the potential of the optimization, it is therefore necessary to distinguish between different problems and which optimization algorithms are more suitable for which problems. One important distinction is between single- and multi-objective problems. Generally, \ac{BPO} practices require the optimization of multiple aspects simultaneously, a multi-objective problem. However, this objectives' multiplicity instills performance issues that must be properly addressed. This chapter discusses four different approaches to address these problems.
 	
-	Secondly, there are multiple approaches to optimization that might be considered. Generally, \ac{BPO} practices require the optimization of multiple aspects simultaneously. However, architects often opt for simpler specifications, often disregarding all but one of the initially considered aspects. 
-
-	Finally, currently available architectural design optimization tools explore the parametric models produced in visual programming environments, such as Grasshopper and Dynamo. These visual programming environments are implemented as plug-ins, which are tightly integrated with \ac{CAD} and \ac{BIM} tools, respectively. As a result, the connection between optimization tools and visual design workflows becomes seamless and friendlier. Additionally, these optimization tools usually expose a \textit{ready-to-run} interface, which is very appealing to most \ac{BPO} practitioners~\cite{Cichocka2017SURVEY}.
+	Secondly, the costly nature of the functions used for performance assessment in \ac{BPO} motivates the application of a special class of optimization algorithms, the derivative-free algorithms. Within this class, different categories emerge, emphasizing the algorithms' different properties and search strategies. Applying the adequate algorithm to certain problems may potentially increase the efficiency of optimization processes, especially for problems involving time-consuming evaluations.
 	
-	The proceeding sections go into detail about these three views of \ac{BPO} practices.
+	Finally, the development of design optimization tools fostered the coupling between optimization and design practices. Currently available architectural optimization tools optimize the parametric models produced in the visual programming environments, like Grasshopper and Dynamo. These environments are closely integrated within \ac{CAD} and \ac{BIM} tools, respectively, hence enabling a seamless and friendlier association between optimization tools and typical \ac{BPO} design workflows. Also, the \textit{ready-to-use} format of these optimization tools' interfaces are very appealing to most \ac{BPO} practitioners~\cite{Cichocka2017SURVEY}.
+	
+	After a comprehensive description of the previously mentioned views of \ac{BPO} practices, in \Cref{sec:problemsaddress}, we emphasize the main limitations of currently existing \ac{BPO} practices. 
 	
 \section{Optimization Problems}
 \label{sec:optimizationproblems}
@@ -25,44 +25,57 @@
 	
 	An optimization process often starts with the formulation of the model of the system or problem to address, in a process known as modeling. The model is described in terms of (a) the variables or unknowns, which represent the system's or problem's characteristics, (b) the objectives or criteria, representing the quantitative measures of the system's performance, which are usually functions of the variables, and, optionally, (c) the constraints, representing the conditions that have to be satisfied to guarantee the system's feasibility~\cite{Nocedal2011NumericalOptimization}. 
 		
-	There are numerous possibilities to create optimization models, each yielding a different mathematical classification. Concretely, models variability include, among others, variable types, presence or absence of constraints, and the number and nature of the objective functions. In addition to the model, the search strategies can also be classified according to the scope of the search, i.e., whether they explore vaster or narrower regions of the solution space. 
+	There are numerous possibilities to create optimization models, each yielding a different mathematical classification. Concretely, models variability include, among others, the variable types, the presence or absence of constraints, and the number and nature of the objective functions. In addition to the model, the search strategies can also be classified according to the scope of the search, i.e., whether they explore vaster or narrower regions of the solution space. 
+	
+	Particularly, in \ac{BPO}, building designs may yield different optimization problems, depending on the way they are modeled and the limitations or restrictions imposed by architects or engineers. For example, in order to reduce fabrication costs it is very frequent to limit the granularity of the design's components to vary within certain values. As another example, consider the situation where, to preserve the architect's intention, building designs are confined to have specific shapes (e.g., arc-shaped, round-shaped, squared-shaped) and each shape can be varied according to some defined parameters. Moreover, it is also possible that when building design becomes more complex, architects decide to relax some of the previously established conditions. Indeed, as it will be further discussed in \Cref{ssec:soo,ssec:preferencesarticulation}, when facing problems involving the simultaneous expensive evaluation of multiple performance aspects, time restrictions often force architects to abdicate some performance aspects, or, in some cases, to define a preference amongst the considered performance aspects.
+	
 	
 \subsection{Classification of Optimization Problems}
 	
-	The mathematical optimization field offers different classifications for optimization problems. In this chapter, we introduce three of these classifications due to their relevance and their ubiquitousness for optimization problems. \Cref{fig:optclassification} exhibits a schematic representation of the four different optimization classifications considered in this dissertation. For a more comprehensive treatment of this subject, consider~\cite{Nemhauser1988,Nocedal2011NumericalOptimization}. 
+	The mathematical optimization field offers different classifications for optimization problems. In this chapter, we introduce three of these classifications due to their relevance and their ubiquitousness for optimization problems. \Cref{fig:optclassification} exhibits a schematic representation of the four different optimization classifications considered in this dissertation (the fourth classification will be discussed in \Cref{sec:optimizationalgorithms}). For a more comprehensive treatment of this subject, consider~\cite{Nemhauser1988,Nocedal2011NumericalOptimization}. 
 	 
 	The first classification differentiates \textbf{continuous} and \textbf{discrete} optimization problems depending on the variables' types. Continuous optimization refers to problems defined uniquely by continuous variables and, therefore, characterized by an infinite solution space, whereas discrete optimization refers to problems for which some or all their variables are discrete, hence yielding a finite solution space. In continuous optimization, the smoothness of functions make it possible to reason about the behavior of all points close to $x$ and, consequently, to solve these problems more easily, whilst the commonly present irregularities of discrete optimization functions do not, in general, allow to draw any information about the behavior of points close to $x$. Discrete classification encloses finer optimization classes, such as integer optimization or combinatorial optimization~\cite{Nemhauser1988}. 
 	
 	The second classification relates to the presence of constraints on the variables. \textbf{Unconstrained} optimization problems result from many practical applications and have no restrictions on the variables' values. Contrastingly, \textbf{constrained} optimization problems usually emerge from systems where constraints are crucial (e.g., economy problems, imposing cargo constraints) and are incorporated them into the problem's definition. Variables can be restricted using hard or soft constraints. Hard constraints set conditions for the variables that must be satisfied, namely, to vary within simple bounds (e.g.: $-1<x<1$) and to relate to other variables in certain ways (e.g.: $\sum_{i} x_i$), whereas soft constraints set penalties for the variables whose value violates the condition. Constrained optimization problems are often converted to unconstrained ones by replacing hard constraints with soft constraints, i.e., by adding penalization terms in the objective function to discourage the violation of constraints~\cite{Nocedal2011NumericalOptimization}. 
 
-	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} and \textbf{multi-objective}. \ac{SOO} focus on the optimization of one objective, whilst \ac{MOO} focus on problems involving multiple conflicting objectives simultaneously. Besides the larger objectives' number, addressing multi-objective problems also entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the executability of optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to optimization problems. 
+	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} and \textbf{multi-objective}. \ac{SOO} focus on the optimization of one objective, whilst \ac{MOO} focus on problems involving multiple conflicting objectives simultaneously. Besides the larger objectives' number, addressing multi-objective problems also entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the executability of optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to single- and multi-objective optimization problems. 
 	
 	\todo{Put picture with the scheme - make in ppt}
 	\begin{figure}
 		\centering
-		\includegraphics[width=5cm]{Images/Background/pareto-front.JPG}
+		\includegraphics[width=5cm]{Images/placeholder-image.png}
 		\caption{Different classifications of optimization processes.}
-		\label{fig:paretofrontier}
+		\label{fig:optclassification}
 	\end{figure}
 	
 	
 	% #############################################################################
 	\subsection{Single-Objective Optimization}
+	\label{ssec:soo}
 	
-	\ac{SOO} processes aim to find the best solution with respect to a unique objective function. This function is described in terms of the values of the problem's parameters. \Cref{eq:soo} illustrates an example of a mathematical unconstrained minimization \ac{SOO} problem, where $f$ represents the single objective function and $x$ represents the vector of parameters.
+	\ac{SOO} processes aim to find the best solution with respect to a unique objective function. This function is described in terms of the values of the problem's parameters. \Cref{eq:soo} illustrates an example of a mathematical constrained minimization \ac{SOO} problem, where $f$ represents the single objective function, $g_j$ and $h_k$ represent the constraints to be satisfied, and $x$ represents the parameters' vector.
 	
 	\begin{equation} \label{eq:soo}
-	\min f(x) 
+	\begin{aligned}
+	& \underset{x \in \mathbb{R}^n}{\text{minimize}}
+	& & f(x) \\
+	& \text{subject to}
+	& & g_j(x) = 0, \; j = 1, \ldots, J, \\ 
+	&&& h_k(x) < 0, \; k = 1, \ldots, K.
+	\end{aligned}
 	\end{equation}
 	
-	Generally, the computational complexity of optimization processes is exponential on the number of objectives and, consequently, the more objectives, the more expensive these processes are. In particular, \ac{SOO} processes rely exclusively on a single objective function and, therefore, are usually less time-consuming than \ac{MOO} processes. The gains in computational resources become particularly relevant when considering simulation-based objective functions. For instance, in the case of building design, most problems include simulation-based objective functions. As a result, architects commonly opt for \ac{SOO} processes~\cite{Wortmann2017Opossum}: either by simply considering a single objective, or, in the case of problems involving multiple conflicting objectives, by combining them in a unique function as it will be further explained in \cref{subsec:preferencesarticulation}.
+	Generally, the computational complexity of optimization processes is exponential on the number of objectives and, consequently, the more objectives, the more expensive processes are. In particular, \ac{SOO} processes rely exclusively on a single objective function and are, therefore, usually less time-consuming than \ac{MOO} processes. The main difference between these two processes is that the former focus on finding the solution that optimizes a single function, whereas the latter focus on finding the optimal trade-offs between the, potentially conflicting, multiple objective functions. The difference in the computational resources become particularly relevant when considering simulation-based objective functions, as these tend to be very time-consuming. 
 	
-	A literature review over the architectural practice will evidence the prevalence of \ac{SOO} algorithms. Firstly, single-objective problems are easier to model. Secondly, plug-ins, like Galapagos and Goat, allow to easily address single objective building design problems, hence enabling to solve simpler optimization problems and reducing the total complexity of optimization processes. Finally, these plug-ins expose different derivative-free optimization algorithms, enabling the selection of the best algorithm to specific problems and potentially improving the optimization processes' complexity~\cite{Wortmann2016BBO}. 
+	Particularly, in the case of building design, because most problems include simulation-based objective functions, architects commonly opt for \ac{SOO} processes~\cite{Wortmann2017Opossum}: either by simply considering a single performance aspect (or objective), or, in the case of problems involving multiple conflicting aspects, by combining them in a unique function as it will be further explained in \cref{ssec:preferencesarticulation}.
 	
-	Despite its lower optimization time, these processes are also usually less informative than the ones for multi-objective problems. Particularly, in the architectural practice, building design often involves different conflicting aspects, such as thermal, energy consumption, lighting, among others. In such situations, one is interested in obtaining a view over the compromises between conflicting aspects in order to make an informed decision.
+	A literature review over the architectural practice will evidence the prevalence of \ac{SOO} practices. Firstly, single-objective problems are easier to model. Secondly, available optimization plug-ins, like Galapagos and Goat, allow to easily address single-objective building design problems. As a result, not only are architects capable of solving these optimization problems, but, when facing more complex \ac{MOO} problems, they are also encouraged to adopt simplified versions of such problems, thus reducing the overall complexity of those optimization processes. Finally, the variety of optimization algorithms exposed in these plug-ins enables the selection of the best algorithm to specific problems, thus spurring more efficient optimization processes~\cite{Wortmann2016BBO}.  
+	
+	Although \ac{SOO} yields less time-consuming processes, these are also less informative than \ac{MOO}, as they usually focus on a single optimal solution. As a case in point, building design often involve different conflicting aspects (e.g., thermal, energy consumption, cost), for which information about the different compromises would aid in the comprehension and making of more informed decisions.
 	
 	% #############################################################################
 	\subsection{Multi-Objective Optimization}
+	\label{ssec:moo}
 	\todo{work this transition...}
 	\ac{MOO} belongs to the set of problems concerned with the optimization of more than one objective simultaneously. The addition of other, potentially conflicting, objectives to the optimization process requires the re-definition of \textit{optimality}. 
 	
@@ -95,7 +108,7 @@
 	
 	% #############################################################################
 	\subsection{\textit{A Priori} Articulation of Preferences}
-	\label{subsec:preferencesarticulation}
+	\label{ssec:preferencesarticulation}
 	This approach allows combining multiple objectives according to one’s preferences, using what is called a utility function \cite{Marler2004}, i.e., a function which ranks alternatives according to their utility for global performance. Among all the possible utility functions, the most commonly used is the weighted sum or linear scalarization \cite{Wortmann2017Opossum}. This function reduces multi-objective problems to single-objective ones by defining the objective function as the weighted sum of multiple objectives. The weights represent the relative importance of each objective to the architect and must be
 	defined before the optimization. The final objective function is then provided to a \ac{SOO} algorithm, which tries to find an optimal (or a near optimal) solution. \Cref{eq:scalarization} represents an unconstrained example of the mathematical definition of such approach, where $w_i$ is the weight associated to the objective $f_i$, and $n$ is the total number of objectives of the problem. 
 	
@@ -622,6 +635,7 @@
 
 % #############################################################################
 \section{Problems to Address}
+\label{sec:problemsaddress}
 
 Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 

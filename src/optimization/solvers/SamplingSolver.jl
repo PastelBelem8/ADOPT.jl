@@ -24,7 +24,6 @@ struct SamplingSolver <: AbstractSolver
     nondominated_only::Bool
 
     SamplingSolver(;algorithm_params, max_eval=100, sampling_strategy=:simple, constraint_type=:hard, threshold=0.01, nondominated_only=true) = begin
-        println(sampling_strategy)
         check_arguments(algorithm_params, max_eval, sampling_strategy, constraint_type, threshold)
         sampling_strategy = sampling_strategy == :simple ? simple_strategy : iterative_strategy
         constraint_type = constraint_type == :hard ? hard_constraints : soft_constraints(threshold)

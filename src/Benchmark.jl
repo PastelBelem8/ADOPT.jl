@@ -14,11 +14,11 @@ A benchmark plan will have the following structure
 create_benchmark_plan(ids, as, ps) =
     map((i, a, p) -> "[ID-$i] = $a $p", ids, as, ps)
 
-init_benchmark(bdir, bplan) =
+init_benchmark(bdir, bplan=nothing) =
     with(results_dir, bdir, file_sep, "\n") do
         @info "[$(now())][Benchmark][$init_benchmark] Create benchmarkdir $(bdir)"
         mkdir(results_dir())
-        write_content("benchmark", "$(bdir)/benchmark.plan", bplan)
+        isnothing(bplan) ? nothing : write_content("benchmark", "$(bdir)/benchmark.plan", bplan)
     end
 
 log_error(err_file, e) =
@@ -69,5 +69,29 @@ benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals=100) = let
         end
     end
 end
+
+# Especially designed for Robot Case study. Cuz I need each solver to be created all over again, to prevent it from storing
+solvers_benchmark(;bname="benchmark", nruns, Xs, ys, solvers, problem, max_evals=100) = let
+    BENCHMARK_ID = "$(results_dir())/$(bname)-$(get_unique_string())"
+
+    alg_ids = 1:length(solvers)
+    init_benchmark(BENCHMARK_ID);
+
+    for id in alg_ids
+        @info "[$(now())][benchmark] Starting $nruns for algorithm $(solvers[id]) (with id $id) with params."
+        with(results_dir, "$(BENCHMARK_ID)/$(id)") do
+            failsafe_mkdir("benchmark", results_dir())
+            for run in 1:nruns
+                try
+                    @info "[$(now())][benchmark] Starting run $(run) (out of $(nruns))."
+                    solve(solvers[id](Xs[run], ys[run]), Dict(), problem, max_evals, true)
+                catch e
+                    @error "[$(now())][benchmark] Error $(sprint(show, e))\nCheck error.log file for more information.."
+                    log_error("$(BENCHMARK_ID)/error.log", e) end
+            end
+        end
+    end
+end
+
 
 export benchmark

@@ -41,7 +41,7 @@ LazyParameter(T::DataType, initializer::Function) = LazyParameter{T}(initializer
 import Base.reset
 reset(p::LazyParameter{T}) where {T} = p.value = nothing
 
-#= 
+#=
   An example of usage is
 xpto = Parameter(1)
 

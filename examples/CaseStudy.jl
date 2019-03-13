@@ -55,6 +55,16 @@ solver = Main.MscThesis.PlatypusSolver(NSGAII,
 schaffer1_sols = solve(solver, schaffer1)
 binhkorn_sols = solve(solver, binhkorn)
 kursawe_sols = solve(solver, kursawe)
+
+PSOs_params = Dict( :leader_size => 50, :swarm_size => 50, :max_iterations => 50 * 2, :epsilons => [0.1, 0.1])
+solver2 =  Main.MscThesis.PlatypusSolver(OMOPSO, max_eval=500, algorithm_params=PSOs_params, nondominated_only=false)
+modified_kursawe = Model([IntVariable(-5, 5), IntVariable(-5, 5), IntVariable(-5, 5)], [Objective(kursawe_f1), Objective(kursawe_f2)])
+modified_kursawe_sols = solve(solver2, modified_kursawe)
+
+schaffer1_sols = solve(solver2, schaffer1)
+binhkorn_sols = solve(solver2, binhkorn)
+kursawe_sols = solve(solver2, kursawe)
+
 =#
 # -------------------------------------------------------------------------
 # Sampling Solver

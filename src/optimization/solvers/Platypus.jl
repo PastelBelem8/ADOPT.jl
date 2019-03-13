@@ -136,7 +136,8 @@ function get_variables(solution::Solution; toDecode::Bool=true)
     types = solution.pyo.problem.types
     decoded_vars = Vector()
     for i in 1:size(vars, 1)
-      decoded_vars = vcat(decoded_vars, types[i].decode(vars[i]))
+      var = isa(vars[i], AbstractArray) ? vars[i] : vars[i,:] # HACK - Depending on the algorithm used and n_particles, the variables are represented differently (E.g.: EAs vs PSOs)
+      decoded_vars = vcat(decoded_vars, types[i].decode(var))
     end
     decoded_vars
   else
@@ -155,10 +156,10 @@ end
                 constraints::PyVector)
 @pytype_setters Problem directions "function"
 set_constraints!(o::Platypus.Problem, constraints) =
-  o.pyo[:constraints][:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
+  o.pyo.constraints[:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
 
 set_types!(o::Platypus.Problem, types) =
-  o.pyo[:types][:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), types)
+  o.pyo.types[:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), types)
 
 # Algorithms
 # Single Objective Algorithms
@@ -269,10 +270,10 @@ end
 # -----------------------------------------------------------------------
 "Uses the reflection capabilities of python to parse a function's signature and retrieves its arguments"
 function inspect_signature(pyfunc::Symbol)
-    params = PyDict(PyCall.inspect[:signature](Platypus.platypus[pyfunc])[:parameters])
+    params = PyDict(PyCall.inspect.signature(Platypus.platypus[pyfunc]).parameters)
     res = []
     for (pname, param) in params
-      res = vcat((pname, params[pname][:default]), res)
+      res = vcat((pname, params[pname].default), res)
     end
     res
 end
@@ -280,7 +281,7 @@ end
 "Returns a tuple subdiving the mandatory arguments from the optional arguments"
 function get_parameters(pyfunc::Symbol)
   iskwargs = name -> name == "kwargs"
-  isempty = value -> value == PyCall.inspect[:Parameter][:empty]
+  isempty = value -> value == PyCall.inspect.Parameter.empty
   isMandatory = param -> !iskwargs(param[1]) && isempty(param[2])
 
   args = inspect_signature(pyfunc)

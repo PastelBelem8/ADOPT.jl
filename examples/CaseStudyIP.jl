@@ -33,7 +33,7 @@ problem = Model(vars, objs)
 # 3 runs
 nruns = 3
 maxevals = 100
-nparticles = 1 # maxevals / 10
+nparticles = div(maxevals, 10)
 
 EAs_params = Dict(:population_size => nparticles)
 PSOs_params = Dict( :leader_size => nparticles,
@@ -45,10 +45,14 @@ OMOPSO_params = Dict( :leader_size => nparticles,
                     :epsilons => [2, 50, 0.5])
 
 # >>> Metaheuristics: NSGAII, SPEA2, SMPSO, OMOPSO
-benchmark(nruns=1,
-            algorithms=[(NSGAII, EAs_params)], #(SPEA2, EAs_params),
-                        # (SMPSO, PSOs_params), (OMOPSO, OMOPSO_params)],
-          problem=problem, max_evals=1)
+benchmark(nruns=3,
+            algorithms=[# (NSGAII, EAs_params),
+                        # (SPEA2, EAs_params),
+                        # (SMPSO, PSOs_params),
+                        # (OMOPSO, OMOPSO_params)],
+          problem=problem, max_evals=maxevals)
+
+
 
 # 8 algorithms (1st runs of surrogate models are ran using the previously obtained samples for metaheuristics)
 # Surrogates: GP, MLPRegressor, RandomForests, SVR, BayesianRidge

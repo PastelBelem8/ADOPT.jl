@@ -133,7 +133,7 @@ using LinearAlgebra
 PyObject(x::LinearAlgebra.Adjoint) = PyObject(copy(x))
 PyObject(x::Transpose) = PyObject(copy(x))
 
-# FIXME I did it to allow the convresion of the format used in the MscThesis (nfeatures x nsamples)
+# FIXME I did it to allow the conversion of the format used in the MscThesis (nfeatures x nsamples)
 # to (nsamples x nfeatures), without compromising the whole optimization framework.
 sk_fit!(model, X, y; kwargs...) = fit!(model, X', y'; kwargs...)
 sk_predict(model, X; kwargs...) = predict(model, X'; kwargs...)
@@ -158,7 +158,6 @@ export sk_fit!, sk_predict
 @sk_import gaussian_process.kernels: (ConstantKernel, DotProduct, Matern, RBF, RationalQuadratic, WhiteKernel)
 
 end # module
-
 
 #=
 using Main.MscThesis.ScikitLearnModels

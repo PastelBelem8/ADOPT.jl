@@ -78,9 +78,9 @@ kursawe_sols = solve(solver, kursawe)
 #=
 using Main.MscThesis.Platypus
 using Main.MscThesis.Sampling
-using Main.MscThesis.ScikitLearnModels: sk_fit!, sk_predict, GaussianProcessRegressor, LinearRegression
+using Main.MscThesis.ScikitLearnModels: sk_fit!, sk_predict, SVR, GaussianProcessRegressor, LinearRegression
 
-sklearn_model = GaussianProcessRegressor() # LinearRegression
+sklearn_model = SVR() # GaussianProcessRegressor() # LinearRegression
 surrogate = Surrogate(  sklearn_model,
                         objectives=schaffer1_objs,
                         creation_f=sk_fit!,

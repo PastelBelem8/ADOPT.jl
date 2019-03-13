@@ -225,9 +225,9 @@ random_forest_2 = (X, y) -> meta_solver(RandomForestRegressor(), ea_solver(), X,
 random_forest_3 = (X, y) -> meta_solver(RandomForestRegressor(), sampling_solver(), X, y)
 
 # Test 3 - SVR
-svr_1 = (X, y) -> meta_solver(SVR(), pso_solver(), X, y)
-svr_2 = (X, y) -> meta_solver(SVR(), ea_solver(), X, y)
-svr_3 = (X, y) -> meta_solver(SVR(), sampling_solver(), X, y)
+mlp_1 = (X, y) -> meta_solver(MLPRegressor(), pso_solver(), X, y)
+mlp_2 = (X, y) -> meta_solver(MLPRegressor(), ea_solver(), X, y)
+mlp_3 = (X, y) -> meta_solver(MLPRegressor(), sampling_solver(), X, y)
 
 using DelimitedFiles
 readdata(filename) = let
@@ -243,11 +243,31 @@ X3, y3 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample3.csv")
 # Main.MscThesis.solvers_benchmark(nruns=3,
 #                                  Xs=[X1, X2, X3],
 #                                  ys=[y1, y2, y3],
-#                                  solvers=[gpr_1, gpr_2, gpr_3],
+#                                  solvers=[gpr_1,
+#                                           gpr_2,
+#                                           gpr_3],
 #                                  problem=problem,
 #                                  max_evals=maxevals)
 
-solve(gpr_1(X1, y1), problem)
+# Main.MscThesis.solvers_benchmark(nruns=3,
+#                                  Xs=[X1, X2, X3],
+#                                  ys=[y1, y2, y3],
+#                                  solvers=[random_forest_1,
+#                                           random_forest_2,
+#                                           random_forest_3],
+#                                  problem=problem,
+#                                  max_evals=maxevals)
+
+Main.MscThesis.solvers_benchmark(nruns=3,
+                                 Xs=[X1, X2, X3],
+                                 ys=[y1, y2, y3],
+                                 solvers=[mlp_1,
+                                          mlp_2,
+                                          mlp_3
+                                          ],
+                                 problem=problem,
+                                 max_evals=maxevals)
+# solve(gpr_1(X1, y1), problem)
 # Fica a faltar
 # 1. Outros testes (random_forest, svr) - difernetes variantes dependem dos testes de GPR
 # 2. 2x surrogates - 2 objs

@@ -49,7 +49,7 @@ A very summarized explanation will be provided for the metaheuristic algorithms 
 	
 	\item \textbf{Simulated Annealing} algorithm is a global optimization physical algorithm. Resemblant of hill climbing algorithms, where new candidate solutions are randomly sampled, this algorithm iteratively re-samples the solution space aiming at finding an optimal solution. During the search, the algorithm is propitious to accept the re-sampled solutions with lower performance, according to a probabilistic function that becomes more discerning of the quality of the samples over the execution of the algorithm, thus resembling the natural annealing process~\cite{Brownlee2011}. 
 	
-	\item \textbf{} (Covariance Matrix Adaptation - Evolutionary Strategy) (CMA-ES) 
+	\item \textbf{(Covariance Matrix Adaptation - Evolutionary Strategy)} (CMA-ES) 
 \end{itemize}
 
 \todo{Change this}
@@ -80,3 +80,6 @@ For a more thorough description of different \acp{MOEA} and their mechanisms, we
 
 
 \section{Model-based Algorithms}
+\begin{itemize}
+	\item 	Since its invention, multiple implementations of \ac{RBF} have been proposed. RBFOpt implements two well-known versions, namely, the Gutmann's~\cite{Gutmann2001} and the Regis and Shoemaker's~\cite{Regis2007}, commonly known as MSRSM. These techniques differ in the search strategy for the next candidate solution to be evaluated using the original objective function. The former uses the solution, which is likely to yield the largest improvement in the surrogate's accuracy, whereas the latter tries to balance the surrogate's accuracy amelioration with the exploitation of promising solutions, using other search strategies, such as genetic algorithms, sampling algorithms, or other mathematical solvers~\cite{Wortmann2017Opossum}. Moreover, RBFOpt provides five different types of radial basis function: linear, multi-quadratic, cubic, thin plate spline, and automatic selection, which are also provided in the Opossum interface.
+\end{itemize}

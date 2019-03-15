@@ -2,164 +2,81 @@
 % This is Appendix A
 % !TEX root = ../main.tex
 % #############################################################################
-\chapter{Code of Project}
+\chapter{Algorithms Definitions}
 \label{chapter:appendixA}
 
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper. 
+\todo{REFS e melhorar descrições?}
 
-\begin{lstlisting}[frame=lines,style=XML,caption={Example of a XML file.},label=xmlEx]
-<?xml version="1.0" encoding="UTF-8"?>
-<StreamInfo version="2.0">
-    <Clip duration="PT01M0.00S">
-        <BaseURL>videos/</BaseURL>
-        <Description>svc_1</Description>
-        <Representation mimeType="video/SVC" codecs="svc" frameRate="30.00" bandwidth="401.90"
-            width="176" height="144" id="L0">
-            <BaseURL>svc_1/</BaseURL>
-            <SegmentInfo from="0" to="11" duration="PT5.00S">
-                <BaseURL>svc_1-L0-</BaseURL>
-            </SegmentInfo>
-        </Representation>
-        <Representation mimeType="video/SVC" codecs="svc" frameRate="30.00" bandwidth="1322.60"
-            width="352" height="288" id="L1">
-            <BaseURL>svc_1/</BaseURL>
-            <SegmentInfo from="0" to="11" duration="PT5.00S">
-                <BaseURL>svc_1-L1-</BaseURL>
-            </SegmentInfo>
-        </Representation>
-    </Clip>
-</StreamInfo>
-\end{lstlisting}
-
-Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam.
-
-\begin{spacing}{0.5}
-\lstinputlisting[style=coloredASM,language=Assembler,numbers=left,caption={Assembler Main Code.},label=code]
-{./tables_and_code/example.asm.txt}
-\end{spacing}
+\section{Sampling Algorithms}
+\begin{itemize}
+\item Monte Carlo Sampling
+\item Stratified Monte Carlo Sampling
+\item Latin Hypercube Sampling
+\item K-factorial
+\item Full-factorial
+\end{itemize}
 
 
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Phasellus eget nisl ut elit porta ullamcorper. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos.
-
-This inline MATLAB code \mcode{for i=1:3, disp('cool'); end;} uses the \verb|\mcode{}| command.\footnote{MATLAB Works also in footnotes: \mcodefn{for i=1:3, disp('cool'); end;}}
-
-Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci.
-
-\begin{lstlisting}[language=matlabfloz,caption={\mcode{Matlab Function}}]
-for i = 1:3
-	if i >= 5 && a ~= b       % literate programming replacement
-		disp('cool');         % comment with some §\mcommentfont\LaTeX in it: $\mcommentfont\pi x^2$§
-	end
-	[:,ind] = max(vec);
-	x_last = x(1,end) - 1;
-	v(end);
-	ylabel('Voltage (µV)');
-end
-\end{lstlisting}
-
-Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci.
-
-\lstinputlisting[
-	label=lst:matlab_code,
-	caption={\mcode{function.m}},
-	breaklines=true
-	]{./tables_and_code/function.m}
-
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Phasellus eget nisl ut elit porta ullamcorper. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci. Vestibulum erat libero, scelerisque et, porttitor et, varius a, leo.
-
-\begin{lstlisting}[style=htmlcssjs,caption={HTML with CSS Code}]
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Listings Style Test</title>
-    <meta charset="UTF-8">
-    <style>
-      /* CSS Test */
-      * {
-        padding: 0;
-        border: 0;
-        margin: 0;
-      }
-    </style>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <header> hey </header>
-  <article> this is a article </article>
-  <body>
-    <!-- Paragraphs are fine -->
-    <div id="box">			
-			<p>
-			  Hello World
-			</p>
-      <p>Hello World</p>
-      <p id="test">Hello World</p>
-			<p></p>
-    </div>
-    <div>Test</div>
-    <!-- HTML script is not consistent -->
-    <script src="js/benchmark.js"></script>
-    <script>
-      function createSquare(x, y) {
-        // This is a comment.
-        var square = document.createElement('div');
-        square.style.width = square.style.height = '50px';
-        square.style.backgroundColor = 'blue';
-        
-        /*
-         * This is another comment.
-         */
-        square.style.position = 'absolute';
-        square.style.left = x + 'px'; 
-        square.style.top = y + 'px';
-        
-        var body = document.getElementsByTagName('body')[0];
-        body.appendChild(square);
-      };
-      
-      // Please take a look at +=
-      window.addEventListener('mousedown', function(event) {
-        // German umlaut test: Berührungspunkt ermitteln
-        var x = event.touches[0].pageX;
-        var y = event.touches[0].pageY;
-        var lookAtThis += 1;
-      });
-    </script>
-  </body>
-</html>
-\end{lstlisting}
-
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper.
-
-\begin{lstlisting}[style=htmlcssjs,caption={HTML CSS Javascript Code}]
-
-@media only screen and (min-width: 768px) and (max-width: 991px) {
+\section{Direct-Search Algorithms}
+\begin{itemize}
+	\item \textbf{Nelder-Mead Simplex} (NMS)~\cite{Nelder1964} constructs a geometric figure, known as simplex, to envelope a region of the design space. After creating it, the algorithm moves the geometric figure across the design space by iteratively changing its vertices.
 	
-	#main {
-		width: 712px;
-		padding: 100px 28px 120px;
-	}
+	\item \textbf{Subspace simplex} (Subplex)~\cite{Rowan1990} algorithm is an unconstrained local optimization algorithm~\cite{Rowan1990}. As a generalization of the NMS algorithm, SUBPLEX subdivides the design space in low-dimensional subspaces and then applies the NMS algorithm to a set of these subspaces, in order to seek for a better solution. In contrast to NMS, which has difficulties in high-dimensional problems, SUBPLEX reduces the limitations through the decomposition of the problem in low-dimensional subspaces which are more efficiently optimized by NMS.
 	
-	/* .mono {
-		font-size: 90%;
-	} */
+	\item \textbf{Principal Axis} (PRAXIS) moves from one region to other by iteratively applying line search algorithms to each direction. The goal of these line search algorithms is to determine a better solution along a certain dimension.
 	
-	.cssbtn a {
-		margin-top: 10px;
-		margin-bottom: 10px;
-		width: 60px;  
-		height: 60px;   
-		font-size: 28px;
-		line-height: 62px;
-	}
-\end{lstlisting}
+	\item \textbf{DIRECT}~\cite{Jones1993DIRECT} is an algorithm that recursively subdivides the design space into smaller multi-dimensional hyper-rectangles, estimating the quality value of each rectangle. DIRECT uses these values to focus the search on more promising regions of the design space and to further subdivide those in smaller hyper-rectangles. 
+	
+	\item \textbf{DIRECT-L} is a a local variant of DIRECT claimed to be more efficient for functions with few local optima \todo{(Glabonsky and Kelley 2001)}.
+	
+	
+	\item \textbf{Direct MultiSearch} (DMS) %https://www.mat.uc.pt/~lnv/papers/dms.pdf
+	% http://ferrari.dmat.fct.unl.pt/personal/alcustodio/multiglodspaper.pdf
 
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper.
 
-\begin{lstlisting} [style=py,caption={PYTHON Code}]
-class TelgramRequestHandler(object):
-    def handle(self):
-        addr = self.client_address[0]         # Client IP-adress
-        telgram = self.request.recv(1024)     # Recieve telgram
-        print "From: %s, Received: %s" % (addr, telgram)
-        return
-\end{lstlisting}
+\end{itemize}	
+
+\section{Metaheuristics Algorithms}
+
+A very summarized explanation will be provided for the metaheuristic algorithms studied during this dissertation. Therefore, we suggest \cite{BlumRoli2003Metaheuristics,Glover2003Metaheuristics} for more complete explanations and further literature on these and other metaheuristic algorithms.
+
+\begin{itemize}
+	\item \textbf{Controlled Random Search 2} (CRS2) algorithm is a variant of the CRS algorithm for global optimization~\cite{Price1983}. A CRS algorithm is a population-based random search algorithm that creates an initial set of points, the population, which are then randomly evolved by means of heuristic rules. In the original CRS algorithms, heuristic rules modify a point at a time, replacing the worst point with a better one (called trial point), using a technique resemblant of the NMS algorithm \cite{Nelder1964}. Similarly to NMS, CRS algorithms use a simplex, i.e., a generalized triangle in $N$ dimensions, to envelope a region described by a random subset of points in the population. The worst point of the population is replaced with the reflection of the worst point in the simplex~\cite{Kaelo2006CRS2}. The CRS2 variant differs from the original in that it assumes that the worst population point will always be a part of the simplex. The actual version that is made available by Goat is a modified version of the CRS2 algorithm that introduces a local mutation component in an attempt to overcome situations where heuristic rules constantly fail to find a trial points that actually improve the worst point. Fundamentally, this local mutation generates a second trial point that results from the exploitation of the region around the best point in the population~\cite{Kaelo2006CRS2}.  
+	
+	\item \textbf{Evolutionary Strategy with Cauchy Distribution} (ESCH) \todo{ref (Santos 2010)} creates an initial population that is then iteratively recombined according to a specific distribution function, instead of the uniform distribution, and then mutated. The mutations are the result of combining two different mutation operators - the gaussian variation and the duplication gene mutations.
+	
+	\item \textbf{Improved Stochastic Racking Evolutionary Strategy} (ISRES) \todo{ref (Runarsson and Yao 2005)} is a global evolution strategy method, i.e., a method that maximizes the suitability of the candidate designs given by a fitness ranking function. The candidate designs are evolved iteratively by combining the application of a mutation rule and differential variation.
+	
+	\item \textbf{Simulated Annealing} algorithm is a global optimization physical algorithm. Resemblant of hill climbing algorithms, where new candidate solutions are randomly sampled, this algorithm iteratively re-samples the solution space aiming at finding an optimal solution. During the search, the algorithm is propitious to accept the re-sampled solutions with lower performance, according to a probabilistic function that becomes more discerning of the quality of the samples over the execution of the algorithm, thus resembling the natural annealing process~\cite{Brownlee2011}. 
+	
+	\item \textbf{} (Covariance Matrix Adaptation - Evolutionary Strategy) (CMA-ES) 
+\end{itemize}
+
+\todo{Change this}
+Regarding \ac{MOO} algorithms. 
+For a more thorough description of different \acp{MOEA} and their mechanisms, we suggest \cite{Zhou2011}. 
+
+\begin{itemize}
+	\item \textbf{SPEA2}
+	
+	\item \textbf{NSGA-II}
+	
+	\item \textbf{Epsilon \ac{MOEA}} ($\epsilon$-MOEA) 
+	
+	\item \textbf{Hypervolume Estimation Algorithm for \ac{MOO}} (HypE) 
+	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use \ac{HypE}, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, \ac{HypE} uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
+	
+	\item \textbf{\ac{MOEA} with Decomposition} (MOEA/D)
+	
+	\item \textbf{Pareto Archived Evolution Strategy} (PAES)
+	
+	\item \textbf{Pareto Envelope-Based Selection Algorithm 2} (PESA2)
+	
+	\item \textbf{Speed-constrained Multi-objective \ac{PSO}} (SMPSO)
+	
+	\item \textbf{OMOPSO}
+	
+\end{itemize}
+
+
+\section{Model-based Algorithms}

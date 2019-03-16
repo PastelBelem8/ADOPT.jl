@@ -42,11 +42,7 @@ Regarding the post-processing and logging mechanisms, the proposed prototype is 
 \section{Quantitative Evaluation}
 \label{sec:quantitative}
 
-In order to study and explore the behavior of algorithms within building design domains, we evaluate the performance of different algorithms using the optimizer prototype,  discussed in \Cref{chap:implement}, to assess their performance in the context of building design problems. Initially, we consider the optimization of the daylighting conditions of a solarium in an Ericeira house. Subsequently, we consider the evaluation of an arts exhibition pavillion involving two distinct components: an arc-shaped space frame structure and an interior gallery. These components involved the optimization of two simultaneously conflicting aspects, thus enabling a more comprehensive study about the performance of different \acp{MOOA}.
-
-- Falamaos c/ arquitetos de um atelier que nos deram os casos de studo e portanto, os casos tem uma aplicação directa na arquitetura. 
-- Os problemas foram por eles definidos
-\todo{Falta transição} 
+In order to study and explore the behavior of algorithms within building design domains, we evaluate the performance of different algorithms using the optimizer prototype,  discussed in \Cref{chap:implement}, to assess their performance in the context of building design problems. In order to evaluate the real applicability of the proposed framework, we tested our prototype in three case studies proposed by a small-scale architectural studio\footnote{Atelier dos Remédios}: (1) the optimization of the lighting conditions of a solarium in a private house in Portugal, (2) the optimization of the structural behavior and the elegance of an arc-shaped space frame structure for an arts exhibition pavillion, and (3) the optimization of the cost and the lighting conditions of an exhibition room in an arts pavillion.   
 
 % #############################################################################
 \subsection{Ericeira House: Solarium}
@@ -58,23 +54,48 @@ In order to study and explore the behavior of algorithms within building design 
 	\label{fig:ericeira_panels_explanation}
 \end{figure}
 
-The first case study involves the optimization of the lighting conditions of a room in an isolated private house in Portugal. The room was designed with a set of façade shading panels that modulates the daylight conditions on the interior. Depicted in \Cref{fig:ericeira_panels_explanation}, the panels are composed of a set of horizontal wood bars of different sizes, which alternate between one full-length bar and a set of smaller bars. The size and the position of the smaller bars along the panel's width are randomized for aesthetics reasons. In the end, the problem is defined in terms of four variables: the minimum and maximum lengths of smaller bars, the length’s step, and the maximum distance separating two consecutive bars. The different design variations were evaluated with regards to their daylight conditions, measured in terms of the \ac{sUDI} \todo{Nabiland Mardaljevic 2006}. \Cref{fig:ericeira_multiple_panels} represents some variations of our case study with different \ac{sUDI} values.
+The first case study involves the optimization of the lighting conditions of a room in an isolated private house in Portugal~\cite{Caetano2018,Belem2018optimizeddesign}. The room was designed with a set of façade shading panels that modulate the daylight conditions on the interior of the room. Depicted in \Cref{fig:ericeira_panels_explanation}, the panels are composed of a set of horizontal wood bars of different sizes, which alternate between one full-length bar and a set of smaller bars. For aesthetics reasons, the size and position of the smaller bars along the panel's width were randomized. The final pattern of the façade's shading panels is thus defined in term of four variables, which were constrained by the architects to vary within certain values: the length’s step, the maximum distance separating two consecutive bars, and the minimum and maximum lengths of the smaller bars. The architects expressed interest in achieving a solution for the shading panels that was optimized in terms of its lighting performance, which was measured using a daylight metric \ac{sUDI}\todo{Nabil and Mardaljevic 2006}. Therefore, the goal was to maximize the \ac{sUDI} values that would give the best lighting performance for the private room. \Cref{fig:ericeira_multiple_panels} represents some variations of this case study with different \ac{sUDI} values.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_2.png}
-	\caption{Representation ofshading panels’geometric patternwith different sUDI values (from left to right, 7\%, 62\%, 90\% and 100\%).}
+	\caption{Representation of shading panels’ geometric pattern with different sUDI values (from left to right, 7\%, 62\%, 90\%, and 100\%).}
 	\label{fig:ericeira_multiple_panels}
 \end{figure}
+%http://papers.cumincad.org/data/works/att/caadria2018\_278.pdf
+
+\todo{
+	- Falar do trabalho no primeiro paper:
+	< Seguimos uma abordagem DoE, no qual aplicámos um processo iterativo que foi restringindo os bounds sucessivamente até obtermos uma amostra melhor}
+The first approach to this case study~\cite{Caetano2018} followed a simple design of experiments approach, using two sampling algorithms to generate different design variations: Monte Carlo sampling and Latin hypercube sampling (see \Cref{chapter:appendixA}). In order to find an optimal solution, initially the architects suggested 
+design space larger than the one suggested by the architects' the architects’ suggestions for the parameters, but also a larger design space that resulted from the assignment of values that deviated from those premise
+
+The optimization process was then repeated, but this time considering theconstraint set by the architects of using stripes of 5, 10, 15, 20, or 25 cm length.Only the distance between each stripe (the variableD-max) was dictating the lightentering the room. We started by setting theD-maxvalue as 20 cm, like thearchitects had suggested, and we generated 50 samples, obtaining a maximumsUDIvalue of around 45\%, which was far from being optimum. Consequently,the optimization process was redone using, this time, aD-maxvalue of 100 cm,generating200samples. ThescatterplotinFigure2organizestheobtainedsample,demonstrating that, until reaching a maximum distance of 50cm, thesUDI rapidlyincreases to 80\%, whereas after that it slowly converges to 100\%. Nevertheless,most of the solutions corresponding to highersUDIvalues resulted from inputvalues that deviated from the ones proposed by the architects. 
+The challenge at this stage was selecting a solution that not only had goodlighting performance, but also matched the architects’ design intent. To addressthis,wedecidedtoevaluatehowmuchanarchitect’sinitialsuggestionrestrictshisfinal choice, i.e., the ease with which he accepts other design options that deviatefrom his initial idea. Therefore, we presented seven samples to the architectswithout informing them about the values of the variables and the correspondingsUDIlevels. 
+
+\ac{GRafico CAADRIA?}
+
+- Falar do trabalho do ecaade
+< Queremos estudar os algoritmos e a sua adaptabilidade para este caso de estudo
+< Queremos estudar a influencia da configuração apropriada de algoritmos, para o retorno de boas soluções
+< Dois casos de teste...
+< Primeiro q testou vários \ac{SOO} algorithms
+< Segundo q testou algoritmos locais c/ bons e maus pontos de partida, assim emulando a sua boa configuração ou não. 
+< Resultados
+- correr caso de estudo 
+- avaliar 
+- colocar grafico e tirar conclusões (podemos ir buscar algumas ao paper...)
+
+The second approach to this case study~\cite{Belem2018optimizeddesign} considered the application of different \ac{SOO} algorithms and the impact of the different configurations on their performance.
 
 
 For this particular problem we subdivided the tests in two phases: (1) we compared both global and local model methods’ performance; and (2) we analyzed the impact of the starting point’s choice in theoverall performance of local methods. The impact of the starting point was tested by providing each algorithm with two initial guesses: both a good and a bad solution, i.e., with values of sUDI of 78\% and 7\%, respectively. 
 
+
+he performance was accessed according to thetime necessary to reach high-quality solutions, i.e.,solution with sUDI values greater than 95\%. Accord-ing to the current practice (Cichocka et.  al.  2017),we have considered the methods within differenttime frames, hence evidencing the strength of eachmethod.To simulate the time constraints and the lackof knowledge about the optimization methods, weused the default parameters for all methods and weconsidered the number of evaluations to be 60 and 15 for the first and second phases, respectively. Forthe second phase of tests, we further constrained thenumber of evaluations to simulate a real scenario,where the designer runs a few evaluations to deter-mine a reasonable solution, which he then uses tohot-start the local method.After running the first phase of tests, we chosea design with a reasonable sUDI value and used it asthe starting point for the local optimization methods
+
 We tested the implementation of four direct search methods from the NLopt library (Johnson 2009). Three of which are local optimization method, namely, SUBPLEX (Rowan 1990), PRAXIS (Brent 1972), and Nelder-Mead Simplex (NMS) (Nelder and Mead 1964), and one global method, DIRECT (Jones et al. 1993) (described in ~\Cref{chapter:appendixA}).
 
-- correr caso de estudo 
-- avaliar 
-- colocar grafico e tirar conclusões (podemos ir buscar algumas ao paper...)
 
 % #############################################################################
 \subsection{Black Pavilion: Arts Exhibit}

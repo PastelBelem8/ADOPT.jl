@@ -3,42 +3,54 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Architecture of the Solution}
+\fancychapter{Solution}
 \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:architecture}
 
-Donec gravida posuere arcu. Nulla facilisi. Phasellus imperdiet. Vestibulum at metus. Integer euismod. Nullam placerat rhoncus sapien. Ut euismod. Praesent libero. Morbi pellentesque libero sit amet ante. Maecenas tellus. Maecenas erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+This dissertation
+
+\section{Algorithmic Optimization}
+
+With the ability to quickly update a design, to gener-ate the corresponding analytical model, and, finally,to automatically evaluate the design in an analyticaltool, it becomes possible to implement automatedoptimization processes.  We name these processes \ac{AO}.
+
+AO treats the analyses’ results for different variations of the design as the functions to optimize. These functions, also known as objective functions,have a domain which corresponds to the range of acceptable designs as specified by the architect. Moreover, since we do not know their mathematical form,these objective functions are often treated as black-boxes, and, as a result, information about the their derivatives cannot be extracted.  For this reason,methods depending on function derivatives cannotbe used to address this problem.  
+
+we propose to complement ADwith the algorithmic evaluation and optimization ofthe design’s performance. As a case study, we eval-uated our proposal in the context of lighting perfor-mance. To this end, we combined different optimiza-tion methods available in existing software libraries,which allowed us to effortlessly test different algo-rithms. Moreover, we used the AO approach to com-pare the performance of ten black-box methods, cov-ering both local and global methods of the previously
+
 % #############################################################################
 
 \section{Architecture Overview} 
+
+
+
+
+
+
+% #############################################################################
+\section{Architecture Design Requirements} 
+
+% #############################################################################
+\section{Architecture Design Implementation}
+
+
+
+The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
+
+Additionally, our solution is flexible enough to allow the user to select between a set of algorithms with different properties \cite{Wolpert1997NFLT}, including algorithms that handle time-consuming evaluations. By providing algorithms from different classes, our solution potentiates the efficiency of optimization processes. In order to help in the choice of the algorithms, our solution also adds support to easily run benchmarks with multiple algorithms, providing a quantitative measure of their performance. 
+
+Our solution also values the traceability of results especially for enhancing user comprehension. To improve existing mechanisms, our solution produces files involving all the necessary information about the configurations (e.g., algorithm parameters) and the solutions evaluated during the optimization process. Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
+
+At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
+
+Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
 
 
 To address this, we focus on optimization processes within the architectural domain by proposing a framework for optimizing both single and multi-objective problems. The implementation of such framework requires the definition of: (1) a modeling \ac{API} to support the specification of optimization problems, (2) a wide variety of optimization algorithms to solve different optimization problems, and (3) visual representations of the obtained results to provide a more comprehensive feedback over the optimization results.
 
 To achieve the goals proposed, we studied different mathematical optimization modeling languages and optimization frameworks, pondering the benefits and obstacles of each one. Based on this information, we established the basic requirements for the implementation of a simpler framework and its seamless application within the architectural practice. 
 Finally, 
-% #############################################################################
-\section{Architecture Design Requirements} 
-
-\subsection{Problem Modelling}
-
-\subsection{Simple Solver}
-
-\subsection{Meta Solver}
-
-% #############################################################################
-\section{Architecture Design Implementation}
-
-
-\subsection{Problem Modelling}
-
-\subsection{Simple Solver}
-
-\subsection{Meta Solver}
-
-
-
 
 
 Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper. 

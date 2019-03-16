@@ -201,7 +201,6 @@
 
 	Despite the relevance and growing interest of Pareto-based optimization approaches, the lack of relevant benchmarks comparing the performance of different algorithms in the architectural field is evident. 
 
-
 	\todo{Ease this transition...}Each optimization approach comprises different optimization algorithms. In the particular case of building design, the nature of the costly evaluation functions not only directly influences the overall optimization time, but also the algorithms' nature, as it will be discussed in the next section. 
 	
 
@@ -365,8 +364,6 @@
 	
 	The following sections focus on the current \ac{BPO} practices both for \ac{SOO} and \ac{MOO}, the currently available tools, and the advantages and disadvantages of each approach.
 	
-	
-	
 	\subsection{Performance Indicators}
 	\label{ssec:performance}
 	Despite the large interest in \ac{MOO}, the question of how to quantitatively compare the performance of different algorithms still remains unanswered. Firstly, in multi-objective problems, the number of objectives is greater than the number of objectives in single-objective problems: the former considers a collection of vectors representing the Pareto-optimal solutions, whereas the latter considers real numbers. Secondly, it is often the case that the application of exact methods to \ac{MOO} contexts is impracticable due to the complexity introduced by underlying applications (e.g., simulation tools, physical experiments). In these cases, the generation of the true Pareto-optimal set is often infeasible, requiring vast computational resources to be generated. Thirdly, despite the availability of alternatives to exact methods, such as metaheuristics algorithms (e.g., evolutionary algorithms, particle swarm), these are not guaranteed to identify optimal trade-offs, instead yielding good approximations~\cite{Zitzler2003Metrics}. Finally, we are interested in knowing which of the non-exact algorithms yields better approximations for a given problem, hence prompting the need for assessing the performance of \acp{MOOA}.
@@ -451,9 +448,6 @@
 	\end{itemize}
 	
 	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
-
-	
-	
 	
 \section{Optimization in Architecture}	
 	\label{sec:plugins}
@@ -571,7 +565,7 @@
 	\subsection{Opossum}
 	Opossum (OPtimizatiOn Systems with SUrrogate Models) \cite{Wortmann2017Opossum} is a generic plug-in, developed on top of Grasshopper, that explores Galapagos ideas to confer non-programmers an easy way to tackle a wide variety of problems.
 	
-	Opossum interfaces that the model-based RBFOpt library \cite{RBFOPT}, exposing two single-objective variants of the global \ac{RBF} algorithm. 
+	Opossum interfaces that the model-based RBFOpt library \cite{RBFOPT}, exposing two single-objective variants of the global RBF algorithm. 
 	
 	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper script. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper script and connect it with the variables and the objective function components.
 	
@@ -710,7 +704,7 @@
 \section{Problems to Address}
 \label{sec:problemsaddress}
 
-\todo{Reler}
+\todo{Reler}	
 Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 
 % Scalablity, portability, code legibility

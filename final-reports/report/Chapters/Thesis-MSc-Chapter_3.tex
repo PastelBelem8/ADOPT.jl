@@ -3,37 +3,36 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Solution}
+\fancychapter{Algorithmic Framework for Architecture}
 \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:architecture}
 
+This dissertation focus on the study of optimization algorithms that are able to handle more efficiently a set of problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a framework to enable the application of different types of optimization algorithms, both for\ac{SOO} and \ac{MOO} problems. The concretization of such framework requires: (1) the definition of an abstraction layer, that enables the modeling of optimization problems, (2) a wide variety of optimization algorithms to address different optimization problems, (3) a set of performance indicators to provide the user with a measure of the algorithms' quality when testing multiple algorithms, and (4) visual representations of the obtained results to provide more comprehensive feedback over the optimization results.   
 
-This dissertation
+With the aforementioned framework, users are able to address optimization problems involving time-intensive functions, for which the objective functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype. This chapter describes the main components of the developed prototype and also the main requisites that led to their implementation. 
 
-\section{Algorithmic Optimization}
+\section{Abstraction Layer}
 
-With the ability to quickly update a design, to gener-ate the corresponding analytical model, and, finally,to automatically evaluate the design in an analyticaltool, it becomes possible to implement automatedoptimization processes.  We name these processes \ac{AO}.
+The abstraction layer is designed to abstract the user from the logic of other external optimization tools. By providing a uniform \ac{API}, i.e., a set of primitives and procedures, this abstraction layer eliminates the appearent chasm between different optimization tools and facilitates the use of algorithms from different optimization libraries, incurring no additional efforts for the user, i.e., the user is not required to make any further modifications to the program, e.g., changing the program structure, changing the primitive operations, in order to test different optimization algorithms. 
 
-AO treats the analyses’ results for different variations of the design as the functions to optimize. These functions, also known as objective functions,have a domain which corresponds to the range of acceptable designs as specified by the architect. Moreover, since we do not know their mathematical form,these objective functions are often treated as black-boxes, and, as a result, information about the their derivatives cannot be extracted.  For this reason,methods depending on function derivatives cannotbe used to address this problem.  
+By adopting one of the currently available domain-specific modeling languages for optimization (e.g., JuMP, PyOMO, MultiJuMP, PISA, AMPL), not only would users have access to a well-tested and more stable \acp{API}, but they would also have out-of-the-box access to a wide variety of optimization solvers capable of handling various problems. 
 
-we propose to complement ADwith the algorithmic evaluation and optimization ofthe design’s performance. As a case study, we eval-uated our proposal in the context of lighting perfor-mance. To this end, we combined different optimiza-tion methods available in existing software libraries,which allowed us to effortlessly test different algo-rithms. Moreover, we used the AO approach to com-pare the performance of ten black-box methods, cov-ering both local and global methods of the previously
+Notwithstanding their benefits, the abstraction layer provided in this dissertation does not make use of these modeling languages due to (1) their lack of support for both \ac{SOO} and \ac{MOO} problems, (2) complexity of syntax rules and need for deep understanding of the language to use it, and (3) lack of solvers or mechanisms that enable the execution of optimization solvers capable of efficiently addressing optimization problems involving costly evaluation functions for which information about the objective functions is unavailable. As a result, to explore one of these modeling languages would require not only additional developments to create the mechanisms to support both single- and multi-objective problems, but also to create a new solver capable of addressing the specific type of problems that this dissertation set out to address. 
 
-% #############################################################################
+Nevertheles, influenced by existing optimization modeling languages, the set of operations that compose the abstraction layer removes the complexity associated to most modeling languges and exposes a set of simple primitives that can be combined to yield successively incrementaly complex optimization problems. Moreover, the abstraction layer was designed to enable the execution of any of the optimization approaches discussed in~\Cref{sec:optimizationproblems}, ranging from \ac{SOO} to the different \ac{MOO} approaches and passing through the design of experiments approach. 
 
-\section{Architecture Overview} 
+\section{Optimization Algorithms}
+
+\section{Performance Indicators}
+
+\section{Visualization and Post-Processing Mechanisms}
+Traceability and state feedback
+
+\section{Summary}
 
 
-
-
-
-
-% #############################################################################
-\section{Architecture Design Requirements} 
-
-% #############################################################################
-\section{Architecture Design Implementation}
-
+In order to verify the executability of the proposed framework, we developed a simple prototype using the Python and Julia\footnote{https://julialang.org/} programming languages. Python was selected, because it already provides countless optimization and visualization libraries, thus fostering the rapid development of 
 
 
 The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
@@ -52,162 +51,3 @@ To address this, we focus on optimization processes within the architectural dom
 To achieve the goals proposed, we studied different mathematical optimization modeling languages and optimization frameworks, pondering the benefits and obstacles of each one. Based on this information, we established the basic requirements for the implementation of a simpler framework and its seamless application within the architectural practice. 
 Finally, 
 
-
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper. 
-
-\begin{lstlisting}[frame=lines,style=XML,caption={Example of a XML file.},label=xmlEx]
-<?xml version="1.0" encoding="UTF-8"?>
-<StreamInfo version="2.0">
-<Clip duration="PT01M0.00S">
-<BaseURL>videos/</BaseURL>
-<Description>svc_1</Description>
-<Representation mimeType="video/SVC" codecs="svc" frameRate="30.00" bandwidth="401.90"
-width="176" height="144" id="L0">
-<BaseURL>svc_1/</BaseURL>
-<SegmentInfo from="0" to="11" duration="PT5.00S">
-<BaseURL>svc_1-L0-</BaseURL>
-</SegmentInfo>
-</Representation>
-<Representation mimeType="video/SVC" codecs="svc" frameRate="30.00" bandwidth="1322.60"
-width="352" height="288" id="L1">
-<BaseURL>svc_1/</BaseURL>
-<SegmentInfo from="0" to="11" duration="PT5.00S">
-<BaseURL>svc_1-L1-</BaseURL>
-</SegmentInfo>
-</Representation>
-</Clip>
-</StreamInfo>
-\end{lstlisting}
-
-Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam.
-
-\begin{spacing}{0.5}
-	\lstinputlisting[style=coloredASM,language=Assembler,numbers=left,caption={Assembler Main Code.},label=code]
-	{./tables_and_code/example.asm.txt}
-\end{spacing}
-
-
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Phasellus eget nisl ut elit porta ullamcorper. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos.
-
-This inline MATLAB code \mcode{for i=1:3, disp('cool'); end;} uses the \verb|\mcode{}| command.\footnote{MATLAB Works also in footnotes: \mcodefn{for i=1:3, disp('cool'); end;}}
-
-Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci.
-
-\begin{lstlisting}[language=matlabfloz,caption={\mcode{Matlab Function}}]
-for i = 1:3
-if i >= 5 && a ~= b       % literate programming replacement
-disp('cool');         % comment with some §\mcommentfont\LaTeX in it: $\mcommentfont\pi x^2$§
-end
-[:,ind] = max(vec);
-x_last = x(1,end) - 1;
-v(end);
-ylabel('Voltage (µV)');
-end
-\end{lstlisting}
-
-Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci.
-
-\lstinputlisting[
-label=lst:matlab_code,
-caption={\mcode{function.m}},
-breaklines=true
-]{./tables_and_code/function.m}
-
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Phasellus eget nisl ut elit porta ullamcorper. Maecenas tincidunt velit quis orci. Sed in dui. Nullam ut mauris eu mi mollis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Sed cursus cursus velit. Sed a massa. Duis dignissim euismod quam. Nullam euismod metus ut orci. Vestibulum erat libero, scelerisque et, porttitor et, varius a, leo.
-
-\begin{lstlisting}[style=htmlcssjs,caption={HTML with CSS Code}]
-<!DOCTYPE html>
-<html>
-<head>
-<title>Listings Style Test</title>
-<meta charset="UTF-8">
-<style>
-/* CSS Test */
-* {
-padding: 0;
-border: 0;
-margin: 0;
-}
-</style>
-<link rel="stylesheet" href="css/style.css" />
-</head>
-<header> hey </header>
-<article> this is a article </article>
-<body>
-<!-- Paragraphs are fine -->
-<div id="box">			
-<p>
-Hello World
-</p>
-<p>Hello World</p>
-<p id="test">Hello World</p>
-<p></p>
-</div>
-<div>Test</div>
-<!-- HTML script is not consistent -->
-<script src="js/benchmark.js"></script>
-<script>
-function createSquare(x, y) {
-// This is a comment.
-var square = document.createElement('div');
-square.style.width = square.style.height = '50px';
-square.style.backgroundColor = 'blue';
-
-/*
-* This is another comment.
-*/
-square.style.position = 'absolute';
-square.style.left = x + 'px'; 
-square.style.top = y + 'px';
-
-var body = document.getElementsByTagName('body')[0];
-body.appendChild(square);
-};
-
-// Please take a look at +=
-window.addEventListener('mousedown', function(event) {
-// German umlaut test: Berührungspunkt ermitteln
-var x = event.touches[0].pageX;
-var y = event.touches[0].pageY;
-var lookAtThis += 1;
-});
-</script>
-</body>
-</html>
-\end{lstlisting}
-
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper.
-
-\begin{lstlisting}[style=htmlcssjs,caption={HTML CSS Javascript Code}]
-
-@media only screen and (min-width: 768px) and (max-width: 991px) {
-
-#main {
-width: 712px;
-padding: 100px 28px 120px;
-}
-
-/* .mono {
-font-size: 90%;
-} */
-
-.cssbtn a {
-margin-top: 10px;
-margin-bottom: 10px;
-width: 60px;  
-height: 60px;   
-font-size: 28px;
-line-height: 62px;
-}
-\end{lstlisting}
-
-Nulla dui purus, eleifend vel, consequat non, dictum porta, nulla. Duis ante mi, laoreet ut, commodo eleifend, cursus nec, lorem. Aenean eu est. Etiam imperdiet turpis. Praesent nec augue. Curabitur ligula quam, rutrum id, tempor sed, consequat ac, dui. Vestibulum accumsan eros nec magna. Vestibulum vitae dui. Vestibulum nec ligula et lorem consequat ullamcorper.
-
-\begin{lstlisting} [style=py,caption={PYTHON Code}]
-class TelgramRequestHandler(object):
-def handle(self):
-addr = self.client_address[0]         # Client IP-adress
-telgram = self.request.recv(1024)     # Recieve telgram
-print "From: %s, Received: %s" % (addr, telgram)
-return
-\end{lstlisting}

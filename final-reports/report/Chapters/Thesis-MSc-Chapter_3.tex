@@ -12,6 +12,16 @@ This dissertation focus on the study of optimization algorithms that are able to
 
 With the aforementioned framework, users are able to address optimization problems involving time-intensive functions, for which the objective functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype. This chapter describes the main components of the developed prototype and also the main requisites that led to their implementation. 
 
+\section{Programming Language}
+
+One of the first concerns when developing the prototype for 
+
+- Specify why selected Julia programming language
+- Specify why selected Python programming language
+
+- Emphasize that the proposed framework can be achieved with any other PL, such as Java. 
+- Or even using VPLs.
+
 \section{Abstraction Layer}
 
 The abstraction layer is designed to abstract the user from the logic of other external optimization tools. By providing a uniform \ac{API}, i.e., a set of primitives and procedures, this abstraction layer eliminates the appearent chasm between different optimization tools and facilitates the use of algorithms from different optimization libraries, incurring no additional efforts for the user, i.e., the user is not required to make any further modifications to the program, e.g., changing the program structure, changing the primitive operations, in order to test different optimization algorithms. 
@@ -22,12 +32,82 @@ Notwithstanding their benefits, the abstraction layer provided in this dissertat
 
 Nevertheles, influenced by existing optimization modeling languages, the set of operations that compose the abstraction layer removes the complexity associated to most modeling languges and exposes a set of simple primitives that can be combined to yield successively incrementaly complex optimization problems. Moreover, the abstraction layer was designed to enable the execution of any of the optimization approaches discussed in~\Cref{sec:optimizationproblems}, ranging from \ac{SOO} to the different \ac{MOO} approaches and passing through the design of experiments approach. 
 
+As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only simple and intuitive primitives to define variables, the objective functions, and, when necessary, the constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved 
+
+
+- Simple but flexible to enable extensions, extend it 
+
+
 \section{Optimization Algorithms}
 
+Optimization algorithms represents a crucial part in an optimization process and, consequently, in the developed solution. In order to study different optimization algorithms and to test their suitability for specific optimization problems~\cite{Wolpert1997NFLT}, a large set of distinct and representative optimization algorithms should be provided. In addition to diversity, our solution also provides the users with the flexibility to configure the different parameters associated to the optimization algorithms, commonly known as hyperparameters. By fine-tuning the values of these hyperparameters for a specific problem, the performance of optimization optimization can be drastically improved. 
+
+One other important requisite considered by the developed solution is that at least a subset of the provided algorithms must be tailored to address optimization problems that incorporate time-consuming evaluation functions and for which information is difficult to obtain. To address this requisite, we reviewed the most reputed \ac{SOO} and \ac{MOO} open-source derivative-free optimization libraries. After a thorough analysis of different optimization libraries, the final solution exposed a total of 36 algorithms from 4 different libraries, listed in \Cref{table:algorithms}. 
+
+To implement sampling algorithms, the prototype makes use of Julia's arrays and random primitives, requiring no additional libraries to be implemented. Secondly, by integrating the NLopt~\cite{NLOPT} library within our prototype, we were able to expose 10 \ac{SOO} algorithms and, thus, to test algorithms from the three derivative-free optimization classes. Moreover, this library has already been used in Goat~\cite{GOAT}, an architectural design optimization tool, which has been applied in some architectural studies as well\todo{REF - Wortmann}. Thirdly, the Platypus library was chosen from a set of \ac{MOO} libraries, that included Platypus, jMetal, MOEAFramework, Paradiseo, and PaGMO. The Platypus library was the final choice due to the variety and quality of the \ac{MOO} algorithms provided, the ease of integration with the Julia programming language, and the cleanness and readibility of its \ac{API}. Finally, the fourth library was the Python scikit-learn library, which provides the basis algorithms for constructing more complex model-based algorithms, both for single- and multi-objective problems.
+
+\begin{table}[]
+	\centering
+	\begin{tabular}{cccll}
+		\rowcolor[HTML]{EFEFEF} 
+		\textbf{Class} & \textbf{Objectives} & \textbf{Global} & \textbf{Algorithm} & \textbf{Library} \\ \hline
+		& Both & G & K-factorial & None \\
+		& Both & G & Latin Hypercube & None \\
+		& Both & G & Random & None \\
+		\multirow{-4}{*}{Sampling} & Both & G & Stratified Random & None \\ \hline
+		& S & G & CRS2 & NLopt \\
+		& M & G & CMA-ES & Platypus \\
+		& S & G & ESCH & NLopt \\
+		& M & G & ES & Platypus \\
+		& M & G & $\epsilon$-MOEA & Platypus \\
+		& S & G & GA & Platypus \\
+		& M & G & GDE3 & Platypus \\
+		& M & G & IBEA & Platypus \\
+		& S & G & ISRES & NLopt \\
+		& M & G & MOEAD/D & Platypus \\
+		& M & G & NSGA-II & Platypus \\
+		& M & G & NSGA-III & Platypus \\
+		& M & G & PAES & Platypus \\
+		& M & G & PESA2 & Platypus \\
+		& M & G & SPEA2 & Platypus \\
+		& M & G & OMOPSO & Platypus \\
+		\multirow{-17}{*}{Metaheuristic} & M & G & SMPSO & Platypus \\ \hline
+		& S & G & DIRECT & NLopt \\
+		& S & G & DIRECT-L & NLopt \\
+		& S & L & NMS & NLopt \\
+		& S & L & PRAXIS & NLopt \\
+		\multirow{-5}{*}{Direct search} & S & L & Subplex & NLopt \\ \hline
+		& S & L & BOBYQA & NLopt \\
+		& S & L & COBYLA & NLopt \\
+		& Both & G & Decision Tree & Scikit-learn \\
+		& Both & G & GP & Scikit-learn \\
+		& Both & G & Linear & Scikit-learn \\
+		& Both & G & MLP & Scikit-learn \\
+		& Both & G & Random Forest & Scikit-learn \\
+		& Both & G & RBF-Cubic & pySOT \\
+		& Both & G & RBF-Linear & pySOT \\
+		\multirow{-10}{*}{Model-based} & S & G & SVR & Scikit-learn
+	\end{tabular}
+	\caption[List of the algorithms exposed by the solution's prototype]{List of the algorithms exposed by the prototype, discriminated by class, number of objectives, aim of the search, and the optimization library implementing it. L - Local, G - Global, M - Multi, S - Single.}
+	\label{table:algorithms}
+\end{table}
+
+
+
+
 \section{Performance Indicators}
+Additionally, our solution is flexible enough to allow the user to select between a set of algorithms with different properties , including algorithmsbe that handle time-consuming evaluations. In order to help in the choice of the algorithms, our solution also adds support to easily run benchmarks with multiple algorithms, providing a quantitative measure of their performance. 
+
 
 \section{Visualization and Post-Processing Mechanisms}
 Traceability and state feedback
+
+The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
+
+Our solution also values the traceability of results especially for enhancing user comprehension. To improve existing mechanisms, our solution produces files involving all the necessary information about the configurations (e.g., algorithm parameters) and the solutions evaluated during the optimization process. Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
+
+
+
 
 \section{Summary}
 
@@ -35,19 +115,7 @@ Traceability and state feedback
 In order to verify the executability of the proposed framework, we developed a simple prototype using the Python and Julia\footnote{https://julialang.org/} programming languages. Python was selected, because it already provides countless optimization and visualization libraries, thus fostering the rapid development of 
 
 
-The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
-
-Additionally, our solution is flexible enough to allow the user to select between a set of algorithms with different properties \cite{Wolpert1997NFLT}, including algorithms that handle time-consuming evaluations. By providing algorithms from different classes, our solution potentiates the efficiency of optimization processes. In order to help in the choice of the algorithms, our solution also adds support to easily run benchmarks with multiple algorithms, providing a quantitative measure of their performance. 
-
-Our solution also values the traceability of results especially for enhancing user comprehension. To improve existing mechanisms, our solution produces files involving all the necessary information about the configurations (e.g., algorithm parameters) and the solutions evaluated during the optimization process. Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
-
 At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
 
 Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
-
-
-To address this, we focus on optimization processes within the architectural domain by proposing a framework for optimizing both single and multi-objective problems. The implementation of such framework requires the definition of: (1) a modeling \ac{API} to support the specification of optimization problems, (2) a wide variety of optimization algorithms to solve different optimization problems, and (3) visual representations of the obtained results to provide a more comprehensive feedback over the optimization results.
-
-To achieve the goals proposed, we studied different mathematical optimization modeling languages and optimization frameworks, pondering the benefits and obstacles of each one. Based on this information, we established the basic requirements for the implementation of a simpler framework and its seamless application within the architectural practice. 
-Finally, 
 

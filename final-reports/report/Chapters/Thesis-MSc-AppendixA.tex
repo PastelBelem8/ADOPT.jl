@@ -9,11 +9,11 @@
 
 \section{Sampling Algorithms}
 \begin{itemize}
-\item Monte Carlo Sampling
-\item Stratified Monte Carlo Sampling
-\item Latin Hypercube Sampling
-\item K-factorial
-\item Full-factorial
+\item \textbf{Monte Carlo Sampling} or Random Sampling
+\item \textbf{Stratified Monte Carlo Sampling}
+\item \textbf{Latin Hypercube Sampling}
+\item \textbf{K-factorial}
+\item \textbf{Full-factorial}
 \end{itemize}
 
 
@@ -64,7 +64,7 @@ For a more thorough description of different \acp{MOEA} and their mechanisms, we
 	\item \textbf{Epsilon \ac{MOEA}} ($\epsilon$-MOEA) 
 	
 	\item \textbf{Hypervolume Estimation Algorithm for \ac{MOO}} (HypE) 
-	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use \ac{HypE}, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, \ac{HypE} uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
+	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use HypE, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, HypE uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
 	
 	\item \textbf{\ac{MOEA} with Decomposition} (MOEA/D)
 	

@@ -14,13 +14,17 @@ With the aforementioned framework, users are able to address optimization proble
 
 \section{Programming Language}
 
-One of the first concerns when developing the prototype for 
+One of the first concerns when developing the prototype was regarding which programming language to use. The currently implemented prototype uses two programming languages, which were chosen based on the available optimization libraries, the domain of the solution, and the performance of each programming language.
+ 
+On the one hand, several languages already provide well-known optimization libraries, which have been tested, and independently validated. As a result, instead of attempting to implement the optimization algorithms again, we sought for programming languages which provided an easy access to these implementations. On the other hand, because we are dealing with optimization algorithms that involve numerical computations, we aimed at languages which provided fast numeric computation without the need to dive into lower level languages, such as C or Fortran. Finally, the performance of the programming language and also the mechanisms provided by the language to make code development more efficient (e.g., avoiding boilerplate code).
 
-- Specify why selected Julia programming language
-- Specify why selected Python programming language
+The first programming language is Julia\footnote{https://julialang.org}, a recent programming language that has been shown to be very promising in the numerical optimization domain, and that provides mechanisms to speed code development (e.g., functional programming paradigm, macros). Despite having a smaller library's repository than, for instance, Python\footnote{https://www.python.org/}, Julia has grown to implement some of Python's optimization libraries (e.g., Scikit-learn, NLopt), and, therefore, also provides some of the same functionalities of Python.   
 
-- Emphasize that the proposed framework can be achieved with any other PL, such as Java. 
-- Or even using VPLs.
+Unfortunately, Julia is a juvenile language and, whilst some of these libraries can effectively become more efficient (e.g., Scikit-learn), other libraries present some limitations regarding the supported functionalities. For instance, in terms of data processing and visualization, Python presents a more stable  and better documented set of libraries (e.g., Pandas, Seaborn, Matplotlib, Plotly). For all these reasons, in order to facilitate the processing and visualization of the optimization results, we adopted Python as the second programming language.
+
+% Furthermore, the data transfer between Julia and Python is easily achieved by using the mechanisms provided by Julia (e.g., macros) and a wrapper library, PyCall. \todo{Nao sei muito bem como melhorar isto.. Mas o vocabulario está um bocado simplorio...}
+
+One aspect to take into consideration is that, albeit being implemented in Julia and Python, our solution could have been implemented in other programming languages such as Java or C++, which also provide several optimization and data processing libraries. In this dissertation and as it will be explained in ~\Cref{chap:implement} and \Cref{chap:evaluation}, we had the extra motivation that our case studies concerning Building Design Optimization (BPO) were already developed in Julia. Thus, by creating an abstraction layer in Julia, we were able to easily integrate optimization processes with an existing algorithmic tool in architecture, and to easily test the effectiveness and quality of the proposed solution within the architectural context. 
 
 \section{Abstraction Layer}
 
@@ -32,11 +36,7 @@ Notwithstanding their benefits, the abstraction layer provided in this dissertat
 
 Nevertheles, influenced by existing optimization modeling languages, the set of operations that compose the abstraction layer removes the complexity associated to most modeling languges and exposes a set of simple primitives that can be combined to yield successively incrementaly complex optimization problems. Moreover, the abstraction layer was designed to enable the execution of any of the optimization approaches discussed in~\Cref{sec:optimizationproblems}, ranging from \ac{SOO} to the different \ac{MOO} approaches and passing through the design of experiments approach. 
 
-As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only simple and intuitive primitives to define variables, the objective functions, and, when necessary, the constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved 
-
-
-- Simple but flexible to enable extensions, extend it 
-
+As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only simple and intuitive primitives to define variables, the objective functions, and, when necessary, the constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved by programmers, which may decide to add more algorithms or integrate other optimization libraries.
 
 \section{Optimization Algorithms}
 
@@ -92,14 +92,23 @@ To implement sampling algorithms, the prototype makes use of Julia's arrays and 
 	\label{table:algorithms}
 \end{table}
 
-
-
-
 \section{Performance Indicators}
-Additionally, our solution is flexible enough to allow the user to select between a set of algorithms with different properties , including algorithmsbe that handle time-consuming evaluations. In order to help in the choice of the algorithms, our solution also adds support to easily run benchmarks with multiple algorithms, providing a quantitative measure of their performance. 
 
+One of the goals of this thesis is to compare different optimization algorithms and assess the influence of their inherent mechanisms and assumptions in the overall performance of optimization processes. To this end, it is necessary to have a simple way of verifying the quality of these algorithms. 
+
+To this end, the solution enriches the abstraction layer previously discussed with a set of performance indicators. While for comparing \ac{SOO} algorithms, these indicators usually resume to discovering both the value of the best found solution and the number of evaluations (or time) required to reach it, for comparing \ac{MOO} algorithms this solution implements a subset of the indicators discussed in \Cref{ssec:performance}, namely, the unary indicators: \ac{ONVG}, \ac{ONVGR}, spacing, spread, maximum spread, \ac{ER}, \ac{GD}, \ac{HV}, and \ac{IGD}, and the binary indicators: R-metrics, $\epsilon$ indicators, and the two set coverage.
+
+Notwithstanding the utility of quantitatively qualifying the performance of different algorithms, this information can be difficult to interpret by less experienced users. To enhance interpretability, the proposed solution introduces post-processing and visualization functionalities discussed in the next section. Particularly, in the architectural context, where architects often lack knowledge about optimization, visual and post-processing mechanisms become very important to promote a better comprehension and enable the making of more informed decisions. 
 
 \section{Visualization and Post-Processing Mechanisms}
+
+
+
+- Logs and Traceability
+- No interactive but easily extensible
+- Explores Python's libraries (Pandas, Numpy, Matplotlib, Seaborn, Plotly)
+
+
 Traceability and state feedback
 
 The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
@@ -110,8 +119,6 @@ Our solution also values the traceability of results especially for enhancing us
 
 
 \section{Summary}
-
-
 In order to verify the executability of the proposed framework, we developed a simple prototype using the Python and Julia\footnote{https://julialang.org/} programming languages. Python was selected, because it already provides countless optimization and visualization libraries, thus fostering the rapid development of 
 
 

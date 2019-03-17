@@ -100,25 +100,28 @@ To this end, the solution enriches the abstraction layer previously discussed wi
 
 Notwithstanding the utility of quantitatively qualifying the performance of different algorithms, this information can be difficult to interpret by less experienced users. To enhance interpretability, the proposed solution introduces post-processing and visualization functionalities discussed in the next section. Particularly, in the architectural context, where architects often lack knowledge about optimization, visual and post-processing mechanisms become very important to promote a better comprehension and enable the making of more informed decisions. 
 
-\section{Visualization and Post-Processing Mechanisms}
+\section{Visual and Post-Processing Mechanisms}
 
+%  Why do we want visual and post-processing mechanisms ?  Why is it important? 
+Often disregarded by any optimization tools, the possibility to choose a solution among the best found solutions is highly advantageous. Firstly, it allows users to examine the best found solutions and to choose the one that better fits their needs. As an example, consider the optimization of a specific aspect of a building design. It is often the case, that the solution returned by the optimization algorithm is not the preferred solution, either because of more subjective opinions or, even, because the best solution for that aspect might negatively impact other aspects which are not being considered (e.g., increasing the daylight illuminance often has repercussions on the thermal conditions and on the energy consumptions of a building). Secondly, it enables the examination of different equally optimal solutions and the selection of the solution that better fits the user's needs. This is particularly useful when handling with multi-modal problems, for which there can be distinct solutions that yield the same optimal value. Unfortunately, many optimization tools obliterate most of these solutions, only providing the user with one solution. Finally, sometimes close to optimal solutions suits better the user intentions. By providing both optimal and close to optimal solutions, users would be empowered with a better understanding of optimization results and possibly to make more informed decisions. 
 
+% How does our solution improves this?
+The prototype developed in this dissertation uses Python's data processing and visualization libraries, including, Pandas, Scikit-learn, Matplotlib, Seaborn, and Plotly to produce post-processing and visualization scripts that can be interpreted and manipulated by the users to enrich the information obtained from optimization processes. 
 
-- Logs and Traceability
-- No interactive but easily extensible
-- Explores Python's libraries (Pandas, Numpy, Matplotlib, Seaborn, Plotly)
+By providing a simple way of visualizing different views of results (e.g., statistics, distribution, correlations, parallel coordinate graphs, pareto front, convergence graphs) and for post-processing them (e.g., outliers removal, interpolation of results), users are able to better understand the optimization process. 
 
+Moreover, unlike many currently existing optimization tools, our solution provides out-of-the-box mechanisms to provide traceability and predictability about optimization processes. The solution preserves information regarding the configurations (e.g., model of the optimization problem, algorithm parameters), the optimization results, and, when present, error files in the disk, which are updated during the course of the optimization process. 
 
-Traceability and state feedback
+To further take advantage of this logging mechanism, our solution exposes a set of primitives in the abstraction layer that allow to reuse the optimization results' files, by providing it as input for other optimization algorithms. This can be particularly relevant when testing different optimization algorithms in problems involving time-consuming evaluation functions.
 
-The solution also provides integrated visualization mechanisms that aim to complement and enrich the information extracted during an optimization run. 
+% Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
 
-Our solution also values the traceability of results especially for enhancing user comprehension. To improve existing mechanisms, our solution produces files involving all the necessary information about the configurations (e.g., algorithm parameters) and the solutions evaluated during the optimization process. Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
-
-
+% Limitations
+Although the implemented prototype does not provide real-time data information about the currrent state of the optimization process, our prototype can be easily extended to include those features, since it rests on a fortified mechanism of real-time logging, that preserves both the configurations and the results involved in the optimization process. Additionally, because these files are updated in real-time, these mechanisms can be updated if rerun again by the user. With this ability users are able to examine in real-time the solutions that have already been evaluated by the optimization process and decide if the any of the found solutions already fulfills their intentions, or if they should wait for the optimization process to finish. 
 
 
 \section{Summary}
+\todo{Falta ver isto... hummm ler tese do bruno , pedro alfaiate, talvez resumir de q forma a nossa solução pode colmatar algumas das falhas mencionadas no chapter probles to address?}
 In order to verify the executability of the proposed framework, we developed a simple prototype using the Python and Julia\footnote{https://julialang.org/} programming languages. Python was selected, because it already provides countless optimization and visualization libraries, thus fostering the rapid development of 
 
 

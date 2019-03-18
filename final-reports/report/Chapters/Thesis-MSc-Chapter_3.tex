@@ -3,12 +3,19 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Algorithmic Framework for Architecture}
-\cleardoublepage
+\fancychapter{Architecture of Optimization Framework}
 % The following line allows to ref this chapter
 \label{chap:architecture}
 
-This dissertation focus on the study of optimization algorithms that are able to handle more efficiently a set of problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a framework to enable the application of different types of optimization algorithms, both for\ac{SOO} and \ac{MOO} problems. The concretization of such framework requires: (1) the definition of an abstraction layer, that enables the modeling of optimization problems, (2) a wide variety of optimization algorithms to address different optimization problems, (3) a set of performance indicators to provide the user with a measure of the algorithms' quality when testing multiple algorithms, and (4) visual representations of the obtained results to provide more comprehensive feedback over the optimization results.   
+This dissertation focus on the study of optimization algorithms that are able to handle more efficiently a set of problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a framework to enable the application of different types of optimization algorithms, both for\ac{SOO} and \ac{MOO} problems. The concretization of such framework requires: (1) the definition of an abstraction layer, that enables the modeling of optimization problems, (2) a wide variety of optimization algorithms to address different optimization problems, (3) a set of performance indicators to provide the user with a measure of the algorithms' quality when testing multiple algorithms, and (4) visual representations of the obtained results to provide more comprehensive feedback over the optimization results. ~\Cref{fig:solution} shows the components diagram of the solution developed in this dissertation.
+
+\todo{Maybe remove the results tag? Cuz it is not at the same level as the others...}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{./Images/Solution/solution_architecture.PNG}
+	\caption{Architecture of the solution.}
+	\label{fig:solution}
+\end{figure}
 
 With the aforementioned framework, users are able to address optimization problems involving time-intensive functions, for which the objective functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype. This chapter describes the main components of the developed prototype and also the main requisites that led to their implementation. 
 
@@ -38,13 +45,33 @@ Nevertheles, influenced by existing optimization modeling languages, the set of 
 
 As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only simple and intuitive primitives to define variables, the objective functions, and, when necessary, the constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved by programmers, which may decide to add more algorithms or integrate other optimization libraries.
 
+
+\begin{lstlisting}[language=julia,caption={\mcode{Simple example of the optimizer prototype's \ac{API} in Julia.}}]
+using MScThesis
+
+# Define variables
+vars = [RealVariable(-10, 10)]
+
+# Define objectives
+f1(x) = x[1]^2
+f2(x) = (x[1] - 2)^2
+objs = [Objective(f1, :MIN), Objective(f2, :MIN)]
+
+# Create the optimization problem
+model = Model(vars, objs)
+
+# Optimize it!
+solve(NSGAII, model, max_evals=100)
+\end{lstlisting}
+
 \section{Optimization Algorithms}
+\label{sec:optalgos}
 
 Optimization algorithms represents a crucial part in an optimization process and, consequently, in the developed solution. In order to study different optimization algorithms and to test their suitability for specific optimization problems~\cite{Wolpert1997NFLT}, a large set of distinct and representative optimization algorithms should be provided. In addition to diversity, our solution also provides the users with the flexibility to configure the different parameters associated to the optimization algorithms, commonly known as hyperparameters. By fine-tuning the values of these hyperparameters for a specific problem, the performance of optimization optimization can be drastically improved. 
 
 One other important requisite considered by the developed solution is that at least a subset of the provided algorithms must be tailored to address optimization problems that incorporate time-consuming evaluation functions and for which information is difficult to obtain. To address this requisite, we reviewed the most reputed \ac{SOO} and \ac{MOO} open-source derivative-free optimization libraries. After a thorough analysis of different optimization libraries, the final solution exposed a total of 36 algorithms from 4 different libraries, listed in \Cref{table:algorithms}. 
 
-To implement sampling algorithms, the prototype makes use of Julia's arrays and random primitives, requiring no additional libraries to be implemented. Secondly, by integrating the NLopt~\cite{NLOPT} library within our prototype, we were able to expose 10 \ac{SOO} algorithms and, thus, to test algorithms from the three derivative-free optimization classes. Moreover, this library has already been used in Goat~\cite{GOAT}, an architectural design optimization tool, which has been applied in some architectural studies as well\todo{REF - Wortmann}. Thirdly, the Platypus library was chosen from a set of \ac{MOO} libraries, that included Platypus, jMetal, MOEAFramework, Paradiseo, and PaGMO. The Platypus library was the final choice due to the variety and quality of the \ac{MOO} algorithms provided, the ease of integration with the Julia programming language, and the cleanness and readibility of its \ac{API}. Finally, the fourth library was the Python scikit-learn library, which provides the basis algorithms for constructing more complex model-based algorithms, both for single- and multi-objective problems.
+To implement sampling algorithms, the prototype makes use of Julia's arrays and random primitives, requiring no additional libraries to be implemented. Secondly, by integrating the NLopt~\cite{NLOPT} library within our prototype\footnote{A special thanks to Guilherme Ilunga who contributed to this integration.}, we were able to expose 10 \ac{SOO} algorithms and, thus, to test algorithms from the three derivative-free optimization classes. Moreover, this library has already been used in Goat~\cite{GOAT}, an architectural design optimization tool, which has been applied in some architectural studies as well\todo{REF - Wortmann}. Thirdly, the Platypus library was chosen from a set of \ac{MOO} libraries, that included Platypus, jMetal, MOEAFramework, Paradiseo, and PaGMO. The Platypus library was the final choice due to the variety and quality of the \ac{MOO} algorithms provided, the ease of integration with the Julia programming language, and the cleanness and readibility of its \ac{API}. Finally, the fourth library was the Python scikit-learn library, which provides the basis algorithms for constructing more complex model-based algorithms, both for single- and multi-objective problems.
 
 \begin{table}[]
 	\centering
@@ -92,6 +119,9 @@ To implement sampling algorithms, the prototype makes use of Julia's arrays and 
 	\label{table:algorithms}
 \end{table}
 
+When providing a framework that interfaces multiple libraries, it is important that the \ac{API} remains simple, abstracting the user from the different logic associated with the integrated libraries. To this end, the developed prototype exposes a single and unified \ac{API} which allows users to use algorithms from different libraries, requiring no additional efforts or modifications (e.g., change the invocation method, change the name of parameters) from the user. Additionally, in order to extend the currently existing \ac{API} with algorithms from other optimization libraries, the programmer must implements a connector between the different \acp{API}.
+
+ 
 \section{Performance Indicators}
 
 One of the goals of this thesis is to compare different optimization algorithms and assess the influence of their inherent mechanisms and assumptions in the overall performance of optimization processes. To this end, it is necessary to have a simple way of verifying the quality of these algorithms. 

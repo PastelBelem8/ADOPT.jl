@@ -68,7 +68,7 @@ Shortly after, the development of computer-based simulation tools enabled design
 	
 % #############################################################################
 \subsection{Algorithmic Design}
-
+\label{ssec:ad}
 % Introduction to AD, way of overcoming limitations of manual approaches
 	A design approach capable of creating forms through algorithms is crucial for overcoming the aforementioned limitations. An example of such an approach is \ac{AD}~\cite{Branco2017AD} and \Cref{fig:algorithmicdesign} illustrates a simplified scheme of its application in the architectural design workflow. In this approach, the architect develops an algorithmic description of the intended design, that, when executed, generates the corresponding 3D model in an architectural modeling tool such as a \ac{CAD} or \ac{BIM} tool. Algorithmic approaches are inherently parametric, enabling the generation of different variations of the same design by simply modifying the parameters' values~\cite{Leitao2014GD}. 
 	
@@ -109,6 +109,7 @@ The emergence of \ac{AD} was crucial for the automation of optimization processe
 
 % #############################################################################
 \subsection{Algorithmic Analysis}
+\label{ssec:aa}
 
 % Motivação p/ passar de AD p/ AA.
 Faster and broader design space exploration prompted the creation of increasingly complex building designs, which became less predictable with respect to different aspects~\cite{Branco2017AD}, such as thermal, lighting, acoustics, among others. Moreover, the recent focus on efficient and sustainable buildings led to the demand for buildings that not only are well-designed, but also exhibit a good performance in those aspects.
@@ -165,6 +166,7 @@ Considering the previous view of an algorithmic-based design workflow, we identi
 
 % #############################################################################
 \section{Dissertation Goals}
+\label{sec:goals}
 
 This dissertation focus on optimization problems involving expensive evaluation functions, namely, in the context of building design. Despite the evident benefits of architectural design optimization, its application within the architectural community remains punctual. This might be explained due to the its considerable time complexity, since most design practices are time sensitive~\cite{Shi2016}. Time becomes an even greater impediment when it becomes necessary to evaluate multiple performance aspects, instead of a single aspect. Since building design often requires the evaluation of multiple aspects simultaneously, it is of paramount importance that the optimization algorithms used for optimizing designs are capable of efficiently handle problems involving costly evaluations. Unfortunately, this is not the case, as the algorithms provided by currently available architectural optimization tools do not, in general, provide good algorithms for handling costly evaluation functions.
 
@@ -179,7 +181,7 @@ Finally, we draw some conclusions regarding the behavior and the suitability of 
 The following chapters are organized as follows: \\ 
 % \textbf{\Cref{chap:intro}} discusses optimization concepts and evidences its importance for different problems, ranging from simple day-to-day decisions to more complex engineering problems, such as components, circuits, and building designs. Particularly, this chapter stresses the relevance of optimization in the architectural context, providing a comprehensive overview of the existing practices and the difficulties underlying the adoption of optimization processes in architecture. \\
 \textbf{\Cref{chap:back}} presents an overview of the current optimization practices in architecture and makes a balance of the benefits and drawbacks associated to each one.  \\
-\textbf{\Cref{chap:architecture}} describes the architecture of the implemented framework and enumerates important design decisions that were made during its implementation. \\
-\textbf{\Cref{chap:implement}} \todo{ADD one chapter about the implementation...} \\
+\textbf{\Cref{chap:architecture}} describes the architecture of the proposed framework and enumerates important design decisions that were made during the implementation of a prototype. \\
+\textbf{\Cref{chap:implement}} describes the application of the proposed framework to the architectural practice. \\
 \textbf{\Cref{chap:evaluation}} evaluates both quantitative and qualitative aspects of the proposed solution, evaluating its performance in the context of three real case studies. \\
 \textbf{\Cref{chap:conclusion}} emphasizes the importance of optimization in architecture and draws some conclusions about this work and how it can effectively influence the architectural practice. Finally, we reflect on the future improvements for the proposed framework. \\

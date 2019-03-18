@@ -448,7 +448,8 @@
 	
 	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
 	
-\section{Optimization in Architecture}	
+	
+	\section{Optimization in Architecture}	
 	\label{sec:optimizationtools}
 	
 	For years, multiple derivative-free optimization libraries have been developed (e.g., NLopt, RBOpt, Platypus, DEAP, Pyomo, PISA, jMetal, MOEAFramework). However, in order to use them within architectural practices, architects had to code the integration scripts to connect the simulation models for different variations of the parametric models and the optimization libraries\cite{Attia2013}. Moreover, these frameworks often lacked post-processing and visual features, which antagonized the readability and comprehension of the results~\cite{Attia2013,Nguyen2014}.
@@ -693,42 +694,36 @@
 	%Octopus enables the simultaneous search for more than one objective, producing a set of possible optimal solutions that ideally represent the real trade-offs between each objective. In order to search for the Pareto-optimal solutions, Octopus provides two main evolutionary algorithms: \ac{SPEA2} and \ac{HypE}. On the one hand, due to their population-based nature, evolutionary algorithms are able to approximate the Pareto Front in a single run~\cite{Zhou2011}. On the other hand, these algorithms have been reported to yield promising results on numerous test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}.
 	
 	
+	% #############################################################################
+	\section{Problems to Address}
+	\label{sec:problemsaddress}
 	
+	Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 	
+	% Scalablity, portability, code legibility
+	Several optimization tools integrated in the architectural design workflow have been proposed throughout the years (see \Cref{sec:plugins}). In general, these tools are easy to learn and use, which also results from the fact that they make use of visual programming languages. However, the visual programming paradigm often leads to scalability and program's legibility issues, hence impacting the way users interact with these optimization tools. 
 	
+	On the other hand, the textual paradigm does not face from these scalability issues. Currently existing textual \ac{AD} tools (e.g., Khepri) do not support optimization, but already provide the primitive mechanisms to create automated optimization processes. Moreover, these tools usually offer portability of their programs, thus allowing architects to visualize and analyze their models in different 3D modeling and analysis tools, without the need to change the program.
 	
+	% Single-Objective
+	In contrast to the multi-objective view of most \ac{BPO} problems, where architects aim to optimize multiple aspects simultaneously, most of the currently available optimization tools focus on \ac{SOO}. The usage of these tools to address \ac{MOO} often requires the simplification of the corresponding \ac{MOO} problem either by relaxing the objectives or by assigning preferences to each objective as discussed in \Cref{ssec:preferencesarticulation}.
 	
-
-% #############################################################################
-\section{Problems to Address}
-\label{sec:problemsaddress}
-
-\todo{Reler}	
-Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
-
-% Scalablity, portability, code legibility
-Several optimization tools integrated in the architectural design workflow have been proposed throughout the years (see \cref{sec:plugins}). In general, these tools are easy to learn and use, which also results from the fact that they make use of visual programming languages. However, the visual programming paradigm often leads to scalability and program's legibility issues, hence impacting the way users interact with these optimization tools. 
-
-On the other hand, the textual paradigm does not face from these scalability issues. Currently existing textual \ac{AD} tools (e.g., Khepri) do not support optimization, but already provide the primitive mechanisms to create automated optimization processes. Moreover, these tools usually offer portability of their programs, thus allowing architects to visualize and analyze their models in different 3D modeling and analysis tools, without the need to change the program.
-
-% Single-Objective
-In contrast to the multi-objective view of most \ac{BPO} problems, where architects aim to optimize multiple aspects simultaneously, most of the currently available optimization tools focus on \ac{SOO}. The usage of these tools to address \ac{MOO} often requires the simplification of the corresponding \ac{MOO} problem either by relaxing the objectives or by assigning preferences to each objective as discussed in \cref{ssec:preferencesarticulation}.
-
-% Global optimization
-Most tools exclusively support global algorithms. While global optimization algorithms are good for obtaining close to optimal solutions, these often fail to provide more exact solutions. Particularly, not only are local optimization algorithms able to find more exact solutions but they also do so faster, especially if provided with useful information, such as the starting point.
-
-% Unconstrained Optimization
-% Moreover, the analyzed plug-ins do not provide explicit support for hard constraints on the variables, other than the lower and upper bounds on the values of variables. While that suffices for some cases, it is not enough for many other cases in building design, where variables must relate to other according some specific relation (e.g., size of a window must be smaller than the size of the enclosing wall). 
-
-% Metaheuristic Optimization
-Also, in terms of the optimization algorithms, most tools adopt metaheuristics algorithms. While these algorithms are flexible and applicable to nearly almost domain, they lack convergence guarantees, often requiring several hundreds or thousands of evaluations to reach good results. Especially for simulation-based problems with time-consuming evaluations, these numbers become a large obstacle. In the \ac{MOO} context, the situation becomes even more complicated, as the number of evaluations is multiplied by at least the problem's number of objectives. This problem can be partially reduced by using model-based algorithms, where a secondary and faster model is used for evaluation.
-
-% Visualization
-Regarding the visualization, most plug-ins do not provide enough visual information about the optimization state and the results themselves. Inclusively, most of them generate poorly formatted files with insufficient information, thus impeding to trace back the process and even hindering the comprehension of the results (e.g., associate the design parameters' configurations with the corresponding performance values). Even if users use external tools to produce visualization mechanisms based on the information exported from the optimization plug-ins, these are often only available in the end of the optimization run. As a result, if the computer or system crashes during the optimization run (e.g., energy failure), no log files will be produced and all the information collected will be lost. 
-
-At last, most tools do not offer the possibility for interacting with them, nor do they provide means to pause and resume optimization runs. This is an inconvenience because it impedes users to add the knowledge they have learned, i.e., during the optimization run users would ideally extract information from good visualization mechanisms, that they could add to the process to make it more efficient.
-
-Taking all the \textit{pros} and \textit{cons} of the analyzed tools into consideration, we identify the predominance of metaheuristics algorithms as one of the main drawbacks of currently existing architectural optimization tools, especially when considering \ac{MOO}. Due to the limitations associated with this class of algorithms and time complexity of typical \ac{BPO} processes, the wrong use of these algorithms might lead to dead slow optimization processes, often discouraging its practice. Additionally, there seems to be a generalized lack of standard approach to optimization approaches. As a result, architects tend to adopt the same algorithm for every design, which in this case is the Galapagos' \ac{GA}.  Moreover, given the difficulties and limitations of \ac{MOO}, most \ac{BPO} practicioners opt for \ac{SOO) tools. 
+	% Global optimization
+	Most tools exclusively support global algorithms. While global optimization algorithms are good for obtaining close to optimal solutions, these often fail to provide more exact solutions. Particularly, not only are local optimization algorithms able to find more exact solutions but they also do so faster, especially if provided with useful information, such as the starting point.
 	
-This dissertation addresses the time complexity of problems involving costly evaluation functions, especially, when considering \ac{MOO}. In the next chapter, we present our solution.
-%In the next chapter, we describe the architecture of our solution and explain how each component achieves the features highlighted in this section.
+	% Unconstrained Optimization
+	% Moreover, the analyzed plug-ins do not provide explicit support for hard constraints on the variables, other than the lower and upper bounds on the values of variables. While that suffices for some cases, it is not enough for many other cases in building design, where variables must relate to other according some specific relation (e.g., size of a window must be smaller than the size of the enclosing wall). 
+	
+	% Metaheuristic Optimization
+	Also, in terms of the optimization algorithms, most tools adopt metaheuristics algorithms. While these algorithms are flexible and applicable to nearly almost domain, they lack convergence guarantees, often requiring several hundreds or thousands of evaluations to reach good results. Especially for simulation-based problems with time-consuming evaluations, these numbers become a large obstacle. In the \ac{MOO} context, the situation becomes even more complicated, as the number of evaluations is multiplied by at least the problem's number of objectives. This problem can be partially reduced by using model-based algorithms, where a secondary and faster model is used for evaluation.
+	
+	% Visualization
+	Regarding the visualization, most plug-ins do not provide enough visual information about the optimization state and the results themselves. Inclusively, most of them generate poorly formatted files with insufficient information, thus impeding to trace back the process and even hindering the comprehension of the results (e.g., associate the design parameters' configurations with the corresponding performance values). Even if users use external tools to produce visualization mechanisms based on the information exported from the optimization plug-ins, these are often only available in the end of the optimization run. As a result, if the computer or system crashes during the optimization run (e.g., energy failure), no log files will be produced and all the information collected will be lost. 
+	
+	At last, most tools do not offer the possibility for interacting with them, nor do they provide means to pause and resume optimization runs. This is an inconvenience because it impedes users to add the knowledge they have learned, i.e., during the optimization run users would ideally extract information from good visualization mechanisms, that they could add to the process to make it more efficient.
+	
+	Taking all the \textit{pros} and \textit{cons} of the analyzed tools into consideration, we identify the predominance of metaheuristics algorithms as one of the main drawbacks of currently existing architectural optimization tools, especially when considering \ac{MOO}. Due to the limitations associated with this class of algorithms and time complexity of typical \ac{BPO} processes, the wrong use of these algorithms might lead to dead slow optimization processes, often discouraging its practice. Additionally, there seems to be a generalized lack of standard approach to optimization approaches. As a result, architects tend to adopt the same algorithm for every design, which in this case is the Galapagos' \ac{GA}. Moreover, given the difficulties and limitations of \ac{MOO}, most \ac{BPO} practicioners opt for \ac{SOO} tools. 
+		
+	This dissertation addresses the time complexity of problems involving costly evaluation functions, especially, when considering \ac{MOO}. In the next chapter, we present our solution.
+	%In the next chapter, we describe the architecture of our solution and explain how each component achieves the features highlighted in this section.
+		

@@ -22,19 +22,25 @@ In \Cref{ssec:ad,ssec:aa}, we have discussed how architectural paradigms have in
 
 These mechanisms laid down the foundations for automated optimization processes. By extending the Algorithmic Design (AD) and Algorithmic Analysis (AA) approaches to include optimization mechanisms, we are able to automatically apply optimization processes that aim to improve (or even optimize) a design’s performance. Using this approach, which we name \ac{AO}, architects are able to optimize their designs through (1) the creation of \ac{AD} models reflecting their design's intents, (2) the selection of the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) of the optimization algorithm. To this end, architects must specify not only the design parameters that are to be optimized and their acceptable range of values, but also which analysis to consider for optimization\footnote{\ac{AO} will treat the analysis' results for different variations of the design as the functions to optimize.}. 
 
+Currently available architectural optimization frameworks present limitations, as discussed in \Cref{sec:problemsaddress}. This dissertation addresses some of the identified gaps, by connecting the the proposed optimization framework to an \ac{AD} tool, and by adopting the \ac{AD} and \ac{AA} approaches, as depicted in \Cref{fig:algorithmicoptimization}. \todo{Que nível de detalhe  é preciso colocar aqi? Copiar o do guilherme é simplesmente foleiro xD}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.6\textwidth]{./Images/Solution/algorithmic_optimization.png}
+	\caption{Algorithmic Optimization workflow. In this workflow, the user only interacts with an \ac{AD} tool to create the initial design, to specify the analysis tools, and to specify the optimization parameters.}
+	\label{fig:algorithmicoptimization}
+\end{figure}
 
 
 
-As mentioned in ~\Cref{sec:problemsaddress}, the currently available architectural optimization frameworks present some limitations.
 
-As a case study, we evaluated our proposal in the context of lighting performance. To this end, we combined different optimization methods available in existing software libraries, which allowed us to effortlessly test different algorithms. Moreover, we used the AO approach to compare the performance of ten black-box methods, cov-ering both local and global methods of the previously
+At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
 
+Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
 
-
-- colocar algoritmos
-- dar enfase a importancia de ter diferentes algoritmos.
-- q algoritmos providenciados devem ter em atenção funçoes de custo pesadas...
 
 
 \section{Optimization Benchmarks in Architecture}
+
+
 

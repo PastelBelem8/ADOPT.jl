@@ -46,23 +46,7 @@ Nevertheles, influenced by existing optimization modeling languages, the set of 
 As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only simple and intuitive primitives to define variables, the objective functions, and, when necessary, the constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved by programmers, which may decide to add more algorithms or integrate other optimization libraries.
 
 
-\begin{lstlisting}[language=julia,caption={\mcode{Simple example of the optimizer prototype's \ac{API} in Julia.}}]
-using MScThesis
-
-# Define variables
-vars = [RealVariable(-10, 10)]
-
-# Define objectives
-f1(x) = x[1]^2
-f2(x) = (x[1] - 2)^2
-objs = [Objective(f1, :MIN), Objective(f2, :MIN)]
-
-# Create the optimization problem
-model = Model(vars, objs)
-
-# Optimize it!
-solve(NSGAII, model, max_evals=100)
-\end{lstlisting}
+\todo{PUT CODE EXAMPLE}
 
 \section{Optimization Algorithms}
 \label{sec:optalgos}
@@ -148,14 +132,4 @@ To further take advantage of this logging mechanism, our solution exposes a set 
 
 % Limitations
 Although the implemented prototype does not provide real-time data information about the currrent state of the optimization process, our prototype can be easily extended to include those features, since it rests on a fortified mechanism of real-time logging, that preserves both the configurations and the results involved in the optimization process. Additionally, because these files are updated in real-time, these mechanisms can be updated if rerun again by the user. With this ability users are able to examine in real-time the solutions that have already been evaluated by the optimization process and decide if the any of the found solutions already fulfills their intentions, or if they should wait for the optimization process to finish. 
-
-
-\section{Summary}
-\todo{Falta ver isto... hummm ler tese do bruno , pedro alfaiate, talvez resumir de q forma a nossa solução pode colmatar algumas das falhas mencionadas no chapter probles to address?}
-In order to verify the executability of the proposed framework, we developed a simple prototype using the Python and Julia\footnote{https://julialang.org/} programming languages. Python was selected, because it already provides countless optimization and visualization libraries, thus fostering the rapid development of 
-
-
-At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
-
-Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
 

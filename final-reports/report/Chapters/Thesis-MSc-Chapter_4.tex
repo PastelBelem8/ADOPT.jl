@@ -31,63 +31,43 @@ These mechanisms laid down the foundations for automated optimization processes.
  	\label{fig:algorithmicoptimization}
  \end{figure}
  
-In order to benefit from the \ac{AO} approach, we combine the optimization framework developed in this dissertation with an \ac{AD} tool to provide an alternative easily address a wide variety of \ac{BPO} problems. To this end, architects are required to: (1) create the \ac{AD} model reflecting their design's intents; (2) select the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) to select, if necessary, the parameters of the optimization process (e.g., algorithm, algorithm's parameters). In the end, architects are only required to run the script and the optimization process will automatically start.
+In order to benefit from the \ac{AO} approach, we combine the optimization framework developed in this dissertation with an \ac{AD} tool to provide an alternative easily address a wide variety of \ac{BPO} problems. To this end, architects are required to: (1) create the \ac{AD} model reflecting their design's intents; (2) select the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) to select, if necessary, the parameters of the optimization process (e.g., algorithm, algorithm's parameters). In the end, architects are only required to run the script and the optimization process will automatically start. \Cref{BPOjuliaCode} presents a simple example of an \ac{AO} approach using the developed framework and the \ac{AD} Khepri tool, where the architect: (1) defines the dependencies on the developed framework and on Khepri (\textit{lines 1-2}), (2) defines the algorithmic description of the intended design (\textit{lines 3-5}), (3) defines the variables and their acceptable variation range (\textit{lines 9-10}), (4) define the objective functions for the performance aspects to consider in the optimization (\textit{lines 12-24}), (5) creates the optimization model (\textit{line 25}), (6) defines the algorithm's parameters (\textit{line 27}), and (7) specifies the optimization algorithm and the maximum number of evaluations (\textit{line 28}).
+
+Even though \Cref{BPOjuliaCode} presents an example of the proposed framework with a textual \ac{AD} tool, an \ac{AO} approach could also be achieved by combining our optimization framework with a visual \ac{AD} tool, like Grasshopper. 
 
 \begin{lstlisting}[caption={BPO example of the framework's API using the Khepri AD tool.},label=BPOjuliaCode]	
-using MScThesis
+using MScThesis		# Optimization Framework
+using Khepri  		# AD Tool
 
-# AD Tool
-using Khepri 
-current_backend(radiance)
-
-# Define the model using Khepri's primitives
 building_with_skylight(height, width, length, material) = let
-# Use AD primitives to create the design based on these four parameters
-...
+	# Create the design using Khepri's primitives
 end
 
-# Define the variables (height, width, length, material)
-vars = [IntVariable(0, 10), IntVariable(0, 25), IntVariable(0, 110), IntVariable(0, 3)]
+# Design Variables: height, width, length, material
+vars = [RealVariable(0.1, 2), RealVariable(0.1, 6.5),
+ 		RealVariable(0.1, 11), IntVariable(0, 3)]
 
-# Objective function measuring the cost of building_with_skylight
 cost_performance(height, width, length, material) = let
-p1 = scale(width, 1.5) * scale(length, 6.5) * 185
-p2 = (scale(width, 1.5) + scale(length, 6.5)) * 2 * height * 80
-p1 + p2
+	p1 = scale(width, 1.5) * scale(length, 6.5) * 185
+	p2 = (scale(width, 1.5) + scale(length, 6.5)) * 2 * height * 80
+	p1 + p2
 end
 
-# Objective function measuring the daylight conditions of building_with_skylight
-daylight_performance(height, width, length, material) = 
-new_radiance_analysis(
+current_backend(radiance)
+daylight_performance(height, width, length, material) =  new_radiance_analysis(
 	() -> building_with_skylight(height, width, length, material)) do
-...
-end
-objs = [Objective(daylight_performance, :MAX), Objective(cost_performance, :MIN)]
-
-# Create the optimization problem
+		...
+	end
+objs = [Objective(daylight_performance, :MAX),
+		Objective(cost_performance, :MIN)]
 model = Model(vars, objs)
 
-# Optimize it!
 NSGA_params = Dict(:population_size => 10)
 solve(NSGAII, NSGA_params, model, max_evals=100)
 \end{lstlisting}
 
 An important aspect that the results of this combination is the fact that architects are able to use different optimization algorithms and, consequently, to select an optimization algorithm that better suits their problems. To bridge the gap between the lack of knowledge or experience and the suitability of optimization algorithms for each problem, the optimization framework also provides automated testing mechanisms. These mechanisms enable the sequential execution of multiple optimization algorithms for a specified amount of evaluations, as well as each algorithm's performance measures. This feature is particularly important in the architectural context~\cite{Wortmann2016BBO,Hamdy2016}, as it promotes more informed decisions towards the selection of more appropriate optimization algorithms.
 
-Moreover,
+Another key aspect of this framework is the ability to post-process and visualize the data resulting from the optimization process. On the one hand, a good representation enables architects to detect errors or incoherences (e.g., with the optimization model) early in the optimization process. Besides errors, it also fosters less time-consuming optimization processes for interactive and real-time scenarios, where these representations are updated with the new information that results from the optimization. In such scenarios, architects are able to explore the different evaluated candidate solutions and identify whether any of the already evaluated solutions is good enough for the specified problem, even if it is not an optimum.
 
-
-The visual aspect is important to enhance the comprehension of an optimization run and to the making of more informed decisions. Moreover, using this framework, users are able to visualize close to optimal solutions which may be more suitable to the architects intentions. 
-
-
-\section{Optimization Benchmarks in Architecture}
-
-\todo{example?}
-
-
-At the light of the architectural practice, our solution makes use of the textual programming paradigm and, consequently, has a special affinity with textual \ac{AD} tools (e.g., Khepri). As a result, when coupled with these \ac{AD} tools, our solution also benefits from their portability and scalability properties. We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
-
-Finally, we consider the complexity of our solution. Unlike the analyzed tools, our solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and should be rather intuitive and easy to use. 
-
-
-
+On the other hand, a good data representation also enhances the comprehension of the optimization process itself. By providing automatic visual representations the optimization results, architects are able to reason and to create logical patterns that allow them to explain the obtained results. As a result, besides getting a more clear perspective about the optimization process, architects are also able to learn more about their designs' behavior for different performance aspects and, potentially, about the optimization algorithm itself.

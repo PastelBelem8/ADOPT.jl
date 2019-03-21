@@ -10,7 +10,7 @@
 
 In the last chapter, we discussed the architecture of the proposed solution, a general purpose optimization framework that is applicable to solve any optimization problem. 
 
-From the beginning, we set out to address optimization problems involving costly functions, that may take up to several minutes, hours or even days to complete. Therefore, during the development of the proposed framework, we focused on problems exhibiting these properties. Note, however, that the framework can be easily extended to include other algorithms (e.g., derivative-based), as it has been previously discussed in \Cref{sec:optalgos}. 
+From the beginning, we set out to address optimization problems involving costly evaluation functions that may take up to several minutes, hours, or even days to complete. Therefore, during the development of the proposed framework, we focused on problems exhibiting these properties. Note, however, that the framework can be easily extended to include other algorithms (e.g., derivative-based), as it has been previously discussed in \Cref{sec:optalgos}. 
 
 Motivated by the large impact of the building sector in the world's sustainability and economy, this dissertation aims at applying the proposed framework to address building design optimization, thus attempting to reduce buildings' costs and ecological footprint. Despite the existence of multiple optimization tools in architecture (see~\Cref{sec:plugins}), these are often limited and do not provide adequate algorithms, nor mechanisms to enable the efficient optimization of problems with time-consuming evaluations (see~\Cref{sec:problemsaddress}).
 
@@ -20,25 +20,18 @@ In this chapter, we describe how the general-purpose framework proposed in this 
 
 In \Cref{ssec:ad,ssec:aa}, we discussed how architectural paradigms have incrementally grown to develop the mechanisms to quickly (1) update a design, (2) generate the corresponding analytical model, and (3) automatically evaluate the design in an analytical tool and collect its results. 
 
-These mechanisms laid down the foundations for automated optimization processes. By extending the Algorithmic Design (AD) and Algorithmic Analysis (AA) approaches to include optimization mechanisms, we are able to automatically apply optimization processes that aim to improve (or even optimize) the design’s performance. 
+These mechanisms laid down the foundations for automated optimization processes. By extending the Algorithmic Design (AD) and Algorithmic Analysis (AA) approaches to include optimization mechanisms, we are able to apply automatic optimization processes that aim to improve (or even optimize) designs' performance. 
 
-\Cref{fig:algorithmicoptimization} illustrates a possible approach for introducing automated optimization processes in the architectural worfklow. In this approach, we introduce an optimizer component that is responsible for searching the design space and generating new values for the design's parameters. These values are then communicated to the \ac{AD} tool, which generates the corresponding analytical models and evaluates them in the corresponding analytical tools. After being evaluated, the analytical tools communicate the evaluations' results to the \ac{AD} tool, which forwards them to the optimizer. Then, based on the collected information, the optimizer module generates other set of values for the design's parameters and and the process repeats until a stopping criterium (e.g., evaluations or time limit, good enough solution) is met. 
-
-In order to benefit from the \ac{AO} approach, we combined the optimization framework discussed in \Cref{chap:architecture} with an \ac{AD} tool, thus allowing architects to easily apply different optimization algorithms to address \ac{BPO} problems. To this end, architects only need to: (1) create the \ac{AD} model reflecting his design's intents; (2) select the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) to select, if necessary, the specific optimization parameters (e.g., algorithm, algorithm's parameters). 
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/Solution/algorithmic_optimization.png}
-	\caption{Algorithmic Optimization workflow. In this workflow, the user only interacts with an \ac{AD} tool to create the initial design, to specify the analysis tools, and to specify the optimization parameters.}
-	\label{fig:algorithmicoptimization}
-\end{figure}
-
-
-% Currently available architectural optimization frameworks present limitations, as discussed in \Cref{sec:problemsaddress}. This dissertation addresses some of the identified gaps, by connecting the the proposed optimization framework to an \ac{AD} tool, and by adopting the \ac{AD} and \ac{AA} approaches, as depicted in \Cref{fig:algorithmicoptimization}. \todo{Que nível de detalhe  é preciso colocar aqi? Copiar o do guilherme é simplesmente foleiro xD}
-
-
-By coupling the framework discussed in \Cref{chap:architecture} with the algorithmic workflow, architects are able to easily apply optimization algorithms to optimize their designs, with the benefit of having algorithms capable of efficiently handling Building Performance Optimization (\ac{BPO}) problems. Besides algorithms, this framework enables them to easily compare different algorithms, providing not only a set of quality indicators for each algorithm, but also a set of different views regarding the distribution and representativeness of the obtained results. As a result, architects can further explore the generated visual representations of the optimization's results and generate the corresponding design variants, using the \ac{AD} tool. 
-
+\Cref{fig:algorithmicoptimization} illustrates a possible approach for introducing automated optimization processes in the architectural worfklow. In this approach, we introduce an optimizer component that is responsible for searching the design space and generating new values for the design's parameters. These values are then communicated to the \ac{AD} tool, which generates the corresponding analytical models and evaluates them in the corresponding analytical tools. After being evaluated, the analytical tools communicate the evaluations' results to the \ac{AD} tool, which, in turn, forwards them to the optimizer. Based on these results, the optimizer generates other set of values for the design's parameters and this process is repeated until a stopping criterium (e.g., evaluations or time limit, solution's quality) is met. The communications between each component are encoded within the \ac{AD} tool, therefore incurring no additional efforts for the programmer.
+ 
+ \begin{figure}[htbp]
+ 	\centering
+ 	\includegraphics[width=0.6\textwidth]{./Images/Solution/algorithmic_optimization.png}
+ 	\caption{Algorithmic Optimization workflow. In this workflow, the user only interacts with an \ac{AD} tool to create the initial design, to specify the analysis tools, and to specify the optimization parameters.}
+ 	\label{fig:algorithmicoptimization}
+ \end{figure}
+ 
+In order to benefit from the \ac{AO} approach, we combine the optimization framework developed in this dissertation with an \ac{AD} tool to provide an alternative easily address a wide variety of \ac{BPO} problems. To this end, architects are required to: (1) create the \ac{AD} model reflecting their design's intents; (2) select the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) to select, if necessary, the parameters of the optimization process (e.g., algorithm, algorithm's parameters). In the end, architects are only required to run the script and the optimization process will automatically start.
 
 \begin{lstlisting}[caption={BPO example of the framework's API using the Khepri AD tool.},label=BPOjuliaCode]	
 using MScThesis
@@ -78,6 +71,10 @@ model = Model(vars, objs)
 NSGA_params = Dict(:population_size => 10)
 solve(NSGAII, NSGA_params, model, max_evals=100)
 \end{lstlisting}
+
+An important aspect that the results of this combination is the fact that architects are able to use different optimization algorithms and, consequently, to select an optimization algorithm that better suits their problems. To bridge the gap between the lack of knowledge or experience and the suitability of optimization algorithms for each problem, the optimization framework also provides automated testing mechanisms. These mechanisms enable the sequential execution of multiple optimization algorithms for a specified amount of evaluations, as well as each algorithm's performance measures. This feature is particularly important in the architectural context~\cite{Wortmann2016BBO,Hamdy2016}, as it promotes more informed decisions towards the selection of more appropriate optimization algorithms.
+
+Moreover,
 
 
 The visual aspect is important to enhance the comprehension of an optimization run and to the making of more informed decisions. Moreover, using this framework, users are able to visualize close to optimal solutions which may be more suitable to the architects intentions. 

@@ -43,26 +43,20 @@ Notwithstanding their benefits, the abstraction layer provided in this dissertat
 
 Nevertheless, influenced by existing optimization modeling languages, the abstraction layer's operations remove the complexity associated to most of modeling languages and allow to incrementally combine them in order to model more complex optimization problems. Moreover, the abstraction layer is designed to enable the execution of any of the optimization approaches discussed in~\Cref{sec:optimizationproblems}, ranging from \ac{SOO} to \ac{MOO} approaches, passing through the design of experiments approach.
 
-\todo{ADD COLOR}
-\begin{lstlisting}[caption={Simple example of the framework's API.},label=juliaCode]	
-using MScThesis
+\begin{lstlisting}[caption={Simple example of the framework's API.},label=juliaCode]
+# Analytical Objective Functions
+f1(x) = x^2
+f2(x) = (x - 2)^2
 
-# Define variables
-vars = [RealVariable(-10, 10)]
-
-# Define objectives
-f1(x) = x[1]^2
-f2(x) = (x[1] - 2)^2
-objs = [Objective(f1, :MIN), Objective(f2, :MIN)]
-
-# Create the optimization problem
-model = Model(vars, objs)
-
-# Optimize it!
-solve(NSGAII, model, max_evals=100)
+let var1 = RealVariable(-10, 10),
+	obj1 = Objective(f1, :MIN),
+	obj2 = Objective(f2, :MIN),
+	model = Model([var1], [obj1, obj2])
+  solve(NSGAII, model, max_evals=100) 
+end
 \end{lstlisting}
 
-As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only primitives to define variables, objective functions, and, when necessary, constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved by programmers, which may decide to add more algorithms or integrate other optimization libraries.  \Cref{juliaCode} illustrates how to use the framework's \ac{API} to model a bi-objective unconstrained optimization problem. To this end, in order to solve the problem, the user needs to: (1) create the model of the problem (\textit{line 12}), which requires the definition of the variables (\textit{line 4}) and the objective functions (\textit{lines 7 to 9}); (2) to specify the optimization algorithm (\textit{line 12}), which in this case is the \ac{NSGA-II}; and (3) the maximum number of costly evaluations during the optimization search.
+As described in \Cref{chap:back}, the definition of an optimization process is composed of two parts: the modeling of the optimization problem and the optimization algorithm. This \ac{API} provides not only primitives to define variables, objective functions, and, when necessary, constraints, but also empowers users with the ability to use and fine-tune the parameters of each optimization algorithm, i.e., parameters that control the detail of the search process. The entire \ac{API} is intuitive and simple to use by less experienced users, but flexible to be extended and improved by programmers, which may decide to add more algorithms or integrate other optimization libraries.  \Cref{juliaCode} illustrates how to use the framework's \ac{API} to model a bi-objective unconstrained optimization problem. To this end, in order to solve the problem, the user needs to: (1) create the model of the problem (\textit{line 8}), which requires the definition of the variables (\textit{line 5}) and the objective functions (\textit{lines 1-3 and 6-7}); (2) to specify the optimization algorithm (\textit{line 12}), which in this case is the \ac{NSGA-II}; and (3) the maximum number of costly evaluations during the optimization search (\textit{line 12}).
 
 
 \section{Optimization Algorithms}
@@ -124,7 +118,6 @@ When providing a framework that interfaces multiple libraries, it is important t
 
  
 \section{Performance Indicators}
-
 One of the goals of this thesis is to compare different optimization algorithms and assess the influence of their inherent mechanisms and assumptions in the overall performance of optimization processes. To this end, it is necessary to have a simple way of verifying the quality of these algorithms. 
 
 To this end, the solution enriches the abstraction layer previously discussed with a set of performance indicators. While for comparing \ac{SOO} algorithms, these indicators usually resume to discovering both the value of the best found solution and the number of evaluations (or time) required to reach that value, for comparing \ac{MOO} algorithms this solution implements a subset of the indicators discussed in \Cref{ssec:performance}, namely, the unary indicators: \ac{ONVG}, \ac{ONVGR}, spacing, spread, maximum spread, \ac{ER}, \ac{GD}, \ac{HV}, and \ac{IGD}, and the binary indicators: R-metrics, $\epsilon$ indicators, and the two set coverage.

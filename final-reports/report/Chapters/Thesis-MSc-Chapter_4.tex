@@ -70,7 +70,20 @@ let height = RealVariable(0.1, 2),
 end
 \end{lstlisting}
 
-
 Another key aspect of this framework is the ability to post-process and visualize the data resulting from the optimization process. On the one hand, a good representation enables architects to detect errors or incoherences (e.g., with the optimization model) early in the optimization process. Besides errors, it also fosters less time-consuming optimization processes for interactive and real-time scenarios, where these representations are updated with the new information that results from the optimization. In such scenarios, architects are able to explore the different evaluated candidate solutions and identify whether any of the already evaluated solutions is good enough for the specified problem, even if it is not an optimum.
 
 On the other hand, a good data representation also enhances the comprehension of the optimization process itself. By providing automatic visual representations the optimization results, architects are able to reason and to create logical patterns that allow them to explain the obtained results. As a result, besides getting a more clear perspective about the optimization process, architects are also able to learn more about their designs' behavior for different performance aspects and, potentially, about the optimization algorithm itself.
+
+
+\section{Summary}
+
+In this section, we explored the application of a general purpose optimization framework to \ac{BPO} problems, which incorporate time-consuming evaluation functions that may take up to several minutes, hours, or even days. Also, we have described how the framework could be coupled with existing algorithmic-based approaches to promote the automation of optimization processes, an approach we named \ac{AO}.
+
+To address the abnormal time-complexity associated with \ac{BPO} problems, we provide the users the ability to follow different optimization approaches (e.g., \ac{SOO}, design of experiments, \textit{a priori} preference articulation, Pareto-based). Moreover, the framework also provides algorithms, including model-based algorithms that significantly reduce the overall optimization time by using secondary and faster models for evaluation. %Moreover, our framework provides both global and local algorithms, thus providing the flexibility for obtaining either more or less precise solutions. 
+%We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
+
+To address the low feedback and information about the optimization, we provide a strong set of files that keep track of every evaluated solution, hence enabling the user to freely access that information and use it for posterior optimization processes. Moreover, this information is enriched by providing integrated visualization features, which enable the quick view of the model associated to a certain result. This promotes quicker and more informed decisions regarding the building design's practice.
+
+In this case, moreover, due to the optimization's flexibility we are not limited to the visual paradigm like most tools, but we are also able to integrate the optimization framework within a textual \ac{AD} approach. As a result, when coupled with the textual-based approaches, our solution also benefits from their portability and scalability properties. 
+
+Finally, we reflect on the complexity of the proposed solution. Unlike the architectural optimization tools, the currently implemented solution does not benefit from the visual paradigm, which means that it should be simple to use and intuitive, even for non-programmers. As a result, we hide the complexity of the integration of several optimization libraries under an abstraction layer, providing a clean and succinct set of primitives. These primitives draw inspiration from simple optimization mathematical models and are rather intuitive and easy to use. 

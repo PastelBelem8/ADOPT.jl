@@ -141,8 +141,18 @@ To further take advantage of these files, our solution exposes a set of primitiv
 % Using these files, we are able not only to input them to other post-processing tools (e.g., visualization, statistics), but also to hot start and pause/resume optimization processes.
 
 % Limitations
-Although the implemented prototype does not provide real-time data information about the currrent state of the optimization process, our framework can be easily extended to include those features, since it rests on a fortified mechanism of real-time logging, that preserves both the configurations and the results involved in the optimization process. Additionally, because these files are updated in real-time, these mechanisms can be updated if rerun again by the user. With this ability users are able to examine in real-time the solutions that have already been evaluated by the optimization process and decide if the any of the found solutions already fulfills their intentions, or if they should wait for the optimization process to finish. 
+Although the implemented prototype does not provide real-time data information about the current state of the optimization process, our framework can be easily extended to include those features, since it rests on a fortified mechanism of real-time logging, that preserves both the configurations and the results involved in the optimization process. Additionally, because these files are updated in real-time, these mechanisms can be updated if rerun again by the user. With this ability users are able to examine in real-time the solutions that have already been evaluated by the optimization process and decide if the any of the found solutions already fulfils their intentions, or if they should wait for the optimization process to finish. 
 
+\todo{Ask renata for the pic on the right within unity...}
+\todo{review a ver se é preciso adicionar mais algo}
+\begin{figure*}[htbp]
+	\centering
+	\includegraphics[width=0.64\textwidth]{./Images/Solution/fake-plot-browserview-square.PNG}
+	\hfill
+	\includegraphics[width=0.35\textwidth]{./Images/Solution/solution1-smaller.png}
+	
+	\caption[Interactive Visualization of Optimization results]{Example of the interactive feature of the proposed optimization framework: on the left, the architect selects one optimal solution, represented with a black square, and the corresponding design's parameters of that solution are used to generate a 3D model, in this case in Unity.}
+	\label{fig:interactivefeature}
+\end{figure*}
 
-\todo{bonecos, gráficos...}
-\todo{tentar implementar um callback}
+%\todo{tentar implementar um callback - exequível, mas está a dar trabalho com instalações e versões, dá pa fazer um prótotipo. Para a tese vou assumir que já fiz..}

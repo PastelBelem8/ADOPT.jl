@@ -145,13 +145,11 @@ Although the implemented prototype does not provide real-time data information a
 
 To promote early decisions regarding an optimization process, our framework provides the user the ability to define functions to process different solutions (e.g., obtain other relevant information about the solution, communicate the values to other tools), which are then associated as callbacks to the visual outputs. Upon selecting a certain solution, these functions are triggered, thus executing the behavior previously defined by the user. \Cref{fig:interactivefeature} shows a possible application of this feature within the architectural practice, where the user selects the first optimal solution on the plot, represented by a black square, and the corresponding callback function is executed. In this case, the callback function used the values of the parameters associated to the selected solution to generate the corresponding 3D model of a  design in a 3D modelling tool. 
 
-\todo{Ask renata for the pic on the right within unity...}
-\todo{review a ver se é preciso adicionar mais algo}
 \begin{figure*}[htbp]
 	\centering
-	\includegraphics[width=0.64\textwidth]{./Images/Solution/fake-plot-browserview-square.PNG}
+	\includegraphics[width=0.625\textwidth]{./Images/Solution/fake-plot-browserview-square.PNG}
 	\hfill
-	\includegraphics[width=0.35\textwidth]{./Images/Solution/solution1-smaller.png}
+	\includegraphics[width=0.365\textwidth]{./Images/Solution/solution3-unity.png}
 	
 	\caption[Interactive Visualization of Optimization results]{Example of the interactive feature of the proposed optimization framework: on the left, the architect selects one optimal solution, represented with a black square, and the corresponding design's parameters of that solution are used to generate a 3D model, in this case in Unity.}
 	\label{fig:interactivefeature}

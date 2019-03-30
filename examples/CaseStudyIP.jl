@@ -20,7 +20,7 @@ daylight_function(x) = let
 end
 
 # Width, Length, Material
-vars = [IntVariable(0, 25), IntVariable(0, 110), IntVariable(0, 3)]
+vars = [IntVariable(0, 25), IntVariable(0, 110), IntVariable(0, 2)]
 objs = [Objective((x) -> -1 * daylight_function(x), :MIN),
         Objective(cost_function, :MIN)]
 
@@ -32,7 +32,7 @@ problem = Model(vars, objs)
 # ------------------------------------------------------------------
 # 3 runs
 nruns = 3
-maxevals = 100
+maxevals = 200
 nparticles = div(maxevals, 10)
 
 EAs_params = Dict(:population_size => nparticles)
@@ -46,10 +46,10 @@ OMOPSO_params = Dict( :leader_size => nparticles,
 
 # >>> Metaheuristics: NSGAII, SPEA2, SMPSO, OMOPSO
 benchmark(nruns=3,
-            algorithms=[# (NSGAII, EAs_params),
-                        # (SPEA2, EAs_params),
-                        # (SMPSO, PSOs_params),
-                        # (OMOPSO, OMOPSO_params)],
+            algorithms=[ (NSGAII, EAs_params),
+                         (SPEA2, EAs_params),
+                         (SMPSO, PSOs_params),
+                         (OMOPSO, OMOPSO_params)],
           problem=problem, max_evals=maxevals)
 
 

@@ -1,14 +1,14 @@
-;Single-objective optimization;Design of experiments;A priori preference articulation;Pareto-based optimization
-Fundamentals;Maximization / Minimization;Sampling Methods;Definition of preferences;Pareto Dominance
-Human intervention;None;Constant;A priori definition of preferences;A posteriori definition of preferences (to select optimal solution)
-Optimal solutions;Largest (maximization) / Smallest (minimization);Any;Maximize utility;Pareto
-Quality solutions;Single;Unknown;Single;Multiple
-Information provided;Best solution;Every solution;Best solution;Optimal solutions
-Optimization time;++;+;+++;+++++
-Configurable ;Nothing;All;Preferences;Nothing
-Ease of use;+++;+++;++;+
-Ease of comprehension;Difficult;Easy;Difficult;Accessible
-Support in architecture;++;+++;++;+
-Main advantages;Time complexity;Control level;Search guided towards a single objective;Obtain different trade-offs
-Main Disadvantages;Few information;Constant manual intervention;Few information;Time complexity
-;;Quality of solutions is not guaranteed;;Representation of results
+,Design of experiments,Single-objective optimization,A priori preference articulation,Pareto-based optimization
+Fundamentals,Sampling,Maximization / minimization,Preferences,Pareto Dominance
+Manual intervention,Constant,None,Preferences definition (a priori),Preferences definition (a posteriori)
+Optimal solutions,Any,Maximum / Minimum,Utility-based,Pareto optimal
+Quality solutions,Unknown,1,1,> 1 
+Information provided,Evaluated solutions,Best solution,Best solution,Optimal solutions
+Time complexity,+,++,+++,+++++
+Configurations,All,Nothing,Preferences,Nothing
+Ease of use,+++,+++,++,+
+Ease of comprehension,Easy,Difficult,Difficult,Accessible
+Support in architecture,+++,++,++,+
+Main advantages,Full control,Time complexity,Search guided towards a single objective,Obtain different trade-offs
+Main Disadvantages,Manual intervention,Lack of information,Lack of information,Time complexity
+,No optima guarantees,,,Result representation

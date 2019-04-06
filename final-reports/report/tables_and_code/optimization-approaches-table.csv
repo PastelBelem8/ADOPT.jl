@@ -1,10 +1,10 @@
 ,Design of experiments,Single-objective optimization,A priori preference articulation,Pareto-based optimization
 Fundamentals,Sampling,Maximization / minimization,Preferences,Pareto Dominance
-Manual intervention,Constant,None,Preferences definition (a priori),Preferences definition (a posteriori)
 Optimal solutions,Any,Maximum / Minimum,Utility-based,Pareto optimal
 Quality solutions,Unknown,1,1,> 1 
 Information provided,Evaluated solutions,Best solution,Best solution,Optimal solutions
 Time complexity,+,++,+++,+++++
+Manual intervention,Constant,None,Preferences definition (a priori),Preferences definition (a posteriori)
 Configurations,All,Nothing,Preferences,Nothing
 Ease of use,+++,+++,++,+
 Ease of comprehension,Easy,Difficult,Difficult,Accessible

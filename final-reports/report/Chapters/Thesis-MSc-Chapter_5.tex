@@ -40,20 +40,21 @@ Finally, in order to use the optimization framework, the user only needs to crea
 \section{Quantitative Evaluation}
 \label{sec:quantitative}
 
-In order to study and explore the behavior of algorithms within building design practices, we evaluate the performance of different algorithms using the optimization framework, discussed in \cref{chap:implement}. Moreover, we evaluate the real applicability of such framework in three case studies proposed by a small-scale architectural studio\footnote{Atelier dos Remédios: http://atrem.eu/}: (1) the optimization of the lighting conditions of a solarium in a private house in Portugal; (2) the optimization of the structural behavior and the elegance of an arc-shaped space frame structure; and (3) the optimization of the cost and the lighting conditions of an exhibition room in an arts pavilion.   
+In order to study and explore the behavior of algorithms within building design practices, we evaluate the performance of different algorithms using the optimization framework, discussed in \cref{chap:implement}. Moreover, we evaluate the real applicability of such framework in three case studies, two of which were proposed by a small-scale architectural studio\footnote{Atelier dos Remédios: http://atrem.eu/}: (1) the optimization of the lighting conditions of a solarium in a private house in Portugal; (2) the optimization of the structural behavior and the elegance of an arc-shaped space frame structure; and (3) the optimization of the cost and the lighting conditions of an exhibition room in an arts pavilion.   
 
 % #############################################################################
 \subsection{Ericeira House: Solarium}
+The first case study involves the optimization of the lighting conditions of a room in an isolated private house in Portugal~\cite{Caetano2018,Belem2018optimizeddesign}. The room was designed with a set of façade shading panels that modulate the daylight conditions on the interior of the room. Depicted in \cref{fig:ericeira_panels_explanation}, the panels are composed of a set of horizontal wood bars of different sizes, which alternate between one full-length bar and a set of smaller bars. For aesthetics reasons, the size and position of the smaller bars along the panel's width were randomized. The final pattern of the façade's shading panels is, thus, defined in function of four variables: the length’s step, the maximum distance separating two consecutive bars, and the minimum and maximum lengths of the smaller bars. Initially, the goal was to find a solution for the shading panels that maximized the room's daylight performance, which was measured using the \ac{sUDI} metric~\cite{Nabil2006}. In general, it is known that the more openings in the shading panels, the more daylight will enter the room. However, this may also cause situations of uncomfortable glare and therefore, which must be be accounted for. Moreover, taking into account aesthetics, the architects initially imposed a few constraints on the variables to reflect their intention for more dense patterns, i.e., with less openings. 
 
-The first case study involves the optimization of the lighting conditions of a room in an isolated private house in Portugal~\cite{Caetano2018,Belem2018optimizeddesign}. The room was designed with a set of façade shading panels that modulate the daylight conditions on the interior of the room. Depicted in \cref{fig:ericeira_panels_explanation}, the panels are composed of a set of horizontal wood bars of different sizes, which alternate between one full-length bar and a set of smaller bars. For aesthetics reasons, the size and position of the smaller bars along the panel's width were randomized. The final pattern of the façade's shading panels is thus defined in term of four variables, which were constrained by the architects to vary within certain values: the length’s step, the maximum distance separating two consecutive bars, and the minimum and maximum lengths of the smaller bars. The architects expressed interest in achieving a solution for the shading panels that was optimized in terms of its lighting performance, which was measured using a daylight metric \ac{sUDI}~\cite{Nabil2006}. Therefore, the goal was to maximize the \ac{sUDI} values that would give the best lighting performance for the private room. \Cref{fig:ericeira_multiple_panels} represents some variations of this case study with different \ac{sUDI} values.
+Initially, we approached this case study~\cite{Caetano2018} followed a simple design of experiments approach, using two sampling algorithms to generate different design variations: Monte Carlo sampling and Latin hypercube sampling (see \cref{chapter:appendixA}). In order to find an optimal solution, initially the architects suggested  a design space larger than the one suggested by the architects’ suggestions for the parameters, but also a larger design space that resulted from the assignment of values that deviated from those premise
 
+\Cref{fig:ericeira_multiple_panels} represents some variations of this case study with different \ac{sUDI} values.
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_1.jpg}
 	\caption{Representation of the shading panels' geometric pattern and its design variables.}
 	\label{fig:ericeira_panels_explanation}
 \end{figure}
-The first approach to this case study~\cite{Caetano2018} followed a simple design of experiments approach, using two sampling algorithms to generate different design variations: Monte Carlo sampling and Latin hypercube sampling (see \cref{chapter:appendixA}). In order to find an optimal solution, initially the architects suggested  a design space larger than the one suggested by the architects’ suggestions for the parameters, but also a larger design space that resulted from the assignment of values that deviated from those premise
 
 \begin{figure}
 	\centering
@@ -62,6 +63,30 @@ The first approach to this case study~\cite{Caetano2018} followed a simple desig
 	\label{fig:ericeira_multiple_panels}
 \end{figure}
 %http://papers.cumincad.org/data/works/att/caadria2018\_278.pdf
+
+\begin{table}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{tables_and_code/Ericeira_phase1_stats_v1.pdf}
+	\caption[Ericeira Solarium: Table with best results and necessary evaluations per algorithm]{Ericeira Solarium: Table with the best results of daylight conditions (measured in \ac{sUDI}) per algorithm. Results are averaged over three runs, each with sixty evaluations. The table also depicts the average number of necessary evaluations to achieve best results.}
+	\label{table:phase1results}
+\end{table}
+
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_results_ph1_per_class.PNG}
+	\caption[Ericeira Solarium: Average best results of daylight conditions (measured in \ac{sUDI} per local algorithm]{Ericeira Solarium: Average best results of daylight conditions (measured in \ac{sUDI} per local algorithm, as a function of the number of function evaluations. Algorithms suffixed with HS are given an initial point with a sUDI value of 78\%, whilst algorithms suffixed with BS are given an initial point with a sUDI value of 7\%.}
+	\label{fig:phase2results}
+\end{figure}
+Hot-start (HS) - methods that start with a mild sUDI value (78%). Bad-start (BS) - methods that start with a bad sUDI value (7%)
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_results_ph2.PNG}
+	\caption{Representation of shading panels’ geometric pattern with different sUDI values (from left to right, 7\%, 62\%, 90\%, and 100\%).}
+	\label{fig:ericeira_multiple_panels}
+\end{figure}
+
 
 \todo{
 	- Falar do trabalho no primeiro paper:

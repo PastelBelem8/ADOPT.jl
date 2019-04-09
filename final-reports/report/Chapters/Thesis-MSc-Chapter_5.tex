@@ -51,7 +51,7 @@ The first case study involves the optimization of the lighting conditions of a r
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=\textwidth]{Images/Evaluation/Ericeira_1.jpg}
-	\caption{Ericeira Solarium: Representation of the shading panels' geometric pattern and its design variables.}
+	\caption{Ericeira Solarium: Representation of the shading panels' geometric pattern and the patterns' design variables.}
 	\label{fig:ericeira_panels_explanation}
 \end{figure}
 
@@ -109,21 +109,16 @@ On the other hand, when provided with a bad initial design, the best daylight il
 % #############################################################################
 \subsection{Space Frame Optimization}
 
-Besides the real-world case study, we decided to focus in \ac{MOO} problems. Given the interest of architects in performing structural analysis ~\cite{Cichocka2017SURVEY}, we created an artificial case study that optimizes the structural and irregularity aspects of an arc-shaped space frame. To create the irregularities, we have deformed the space frame using three attractor points, whose location varied during the course of the optimization. \Cref{fig:spaceframe}
+Besides the real-world case study, we decided to focus in \ac{MOO} problems ~\cite{Belem2019MOO}. Given the interest of architects in performing structural analysis \cite{Cichocka2017SURVEY}, we created an artificial case study that optimizes both structural and irregularity aspects of an arc-shaped space frame. To instil irregularities in the space frame, we introduced three attractors to cause a deformation in the shape of the truss. In this case, the parameters are the fixed-radius cylindrical coordinates of the three attractors and the goal is to optimize the structural aspect, measured in terms of the maximum displacement, and the irregularity aspect, measured in terms of the sum of the Euclidean distances between the three attractors. \Cref{fig:spaceframe} illustrates three examples of the space frame structure. 
 
-To introduce irregularities into the space frame, we used three attractors points to deform the shape of the space frame around their vicinities.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=1\textwidth]{Images/Evaluation/truss-kat.png}
+	\caption[Space Frame: Representation of three space frame design variants]{Space Frame: Representation of three design variations of the arc-shaped space frame, with copper balls representing the three attractors.}
+	\label{fig:spaceframe}
+\end{figure}
 
-
-
-
- different goals of an
-arc-shaped space frame: (1) its structural behavior, and (2) an ad-hoc measure
-of its irregularity. To introduce irregularities, we used three attractor points, each one influencing the shape of the space frame around its vicinity, whose location is varied in the course of the optimization. Figure 1 shows some of the studied
-variations, along with the attractor points used for each one.
-
-
-
-To this end, we created an artificial case study consisting of an arc-shaped space frame, which was deformed by three attractors points to introduce irregularity into the structure. In this case, the parameters are the position and angle of the attractor points
+We evaluated 
 
 
 \subsection{Black Pavilion: Skylights Optimization}

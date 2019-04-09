@@ -17,14 +17,33 @@ In this chapter, we reflect on the work that was developed and about the obtaine
 - Dificuldaes em otimização 
 - MOO
 - 
-By providing algorithms from different classes, users are able to test and select the algorithm that handles a more efficient our solution potentiates the efficiency of optimization processes. 
+By providing algorithms from different classes, users are able to test and select the algorithm that handles a more efficient 
+our solution potentiates the efficiency of optimization processes. 
 
 
 
 % #############################################################################
 \section{System Limitations and Future Work}
 
-\subsection{Optimization Algorithms}
-\subsection{ML models}
-\subsection{Constrained Optimization}
-Aliquam aliquet, est a ullamcorper condimentum, tellus nulla fringilla elit, a iaculis nulla turpis sed wisi. Fusce volutpat. Etiam sodales ante id nunc. Proin ornare dignissim lacus. Nunc porttitor nunc a sem. Sed sollicitudin velit eu magna. Aliquam erat volutpat. Vivamus ornare est non wisi. Proin vel quam. Vivamus egestas. Nunc tempor diam vehicula mauris. Nullam sapien eros, facilisis vel, eleifend non, auctor dapibus, pede.
+This dissertation proposes a general-purpose optimization framework providing different optimization approaches and optimization algorithms particularly tailored for optimization problems including simulation-based objective functions. Although the current framework already proved valuable to address architectural problems, it can be further improved. In this section, we highlight future research paths.
+
+% Case studies
+
+- Mais algoritmos, com propriedades diferentes
+- Testar diferentes casos de estudo (mais objetivos, mais variáveis, restrições)
+- Implementar diferentes abordagens (optimizar um objetivo primeiro e só depois o outro, de forma automática)
+- Surrogate modeling test the impact of pre-training the algorithms in known objective functions
+- Surrogate modeling test the impact of using one surrogate model to each objective vs using one to all objectives
+
+
+% Current limitations
+	- Algorithms Interactivity (enable the architect to introduce his knowledge and explore optimization)
+	- Results / Information representation
+	
+% Interesting future work
+	Finally, currently available optimization tools rarely provide any information regarding the optimization results, which difficults users' ability to understand the results. An interesting research path is to explore mechanisms that provide an explanation regarding the quality of the obtained results, especially when using opaque algorithms, i.e., whose non-linearity severely hinders the inteligibility of the optimization process itself. Recent advances in the field of \ac{ML} related to the models' explainability are promising and can be explored to provide explanations about the different optimization algorithms. 
+	
+	
+	
+	
+	

@@ -25,23 +25,31 @@ our solution potentiates the efficiency of optimization processes.
 % #############################################################################
 \section{System Limitations and Future Work}
 
-This dissertation proposes a general-purpose optimization framework providing different optimization approaches and optimization algorithms particularly tailored for optimization problems including simulation-based objective functions. Although the current framework already proved valuable to address architectural problems, it can be further improved. In this section, we highlight future research paths.
+This dissertation proposes a general-purpose optimization framework providing different optimization approaches and optimization algorithms particularly tailored for optimization problems including simulation-based objective functions. Although the current framework already proved valuable to address architectural problems, it can be further improved. In this section, we describe the limitations of the current framework and we suggest future lines of research.
 
-% Case studies
+% System Limitations
+\subsection{System Limitations}
 
-- Mais algoritmos, com propriedades diferentes
-- Testar diferentes casos de estudo (mais objetivos, mais variáveis, restrições)
+The current implementation of the optimization framework still presents several limitations, namely in terms of (1) the variety and/or flexibility of optimization approaches, (2) interactivity, and, also, (3) the visualization capabilities.
+% In \cref{ssec:AOW} we mentioned the four key aspects of optimization within architectural workflows. 
+
 - Implementar diferentes abordagens (optimizar um objetivo primeiro e só depois o outro, de forma automática)
-- Surrogate modeling test the impact of pre-training the algorithms in known objective functions
-- Surrogate modeling test the impact of using one surrogate model to each objective vs using one to all objectives
+- Algorithms Interactivity (enable the architect to introduce his knowledge and explore optimization)
+- Results / Information representation
 
+\subsection{Future Work}
+% Case studies
+The developed framework was tested in a single-objective daylight optimization case study and two bi-objective optimization case studies, one involving the optimization of structural and aesthetics aspects and other involving the optimization of daylight and cost aspects. All three case studies involved the optimization of less than six variables, at most two objectives, and no constraints. In the future, the proposed framework could be used to test optimization problems with higher complexity, not only in terms of variables and objectives, but also by adding constraints. Moreover, it would be interesting to assess the performance of optimization algorithms when subject to optimization problems involving different design aspects, including, among others, thermal, energy consumption, and acoustics. 
+ 
+% Optimization algorithms
+One other relevant research path is the evaluation of more optimization algorithms, involving different mechanisms and strategies, in order to assess their suitability for optimization problems and its impact on the overall performance of optimization processes. Additionally, as it has been partially demonstrated with the Ericeira's case study, fine-tuning and providing initial information to certain algorithms may drastically improve their performance. For this reason, evaluating the impact of different algorithm's parameters for certain optimization problems would be another relevant case study, particularly, for complex building design problems involving expensive evaluation functions. 
 
-% Current limitations
-	- Algorithms Interactivity (enable the architect to introduce his knowledge and explore optimization)
-	- Results / Information representation
-	
+Furthermore, it would be interesting to study the impact of pre-training surrogate-based optimization models based on data obtained from standard optimization test functions \todo{ZDT ou DEB ref...}. Particularly, users could use previous knowledge about the objectives' behavior (e.g., discontinuous, multimodal, convex) and pre-train the surrogate models in similar standardized test functions, thus, potentially, accelerating optimization processes. %An ensemble of algorithms could be exploited to maxmize the efficiency of these processes.
+
+% - Surrogate modeling test the impact of using one surrogate model to each objective vs using one to all objectives
+
 % Interesting future work
-	Finally, currently available optimization tools rarely provide any information regarding the optimization results, which difficults users' ability to understand the results. An interesting research path is to explore mechanisms that provide an explanation regarding the quality of the obtained results, especially when using opaque algorithms, i.e., whose non-linearity severely hinders the inteligibility of the optimization process itself. Recent advances in the field of \ac{ML} related to the models' explainability are promising and can be explored to provide explanations about the different optimization algorithms. 
+Finally, currently available optimization tools rarely provide any information regarding the optimization results, which difficults users' ability to understand the results. An interesting research path is to explore mechanisms that provide an explanation regarding the quality of the obtained results, especially when using opaque algorithms, i.e., whose non-linearity severely hinders the inteligibility of the optimization process itself. Recent advances in the field of \ac{ML} related to the models' explainability are promising and can be explored to provide explanations about the different optimization algorithms. 
 	
 	
 	

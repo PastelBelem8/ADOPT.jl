@@ -2,18 +2,18 @@
 % This is Appendix A
 % !TEX root = ../main.tex
 % #############################################################################
-\chapter{Algorithms Definitions}
-\label{chapter:appendixA}
+\appendix\chapter{Algorithms' Definitions}
+\label{appendix:AlgorithmsDefinitions}
 
 \todo{REFS e melhorar descrições?}
 
 \section{Sampling Algorithms}
 \begin{itemize}
-\item Monte Carlo Sampling
-\item Stratified Monte Carlo Sampling
-\item Latin Hypercube Sampling
-\item K-factorial
-\item Full-factorial
+\item \textbf{Monte Carlo Sampling} or Random Sampling
+\item \textbf{Stratified Monte Carlo Sampling}
+\item \textbf{Latin Hypercube Sampling}
+\item \textbf{K-factorial}
+\item \textbf{Full-factorial}
 \end{itemize}
 
 
@@ -41,7 +41,7 @@
 A very summarized explanation will be provided for the metaheuristic algorithms studied during this dissertation. Therefore, we suggest \cite{BlumRoli2003Metaheuristics,Glover2003Metaheuristics} for more complete explanations and further literature on these and other metaheuristic algorithms.
 
 \begin{itemize}
-	\item \textbf{Controlled Random Search 2} (CRS2) algorithm is a variant of the CRS algorithm for global optimization~\cite{Price1983}. A CRS algorithm is a population-based random search algorithm that creates an initial set of points, the population, which are then randomly evolved by means of heuristic rules. In the original CRS algorithms, heuristic rules modify a point at a time, replacing the worst point with a better one (called trial point), using a technique resemblant of the NMS algorithm \cite{Nelder1964}. Similarly to NMS, CRS algorithms use a simplex, i.e., a generalized triangle in $N$ dimensions, to envelope a region described by a random subset of points in the population. The worst point of the population is replaced with the reflection of the worst point in the simplex~\cite{Kaelo2006CRS2}. The CRS2 variant differs from the original in that it assumes that the worst population point will always be a part of the simplex. The actual version that is made available by Goat is a modified version of the CRS2 algorithm that introduces a local mutation component in an attempt to overcome situations where heuristic rules constantly fail to find a trial points that actually improve the worst point. Fundamentally, this local mutation generates a second trial point that results from the exploitation of the region around the best point in the population~\cite{Kaelo2006CRS2}.  
+	\item \textbf{Controlled Random Search 2} (CRS2) algorithm is a variant of the CRS algorithm for global optimization~\cite{Price1983}. A CRS algorithm is a population-based random search algorithm that creates an initial set of points, the population, which are then randomly evolved by means of heuristic rules. In the original CRS algorithms, heuristic rules modify a point at a time, replacing the worst point with a better one (called trial point), using a technique resemblant of the NMS algorithm \cite{Nelder1964}. Similarly to NMS, CRS algorithms use a simplex, i.e., a generalized triangle in $N$ dimensions, to envelope a region described by a random subset of points in the population. The worst point of the population is replaced with the reflection of the worst point in the simplex~\cite{Kaelo2006CRS2}. The CRS2 variant differs from the original in that it assumes that the worst population point will always be a part of the simplex. One variant of the CRS2 algorithm introduces a local mutation component in an attempt to overcome situations,  where heuristic rules constantly fail to find a trial points that actually improve the worst point. Fundamentally, this local mutation generates a second trial point that results from the exploitation of the region around the best point in the population~\cite{Kaelo2006CRS2}.  
 	
 	\item \textbf{Evolutionary Strategy with Cauchy Distribution} (ESCH) \todo{ref (Santos 2010)} creates an initial population that is then iteratively recombined according to a specific distribution function, instead of the uniform distribution, and then mutated. The mutations are the result of combining two different mutation operators - the gaussian variation and the duplication gene mutations.
 	
@@ -64,7 +64,7 @@ For a more thorough description of different \acp{MOEA} and their mechanisms, we
 	\item \textbf{Epsilon \ac{MOEA}} ($\epsilon$-MOEA) 
 	
 	\item \textbf{Hypervolume Estimation Algorithm for \ac{MOO}} (HypE) 
-	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use \ac{HypE}, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, \ac{HypE} uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
+	Unfortunately, algorithms incorporating the Pareto dominance relation and diversity measures appear to have difficulties in optimization scenarios with more than two objectives, which spurred the development of algorithms using other quality measures, including quality indicators. To overcome the objective limitation and provide the user with the flexibility to use a more efficient algorithm, Octopus provides the option to use HypE, an algorithm that explores the \ac{HV} indicator to rank individuals. Particularly, to minimize time penalties associated with the computation of the \ac{HV}, in scenarios with more than three objectives, HypE uses Monte Carlo simulations to estimate the \ac{HV} value of each individual~\cite{Zitzler2011HypE}. 
 	
 	\item \textbf{\ac{MOEA} with Decomposition} (MOEA/D)
 	

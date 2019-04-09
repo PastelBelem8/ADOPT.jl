@@ -24,7 +24,8 @@ Year = {2018}}
 	Title = {{Grasshopper: Generative Modeling for Rhino}},
 	Url = {https://www.grasshopper3d.com/},
 	Year = {2007},
-	Bdsk-Url-1 = {https://www.grasshopper3d.com/}}
+	Bdsk-Url-1 = {https://www.grasshopper3d.com/}
+}
 	
 % DYNAMOBIM
 @url{DYNAMOBIM,
@@ -34,7 +35,8 @@ Year = {2018}}
 	Title = {{Dynamo BIM}},
 	Url = {https://dynamobim.org/},
 	Year = {2011},
-	Bdsk-Url-1 = {https://dynamobim.org/}}
+	Bdsk-Url-1 = {https://dynamobim.org/}
+}
 
 % GALAPAGOS
 @url{GALAPAGOS,
@@ -44,7 +46,8 @@ Year = {2018}}
 	Title = {{Galapagos - an optimization solver component}},
 	Url = {https://www.grasshopper3d.com/group/galapagos},
 	Year = {2010},
-	Bdsk-Url-1 = {https://www.grasshopper3d.com/group/galapagos}}
+	Bdsk-Url-1 = {https://www.grasshopper3d.com/group/galapagos}
+}
 
 % GOAT
 @url{GOAT,
@@ -66,6 +69,18 @@ Year = {2018}}
 	Year = {2010},
 	Bdsk-Url-1 = {http://ab-initio.mit.edu/nlopt}}
 
+
+% London City Hall
+@url{londoncityhall,
+	Author = {{Foster+Partners}},
+	Date-Added = {2010-04-03 12:30:00 +0000},
+	Date-Modified = {2019-04-03 12:30:00 +0000},
+	Title = {{Foster+Partners: City Hall, London UK}},
+	Url = {https://www.fosterandpartners.com/projects/city-hall/},
+	Year = {2002},
+	Bdsk-Url-1 = {https://www.fosterandpartners.com/projects/city-hall/}}
+
+
 % Octopus
 @phdthesis{OCTOPUS,
 author = {Vierlinger, Robert},
@@ -82,13 +97,35 @@ title = {{Optimo : A BIM-based Multi-Objective Optimization Tool Utilizing Visua
 year = {2015}}
 
 
+%% ------------------------------------------------------------------
+							Optimization Libraries
+%% ------------------------------------------------------------------
+
 % RBFOPT
 @article{RBFOPT,
-author = {Costa, Alberto and Nannicini, Giacomo},
-journal = {Optimization online no.4538},
-keywords = {basis function,black-box optimization,derivative free optimization,mixed-integer nonlinear programming,open-source software,radial},
-title = {{RBFOpt : an open-source library for black-box optimization with costly function evaluations}},
-year = {2014}}
+	author = {Costa, Alberto and Nannicini, Giacomo},
+	journal = {Optimization online no.4538},
+	keywords = {basis function,black-box optimization,derivative free optimization,mixed-integer nonlinear programming,open-source software,radial},
+	title = {{RBFOpt : an open-source library for black-box optimization with costly function evaluations}},
+	year = {2014}}
+
+@article{scikit-learn,
+	title={{Scikit-learn: Machine Learning in Python }},
+	author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+	and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+	and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+	Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+	journal={Journal of Machine Learning Research},
+	volume={12},
+	pages={2825--2830},
+	year={2011}
+}
+
+@article{platypus,
+	title={{Platypus: Multiobjective Optimization in Python}},
+	author={Hadka, David},
+	year={2015}
+}
 
 %% ------------------------------------------------------------------
 								Images
@@ -122,6 +159,18 @@ pmid = {25246403},
 title = {{Clever Algorithms}},
 url = {http://www.cleveralgorithms.com},
 year = {2011}}
+
+% Caetano
+@article{Caetano2018,
+	author = {Caetano, In{\^{e}}s and Ilunga, Guilherme and Bel{\'{e}}m, Catarina and Aguiar, Rita and Feist, Sofia and Bastos, Francisco and Leit{\~{a}}o, Ant{\'{o}}nio},
+	journal = {Proceedings of the 23rd International Conference of the Association for Computer-Aided Architectural Design Research in Asia},
+	keywords = {algorithmic design,collaborative design,design,design workflow processes,strategies},
+	number = {Giedion 1941},
+	pages = {111--120},
+	title = {{Case Studies on the Integration of Algorithmic Design Processes in Traditional Design Workflows}},
+	volume = {1},
+	year = {2018}
+}
 
 
 % Conn
@@ -242,6 +291,13 @@ title = {{Performative Architecture: Beyond Instrumentality}},
 volume = {60},
 year = {2005}}
 
+@incollection{Malkawi2005-a,
+	author = {Branko Kolarevic},
+	title = {15 Towards the Performative in Architecture},
+	pages= {201--214},
+	crossref = {Malkawi2005}
+}
+
 % Nemhauser
 @book{Nemhauser1988,
 address = {New York},
@@ -326,16 +382,27 @@ year = {2015}}
 }
 
 % Belem
-@article{Belem2018optimizeddesign,
-author = {Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio},
-file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Generative Design/Algorithmic Optimization/Bel{\'{e}}m, Leit{\~{a}}o - 2018 - From Design to Optimized Design An algorithmic-based approach.pdf:pdf},
-keywords = {algorithmic analysis,algorithmic design,algorithmic optimization,black-box optimization,lighting optimization},
-mendeley-groups = {Articles/Architecture/Generative Design/Algorithmic Optimization},
-number = {1},
-pages = {559--568},
-title = {{From Design to Optimized Design An algorithmic-based approach}},
-volume = {2},
-year = {2018}}
+@inproceedings{Belem2018optimizeddesign,
+	author = {Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio},
+	booktitle = {Computing for a better tomorrow - Proceedings of the 36th eCAADe Conference},
+	editor = {{Kepczynska-Walczak, A, Bialkowski}, S},
+	file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Black-Box Optimization/Black-box/Single-Objective-Optimization/Comparisons/Bel{\'{e}}m, Leit{\~{a}}o - 2018 - From Design to Optimized Design An algorithmic-based approach.pdf:pdf},
+	keywords = {algorithmic analysis,algorithmic design,algorithmic optimization,black-box optimization,lighting optimization},
+	mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Single-Objective Optimization/Comparisons},
+	number = {1},
+	pages = {559--568},
+	title = {{From Design to Optimized Design An algorithmic-based approach}},
+	volume = {2},
+	year = {2018}
+}
+
+@inproceedings{Belem2019MOO,
+	author = {Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio;},
+	booktitle = {Intelligent {\&} Informed, Proceedings of the 24th International Conference of the Association for Computer-Aided Architectural Design Research in Asia (CAADRIA)},
+	title = {{Conflicting Goals in Architecture: A study on Multi-Objective Optimization}},
+	year = {2019}
+}
+
 
 % Blum 
 @article{BlumRoli2003Metaheuristics,
@@ -376,7 +443,6 @@ volume = {2},
 year = {1988}
 }
 
-
 % Cichocka 
 @article{Cichocka2017SURVEY,
 author = {Cichocka, Judyta M. and Browne, Will N. and Rodriguez, Edgar},
@@ -398,6 +464,31 @@ url = {http://link.springer.com/10.1007/978-981-10-5197-5},
 volume = {724},
 year = {2017}}
 
+% Custódio
+@article{Custodio2010,
+	author = {Cust{\'{o}}dio, A L and Madeira, J F A and Vaz, A I F and Vicente, L N},
+	journal = {Society for Industrial and Applied Mathematics},
+	mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Multi-Objective Optimization/Direct-Search Optimization},
+	number = {3},
+	pages = {1109--1140},
+	title = {{Direct multisearch for multiobjective optimization}},
+	volume = {21},
+	year = {2010}
+}
+
+@article{Custodio2018,
+	author = {Cust{\'{o}}dio, A L and Madeira, J F A},
+	file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Black-Box Optimization/Black-box/Multi-Objective-Optimization/Direct-Search/Cust, Madeira - 2018 - MultiGLODS Global and Local Multiobjective Optimization using Direct Search.pdf:pdf},
+	journal = {Journal of Global Optimization},
+	mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Multi-Objective Optimization/Direct-Search Optimization},
+	number = {2},
+	pages = {323--345},
+	title = {{MultiGLODS : Global and Local Multiobjective Optimization using Direct Search}},
+	volume = {72},
+	year = {2018}
+}
+
+
 % Deb
 @article{Deb2002,
 	author = {Deb, Kalyanmoy and Agrawal, Samir and Pratap, Amrit and Meyarivan, Tanaka},
@@ -418,8 +509,6 @@ year = {2017}}
 	year = {2002}
 }
 
-
-
 % Diaz 
 @article{Diaz-Manriquez2016,
 author = {D{\'{i}}az-Manr{\'{i}}quez, Alan and Toscano, Gregorio and Barron-Zambrano, Jose Hugo and Tello-Leal, Edgar},
@@ -430,6 +519,24 @@ pmid = {27382366},
 title = {{A review of surrogate assisted multiobjective evolutionary algorithms}},
 volume = {2016},
 year = {2016}}
+
+% Durillo
+@article{Durillo2011SMPSO,
+	abstract = {Allocating resources to hospital units is a major managerial issue as the relationship between resources, utilization and$\backslash$r$\backslash$n patient flow of different patient groups is complex. Furthermore, the problem is dynamic as patient arrival and treatment$\backslash$r$\backslash$n processes are stochastic. In this paper we present a strategy optimization approach where the parameters of different strategies$\backslash$r$\backslash$n are optimized using a multiobjective EDA. The strategies were designed such that they enable dynamic resource allocation with$\backslash$r$\backslash$n an offline EDA. Also, the solutions are understandable to health care professionals. We show that these techniques can be$\backslash$r$\backslash$n applied to this real-world problem. The results are compared to allocation strategies used in hospital practice.},
+	author = {Durillo, Juan J. and Garcia-Nieto, Jos{\'{e}} and Nebro, Antonio J. and Coello, Carlos A. Coello and Luna, Francisco and Alba, Enrique},
+	doi = {10.1007/978-3-642-01020-0},
+	file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Black-Box Optimization/Black-box/Multi-Objective-Optimization/Metaheuristic/Farkas et al. - 2011 - Distribution of Solenopsora candicans (lichen-forming fungi, Catillariaceae) in Hungary.pdf:pdf},
+	isbn = {978-3-642-01019-4},
+	issn = {02366495},
+	journal = {Acta Botanica Hungarica},
+	keywords = {Solenopsora candicans,biodiversity,lichen-forming fungi},
+	mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Multi-Objective Optimization},
+	number = {3-4},
+	pages = {305--311},
+	title = {{Multi-Objective Particle Swarm Optimizers: An Experimental Comparison}},
+	volume = {53},
+	year = {2011}
+}
 
 % Evins 
 @inproceedings{Evins2011,
@@ -533,7 +640,6 @@ url = {http://link.springer.com/10.1023/A:1011255519438},
 volume = {19},
 year = {2001}
 }
-
 
 % Hamdy 
 @article{Hamdy2016,
@@ -640,19 +746,21 @@ year = {2003}}
 
 
 % Leitao 
-@article{Leitao2014GD,
+@inproceedings{Leitao2014GD,
 author = {Leit{\~{a}}o, Ant{\'{o}}nio and Santos, Lu{\'{i}}s and Fernandes, Rita},
+booktitle = {XVII Conference of the Iberoamerican Society of Digital Graphics - SIGraDi: Knowledge-based Design},
 doi = {http://dx.doi.org/10.5151/despro-sigradi2013-0043},
-file = {:C$\backslash$:/Users/catar/OneDrive/IST/Mestrado/2ano/Thesis/Refer{\^{e}}ncias/ALGORITHMIC{\_}DESIGN{\_}WORKFLOWS/Leit{\~{a}}o, Santos, Fernandes - 2014 - Pushing the Envelope Stretching the Limits of Generative Design.pdf:pdf},
+file = {:C$\backslash$:/Users/catar/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Leit{\~{a}}o, Santos, Fernandes - 2014 - Pushing the Envelope Stretching the Limits of Generative Design.pdf:pdf},
 issn = {2318-6968},
-journal = {Blucher Design Proceedings},
 keywords = {change,design process,generative design,modeling,programming},
-mendeley-groups = {Thesis/ALGORITHMIC{\_}DESIGN{\_}WORKFLOWS},
+mendeley-groups = {Articles/Architecture/Generative Design/Generative Design},
 number = {7},
 pages = {235--238},
 title = {{Pushing the Envelope: Stretching the Limits of Generative Design}},
+url = {www.proceedings.blucher.com.br/article-details/pushing-the-envelope-stretching-the-limits-of-generative-design-14129},
 volume = {1},
-year = {2014}}
+year = {2013}
+}
 
 % Machairas
 @article{Machairas2014,
@@ -685,6 +793,20 @@ pmid = {1729233},
 title = {{Survey of multi-objective optimization methods for engineering}},
 volume = {26},
 year = {2004}}
+
+% Nabil
+@article{Nabil2006,
+author = {Nabil, Azza and Mardaljevic, John},
+doi = {10.1016/j.enbuild.2006.03.013},
+file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Building Performance Simulation/Nabil, Mardaljevic - 2006 - Useful daylight illuminances A replacement for daylight factors.pdf:pdf},
+journal = {Energy and Buildings},
+keywords = {daylight,shading,simulation},
+mendeley-groups = {Articles/Architecture/Building Performance Simulation},
+pages = {905--913},
+title = {{Useful daylight illuminances : A replacement for daylight factors}},
+volume = {38},
+year = {2006}
+}
 
 % Nelder-Mead
 @article{Nelder1964,
@@ -727,9 +849,7 @@ address = {Dordrecht},
 author = {Powell, M. J. D.},
 booktitle = {Advances in Optimization and Numerical Analysis},
 editor = {Gomez, S. and Hennart, J.P},
-file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Black-Box Optimization/Black-box/Single-Objective-Optimization/Direct-search methods/Powell - 1994 - A Direct Search Optimization Method That Models the Objective and Constraint Functions by Linear.pdf:pdf},
 keywords = {direct search,linear interpolation,nonlinear constraints,optimization without},
-mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Single-Objective Optimization/Direct Search},
 number = {275},
 pages = {51--67},
 publisher = {Springer},
@@ -825,6 +945,20 @@ pages = {218},
 title = {{Functional stability analysis of numerical algorithms}},
 year = {1990}}
 
+% Shannon
+@article{Shannon1948,
+	author = {Shannon, Claude},
+	file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/MACHINE{\_}LEARNING/Shannon - 1948 - A Mathematical Theory of Communication.pdf:pdf},
+	journal = {The Bell System Technical Journal},
+	mendeley-groups = {Articles/Machine Learning},
+	number = {July 1948},
+	pages = {379--423},
+	title = {{A Mathematical Theory of Communication}},
+	volume = {27},
+	year = {1948}
+}
+
+
 % Shi
 @article{Shi2016,
 	author = {Shi, Xing and Tian, Zhichao and Chen, Wenqiang and Si, Binghui and Jin, Xing},
@@ -909,14 +1043,22 @@ pages = {177--186},
 title = {{Black-box optimization methods for architectural design}},
 year = {2016}}
 
-@article{Wortmann2017ADO,
-author = {Wortmann, Thomas and Nannicini, Giacomo},
-doi = {10.1007/978-3-319-61313-0},
-isbn = {978-3-319-61312-3},
-number = {December},
-title = {{Introduction to Architectural Design Optimization}},
-volume = {125},
-year = {2017}}
+@incollection{Wortmann2017ADO,
+	author = {Wortmann, Thomas and Nannicini, Giacomo},
+	booktitle = {City Networks - Planning for Health and Sustainability},
+	doi = {10.1007/978-3-319-61313-0},
+	editor = {{Athanasia Karakitsiou, Athanasios Migdalas, Stamatina Th. Rassia}, Panos M. Pardalos},
+	file = {:C$\backslash$:/Users/catar/AppData/Local/Mendeley Ltd./Mendeley Desktop/Downloaded/Wortmann, Nannicini - 2017 - Introduction to Architectural Design Optimization.pdf:pdf},
+	isbn = {978-3-319-61312-3},
+	mendeley-groups = {Articles/Architecture/Optimization,Articles/Architecture/Optimization/Reviews},
+	number = {December},
+	publisher = {Springer},
+	title = {{Introduction to Architectural Design Optimization}},
+	url = {http://link.springer.com/10.1007/978-3-319-61313-0},
+	volume = {125},
+	year = {2017}
+}
+
 
 @article{Wortmann2017GABESTCHOICE,
 author = {Wortmann, Thomas and Waibel, Christoph and Nannicini, Giacomo and Evins, Ralph and Schroepfer, Thomas and Carmeliet, Jan},
@@ -1040,7 +1182,7 @@ year = {2011}
 
 @article{Zitzler2003Metrics,
 author = {Zitzler, Eckart and Thiele, Lothar and Laumanns, Marco and Fonseca, Carlos M and Grunert, Viviane},
-file = {:C$\backslash$:/Users/catar/Dropbox/Library/Articles/Architecture/Black-Box Optimization/Black-box/Multi-Objective-Optimization/Tests {\&} Benchmarks/Zitzler et al. - 2003 - Performance Assessment of Multiobjective Optimizers An Analysis and Review.pdf:pdf},
+journal = {IEEE Transactions on Evolutionary Computation},
 mendeley-groups = {Articles/Architecture/Optimization/Black-Box/Multi-Objective Optimization/Tests {\&} Metrics {\&} Benchmarks},
 number = {2},
 pages = {117--132},

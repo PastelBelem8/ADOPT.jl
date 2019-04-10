@@ -123,16 +123,15 @@ values(var::SetVariable) = var.values
 
 # Unscalers
 unscale(var::T, values::AbstractArray{Y}, old_min, old_max) where{T<:AbstractVariable,Y<:Number} =
-        [unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
-            for value in values]
+        [unscale(var, value, old_min, old_max) for value in values]
 
 unscale(var::RealVariable, value::Real, old_min, old_max) =
     unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
 
-unscale(var::IntVariable, value::Real, old_min, old_max) =
-    round(Int64, unscale(value, lower_bound(var), upper_bound(var), old_min, old_max))
+unscale(var::IntVariable, value::Number, old_min, old_max) =
+    round(Int, unscale(value, lower_bound(var), upper_bound(var), old_min, old_max))
 
-unscale(var::SetVariable, value::Real, old_min, old_max) = let
+unscale(var::SetVariable, value::Number, old_min, old_max) = let
     nval = unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
     var.values[round(Int64, nval)]
     end

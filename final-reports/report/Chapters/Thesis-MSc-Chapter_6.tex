@@ -23,20 +23,23 @@ our solution potentiates the efficiency of optimization processes.
 
 
 % #############################################################################
-\section{System Limitations and Future Work}
+\section{Limitations and Future Work}
 
 This dissertation proposes a general-purpose optimization framework providing different optimization approaches and optimization algorithms particularly tailored for optimization problems including simulation-based objective functions. Although the current framework already proved valuable to address architectural problems, it can be further improved. In this section, we describe the limitations of the current framework and we suggest future lines of research.
 
 % System Limitations
-\subsection{System Limitations}
+\subsection{Limitations}
 
-The current implementation of the optimization framework still presents several limitations, namely in terms of (1) the variety and/or flexibility of optimization approaches, (2) interactivity, and, also, (3) the visualization capabilities.
-% In \cref{ssec:AOW} we mentioned the four key aspects of optimization within architectural workflows. 
+Despite providing the base functionality for addressing several optimization problems, the current solution still presents some limitations which will be emphasized in this section. When considering the key aspects mentioned in \cref{ssec:AOW}, it is possible to identify a few limitations, namely in terms of (1) the flexibility/automation of specific optimization approaches, (2) interactivity, and, also, (3) the visualization capabilities.
+% In  we mentioned the four key aspects of optimization within architectural workflows. 
 
-The current optimization framework allow users to follow different approaches depending on the number of objectives and the desired complexity. However, it does not currently provide the ability to easily follow other optimization approaches, like prioritizing the optimization of certain objectives. \todo{Meeh...}
+Firstly, notwithstanding its different optimization mechanisms to support different optimization approaches (e.g., design of experiments, \ac{SOO}, pareto-based), users could also benefit from other optimization approaches, like the prioritization of the optimization of different objectives (e.g., in a bi-objective optimization problem, the user can optimize one objective first and only then proceed to optimize the second). 
 
-- Algorithms Interactivity (enable the architect to introduce his knowledge and explore optimization)
-- Results / Information representation
+Secondly, the current framework does provide the mechanisms to follow a human-in-the-loop approach, where the user is able to interact and influence the optimization process. The ability to influence the course of an optimization approach would be particularly interesting in the architectural field, where users can use recently acquired knowledge or intuitions to explore more promising regions of the design space or even to speed-up the optimization process. A possible research path is to investigate the ability to change or add constraints in real time or to specify different design variants to be explored and generalize other similar design variants from the selected design variants.
+
+Finally, although the current visualization mechanisms provide a fair and general understanding of the results obtained in optimization processes, these present some limitations concerning the visualization of Pareto fronts for problems involving more than three objectives. An important research path is how to represent the information regarding different runs of \ac{MOO} algorithms, for which users have a limited evaluation budget and cannot afford to let the algorithms run indefinitely until they converge towards an idyllic Pareto Front. During this dissertation, we adopted a combination of a table comprised of the mean values for the Pareto fronts of different runs. \todo{Referenciar trabalho do Edward Tufte?} 
+
+% One other important research path is to implement a real time implementation does not provide real-time updating mechanisms. optimization framework does not provide an integrated real-time the visual mechanisms is not being updated in real-time which is a limitation. Although we have 
 
 \subsection{Future Work}
 % Case studies

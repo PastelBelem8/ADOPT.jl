@@ -13,30 +13,41 @@ In this chapter, we reflect on the work that was developed and about the obtaine
 % #############################################################################
 \section{Conclusions}
 
-- Falar de requisitios ambientais
-- Dificuldaes em otimização 
-- MOO
-- 
-By providing algorithms from different classes, users are able to test and select the algorithm that handles a more efficient 
-our solution potentiates the efficiency of optimization processes. 
+Nowadays, with the threat of climate change, resource depletion, and worldwide urbanization, the construction of well-designed buildings does not suffice \cite{Wortmann2015AdvSBO}. Architectural practices have, therefore, grown to incorporate considerations about the building's performance in various aspects, including energy consumption, comfort, and costs, among others. For the past few decades, the development of computational simulation tools empowered designers with the ability to simulate and obtain an estimate of a building’s performance, prior to its construction. The emergence of these tools and the raising concerns about the environmental and economic impact of buildings led to the development of new design approaches, such as Performance-Based Design (PBD), which seek more efficient design solutions by considering the designs’ performance. Taking design’s performance a step further, optimization has unveilled a new performance-based approach called Building Performance Optimization (BPO). 
 
+Unfortunately, traditional \ac{BPO} methodologies require the evaluation of different design variations, which, in turn, imply spending a large amount of time with the manual application of changes to the design and often leading to difficulties when manually modeling complex geometry. Moreover, in order to evaluate a design's performance the corresponding analytical models must be produced, which also comprises a time-consuming and tiresome task. The emergence of algorithmic-based paradigms, like Algorithmic Design (AD) and Algorithmic (AA), enabled the implementation of automated optimization processes, as they enabled architects to generate multiple design variants with little effort, to automatically produce the corresponding analytical models, and to automatically evaluate their performance. Notwithstanding the benefits attained with algorithmic approaches, the exploration for more efficient designs still comprises a tiresome and time-consuming task. To overcome this limitation, one can exploit the automatisms associated with optimization algorithms to seek for optimal (or near optimal) design solutions more efficiently.
+
+The development of optimization algorithms is not recent and their wide availability often difficults the selection of the most appropriate one for a specific problem. Often disregarded, the selection of the appropriate algorithm might have a significant impact in the overall efficiency of optimization processes and, also, on the quality of the retrieved results\cite{Wolpert1997NFLT}. Despite the benefits associated with a more targeted selection of optimization algorithms, most \ac{BPO} practitioners seem to only adopt \ac{EA}-based algorithms, like the ones dicussed in \cref{sec:optimizationtools}. 
+
+As discussed in \cref{sec:optalgos}, for simulation-based optimization problems, such as \ac{BPO}, other interesting optimization algorithms can be explored, including model-based algorithms which potentially reduce the overall optimization time\cite{Wortmann2017GABESTCHOICE}. Direct-search methods have also yielded promising results in the context of \ac{BPO} problems \cite{Waibel2018}. 
+
+% What we did, how we tested, what were the conclusions
+Along these lines, we studied different optimization approaches and algorithms to minimize the impact of building designs in the environment  \cite{Caetano2018,Belem2018optimizeddesign,Belem2019MOO}. To this end, we propose Algorithmic Optimization (\ac{AO}), an extension to the \ac{AD} and \ac{AA} approaches, which allowed to combine an optimization framework and an \ac{AD} tool to test different optimization algorithms in three \ac{BPO} case studies. In general, \todo{Tirar alguma conclusão com base nos dados que temos???}.
+
+From the results, we conclude that no single algorithm or class of algorithms is able to constantly outperform the other classes in any of the evaluated case studies and, in fact, \ac{EA}-based algorithms were rarely the best algorithms. Moreover, similarly to what has previously been stated in \cite{Wortmann2016BBO}, we conclude that the selection of the most effective algorithm is of great importance to allow an efficient design exploration, especially, when this involves complex and time-consuming simulations. Consequently, the choice of the optimization algorithm should be based on the results obtained after comparing distinct algorithms for a fixed number of evaluations or a fixed amount of time \cite{Hamdy2016}. Moreover, note that while global optimization algorithms are quicker to converge towards optimal solutions when no additional information is known, local algorithms can be quicker if provided with good initial points and, therefore should be considered as potential candidates. 
+ \todo{Mais conclusoes...}
+ 
+% Overall conclusion
 
 
 % #############################################################################
-\section{System Limitations and Future Work}
+\section{Limitations and Future Work}
 
 This dissertation proposes a general-purpose optimization framework providing different optimization approaches and optimization algorithms particularly tailored for optimization problems including simulation-based objective functions. Although the current framework already proved valuable to address architectural problems, it can be further improved. In this section, we describe the limitations of the current framework and we suggest future lines of research.
 
 % System Limitations
-\subsection{System Limitations}
+\subsection{Limitations}
 
-The current implementation of the optimization framework still presents several limitations, namely in terms of (1) the variety and/or flexibility of optimization approaches, (2) interactivity, and, also, (3) the visualization capabilities.
-% In \cref{ssec:AOW} we mentioned the four key aspects of optimization within architectural workflows. 
+Despite providing the base functionality for addressing several optimization problems, the current solution still presents some limitations which will be emphasized in this section. When considering the key aspects mentioned in \cref{ssec:AOW}, it is possible to identify a few limitations, namely in terms of (1) the flexibility/automation of specific optimization approaches, (2) interactivity, and, also, (3) the visualization capabilities.
+% In  we mentioned the four key aspects of optimization within architectural workflows. 
 
-The current optimization framework allow users to follow different approaches depending on the number of objectives and the desired complexity. However, it does not currently provide the ability to easily follow other optimization approaches, like prioritizing the optimization of certain objectives. \todo{Meeh...}
+Firstly, notwithstanding its different optimization mechanisms to support different optimization approaches (e.g., design of experiments, \ac{SOO}, pareto-based), users could also benefit from other optimization approaches, like the prioritization of the optimization of different objectives (e.g., in a bi-objective optimization problem, the user can optimize one objective first and only then proceed to optimize the second). 
 
-- Algorithms Interactivity (enable the architect to introduce his knowledge and explore optimization)
-- Results / Information representation
+Secondly, the current framework does provide the mechanisms to follow a human-in-the-loop approach, where the user is able to interact and influence the optimization process. The ability to influence the course of an optimization approach would be particularly interesting in the architectural field, where users can use recently acquired knowledge or intuitions to explore more promising regions of the design space or even to speed-up the optimization process. A possible research path is to investigate the ability to change or add constraints in real time or to specify different design variants to be explored and generalize other similar design variants from the selected design variants.
+
+Finally, although the current visualization mechanisms provide a fair and general understanding of the results obtained in optimization processes, these present some limitations concerning the visualization of Pareto fronts for problems involving more than three objectives. An important research path is how to represent the information regarding different runs of \ac{MOO} algorithms, for which users have a limited evaluation budget and cannot afford to let the algorithms run indefinitely until they converge towards an idyllic Pareto front. %\todo{Referenciar trabalho do Edward Tufte?} 
+
+% One other important research path is to implement a real time implementation does not provide real-time updating mechanisms. optimization framework does not provide an integrated real-time the visual mechanisms is not being updated in real-time which is a limitation. Although we have 
 
 \subsection{Future Work}
 % Case studies

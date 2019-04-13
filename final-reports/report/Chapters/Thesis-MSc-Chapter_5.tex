@@ -149,10 +149,18 @@ Besides a uniform distribution, a good Pareto front should cover, when applicabl
 	\label{table:spaceframestd}
 \end{table}
 
-Regarding the accuracy
+The accuracy aspect measures how close the solutions are from the true Pareto front. As previously mentioned, in this dissertation, we consider the true Pareto front to be the result of the best solutions found in each run. This decision aims at measuring the average performance of each algorithm when obtaining information about the real true Pareto front is unfeasible. In this case study, we used two accuracy indicators, namely the \ac{MPFE} and the \ac{GD}. On average, when considering \ac{MPFE}, every model-based algorithm retrieved Pareto fronts, whose \ac{MPFE} values were always better than the ones obtained by any metaheuristic. In particular, \textit{MLP+NSGA-II} and \textit{MLP+Random} have the smallest maximum error which means that all the points are at most at that distance from an optimal solution. Furthermore, it seems that the algorithms exploring a larger extent of the objective space, i.e., which higher values of Max Spread, have worse \ac{MPFE} values. This can be explained due to the lack of information about the true Pareto front, which is only approximated by the best solutions found in that run instead of the true Pareto front, or even the combination of all runs. 
 
+Notwithstanding the fact that \ac{MPFE} provides an estimate of the maximum error of the algorithms' results, it does not provide a real measure of how close the results are to the optimal front, or, in this case, the combined Pareto front. To this end, we use the \ac{GD} indicator, which measures the average approximation of the results of an algorithm to the closest solutions in the combined Pareto front. \Cref{table:spaceframe} shows that, on average, \textit{MLP+NSGA-II} and \textit{PAES} present the best convergence towards the combined Pareto front, and that \textit{GDE3} and \textit{OMOPSO} present the worst convergence. This can be explained by the number of the nondominated solutions retrieved by each algorithm, as well as the creation of clusters of optimal solutions nearby the combined Pareto front. In these figures\todo{referencar p/ anexo - runs1, 2, 3}, it is possible to observe that the Pareto fronts discovered by \textit{PAES} and \textit{MOEA/D} present several agglomerations of optimal solutions nearby the combined Pareto front. In general, other model-based algorithms also present reasonable scores, like the \textit{MLP+Random} or all the \ac{RF}-based algorithms even surpassing many metaheuristics algorithm, including \textit{CMA-ES}, \textit{$\epsilon$-MOEA}, \textit{\ac{NSGA-II}}, and \textit{\ac{SPEA2}}, thus suggesting better approximations.
 
+\begin{table}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Evaluation/caadria/All_Algorithms_all_runs-2019-04-13_600dpi.png}
+	\caption[Space Frame: Overview over the algorithms' Pareto fronts]{Space Frame: Overview over the algorithms' Pareto fronts for the bi-objective space frame optimization problem. These fronts are obtained by combining the values of the 3 runs for each algorithm. The combined Pareto front is formed by finding the nondominated solutions from all the evaluated solutions.}
+	\label{table:spaceframestd}
+\end{table}
 
+Finally, we also considered two indicators that provide a general idea of all three aspects of the obtained results, i.e., the cardinality, the diversity, and the accuracy/convergence.
 
 \subsection{Black Pavilion: Skylights Optimization}
 

@@ -385,13 +385,17 @@
 	% ---------------------------
 	%% https://github.com/PastelBelem8/MscThesis/blob/metrics/src/indicators/MOOIndicators.jl
 	% Cardinality 
-	With regards to the cardinality aspect, there are essentially two indicators:
+	With regards to the cardinality aspect, there are essentially three indicators:
 	\begin{itemize}
 		\item \textbf{\ac{ONVG}} computes the number of nondominated solutions in the approximation set ~\cite{Veldhuizen1999GD}.
 		\item \textbf{\ac{ONVGR}} computes the ratio of nondominated solutions in the approximation set with regards to a reference set~\cite{Veldhuizen1999GD}.
+		% ER
+		\item \textbf{\ac{ER}} computes the proportion of false-positives in the approximation set, i.e., the ratio of optimal solutions in the approximation set that are not optimal in a given reference set~\cite{Veldhuizen1999GD}. Lower values of \ac{ER}, represent better approximation sets. 		
 	\end{itemize}
 	
-	Cardinality indicators are based on the intuition that a good approximation set would have many optimal solutions. However, these indicators alone do not suffice to provide an accurate measure, as they privilege quantity over quality of solutions~\cite{Veldhuizen1999GD}, i.e., they often qualify approximation sets having dozens or hundreds of dominated solutions as being better than sets that provide fewer nondominated solutions. This completely distorts the initial idea of finding the best Pareto front, i.e., set of nondominated solutions.
+	The first two cardinality indicators are based on the intuition that a good approximation set would have many optimal solutions. However, these indicators alone do not suffice to provide an accurate measure, as they privilege quantity over quality of solutions~\cite{Veldhuizen1999GD}, i.e., they often qualify approximation sets having dozens or hundreds of dominated solutions as being better than sets that provide fewer nondominated solutions. This completely distorts the initial idea of finding the best Pareto front, i.e., set of nondominated solutions. 
+	
+	On the other hand, the last indicator, \ac{ER}, focuses on errors instead of focusing on the optimal solutions. As a result, it penalizes larger approximation sets that, despite having a more representative set of the real optimal solutions, have made more errors than other approximation sets with fewer solutions and, potentially, less errors. 
 	
 	% || Diversity / Distribution ||
 	To complement cardinality indicators, it is often advisable to consider the diversity aspect of approximation sets as well. A few well known diversity-based indicators are:
@@ -412,15 +416,13 @@
 	% || Accuracy ||
 	Previous metrics are not good indicators of how close the approximation sets really are to the reference set. To obtain a measure of the convergence of the results, one should consider accuracy indicators, such as:
 	\begin{itemize}
-		% ER
-		\item \textbf{\ac{ER}} computes the proportion of false-positives in the approximation set, i.e., the ratio of optimal solutions in the approximation set that are not optimal in a given reference set~\cite{Veldhuizen1999GD}. Lower values of \ac{ER}, represent better approximation sets. 
 		% MPFE
 		\item \textbf{\ac{MPFE}} computes, for each solution in the approximation set, the minimum Euclidean distance to the closest solution in a given reference set, returning the maximum of those distances~\cite{Veldhuizen1999GD}. In other words, it returns the maximum error of the approximated Pareto Front. Lower values of \ac{MPFE} imply better approximation sets. 
 		% Generational Distance
 		\item \textbf{\ac{GD}} computes the average distance of an approximation set to a given reference set by computing the distance of the solutions in the approximation set to the nearest points in a given reference set averaged on the number of solutions in the approximation set~\cite{Veldhuizen1999GD}. A value of $0$ indicates that all the solutions in the approximation set are in the reference set. Different authors\cite{Zitzler2000m1m3} refer to this metric as \textbf{$M_1^\ast$}.
 	\end{itemize}
 	
-	Accuracy indicators, like the previous indicators, can also produce misleading results and, therefore, should be considered together with other metrics. In general, all these three indicators have flaws. For instance, \ac{ER} focuses on errors instead of focusing on the optimal solutions. As a result, it penalizes larger approximation sets that, despite having a more representative set of the real optimal solutions, have made more errors than other approximation sets with fewer solutions and, potentially, less errors. On the other hand, \ac{MPFE} focuses on the maximum error of an optimal solution in the approximation set, when compared to the reference set. As a result, approximation sets, whose points are closer to the Pareto front but that have an outlier, will have higher values of \ac{MPFE} than other approximation sets, whose points are further away from the reference set but at a smaller distance than the outlier is from the reference set. At last, \ac{GD} has also been shown to behave erroneously, especially due to its dependency on the cardinality of the approximation set~\cite{Ishibuchi2005GDIGD}.
+	Accuracy indicators, like the previous indicators, can also produce misleading results and, therefore, should be considered together with other metrics. In general, both indicators have flaws. On the one hand, \ac{MPFE} focuses on the maximum error of an optimal solution in the approximation set, when compared to the reference set. As a result, approximation sets, whose points are closer to the Pareto front but that have an outlier, will have higher values of \ac{MPFE} than other approximation sets, whose points are further away from the reference set but at a smaller distance than the outlier is from the reference set. On the other hand, \ac{GD} has also been shown to behave erroneously, especially due to its dependency on the cardinality of the approximation set~\cite{Ishibuchi2005GDIGD}.
 	
 	The final set of indicators considers the accuracy and diversity aspects simultaneously:
 	\begin{itemize}
@@ -451,7 +453,6 @@
 	\subsubsection{Comparison}
 	\label{ssec:comparisonindicators}
 	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
-	
 	
 	\section{Optimization in Architecture}	
 	\label{sec:optimizationtools}

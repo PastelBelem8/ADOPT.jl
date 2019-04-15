@@ -176,8 +176,27 @@ cost\_function(width, length, height) = (width * length * 185) + ((width + lengt
 
 Architects' previous knowledge did not suffice to determine the optimal configurations for the skylight. In general, it is known that the creation of higher skylights incur more costs and worse daylight conditions, as, in this case, higher skylights imply more direct light towards smaller areas in the exhibition space. Therefore, the team of architects fixed the height to be $1.5$\metre. Also, taking into account the fabrication costs, the team constrained the width and length to vary in multiples of $0.1$\metre. As a result, instead of modeling continuous variables, these were modeled as discrete variables.
 
-To this end, we conceived an algorithmic description of the black pavilion using the Khepri \ac{AD} tool and we used the Radiance lighting analysis tool to measure the \ac{sUDI} corresponding to different designs. Regarding the optimization, we decided to measure the performance of several \acp{MOOA} regarding ten unary indicators. Similarly to the previous case study, the results hereby presented aim at providing an average prediction of the behavior of each algorithm in this specific problem. As a result, we will derive the combined Pareto fronts for each run and use them to compare the different algorithms.
+To this end, we conceived an algorithmic description of the black pavilion using the Khepri \ac{AD} tool and we used the Radiance lighting analysis tool to measure the \ac{sUDI} corresponding to different designs. Regarding the optimization, we decided to measure the performance of 10 \acp{MOOA} regarding ten unary indicators. Similarly to the previous case study, the results hereby presented aim at providing an average prediction of the behavior of each algorithm in this specific problem. As a result, we derived the combined Pareto fronts for each run and used them to compare the different algorithms. Each run comprises 200 function evaluations.
 
+Among the available algorithms and due to time constraints, we have selected 4 metaheuristics, due to their acknowledged performance in other engineering applications: two evolutionary, \textit{\ac{SPEA2}} and \textit{\ac{NSGA-II}}, and two particle-swarm, \textit{SMPSO} and \textit{OMOPSO}. Additionally, we tested 6 model-based algorithms, including \textit{RF+Random}, \textit{RF+NSGA-II}, \textit{RF+SPEA2}, \textit{GPR+Random}, \textit{GPR+NSGA-II}, and \textit{GPR+SPEA2}. \Cref{table:blackpavilion} shows the mean results of each algorithm for each of the evaluated unary indicators. 
 
+\begin{table}[htbp]
+	\centering
+	%\includegraphics[width=\textwidth]{Images/Evaluation/BlackPavilion/Results_Mean_20190414.PNG}
+	\caption[Black Pavilion: Mean performance values of the algorithms' results]{Black Pavilion: Comparison of the algorithms' mean results for the bi-objective Black Pavilion' skylight optimization problem. Results are averaged over 3 runs, each with 200 evaluations.}
+	\label{table:blackpavilion}
+\end{table}
 
+Firstly, regarding the cardinality aspect of the results, \textit{GPR+Random} and \textit{RF+NSGA-II} attained, on average, more solutions, whereas \textit{GPR+NSGA-II} and \textit{GPR+SPEA2} obtained less solutions. Note, however, that although \textit{GPR+Random} retrieved the mean highest number of solutions, this value is subject to high variations (as evidenced in \cref{table:blackpavilionstd}) and in fact, when examining the results per run, \textit{GPR+Random} retrieved 13, 14, and 24 solutions. Regarding metaheuristic algorithms, \ac{EA}-based algorithms have retrieved relatively higher cardinality than the \ac{PSO}-based ones. 
+
+Notwithstanding the cardinality of the retrieved Pareto fronts, it is important to determine how many of these solutions actually lie in the combined Pareto front, which is measured by the \ac{ER} indicator. In this case, \textit{RF+Random} presents an \ac{ER} value less than $0.5$, which means that, on average, more than half of the retrieved solutions lie in the combined Pareto Front. The second and third best performing algorithms were \textit{RF+NSGA-II} and \textit{\ac{NSGA-II}} with values of 0.61 and 0.64, respectively. Conversely, \textit{\ac{SPEA2}} and \textit{GPR+Random} presented the worst \ac{ER} values. Interestingly, even though \textit{GPR+Random} returned on average more solutions than all other algorithms, it barely succeeds in retrieving one optimal solution lying in the combined Pareto Front.
+
+Secondly, when considering the dispersion of the solutions found by the algorithms in the objective space, \todo{DESCOBRIR O Q RAIOS SE PASSA COM O SPACING e com o SPREAD...}. When considering the maximum extent of the Pareto fronts discovered by each algorithm, \textit{GPR+Random} and \textit{GPR+NSGA-II} are the most performing ones, having achieved a  
+
+\begin{table}[htbp]
+	\centering
+	%\includegraphics[width=\textwidth]{Images/Evaluation/BlackPavilion/Results_Mean_20190414.PNG}
+	\caption[Black Pavilion: Standard deviation values of the algorithms' results]{Black Pavilion: Comparison of the standard deviation for each algorithm's results for the bi-objective Black Pavilion' skylight optimization problem. Results are averaged over 3 runs, each with 200 evaluations.}
+	\label{table:blackpavilionstd}
+\end{table}
 

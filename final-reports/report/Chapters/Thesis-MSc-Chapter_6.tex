@@ -22,18 +22,15 @@ The development of optimization algorithms is not recent and their wide availabi
 As discussed in \cref{sec:optalgos}, for simulation-based optimization problems, such as \ac{BPO}, other interesting optimization algorithms can be explored, including model-based algorithms which potentially reduce the overall optimization time\cite{Wortmann2017GABESTCHOICE}. Direct-search methods have also yielded promising results in the context of \ac{BPO} problems \cite{Waibel2018}. 
 
 % What we did, how we tested, what were the conclusions
-Along these lines, we studied different optimization approaches and algorithms to measure their affinity for problems involving expensive evaluation functions, where the number of function evaluations is frequently restricted to a few hundreds \cite{Caetano2018,Belem2018optimizeddesign,Belem2019MOO}. We introduced an extension to the \ac{AD} and \ac{AA} approaches, called Algorithmic Optimization (\ac{AO}), which combines an optimization framework and an \ac{AD} tool and allows users to address various design optimization problems, including \ac{BPO}. In general, \todo{Tirar alguma conclusão com base nos dados que temos???}.
+Along these lines, we studied different optimization approaches and algorithms to measure their affinity for problems involving expensive evaluation functions, where the number of function evaluations is frequently restricted to a few hundreds \cite{Caetano2018,Belem2018optimizeddesign,Belem2019MOO}. We introduced an extension to the \ac{AD} and \ac{AA} approaches, called Algorithmic Optimization (\ac{AO}), which combines an optimization framework and an \ac{AD} tool and allows users to address various design optimization problems, including \ac{BPO}. In general, we conclude that no single class, subclass, or algorithm excels at every problem.  
 
-From the results, we conclude that no single algorithm or class of algorithms is able to constantly outperform the other classes in any of the evaluated case studies and, in fact, \ac{EA}-based algorithms were rarely the best algorithms. Moreover, similarly to what has previously been stated in \cite{Wortmann2016BBO}, we conclude that the selection of the most effective algorithm is of great importance to allow an efficient design exploration, especially, when this involves complex and time-consuming simulations. Consequently, the choice of the optimization algorithm should be based on the results obtained after comparing distinct algorithms for a fixed number of evaluations or a fixed amount of time \cite{Hamdy2016}. Moreover, note that while global optimization algorithms are quicker to converge towards optimal solutions when no additional information is known, local algorithms can be quicker if provided with good initial points and, therefore should be considered as potential candidates. 
- \todo{Mais conclusoes...}
+Current architectural optimization tools and, in particular, \ac{MOO} tools, still rely on \ac{EA}-based algorithms. However, in the evaluated case studies, metaheuristics and, particularly, \ac{EA}-based ones were rarely the best performing algorithms. In fact, other categories, such as global model-based or global direct-search algorithms yielded better results. Different factors could change the obtained results (e.g., a different configuration for the algorithms or a lucky random step). Therefore, and contrarily to current architectural practices, we conclude that distinct algorithms behave differently according to  problems' specificity and that users should test different algorithms for a small number of evaluations or for a short amount of time. 
+
+Furthermore, we conclude that while global optimization algorithms are quicker to converge towards optimal solutions when no additional information is known, local algorithms can be quicker if provided with good initial points and, therefore, should be considered as potential candidates when such information is available.
+
+Regarding the evaluation of different \acp{MOOA}, it is difficult to measure the quality of each algorithm and to relate it with time. The lack of consensus regarding the best way to assess their quality difficults an objective measure of the real impact of model-based algorithms in time reduction. In this dissertation, we adopted a combination of different performance indicators and Pareto front line plots. \todo{continuar...}
  
- \todo{CHANGE THIS}
- We conclude that there is no consensus regarding
- the best way to assess the quality of these algorithms. Indeed, we argue that a
- combination of MOO performance metrics and Pareto Front plots should be used
- in order to draw more accurate results. Regarding the metrics themselves, we
- believe it is better to apply different metrics simultaneously, e.g., some should
- measure the distribution of the non-dominated solutions across the solution space,
+ . Indeed, we argue that a combination of MOO performance metrics and Pareto Front plots should be used in order to draw more accurate results. Regarding the metrics themselves, we believe it is better to apply different metrics simultaneously, e.g., some should measure the distribution of the non-dominated solutions across the solution space,
  while others should measure the overall accuracy and convergence of the results.
  
 % Overall conclusion
@@ -65,14 +62,12 @@ The developed framework was tested in a single-objective daylight optimization c
 % Optimization algorithms
 One other relevant research path is the evaluation of more optimization algorithms, involving different mechanisms and strategies, in order to assess their suitability for optimization problems and its impact on the overall performance of optimization processes. Additionally, as it has been partially demonstrated with the Ericeira's case study, fine-tuning and providing initial information to certain algorithms may drastically improve their performance. For this reason, evaluating the impact of different algorithm's parameters for certain optimization problems would be another relevant case study, particularly, for complex building design problems involving expensive evaluation functions. 
 
-Furthermore, it would be interesting to study the impact of pre-training surrogate-based optimization models based on data obtained from standard optimization test functions \todo{ZDT ou DEB ref...}. Particularly, users could use previous knowledge about the objectives' behavior (e.g., discontinuous, multimodal, convex) and pre-train the surrogate models in similar standardized test functions, thus, potentially, accelerating optimization processes. %An ensemble of algorithms could be exploited to maxmize the efficiency of these processes.
+Furthermore, it would be interesting to study the impact of pre-training surrogate-based optimization models based on data obtained from standard optimization test functions~\cite{Zhang2009TEST}. Particularly, users could use previous knowledge about the objectives' behavior (e.g., discontinuous, multimodal, convex) and pre-train the surrogate models in similar standardized test functions, thus, potentially, accelerating optimization processes. %An ensemble of algorithms could be exploited to maxmize the efficiency of these processes.
 
 % - Surrogate modeling test the impact of using one surrogate model to each objective vs using one to all objectives
 
 % Interesting future work
 Finally, currently available optimization tools rarely provide any information regarding the optimization results, which difficults users' ability to understand the results. An interesting research path is to explore mechanisms that provide an explanation regarding the quality of the obtained results, especially when using opaque algorithms, i.e., whose non-linearity severely hinders the inteligibility of the optimization process itself. Recent advances in the field of \ac{ML} related to the models' explainability are promising and can be explored to provide explanations about the different optimization algorithms. 
-	
-	
 	
 	
 	

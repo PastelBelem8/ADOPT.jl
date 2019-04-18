@@ -5,19 +5,19 @@
 \chapter{Algorithms' Definitions}
 \label{appendix:AlgorithmsDefinitions}
 
-\todo{REFS e melhorar descrições?}
 
 \section{Sampling Algorithms} 
 \begin{itemize}
+	
+\item \textbf{Full-factorial} generates a complete set of design solutions. Each dimension is described by a discrete set of values, called \textit{levels}. All possible combinations of these levels are generated and used to represent the design space and, thus, minimize errors when running full-factorial techniques multiple times. The number of generated samples scales exponentially with the number of dimensions. 
+	
 \item \textbf{Monte Carlo Sampling} (or Random Sampling)~\cite{Giunta2003DOE}, originally known as pseudo-Monte Carlo sampling or pseudo-pandom sampling, generates designs randomly. It frequently yields large unexplored regions of the design space. To circunvent this limitation, users should generate several hundreds or thousands of solutions.
 
 \item \textbf{Stratified Monte Carlo Sampling}~\cite{Giunta2003DOE} yields a more uniform sampling of the design space. Each dimension of the design space is subdivided into bins of equal probability and, then, a sample is randomly selected from each bin. Provides better coverage of the design space and allows the user to select the number of bins to create in each dimension. However, the number of generatesd samples scales exponentially with the number of dimensions.
 
 \item \textbf{Latin Hypercube Sampling} (LHS)~\cite{Giunta2003DOE} provides a better distribution of the generated samples by subdividing each dimension in equally sized bins. The generated samples are randomly placed in different bins, so that when observing the one-dimensional projections of the samples and bins, there is only one sample in each bin. The number of samples scales linearly with the number of dimensions.
 
-\item \textbf{K-factorial}
 \end{itemize}
-
 
 \section{Direct-Search Algorithms}
 \begin{itemize}

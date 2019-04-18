@@ -2,24 +2,26 @@
 % This is Appendix A
 % !TEX root = ../main.tex
 % #############################################################################
-\appendix\chapter{Algorithms' Definitions}
+\chapter{Algorithms' Definitions}
 \label{appendix:AlgorithmsDefinitions}
 
 \todo{REFS e melhorar descrições?}
 
-\section{Sampling Algorithms}
+\section{Sampling Algorithms} 
 \begin{itemize}
-\item \textbf{Monte Carlo Sampling} or Random Sampling
-\item \textbf{Stratified Monte Carlo Sampling}
-\item \textbf{Latin Hypercube Sampling}
+\item \textbf{Monte Carlo Sampling} (or Random Sampling)~\cite{Giunta2003DOE}, originally known as pseudo-Monte Carlo sampling or pseudo-pandom sampling, generates designs randomly. It frequently yields large unexplored regions of the design space. To circunvent this limitation, users should generate several hundreds or thousands of solutions.
+
+\item \textbf{Stratified Monte Carlo Sampling}~\cite{Giunta2003DOE} yields a more uniform sampling of the design space. Each dimension of the design space is subdivided into bins of equal probability and, then, a sample is randomly selected from each bin. Provides better coverage of the design space and allows the user to select the number of bins to create in each dimension. However, the number of generatesd samples scales exponentially with the number of dimensions.
+
+\item \textbf{Latin Hypercube Sampling} (LHS)~\cite{Giunta2003DOE} provides a better distribution of the generated samples by subdividing each dimension in equally sized bins. The generated samples are randomly placed in different bins, so that when observing the one-dimensional projections of the samples and bins, there is only one sample in each bin. The number of samples scales linearly with the number of dimensions.
+
 \item \textbf{K-factorial}
-\item \textbf{Full-factorial}
 \end{itemize}
 
 
 \section{Direct-Search Algorithms}
 \begin{itemize}
-	\item \textbf{Nelder-Mead Simplex} (NMS)~\cite{Nelder1964} constructs a geometric figure, known as simplex, to envelope a region of the design space. After creating it, the algorithm moves the geometric figure across the design space by iteratively changing its vertices.
+	\item \textbf{Nelder-Mead Simplex} (NMS)~\cite{Nelder1964} is a local direct-search algorithm that exploits a simplex to enforce convergence towards an optimal solution. The NMS algorithm envelopes a region of the design space using a geometric figure, called simplex, which is a generalization of a triangle or tetrahedron to arbitrary dimensions (e.g., a triangle in two dimensions or a tetrahedron in three dimensions). The simplex is then successively modified using operations, like reflection, expansion, contraction, and shrinking, that iteratively replace the simplex's worst vertex values. Unlike other direct-search algorithms, NMS requires no more than two function evaluations per iteration, except when applying the shrink operation. The initial simplex highly influences the performance of the algorithm, as smaller initial simplices often lead to local searches and to converge towards a local optimum.
 	
 	\item \textbf{Subspace simplex} (Subplex)~\cite{Rowan1990} algorithm is an unconstrained local optimization algorithm~\cite{Rowan1990}. As a generalization of the NMS algorithm, SUBPLEX subdivides the design space in low-dimensional subspaces and then applies the NMS algorithm to a set of these subspaces, in order to seek for a better solution. In contrast to NMS, which has difficulties in high-dimensional problems, SUBPLEX reduces the limitations through the decomposition of the problem in low-dimensional subspaces which are more efficiently optimized by NMS.
 	

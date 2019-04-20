@@ -288,7 +288,7 @@
 	\label{ssec:model-based}
 	
 	Model-based algorithms are effective handlers for time-consuming problems, where sensitive information is expensive to collect~\cite{Forrester2009SBO}. These problems are characterized by the large time complexity associated with the computation of the values of the objective function, and by the absence of previous knowledge about the objective function. Model-based algorithms are able to provide instant estimates of a design’s performance, by supplementing or replacing the original objective function with its approximation~\cite{Wortmann2016BBO}. This approximation, called the surrogate, is generated from a set of known objective function values and is then explored to determine the promising candidate solutions to evaluate next. The candidate solutions are then used to improve the surrogate and this process is repeated until a stopping condition is satisfied~\cite{Koziel2011}.
-	\
+	
 	Despite having a well-defined analytical form, which makes computations on the surrogate model more efficient than on the original objective function, the surrogate is only an approximate representation of the original function, and, therefore, must be constantly updated to guarantee a reasonably accurate local representation~\cite{Koziel2011}. \Cref{fig:sbosexample} illustrates a surrogate that is accurate near the initial solutions. However, as we analyse solutions far from the initial ones, the accuracy of the surrogate model worsens.
 	
 	% Begin Figure: SBO Simple Example ----------------------------

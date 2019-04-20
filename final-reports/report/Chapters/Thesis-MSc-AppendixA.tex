@@ -51,9 +51,9 @@ A very summarized explanation will be provided for the optimization algorithms s
 			
 	\item \textbf{Covariance Matrix Adaptation - Evolutionary Strategy} (CMA-ES) \cite{Hansen2006} is a descendent of the evolutionary strategies, whose candidate solutions are sampled according to normal distributions and recombination and mutation amount to selecting new mean values for the distribution and to adding perturbations with zero mean, respectively. CMA-ES maintains a covariance matrix with the pairwise dependencies between the variables in the distribution which is updated using a technique called covariance matrix adaptation (CMA) which attempts to incrementally update the likelihood of previously successful candidate solutions.
 	
-	\item \textbf{SPEA2}
+	\item \textbf{SPEA2} \cite{Zitzler2001SPEA2} is a \ac{MOEA} that incorporates evolutionary mechanisms to incrementally evolve a population from generation to generation. In addition to the population, SPEA2 maintains a set of optimal solutions called archive. While a stopping criteria is not met, the archive is continuously updated by ranking each individual of the population according to the solutions it dominates. Any dominated solution will be removed from the archive and, in case the archive exceeds its size, a clustering technique selects individuals in more crowded regions of the objective space for removal. Binary tournaments are then carried between elements in the archive and population to select the individuals for reproduction and to create the individuals for the next generation, i.e., the offspring. These individuals result from the recombination and mutation of the best individuals from the previous iteration. 
 	
-	\item \textbf{NSGA-II}
+	\item \textbf{NSGA-II} \cite{Deb2002} is aa \ac{MOEA} that also incorporates evolutionary mechanisms to incrementally evolve a population. Similarly to SPEA2, NSGA-II evolves a population and maintains an archive of the optimal solutions. Every generation, a population is evaluated and each individual is sorted according to their nondominated ranking, 
 	
 	\item \textbf{Epsilon \ac{MOEA}} ($\epsilon$-MOEA) 
 	
@@ -62,8 +62,8 @@ A very summarized explanation will be provided for the optimization algorithms s
 	
 	\item \textbf{\ac{MOEA} with Decomposition} (MOEA/D)
 	
-	\item \textbf{Pareto Archived Evolution Strategy} (PAES)
-	
+	\item \textbf{Pareto Archived Evolution Strategy} (PAES) is a \ac{MOEA} which explores \acp{ES} on populations composed of a single individual and maintains an archive with previously found solutions to identify the approximate dominance ranking of the current and candidate solution vectors. In every iteration, the candidate solution is compared with respect to the current solution and depending on whether the candidate dominates the current solution or not, the current solution will be updated or a new candidate solution is found through mutation. In the case where none of the solutions dominate each other, each solution is compared against an archive of the nondominated solutions and if the candidate solution dominates any of the solutions in the archive, it will be accepted as the new current solution and the dominated solutions are removed from the archive, otherwise, the selection of the new current solution will be based on how crowded each solution is, when compared to the solutions in the archive. 
+		
 	\item \textbf{Pareto Envelope-Based Selection Algorithm 2} (PESA2)
 	
 	\item \textbf{Speed-constrained Multi-objective \ac{PSO}} (SMPSO)
@@ -74,7 +74,7 @@ A very summarized explanation will be provided for the optimization algorithms s
 
 \section{Model-based Algorithms}
 \begin{itemize}
-	\item \textbf{GPR-based} algorithms rely on guassian process (GP) techniques, which generalize Gaussian probability distributions to functions. GP algorithms incorporate a measure of the similarity between points, called the kernel function, to predict the value for an unseen point from training data. Besides the prediction of the value, GPs provide a measure of the uncertainty associated to that prediction.
+	\item \textbf{GPR-based} algorithms rely on guassian process (GP) techniques, which generalize Gaussian probability distributions to functions. GP algorithms incorporate a measure of the similarity between points, called the kernel function, to predict the value for an unseen point from training data. Besides the prediction of the value, GPs provide a measure of the associated uncertainty.
 	
 	\item \textbf{MLP-based} algorithms consist on the creation of surrogate models using \acp{MLP}. \ac{MLP} is a class of feedforward neural networks that comprises at least three layers of nodes, including one input layer, one output layer, and, at least, one hidden layer. In neural networks, all nodes with the exception of the input nodes are called neurons and each node possesses a non-linear activation function. These non-linearities provide the networks the ability to approximate non-linear and extremely complex functions. These \acp{MLP} models are trained using a supervised learning technique, where the model is provided with the input variables' values and the outcome that was observed for those input values. The model is then updated using a technique called backpropagation which uses the error rates between the obtained outcome and the expected outcome to correct the neurons and improve the \ac{MLP} model. 
 	

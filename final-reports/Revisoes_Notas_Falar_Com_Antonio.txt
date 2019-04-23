@@ -13,3 +13,10 @@ Algumas questões em relação à Introdução (ficheiro Dissertation-Kat-78369-AML2.p
 > Page 23 (Architectural Optimization Worfklow): optimizating ???? >> of optimizing building designs
 > Page 23 (Architectural Optimization Worfklow): "Quais? Estavas a falar dos plugins as agora estas a falar do Grasshopper"
 > Page 25 (Dissertation Goals): Verify 1st paragraph.
+
+
+
+Algumas questões em relação à Introdução (ficheiro Dissertation-Kat-78369-AML3.pdf - Pages 28, ):
+> Page 28: Problems or performance issues?
+> Page 28: Funções diferenciáveis vs costly: What if I remove the word 'costly' from the sentence?
+> Page 29:

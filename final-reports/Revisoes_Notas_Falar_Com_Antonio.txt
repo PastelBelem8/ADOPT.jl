@@ -9,3 +9,7 @@ Algumas questões em relação à Introdução (ficheiro Dissertation-Kat-78369-AML2.p
 > Page 19: Algorithmic Design 
 > Page 20: Ref to Leitão et al. 2013.
 > Page 21: Overhull > analysing was modified to evaluating
+> Page DView : Modified full paragrah 'cuz it was badly motivated
+> Page 23 (Architectural Optimization Worfklow): optimizating ???? >> of optimizing building designs
+> Page 23 (Architectural Optimization Worfklow): "Quais? Estavas a falar dos plugins as agora estas a falar do Grasshopper"
+> Page 25 (Dissertation Goals): Verify 1st paragraph.

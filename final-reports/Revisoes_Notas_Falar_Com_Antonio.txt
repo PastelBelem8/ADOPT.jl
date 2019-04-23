@@ -5,3 +5,7 @@ Algumas questões em relação ao abstract (ficheiro Dissertation-Kat-78369-AML.pdf
 > Última frase do abstract
 
 Algumas questões em relação à Introdução (ficheiro Dissertation-Kat-78369-AML2.pdf):
+> Page 18: (e.g., using a single place versus a mesh to represent non planar surfaces)
+> Page 19: Algorithmic Design 
+> Page 20: Ref to Leitão et al. 2013.
+> Page 21: Overhull > analysing was modified to evaluating

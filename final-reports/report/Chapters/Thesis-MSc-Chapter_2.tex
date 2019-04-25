@@ -4,7 +4,6 @@
 % #############################################################################
 % Change the Name of the Chapter i the following line
 \fancychapter{Background}
-\cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:back}
 
@@ -14,17 +13,29 @@
 	
 	On the other hand, the nature of the functions used for performance assessment in \ac{BPO} motivates the application of a special class of optimization algorithms, the derivative-free algorithms. Within this class, different categories emerge, emphasizing the algorithms' different properties and search strategies. Applying adequate algorithms to certain problems potentially increases the efficiency of optimization processes, especially for problems involving time-consuming evaluations.
 	
-	This chapter discusses four different approaches to deal with these problems.	After a comprehensive description of the previously mentioned \ac{BPO} practices, in \cref{sec:problemsaddress}, we emphasize their main limitations. 
+	This chapter discusses four different approaches to deal with these problems. After a comprehensive description of the previously mentioned \ac{BPO} practices, in \cref{sec:problemsaddress}, we emphasize their main limitations. 
 	
 \section{Optimization Problems}
 \label{sec:optimizationproblems}
 	
-	Generally, an optimization process consists in two main parts: modeling the optimization problem and executing optimization algorithms. Covered in this section, the first part involves the creation of a model representing the system or problem to optimize, while the second part, further discussed in \cref{sec:optimizationalgorithms}, focuses on the application of a strategy capable of searching among the set of possible solutions, i.e., the solution space, for optimal solutions.
+	Generally, an optimization process consists in two main parts: modeling the optimization problem and executing optimization algorithms. Covered in this section, the first part involves the creation of a model representing the problem to optimize, while the second part, further discussed in \cref{sec:optimizationalgorithms}, focuses on the application of a strategy capable of searching among the set of possible solutions, i.e., the solution space, for optimal solutions.
 	
-	\todo{Alterar isto!!!!}
-	An optimization process often starts with the formulation of the model of the system or problem to address, in a process known as modeling. The model is described in terms of (a) the variables or unknowns, which represent the system's or problem's characteristics, (b) the objectives or criteria, representing the quantitative measures of the system's performance, which are usually functions of the variables, and, optionally, (c) the constraints, representing the conditions that the variables must satisfy to guarantee the system's feasibility~\cite{Nocedal2011NumericalOptimization}. 
-		
-	There are numerous possibilities to create optimization models, each yielding a different mathematical classification. Concretely, models variability include, among others, the variable types, the presence or absence of constraints, and the number and nature of the objective functions. In addition to the model, the search strategies can also be classified according to the scope of the search, i.e., whether they explore vaster or narrower regions of the solution space. 
+	\todo{REVER}
+	In order to perform optimization it is first necessary to formulate the model of a problem, a process known as modeling. In the field of mathematic optimization, such formulations generally take the form represented in \cref{eq:genericopt}, where $x = (x_1\,, x_2\,, \ldots\,, x_n)$ represents the vector of parameters (or variables) of the problem, whose values are to be changed during optimization, $f_i$ represents the $i$\textit{th} objective function, whose value is to be optimized (\cref{eq:genericopt1}), and, finally, $g_j$ and $h_k$ represent functions, whose value can be constrained by some conditions in order to guarantee that the obtained solutions are valid (\cref{eq:genericopt2,eq:genericopt3}) ~\cite{Koziel2011}. 
+	
+	\begin{subequations}
+		\label{eq:genericopt}
+		\begin{align}
+		\underset{x \in \mathbb{R}^n}{\text{minimize}}
+		& \quad f_i(x)\,, &\; i = 1\,, 2\,, \ldots\,, I\,, 
+		\label{eq:genericopt1}\\
+		\text{subject to}
+		& \quad g_j(x) = 0\,, &\; j = 1\,, 2\,, \ldots\,, J\,, \label{eq:genericopt2}\\ 
+		& \quad h_k(x) \leq 0\,, &\; k = 1\,, 2\,, \ldots\,, K\,.  \label{eq:genericopt3}
+		\end{align}
+	\end{subequations}
+	
+	Optimization encloses a multiplicity of mathematical classifications according to the way problems are formulated and the strategies employed by each optimization algorithm. When considering the formulation of the model, aspects like the variable types, the presence or absence of constraints, and the number and nature of the objective functions can change from problem to problem. Also, the algorithms can be classified differently according with, for example, the determinism of their search, the used information, and the scope of the search, i.e., whether they explore vaster or narrower regions of the solution space. 
 	
 	Particularly, in \ac{BPO}, building designs may yield different optimization problems, depending on the way they are modeled and the limitations or restrictions imposed by architects or engineers. For example, in order to reduce fabrication costs it is very frequent to limit the granularity of the design's components to vary within certain values. As another example, consider the situation where, to preserve the architect's intention, building designs are confined to have specific shapes (e.g., arc-shaped, round-shaped, squared-shaped). Moreover, it is also possible that when building design becomes more complex, architects decide to relax some of the previously established conditions. Indeed, as it will be further discussed in \cref{ssec:soo,ssec:preferencesarticulation}, when facing problems involving the simultaneous expensive evaluation of multiple performance aspects, time restrictions often force architects to abdicate some performance aspects, or, in some cases, to define a preference amongst the considered performance aspects.
 	
@@ -38,7 +49,7 @@
 	
 	The second classification relates to the presence of constraints on the variables. \textbf{Unconstrained} optimization problems result have no restrictions on the variables' values, although they can be penalized for having values outside certain ranges (called soft constraints). Conversely, \textbf{constrained} optimization applies to problems where constraints are crucial (e.g., economy problems, imposing cargo constraints) and are incorporated into the problem's definition. Variables can be restricted using hard or soft constraints. Hard constraints set conditions for the variables that must be satisfied, namely, to vary within simple bounds (e.g.: $-1<x<1$) and to relate to other variables in certain ways (e.g.: $\sum_{i} x_i < 0.5$), whereas soft constraints set penalties for the variables whose value violates the condition. Constrained optimization problems can be converted to unconstrained ones by replacing hard constraints with soft constraints, i.e., by adding penalization terms in the objective function to discourage the violation of constraints~\cite{Nocedal2011NumericalOptimization}. 
 	
-	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} (\ac{SOO}) and \textbf{multi-objective} (\ac{MOO}). \ac{SOO} focuses on the optimization of one objective, whilst \ac{MOO} focuses on problems involving multiple conflicting objectives simultaneously. Besides the larger objectives' number, addressing multi-objective problems also entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the executability of optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to single- and multi-objective optimization problems. 
+	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} (\ac{SOO}) and \textbf{multi-objective} (\ac{MOO}). \ac{SOO} focuses on the optimization of one objective, whilst \ac{MOO} focuses on problems involving multiple conflicting objectives simultaneously. Besides the larger objectives' number, addressing multi-objective problems also entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to single- and multi-objective optimization problems. 
 	
 	\begin{figure}
 		\centering
@@ -73,7 +84,7 @@
 	& & f(x) \\
 	& \text{subject to}
 	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
-	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
+	&&& h_k(x) \leq 0, & \; k &= 1, \ldots, K.
 	\end{aligned}
 	\end{equation}
 	
@@ -97,7 +108,7 @@
 	& & \sum_{i=1}^n w_i f_i(x), & \; i &= 1, \ldots, n, \\
 	& \text{subject to}
 	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
-	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
+	&&& h_k(x) \leq 0, & \; k &= 1, \ldots, K.
 	\end{aligned}
 	\end{equation}
 	
@@ -118,7 +129,7 @@
 	& & \left\lbrace F(x) = \left[f_1(x), f_2(x), ..., f_n(x)\right]  \right\rbrace \\
 	& \text{subject to}
 	& & g_j(x) = 0, & \; j &= 1, \ldots, J, \\ 
-	&&& h_k(x) < 0, & \; k &= 1, \ldots, K.
+	&&& h_k(x) \leq 0, & \; k &= 1, \ldots, K.
 	\end{aligned}
 	\end{equation}
 	

@@ -4,7 +4,7 @@
 % #############################################################################
 % Change the Name of the Chapter i the following line
 \fancychapter{Background}
-\cleardoublepage
+% \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:back}
 
@@ -19,9 +19,8 @@
 \section{Optimization Problems}
 \label{sec:optimizationproblems}
 	
-	Generally, an optimization process consists in two main parts: modeling the optimization problem and executing optimization algorithms. Covered in this section, the first part involves the creation of a model representing the system or problem to optimize, while the second part, further discussed in \cref{sec:optimizationalgorithms}, focuses on the application of a strategy capable of searching among the set of possible solutions, i.e., the solution space, for optimal solutions.
+	Generally, an optimization process consists in two main parts: modeling the optimization problem and executing optimization algorithms. Covered in this section, the first part involves the creation of a model representing the problem to optimize, while the second part, further discussed in \cref{sec:optimizationalgorithms}, focuses on the application of a strategy capable of searching among the solution space, i.e., the set of possible solutions, for optimal ones.
 	
-	\todo{Alterar isto!!!!}
 	An optimization process often starts with the formulation of the model of the system or problem to address, in a process known as modeling. The model is described in terms of (a) the variables or unknowns, which represent the system's or problem's characteristics, (b) the objectives or criteria, representing the quantitative measures of the system's performance, which are usually functions of the variables, and, optionally, (c) the constraints, representing the conditions that the variables must satisfy to guarantee the system's feasibility~\cite{Nocedal2011NumericalOptimization}. 
 		
 	There are numerous possibilities to create optimization models, each yielding a different mathematical classification. Concretely, models variability include, among others, the variable types, the presence or absence of constraints, and the number and nature of the objective functions. In addition to the model, the search strategies can also be classified according to the scope of the search, i.e., whether they explore vaster or narrower regions of the solution space. 
@@ -38,7 +37,7 @@
 	
 	The second classification relates to the presence of constraints on the variables. \textbf{Unconstrained} optimization problems result have no restrictions on the variables' values, although they can be penalized for having values outside certain ranges (called soft constraints). Conversely, \textbf{constrained} optimization applies to problems where constraints are crucial (e.g., economy problems, imposing cargo constraints) and are incorporated into the problem's definition. Variables can be restricted using hard or soft constraints. Hard constraints set conditions for the variables that must be satisfied, namely, to vary within simple bounds (e.g.: $-1<x<1$) and to relate to other variables in certain ways (e.g.: $\sum_{i} x_i < 0.5$), whereas soft constraints set penalties for the variables whose value violates the condition. Constrained optimization problems can be converted to unconstrained ones by replacing hard constraints with soft constraints, i.e., by adding penalization terms in the objective function to discourage the violation of constraints~\cite{Nocedal2011NumericalOptimization}. 
 	
-	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} (\ac{SOO}) and \textbf{multi-objective} (\ac{MOO}). \ac{SOO} focuses on the optimization of one objective, whilst \ac{MOO} focuses on problems involving multiple conflicting objectives simultaneously. Besides the larger objectives' number, addressing multi-objective problems also entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the executability of optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to single- and multi-objective optimization problems. 
+	The third, and final, dichotomy herein discussed focuses on the number of objectives to optimize, which can be distinguished in \textbf{single-objective} (\ac{SOO}) and \textbf{multi-objective} (\ac{MOO}). \ac{SOO} focuses on the optimization of one objective, whilst \ac{MOO} focuses on problems involving multiple, possibly conflicting, objectives simultaneously. Addressing multi-objective problems entails more complex optimization problems. For problems involving time-consuming evaluations, the increased complexity jeopardizes the optimization and spurs the adoption of other, often simpler, approaches. The following sections describe different approaches to single- and multi-objective optimization problems. 
 	
 	\begin{figure}
 		\centering
@@ -103,14 +102,14 @@
 	
 	Despite its similarity to \ac{SOO}, this approach incurs more computationally complex processes than the latter one, as it still involves the evaluation of multiple objective functions. As a result, instead of taking seconds, minutes, hours, or days per function evaluation, the process takes that value multiplied by the number of objectives. Nevertheless, this approach still manages to be less time-consuming than the analogous Pareto-based \ac{MOO} approach (that will be discussed in \cref{ssec:pareto}), as it focuses on the optimization of a single preference, instead of attempting to find the trade-offs among all the objectives. 
 	
-	As a case in point, in architecture, this approach is particularly useful, when more experienced architects can use additional knowledge about the problem (e.g., relevance of the different optimization performance aspects) to define an appropriate set of preferences, instead of resorting to the analogous Pareto-based approach, which would yield a far more complex optimization process. In terms of the impacts in the design process itself, this approach yields a more intelligent, but less informed design process. On the one hand, it confers intelligence because the involved optimization algorithms usually exploit the knowledge of previously evaluated solutions to guide the search towards optimal regions of the design space. On the other hand, it is less informed, because architects no longer control or have information about the optimization process. The loss of control results from the automated character of the optimization algorithms involved in the architectural practice, which frequently exclude architects from the optimization loop. As a consequence, in general, the architect has no information about the solutions evaluated during the optimization process and is only provided with a single solution~\cite{Custodio2010}. The lack of information is perceived as a limitation \cite{Cichocka2017SURVEY} and it restricts the architect to either comply with the retrieved solution or to rerun the optimization again. Either way, this optimization approach does not provide, in general, enough information to understand the optimization results, and, consequently, make more informed decisions. 
+	As a case in point, in architecture, this approach is particularly useful, when more experienced architects can use additional knowledge about the problem (e.g., relevance of the different optimization performance aspects) to define an appropriate set of preferences, instead of resorting to the analogous Pareto-based approach, which would yield a far more complex optimization process. In terms of the impacts in the design process itself, this approach yields a more intelligent, but less informed design process. On the one hand, it confers intelligence because the involved optimization algorithms usually exploit the knowledge of previously evaluated solutions to guide the search towards optimal regions of the design space. On the other hand, it is less informed, because architects no longer control or have information about the optimization process. The loss of control results from the automated character of the optimization algorithms involved in the architectural practice, which frequently exclude architects from the optimization loop. As a consequence, in general, the architect has no information about the solutions evaluated during the optimization process and is only provided with a single solution~\cite{Custodio2010}. The lack of information is perceived as a limitation \cite{Cichocka2017SURVEY} and it restricts the architect to either comply with the retrieved solution or to rerun the optimization. Either way, this optimization approach does not provide, in general, enough information to understand the optimization results, and, consequently, make more informed decisions. 
 	
 	% Overall, in architectural domains, the virtues of this approach include the ease of use, the availability, the heterogeneity of ready-to-use \ac{SOO} tools (e.g., Opossum, Goat, Galapagos, Silvereye), and the time complexity. %when compared to other \ac{MOO} approaches. % In general, because this preference-based approach focus in the retrieval of a single optimal solution that satisfies the previously defined preferences, it becomes more effective and less time consuming than other \ac{MOO} approaches, that either lack a more guided search or that aim at finding solutions that are optimal under different preference articulations. 
 	% #############################################################################
 	\subsection{Pareto-based Optimization}
 	\label{ssec:pareto}
 	
-	Despite allowing users to handle \ac{MOO} problems, the previous approach does not consider the different trade-offs among the potentially conflicting objectives, instead forcing users to make an \textit{a priori} decision regarding the importance of each objective. Pareto-based optimization approaches attempt to address this limitation by postponing that decision until the end of the optimization process. In this approach, all objectives are taken as equally important during the optimization, making it more difficult to discern the quality of each solution. In other words, while in \ac{SOO} problems we expect the optimal solution to be the set of parameters' values that achieve the best\footnote{For simplification purposes, we simply refer to the optimal solution as being the best. When dealing with a minimization problem, the best solution is the one that achieves the lowest value of the objective function, whereas in maximization problems, the best solution is the one achieving the highest value of the objective function.} objective value possible, in \ac{MOO}, the best possible configuration for one of the objectives is rarely the best possible configuration for all other objectives, which results from the fact that these objectives are often contradictory. \Cref{eq:pareto-based} presents an example of the mathematical definition of a constrained minimization \ac{MOO} problem, where $F(x)$ represents the vector of $k$ objectives, $f_i$ represent the $i^{th}$ objective function, $g_j$ and $h_k$ represent the constraints to be satisfied, and $x$ represents the parameters' vector.
+	Despite allowing users to handle \ac{MOO} problems, the previous approach does not consider the different trade-offs among the potentially conflicting objectives, instead forcing users to make an \textit{a priori} decision regarding the importance of each objective. Pareto-based optimization approaches attempt to address this limitation by postponing that decision until the end of the optimization process. In this approach, all objectives are taken as equally important during the optimization, making it more difficult to discern the quality of each solution. In other words, while in \ac{SOO} problems we expect the optimal solution to be the set of parameters' values, i.e., the configuration that achieves the best\footnote{For simplification purposes, we simply refer to the optimal solution as being the best. When dealing with a minimization problem, the best solution is the one that achieves the lowest value of the objective function, whereas in maximization problems, the best solution is the one achieving the highest value of the objective function.} objective value possible, in \ac{MOO}, the best possible configuration, i.e.,  for one of the objectives is rarely the best possible configuration for all other objectives, which results from the fact that these objectives are often contradictory. \Cref{eq:pareto-based} presents an example of the mathematical definition of a constrained minimization \ac{MOO} problem, where $F(x)$ represents the vector of $k$ objectives, $f_i$ represent the $i^{th}$ objective function, $g_j$ and $h_k$ represent the constraints to be satisfied, and $x$ represents the parameters' vector.
 	
 	\begin{equation} \label{eq:pareto-based}
 	\begin{aligned}
@@ -135,7 +134,7 @@
 	
 	When considering the architectural practice, building design is a complex task that frequently involves dealing with multiple conflicting objectives, such as maximum lighting comfort \textit{versus} maximum thermal comfort, or minimum energy consumption \textit{versus} maximum thermal comfort. Even though the three previous approaches provide enough mechanisms for handling \ac{MOO} problems, they lack a more guided and informative strategy capable of retrieving a diverse and representative set of different trade-offs between the various performance aspects, i.e., the objective functions.
 	
-	Alternatively, the Pareto-based optimization approach provides the user with the set of nondominated solutions that represent the different conflicts or trade-offs between the considered objectives. When confronted with this set of solutions, architects can compare the different design options, according to different performance criteria, and, thus, make more informed decisions about the different compromises involved. 
+	Alternatively, the Pareto-based optimization approach provides the user with the set of nondominated solutions that represent the different conflicts or trade-offs between the considered objectives. When confronted with these solutions, architects can compare the different design options, according to different performance criteria, and, thus, make more informed decisions about the different compromises involved. 
 	
 	On the other hand, in this approach, (1) the number of function evaluations is larger due to the need to find a set of optimal solutions instead of focusing on a single one, (2) the visual representation of the values of the solutions' objectives becomes problematic when the number of objectives is greater than three, and (3) the way the optimization problem is modeled has a direct impact on the quality of the solutions.
 	
@@ -177,7 +176,7 @@
 		\label{table:optimization-approaches}
 	\end{table}
 	
-	The automation of optimization processes prompts the need for automatically evaluating the quality of solutions, thus requiring some optimality concepts: (1) depending on whether it is a maximization or a minimization problem, the \ac{SOO} approach considers the best solution to be the one presenting the largest or smallest value, respectively; (2) the \textit{a priori} preference of articulations approach applys a similar criteria, but it first entails the definition of a utility function to reduce a \ac{MOO} to a \ac{SOO} problem; and (3) the Pareto-based optimization approach is based on Pareto optimality, leaving the final decision about the optimal solutions to the user.
+	The automation of optimization processes prompts the need for automatically evaluating the quality of solutions, thus requiring some optimality concepts: (1) depending on whether it is a maximization or a minimization problem, the \ac{SOO} approach considers the best solution to be the one presenting the largest or smallest value, respectively; (2) the \textit{a priori} preference of articulations approach applies a similar criteria, but it first entails the definition of a utility function to reduce a \ac{MOO} to a \ac{SOO} problem; and (3) the Pareto-based optimization approach is based on Pareto optimality, leaving the final decision about the optimal solutions to the user.
 	
 	Depending on the approach, the number and quality of solutions may vary. In general, all but the design of experiments approach presents a guided and, thus, more intelligent strategy to seek efficient solutions. As a result, this approach does not guarantee that good solutions are found. Conversely, the other approaches tend to yield one or more optimal (or near) optimal solutions depending on whether it is a Pareto-based approach or not.
 	
@@ -312,34 +311,6 @@
 	
 	This section compares the different classes of derivative-free optimization algorithms mentioned in this chapter. \Cref{table:compare-dfo-algos} presents a summarized view of the main properties of these classes and, in the following paragraphs we compare them regarding their applicability in architecture. 
 
-	% Please add the following required packages to your document preamble:
-	% \usepackage{multirow}
-	% \usepackage{graphicx}
-	\begin{table}[]
-		\centering
-		\resizebox{\textwidth}{!}{%
-			\begin{tabular}{r|c|c|c|}
-				\cline{2-4}
-				& Direct search & Metaheuristic & Model-based \\ \hline
-				\multicolumn{1}{|r|}{Main Mechanism / Strategy} & \begin{tabular}[c]{@{}c@{}}Sequential evaluation of \\ candidate designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Combine and randomly modify \\ previous known best designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Optimize a secondary model, \\ instead of the expensive one\end{tabular} \\ \hline
-				\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline
-				\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline
-				\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline
-				\multicolumn{1}{|r|}{Number of solutions} & 1 & More than 1 & 1 \\ \hline
-				\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline
-				\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline
-				\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline
-				\multicolumn{1}{|r|}{Support in architecture} & + & +++ & + \\ \hline
-				\multicolumn{1}{|r|}{\multirow{2}{*}{Main advantages}} & Deterministic & Applicable to any domain & Time complexity decrease \\
-				\multicolumn{1}{|r|}{} & Convergence rate & Flexible & Convergence rate \\ \hline
-				\multicolumn{1}{|r|}{\multirow{2}{*}{Main disadvantages}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} & Low convergence rate & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} \\
-				\multicolumn{1}{|r|}{} &  & No convergence guarantees &  \\ \hline
-			\end{tabular}%
-		}
-		\caption{Comparison between the derivative-free algorithms' classes.}
-		\label{table:compare-dfo-algos}
-	\end{table}
-	
 	The multidisciplinary aspect of building design raises distinct problems, ranging from well-behaved problems with simple, unimodal, convex functions, to ill-behaved problems with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. In addition to problem's diversity, the time complexity associated to function evaluations also becomes an important factor to consider, when pondering each category's impact on \ac{BPO} problems.
 	
 	The problems' plethora within performance-based design is vast: a specific optimization algorithm may perform well for some problems and have a terrible performance in other problems~\cite{Wortmann2017GABESTCHOICE, Fang2017}. This idea resembles the one captured in Wolpert's \ac{NFLT} for optimization, stating that for any algorithm, better
@@ -694,7 +665,7 @@
 	\section{Problems to Address}
 	\label{sec:problemsaddress}
 	
-	Despite the existence of both optimization  (e.g., DEAP, MOEAFramework, NLopt, RBFOpt), and visualization (e.g. Matplotlib, Plotly, Seaborn) libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
+	Despite the existence of both optimization and visualization libraries, architects often lack the programming skills necessary to integrate them into an optimization process. 
 	
 	% Scalablity, portability, code legibility
 	Several optimization tools integrated in the architectural design workflow have been proposed throughout the years (see \cref{sec:optimizationtools}). In general, these tools are easy to learn and use, which also results from the fact that they make use of visual programming languages. However, the visual programming paradigm often leads to scalability and program legibility issues, hence impacting the way users interact with these optimization tools. 

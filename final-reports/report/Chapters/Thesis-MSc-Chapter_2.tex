@@ -307,13 +307,17 @@
 	\end{figure}
 	% End Figure -------------------------------------------------------
 	
-	Nowadays, the existing plethora of techniques applicable to the generation of surrogate models range from trust-region methods to \ac{ML} techniques. These techniques can be used to create (1) local surrogates, i.e., models where the approximation to the objective function is built around a certain point, and (2) global surrogates, i.e, models where the approximation is generated from all the obtained points. Whilst the former relies on the construction of simple, partial models of the objective function, the latter relies on the creation of a full model. The creation of the full model requires balancing the need for improving the accuracy of the model by exploring broader regions in the solution space, with the need for improving the value of the objective function by exploiting promising regions~\cite{Koziel2011}. This balance is determined by a strategy that selects the next promising solutions to evaluate. 
+	Nowadays, the existing plethora of techniques applicable to the generation of surrogate models range from trust-region methods to \ac{ML} techniques. These techniques can be used to create (1) local surrogates, i.e., models where the approximation to the objective function is built around a certain point, and (2) global surrogates, i.e, models where the approximation is generated from all the obtained points. Whilst the former relies on the construction of simple, partial models of the objective function, the latter relies on the creation of a full model. The creation of the full model requires balancing the need for improving the model's accuracy by exploring broader regions in the solution space, with the need for improving the objective function's value by exploiting promising regions~\cite{Koziel2011}. This balance is determined by a strategy that selects the next promising solutions to evaluate. 
 	
 	Undoubtedly, the best feature of model-based algorithms is the reduction in the total optimization time. This is particularly relevant in the context of \ac{BPO}, which involves time-consuming simulations. However, the lower availability and the lack of necessary technical knowledge to implement or incorporate these algorithms into optimization processes are still obstacles to a broader adoption of this approach. Notwithstanding the existence of different studies involving \ac{ML} techniques for the creation of full surrogate models~\cite{Koziel2011, Forrester2009SBO}, such as neural networks, support vector machines, Radial Basis Functions (RBFs), and random forests, among others, only a few have actually been applied in the context of architecture. This scenario is even more self-evident when we shift from the single- to multi-objective optimization context.
 	
 	Two relevant local model-based implementations are the Constrained Optimization BY Linear Approximation (COBYLA) algorithm~\cite{Powell1994COBYLA}, and the Bound Optimization BY Quadratic Approximation (BOBYQA) algorithm~\cite{Powell2009BOBYQA}, that rely on the construction of simple, partial models of the objective function~\cite{Koziel2011}. The former uses the concept of a simplex to iteratively generate linear approximations of the objective function, whereas the latter generates quadratic approximations instead. 
 	
-	One relevant global model-based algorithm uses RBFs to create global approximations of the objective function. These approximations are simply the weighted sum of other, simpler, real-valued functions, the radial functions. These functions are defined on the Euclidean space $\mathbb{R}^n$ and their value depends on the distance to a center $c$, so that $\phi(x, c) = \phi(\left\lVert x-c \right\rVert)$. In the RBF technique, the weights are estimated based on the interpolation of data. A comprehensive detailed explanation of the RBF's estimation process is provided in~\cite{Forrester2009SBO}. 
+	One relevant global model-based algorithm uses \acp{RBF} to create a global approximation of the objective function, as represented in \cref{eq:rbf}. This approximation is the weighted sum of $N$ radial basis functions $\phi_i: \mathbb{R}^+ \to \mathbb{R}$, each associated with a different center $x_i$, and weighted by an appropriate coefficient $w_i$. These weights are then estimated based on the interpolation of data and are iteratively updated to successively improve the approximation\cite{Forrester2009SBO}. Loosely speaking, radial basis functions are (1) radial functions whose value depends on the distance of a point $x$ to a given center $x_i$, and (2) basis functions, i.e., functions that can be linearly combined to produce the set continuous function in the function space. Examples of commonly used basis functions are the linear ($\phi(r) = r$), the cubic ($\phi(r) = r^3$), and the thin plate spline ($\phi(r) = r^2 ln r$), among others.
+	
+	\begin{equation}\label{eq:rbf}
+		\hat{f}(x) = \sum_{i=1}^{N}w_i\phi_i(\left\lVert x-x_i \right\rVert)
+	\end{equation}
 	
 	Overall, model-based algorithms are techniques that create approximations of the original expensive objective functions and that usually explore other algorithms, like \acp{GA}, \acp{MOEA}, or even sampling algorithms, to seek for better solutions. Particularly, global model-based algorithms exhibit very good performance at initial stages of an optimization process, especially when compared with metaheuristics. % For these reasons, model-based algorithms are very appealing for problems involving costly evaluation functions, including \ac{BPO}'s problems.
 	
@@ -324,7 +328,31 @@
 	This section compares the different classes of derivative-free optimization algorithms mentioned in this chapter. \Cref{table:compare-dfo-algos} presents a summarized view of the main properties of these classes and, in the following paragraphs we compare them regarding their applicability in architecture. 
 
 	The multidisciplinary aspect of building design raises distinct problems, ranging from well-behaved problems with simple, unimodal, convex functions, to ill-behaved problems with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. In addition to problem's diversity, the time complexity associated to function evaluations also becomes an important factor to consider, when pondering each category's impact on \ac{BPO} problems.
-	
+		\begin{table}[]	
+		\centering	
+		\resizebox{\textwidth}{!}{%	
+			\begin{tabular}{r|c|c|c|}	
+				\cline{2-4}	
+				& Direct search & Metaheuristic & Model-based \\ \hline	
+				\multicolumn{1}{|r|}{Main Mechanism / Strategy} & \begin{tabular}[c]{@{}c@{}}Sequential evaluation of \\ candidate designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Combine and randomly modify \\ previous known best designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Optimize a secondary model, \\ instead of the expensive one\end{tabular} \\ \hline	
+				\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline	
+				\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline	
+				\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline	
+				\multicolumn{1}{|r|}{Number of solutions} & 1 & More than 1 & 1 \\ \hline	
+				\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline	
+				\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline	
+				\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline	
+				\multicolumn{1}{|r|}{Support in architecture} & + & +++ & + \\ \hline	
+				\multicolumn{1}{|r|}{\multirow{2}{*}{Main advantages}} & Deterministic & Applicable to any domain & Time complexity decrease \\	
+				\multicolumn{1}{|r|}{} & Convergence rate & Flexible & Convergence rate \\ \hline	
+				\multicolumn{1}{|r|}{\multirow{2}{*}{Main disadvantages}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} & Low convergence rate & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} \\	
+				\multicolumn{1}{|r|}{} &  & No convergence guarantees &  \\ \hline	
+			\end{tabular}%	
+		}	
+		\caption{Comparison between the derivative-free algorithms' classes.}	
+		\label{table:compare-dfo-algos}	
+	\end{table}
+
 	The problems' plethora within performance-based design is vast: a specific optimization algorithm may perform well for some problems and have a terrible performance in other problems~\cite{Wortmann2017GABESTCHOICE, Fang2017}. This idea resembles the one captured in Wolpert's \ac{NFLT} for optimization, stating that for any algorithm, better
 	performance over one class of problems i offset by worse performance over another class~\cite{Wolpert1997NFLT}. Because of the distinct nature of architectural design problems, the arguments applied in architecture are not necessarily applicable to the other fields, like science and engineering. 
 	

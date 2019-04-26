@@ -6,3 +6,17 @@ Capitulo 2.1.2. DOE
 Capitulo 2.4. 
 1. exact solutions??? >>> exact solutions, i.e., the truly optimal solutions
 2. Conclusão do capítulo >>> verificar se está melhor! 
+
+
+AML5 - Doubts
+
+Page 44 -> Esta definição é no minimo estranha. (RBF - Model-based)
+
+
+
+
+
+
+
+
+

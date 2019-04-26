@@ -1,0 +1,8 @@
+Capitulo 2.1.2. DOE 
+1- Falo de designs mas não se percebe o que significa design neste contexto. Vale a pena alterar? (page 16)
+
+
+
+Capitulo 2.4. 
+1. exact solutions??? >>> exact solutions, i.e., the truly optimal solutions
+2. Conclusão do capítulo >>> verificar se está melhor! 

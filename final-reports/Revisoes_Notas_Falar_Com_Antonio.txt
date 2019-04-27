@@ -20,6 +20,7 @@ Page 68 -> É mesmo necessário os footnotes todos das libraries? Mais à frente no
 Page 69 -> resume ? (1st paragrah performance indicators -< verificar como ficou)
 
 
+Page 76 -> screenshot do quê?
 
-
+Page 77 -> Ou falas explicitamente do Rosetta ou do Khepri ou não podes falar de portabilidade porque os outros não a suportam.
 

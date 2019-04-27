@@ -16,11 +16,16 @@ Page 44 -> Esta definição é no minimo estranha. (RBF - Model-based)
 AML6 -> 
 Page 65 -> Remover secção de programming languages e nem sequer mencionar?
 Page 67 -> Remover "and for which information is difficult to obtain"
-Page 68 -> É mesmo necessário os footnotes todos das libraries? Mais à frente no 3.5. quando falo de post-processing e visualization techniques já não uso footnotes. Sinto que não é consistente...
 Page 69 -> resume ? (1st paragrah performance indicators -< verificar como ficou)
 
 
 Page 76 -> screenshot do quê?
 
-Page 77 -> Ou falas explicitamente do Rosetta ou do Khepri ou não podes falar de portabilidade porque os outros não a suportam.
+Page 77 -> Ou falas explicitamente do Rosetta ou do Khepri ou não podes falar de portabilidade porque os outros não a suportam. >> Verificar como ficou
+
+AML6 
+Page 81 -> Tabela a sumarizar
+Page 88 -> Há aqui qualquer coisa que não bate certo ? Então.. ? 
+
+page 91 -> Se não batizar o pavilhã de black pavilion, não fica estranho as legendas e o titulo?
 

@@ -46,25 +46,22 @@ building_with_skylight(height, width, length, material) = let
 end
 
 # Analytical-based criterium
-cost_performance(height, width, length, material) = let
+cost(height, width, length, material) = let
 	p1 = scale(width, 1.5) * scale(length, 6.5) * 185,
 	p2 = (scale(width, 1.5) + scale(length, 6.5)) * 2 * height * 80
 	p1 + p2
 end
 
 # Simulation-based criterium
-daylight_performance(height, width, length, material) = radiance_analysis(
-	() -> building_with_skylight(height, width, length, material)) do results
-		...
-end
+daylight(height, width, length, material) = radiance_analysis(...)
 
 # Optimization Process
 let height = RealVariable(0.1, 2),
 	width = RealVariable(0.1, 6.5),
 	length = RealVariable(0.1, 11),
 	material = IntVariable(0, 3),
-	obj1 = Objective(daylight_performance, :MAX),
-	obj2 = Objective(cost_performance, :MIN),
+	obj1 = Objective(daylight, :MAX),
+	obj2 = Objective(cost, :MIN),
 	model = Model([height, width, length, material], [obj1, obj2]),
 	NSGA_params = Dict(:population_size => 10)
   solve(NSGAII, NSGA_params, model, max_evals=100)

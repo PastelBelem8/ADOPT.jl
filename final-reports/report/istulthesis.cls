@@ -262,6 +262,7 @@
 %
 % DEFINE COMMAND FOR: Contributions depending on language
 \newcommand{\tlangContributions}{\IfLanguageName{english}{Contributions}{Contribuições}}
+
 %
 % DEFINE COMMAND FOR: Acronyms listing Title depending on language
 \newcommand{\tlangAcronyms}{\IfLanguageName{english}{Acronyms}{Acr\'onimos}}
@@ -444,6 +445,19 @@
         \par\nobreak
         \vspace*{1cm}
     }
+}{
+	\clearpage
+	\thispagestyle{empty}
+	\cleardoublepage
+}
+
+
+\newenvironment{listingtools}{\vspace*{3cm}
+	{\parindent \z@ \raggedright \normalfont
+		\hspace*{0\p@}\huge\bfseries List of Frameworks and Tools
+		\par\nobreak
+		\vspace*{1cm}
+	}
 }{
 	\clearpage
 	\thispagestyle{empty}

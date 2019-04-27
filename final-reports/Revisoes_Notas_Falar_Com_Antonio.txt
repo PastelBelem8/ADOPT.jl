@@ -13,8 +13,11 @@ AML5 - Doubts
 Page 44 -> Esta definição é no minimo estranha. (RBF - Model-based)
 
 
-
-
+AML6 -> 
+Page 65 -> Remover secção de programming languages e nem sequer mencionar?
+Page 67 -> Remover "and for which information is difficult to obtain"
+Page 68 -> É mesmo necessário os footnotes todos das libraries? Mais à frente no 3.5. quando falo de post-processing e visualization techniques já não uso footnotes. Sinto que não é consistente...
+Page 69 -> resume ? (1st paragrah performance indicators -< verificar como ficou)
 
 
 

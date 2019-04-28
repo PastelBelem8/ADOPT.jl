@@ -439,7 +439,7 @@
 	\subsubsection{Binary Indicators}
 	In situations where the original Pareto-optimal set is not available, the binary indicators provide a way to compare approximation sets with respect to all aspects. Among the most frequently used indicators, we emphasize \cite{Zitzler2003Metrics,Li2017Rmetrics}:
 	\begin{itemize}
-		\item \textbf{Two set coverage} (or $C$) yields the number of solutions in one approximation set that are dominated by at least one of the solutions of the other approximation set. A value of $1$ suggests that the second approximation set is completely dominated by some solutions in the first one, whereas a value of $0$ represents the situation when none of the solutions of the second approximation set is covered by the first approximation set.
+		% \item \textbf{Two set coverage} (or $C$) yields the number of solutions in one approximation set that are dominated by at least one of the solutions of the other approximation set. A value of $1$ suggests that the second approximation set is completely dominated by some solutions in the first one, whereas a value of $0$ represents the situation when none of the solutions of the second approximation set is covered by the first approximation set.
 		
 		\item \textbf{Epsilon Indicators} ($\epsilon$) give a factor by which an approximation set is worse than another considering all objectives, i.e., given two sets $A$ and $B$, it computes the smallest amount $\epsilon$ by which $A$ must be translated, so that every solution in $B$ is dominated by at least one solution in $A$.
 		
@@ -450,10 +450,9 @@
 			\item \textbf{$R3$} computes the expected mean relative difference in the utilities of both approximation sets.
 		\end{itemize}
 	\end{itemize}
+	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets. While the former indicator enables informed comparisons among two different approximation sets, by providing a measure of their relative difference, the latter incorporates utility functions, allowing the user to introduce a preference over the objectives and, consequently, to influence the optimality of each set. 
 	
-	\subsubsection{Comparison}
-	\label{ssec:comparisonindicators}
-	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
+	% When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
 	
 	\section{Optimization in Architecture}	
 	\label{sec:optimizationtools}
@@ -573,7 +572,7 @@
 	
 	Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global RBF algorithm. 
 	
-	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper program. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper script and connect it with the variables and the objective function components.
+	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper program. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper program and connect it with the variables and the objective function components.
 	
 	Opossum's \ac{GUI} is simple, friendly, intuitive, and well-organized, depicted in \cref{fig:opossum}. In contrast to other plug-ins, Opossum presents different menus tailored for different levels of expertise. On the one hand, Opossum promotes a ready-to-use format, in order to ensure that less experienced users are able to use Opossum's capabilities. Therefore, Opossum provides two top-level configurations menus for which the values are already filled by default. On the other hand, Opossum also provides more experienced users with the ability to create a finer configuration for the optimization solvers and, thus, achieve potentially more efficient optimization processes. 
 	

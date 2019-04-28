@@ -366,7 +366,7 @@
 	
 	Regarding the different algorithms categories, it is interesting to see the metaheuristics' popularity among researchers and practitioners. The main reasons behind the idolization of the metaheuristics are their (1) inherent simplicity, (2) ease of implementation, (3) wide applicability to different domains, and, more importantly, (4) immediate availability in the most popular \ac{AD} tools \cite{Wortmann2017ADO}. Unfortunately, that is not the case for other categories of algorithms, which is a limitation towards their application in architectural domains. Moreover, the lack of easy-to-use tools involving algorithms from other categories are also limiting their application in architectural contexts. In fact, the existing non-metaheuristic tools are usually available as programming libraries, instead of being integrated in popular \ac{AD} tools. As a result, to use the optimization algorithms, architects often need some programming knowledge to integrate the optimization algorithms. However, since architects typically lack the required knowledge, they tend to opt for using ready-to-use tools. Given this facts, it is not surprising that most of the existing building design optimization literature ends up focusing on the application of algorithms from the metaheuristics category \cite{Evins2013,Nguyen2014,Hamdy2016}. 
 	
-	However, in the light of the \ac{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools presenting algorithms with different properties. Particularly, plug-ins like Goat and Opossum enable the usage of algorithms from both direct search and model-based classes. These tools offer optimization algorithms from the NLopt and RBFOpt frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper, a visual programming environment that enables the parametric design and performance evaluation of building designs for different values of the parameters. For the past years, few works have compared the different algorithms existing in Goat and Opossum with the ones available in other metaheuristic optimization tools (e.g., Galapagos, Octopus, Optimo, Silvereye).
+	However, in the light of the \ac{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools presenting algorithms with different properties. Particularly, plug-ins like Goat and Opossum enable the usage of algorithms from both direct search and model-based classes. These tools offer optimization algorithms from the NLopt and RBFOpt frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper, a visual programming environment that enables the parametric design and performance evaluation of building designs for different values of the parameters. For the past years, few works have compared the different algorithms existing in Goat and Opossum with the ones available in other metaheuristic optimization tools (e.g., Galapagos, Octopus, Silvereye).
 	
 	Although the results may vary, in general, direct-search and model-based algorithms seem to be more effective than the metaheuristics ones in initial stages of the optimization process \cite{Wortmann2017,Wortmann2017GABESTCHOICE}. More recently, some metaheuristics algorithms have been shown to perform consistently well in some optimization problems \cite{Waibel2018}. One can explore these performance fluctuations to find the most effective optimization algorithm for a specific problem. Indeed, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different methods for a fixed number of evaluations or a fixed amount of time\cite{Hamdy2016,Wortmann2016BBO}. 
 	
@@ -458,11 +458,11 @@
 	\section{Optimization in Architecture}	
 	\label{sec:optimizationtools}
 	
-	For years, multiple derivative-free optimization libraries have been developed (e.g., NLopt, RBOpt, Platypus, DEAP, Pyomo, PISA, jMetal, and MOEAFramework). However, in order to use them within architectural practices, architects had to code integration scripts to connect the simulation-based evaluation of the different parametric models with optimization libraries\cite{Attia2013}. Moreover, these libraries often lacked post-processing and visual features, which antagonize the readability and comprehension of the results~\cite{Attia2013,Nguyen2014}.
+	For years, multiple derivative-free optimization libraries have been developed (e.g., NLopt, RBOpt, Platypus, jMetal, and MOEAFramework). However, in order to use them within architectural practices, architects had to code integration scripts to connect the simulation-based evaluation of the different parametric models with optimization libraries. Moreover, these libraries often lack post-processing and visual features, which antagonizes the readability and comprehension of the results~\cite{Attia2013,Nguyen2014}.
 	
 	Several plug-ins have been developed in an attempt to reduce the limitations associated to the coupling of simulation tools and mathematical optimization frameworks, thus providing a seamless connection between the parametric models produced in computational design tools, like \ac{CAD} and \ac{BIM} tools, the simulation or analytical models, and the optimization frameworks. Given the visual nature of architectural projects, these plug-ins provide friendly, ready-to-use optimization interfaces, which are usually coupled to a few post-processing and visual features to enhance the intelligibility of optimization results. 
 	
-	Currently, existing optimization plug-ins are implemented on top of visual parametric tools, like Grasshopper \cite{GRASSHOPPER} and Dynamo \cite{DYNAMOBIM}. Amongst \ac{BPO} practitioners, the most relevant optimization plug-ins are  Galapagos, Goat, Octopus, Opossum, and Silvereye, all implemented on top of Grasshopper, and Optimo, implemented on top of Dynamo. In the following sections, we briefly discuss each plug-in.
+	Currently, existing optimization plug-ins are implemented on top of visual parametric tools, like Grasshopper and Dynamo. Amongst \ac{BPO} practitioners, the most relevant optimization plug-ins are Galapagos, Goat, Octopus, Opossum, and Silvereye, all implemented on top of Grasshopper. Even though Dynamo supports an optimization plug-in, Optimo, this is less used in practice and, therefore, will not be discussed in this dissertation. In the following sections, we briefly discuss Grasshopper's optimization plug-ins. 
 	
 	% Begin Optimization Plug-ins Figure -------------------------------------------------------
 	%\begin{figure}
@@ -476,7 +476,7 @@
 	\subsection{Galapagos}
 	\label{subsec:galapagos}
 	% General description of Galapagos, intuition
-	Galapagos \cite{GALAPAGOS} is a generic plug-in, implemented on top of Grasshopper, for the application of metaheuristics algorithms by non-programmers. 
+	Galapagos is a generic plug-in, implemented on top of Grasshopper, for the application of metaheuristics algorithms by non-programmers. 
 	
 	% Optimization Algorithms
 	Particularly popular amongst architects for its \ac{GA} \cite{Wortmann2017ADO}, Galapagos also provides another global metaheuristic solver, called simulated annealing. 
@@ -488,7 +488,7 @@
 	
 	Galapagos' \ac{GUI} is displayed upon double-clicking the Galapagos' component (see \cref{fig:galapagosoptions}). The interface is simple, friendly, intuitive, and well-organized. Moreover, all options are filled by default, thus promoting a ready-to-use (or click-and-run) interaction, which makes it particularly easy to use by less experienced users. Unfortunately, more experienced users might feel frustrated using this plug-in, as they are only able to modify a few parameters of the solver (e.g., population size and number of maximum evaluations), thus lacking a finer control over the process. 
 	
-	In addition to not requiring any integration efforts or any programming-related knowledge to setup and use its capabilities, Galapagos also provides a visually rich experience, by providing different runtime graphical views of the optimization process. Galapagos supports different views depending on the optimization solver being used (see \cref{fig:galapagosviewsa} and \cref{fig:galapagosviewsb}) \todo{UNIFORMIZAR IMAGENS??}:
+	In addition to not requiring any integration efforts or any programming-related knowledge to setup and use its capabilities, Galapagos also provides a visually rich experience, by providing different runtime graphical views of the optimization process. Galapagos supports different views depending on the optimization solver being used (see \cref{fig:galapagosviewsa} and \cref{fig:galapagosviewsb}):
 	\begin{itemize}
 		\item a fitness graph that either represents the distribution of fitness values in the population discriminated by generations. Exhibited for both solvers;
 		\item a similarity representation graph that represents solutions that are genetically similar to each other, and marks solutions that contribute to the creation of the next generation with black dots, whilst non-contributors are marked with a red cross. Exhibited for the \ac{GA} solver;
@@ -519,63 +519,63 @@
 	% ----------------- [GOAT] ------------------
 	\subsection{Goat}
 	% General description, intuition
-	Goat \cite{GOAT} is a generic optimization plug-in, implemented on top of Grasshopper, designed to enable non-programmers to solve numerous problems.
+	Goat is a generic optimization plug-in, implemented on top of Grasshopper, designed to enable non-programmers to solve numerous problems.
 	
 	Unlike Galapagos, Goat interfaces the NLopt mathematical optimization library to provide single-objective algorithms from all the derivative-free classes mentioned earlier (see \cref{sec:dfo}), including one global direct search (DIRECT), one local direct search (Subplex), one global metaheuristic (CRS2), and two local model-based algorithms (COBYLA and BOBYQA). 
 	
-	Goat is strongly influenced by Galapagos, also requiring a user program in Grasshopper containing the definition of the problem. The user drags the Goat's component to the program connecting it to the design parameters and the objective function, which, like Galapagos, must be provided as sliders and number components, respectively (see \cref{fig:goat}).
+	Goat is strongly influenced by Galapagos, also requiring a user program in Grasshopper containing the definition of the problem. The user drags the Goat's component to the program connecting it to the design parameters and the objective function, which, like Galapagos, must be provided as sliders and number components, respectively.
 	
-	Goat's \ac{GUI} is displayed after double-clicking the Goat's component (see \cref{fig:goat}). This interface comprises a single menu, which is simple and straightforward to use. Like Galapagos, Goat is also distributed in a ready-to-use format with all the extra configuration values filled by default. As a result, non-expert programmers can easily explore this tool to address complex problems. Unfortunately, Goat provides no options for a more experienced user to configure the algorithms, except to configure the initial point of the search.
+	Goat's \ac{GUI} is displayed after double-clicking the Goat's component. This interface comprises a single menu, which is simple and straightforward to use. Like Galapagos, Goat is also distributed in a ready-to-use format with all the extra configuration values filled by default. As a result, non-expert programmers can easily explore this tool to address complex problems. Unfortunately, Goat provides no options for a more experienced user to configure the algorithms, except to configure the initial point of the search.
 	
 	Despite requiring no additional efforts to use Goat's optimization capabilities, the absence of visual and interactive mechanisms severely hinders Goat's reputation. Firstly, it provides no visual feedback (e.g., solution lists, plots) about the course of the optimization run. Secondly, it also does not create log files to monitor the optimization process. Thirdly, the user is not able to interact with the optimization process. Finally, it returns a single optimal solution, whose values are represented in the sliders and number components. All these reasons contribute to a non-informed and non-traceable optimization process that inspires little confidence it the attained results. 
 	
 	% Begin Goat-Options Figure -------------------------------------------------------
-	\begin{figure}
-		\centering
-		\includegraphics[width=1\textwidth]{Images/Background/Goat/general-view.png}
-		\caption[Goat GUI]{Simple view of the Grasshopper's script with the problem definition and the Goat component. The curves on the left (pink) link to the variables and the one on the right (green) links to the objective, On the foreground, the \ac{GUI} exhibits the list of available algorithms within Goat.}
-		\label{fig:goat}
-	\end{figure}
+%	\begin{figure}
+%		\centering
+%		\includegraphics[width=1\textwidth]{Images/Background/Goat/general-view.png}
+%		\caption[Goat GUI]{Simple view of the Grasshopper's script with the problem definition and the Goat component. The curves on the left (pink) link to the variables and the one on the right (green) links to the objective, On the foreground, the \ac{GUI} exhibits the list of available algorithms within Goat.}
+%		\label{fig:goat}
+%	\end{figure}
 	% End Figure -------------------------------------------------------	
 	
 	
 	% ----------------- [SILVEREYE] ------------------
 	\subsection{Silvereye}
-	Silvereye \cite{Cichocka2017SILVEREYE} is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. 
+	Silvereye is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. 
 	
 	Silvereye interfaces a C\# implementation of a global single-objective \ac{PSO} algorithm. \todo{Tens de desenvolver um bocadinho mais isto, esta frase está muita pobre (BF)}
 	
 	Similarly to the previous tools, Silvereye also requires the definition of the problem in Grasshopper, and that the variables and the objective function are represented by sliders and number components, respectively. Thus, it does not require any additional effort in order to be used.
 	
-	Like Galapagos, the user must double-click Silvereye's component in Grasshopper to visualize its \ac{GUI} (see \cref{fig:silvereye}). Besides being very simple and intuitive to use, Silvereye also allows less experienced users to start using the tool immediately by providing default values to the extra configuration parameters. As users gain more experience, they might decide to change some configurations associated with the solver. One other difference to Galapagos is the ability to save the solver's configurations so that it can be used in subsequent runs.
+	Like Galapagos, the user must double-click Silvereye's component in Grasshopper to visualize its \ac{GUI}. Besides being very simple and intuitive to use, Silvereye also allows less experienced users to start using the tool immediately by providing default values to the extra configuration parameters. As users gain more experience, they might decide to change some configurations associated with the solver. One other difference to Galapagos is the ability to save the solver's configurations so that it can be used in subsequent runs.
 	
-	Regarding its visual capabilities, Silvereye resembles Goat, providing no graphical views of the optimization run's state. However, Silvereye does present a list that is updated in real-time with the value of the best fitness value per iteration, which can be exported to a file and then used to create fitness graphs (see \cref{fig:silvereye2}). Unfortunately, since this file merely contains the fitness values, the user is not able to trace them back to the values of the design parameters which originated them. Moreover, despite the existence of a functionality in the first menu (\cref{fig:silvereye1}) to create a log file, this file only contains information about the temporal behavior of each evaluation. While this information is useful to monitor and identify irregularities during the optimization run, it does not provide enough information to traceback the error. 
+	Regarding its visual capabilities, Silvereye resembles Goat, providing no graphical views of the optimization run's state. However, Silvereye does present a list that is updated in real-time with the value of the best fitness value per iteration, which can be exported to a file and then used to create fitness graphs. Unfortunately, since this file merely contains the fitness values, the user is not able to trace them back to the values of the design parameters which originated them. Moreover, despite the existence of a functionality in the first menu to create a log file, this file only contains information about the temporal behavior of each evaluation. While this information is useful to monitor and identify irregularities during the optimization run, it does not provide enough information to traceback the error. 
 	
 	Overall, the lack of visual feedback in the form of graphs hinders the comprehension and confidence on the results. The ranked list helps filling this gap, as long as there are multiple solutions and the user is able to visualize them in a \ac{CAD} tool.
 	
-	\begin{figure*}[htbp]
-		\centering
-		\subfigure[]{%
-			\label{fig:silvereye1}%
-			\includegraphics[width=0.40\textwidth]{Images/Background/Silvereye/silvereye.png}}%
-		\hfill
-		\subfigure[]{%
-			\label{fig:silvereye2}%
-			\includegraphics[width=0.40\textwidth]{Images/Background/Silvereye/silvereye2.png}}%
-		
-		\caption[Silvereye GUI]{Two views of Silvereye's \ac{GUI}: (a) Solvers configuration menu (b) Optimization control and results menu}
-		\label{fig:silvereye}
-	\end{figure*}
+%	\begin{figure*}[htbp]
+%		\centering
+%		\subfigure[]{%
+%			\label{fig:silvereye1}%
+%			\includegraphics[width=0.40\textwidth]{Images/Background/Silvereye/silvereye.png}}%
+%		\hfill
+%		\subfigure[]{%
+%			\label{fig:silvereye2}%
+%			\includegraphics[width=0.40\textwidth]{Images/Background/Silvereye/silvereye2.png}}%
+%		
+%		\caption[Silvereye GUI]{Two views of Silvereye's \ac{GUI}: (a) Solvers configuration menu (b) Optimization control and results menu}
+%		\label{fig:silvereye}
+%	\end{figure*}
 	
 	%------------------ OPOSSUM ----------------------
 	\subsection{Opossum}
-	Opossum (OPtimizatiOn Solver with SUrrogate Models) \cite{Wortmann2017Opossum} is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems.
+	Opossum (OPtimizatiOn Solver with SUrrogate Models) is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems.
 	
 	Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global RBF algorithm. 
 	
 	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper program. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper script and connect it with the variables and the objective function components.
 	
-	Opossum's \ac{GUI} is simple, friendly, intuitive, and well-organized, depicted in \Cref{fig:opossum}. In contrast to other plug-ins, Opossum presents different menus tailored for different levels of expertise. On the one hand, Opossum promotes a ready-to-use format, in order to ensure that less experienced users are able to use Opossum's capabilities. Therefore, Opossum provides two top-level configurations menus for which the values are already filled by default. On the other hand, Opossum also provides more experienced users with the ability to create a finer configuration for the optimization solvers and, thus, achieve potentially more efficient optimization processes. 
+	Opossum's \ac{GUI} is simple, friendly, intuitive, and well-organized, depicted in \cref{fig:opossum}. In contrast to other plug-ins, Opossum presents different menus tailored for different levels of expertise. On the one hand, Opossum promotes a ready-to-use format, in order to ensure that less experienced users are able to use Opossum's capabilities. Therefore, Opossum provides two top-level configurations menus for which the values are already filled by default. On the other hand, Opossum also provides more experienced users with the ability to create a finer configuration for the optimization solvers and, thus, achieve potentially more efficient optimization processes. 
 	
 	% Begin Opossum-Options Figure -------------------------------------------------------
 	\begin{figure}
@@ -593,7 +593,7 @@
 	% ------------- [ Octopus ] -----------------
 	\subsection{Octopus}
 	
-	Octopus \cite{OCTOPUS} is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. 
+	Octopus is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. 
 	
 	Octopus exposes two global metaheuristics algorithms to search for Pareto-optimal solutions: \ac{SPEA2} and Hypervolume Estimation Algorithm (HypE) algorithms. These algorithms have been reported to yield promising results on numerous \ac{MOO} test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}. 
 	
@@ -626,31 +626,30 @@
 			\includegraphics[width=1\textwidth]{Images/Background/Octopus/octopus-menu.png}}%
 		\caption[Octopus GUI]{Octopus's \ac{GUI}: (a) Octopus menu in Grasshopper (b) Octopus optimization menu: (1) Solutions' Objective Space, (2) Solution's context menu, (3) Generation's history slider, (4) Process control options, (5) Algorithm Settings, (6) Display Settings, (7) Statistics, (8) Parallel Coordinates Graph, (9) List of Objectives (10) Convergence graphs per Objective}
 		\label{fig:octopus}
-		
 	\end{figure*}
 	
 	
 	% ------- ------- [OPTIMO] -------- ----------
-	\subsection{Optimo}
-	\label{subsec:Optimo}
-	
-	Optimo \cite{OPTIMO} is a generic plug-in, implemented on top of Dynamo, that allows non-programmers to address a wide variety of \ac{MOO} problems in the context of a \ac{BIM} tool. 
-	
-	Optimo interfaces the \ac{MOO} metaheuristics library, jMetal.NET, and its current version merely supports the \ac{NSGA-II} algorithm\cite{Deb2002}.
-	
-	To use the solver, users must create the Dynamo program that encodes the problem definition, but also encode the optimization algorithm. To create the latter, Optimo provides four Dynamo nodes:
-	\begin{itemize}
-		\item Initial Solution list, which generates the initial set of random design configurations within a provided range and with the specified size of population;
-		\item Assignment of Fitness Function Results, which evaluates and assigns the objective values to each configuration; 
-		\item Generation Algorithm, which takes the parent population and generates the children population;
-		\item Sorting, which uses the Pareto Front sorting to sort the solutions
-	\end{itemize} 
-	
-	Compared to the previous plug-ins, Optimo demands larger initial investments for the production of the program. Whereas less experienced users might find it more difficult to use, more experienced ones might adjust the algorithm to their needs.%, which directly results from the finer-grain control of Optimo. 
-	In practice, instead of providing a default template, Optimo fosters the constant arrangement of the algorithm's nodes everytime a new optimization process is to be applied, which can quickly become monotonous and tiresome. Moreover, Optimo does not have a explicit \ac{GUI} editor, instead being directly integrated in the Dynamo environment in the form of nodes.
-	
-	% Visual
-	Regarding the visual mechanisms, it does not support feedback mechanisms during the optimization run, presenting only a small side-by-side view of the initial design variation and the optimal designs, thus allowing the user to visualize and compare the results of the optimization process. Finally, it is still unclear whether Optimo creates log files. 
+%	\subsection{Optimo}
+%	\label{subsec:Optimo}
+%	
+%	Optimo \cite{OPTIMO} is a generic plug-in, implemented on top of Dynamo, that allows non-programmers to address a wide variety of \ac{MOO} problems in the context of a \ac{BIM} tool. 
+%	
+%	Optimo interfaces the \ac{MOO} metaheuristics library, jMetal.NET, and its current version merely supports the \ac{NSGA-II} algorithm\cite{Deb2002}.
+%	
+%	To use the solver, users must create the Dynamo program that encodes the problem definition, but also encode the optimization algorithm. To create the latter, Optimo provides four Dynamo nodes:
+%	\begin{itemize}
+%		\item Initial Solution list, which generates the initial set of random design configurations within a provided range and with the specified size of population;
+%		\item Assignment of Fitness Function Results, which evaluates and assigns the objective values to each configuration; 
+%		\item Generation Algorithm, which takes the parent population and generates the children population;
+%		\item Sorting, which uses the Pareto Front sorting to sort the solutions
+%	\end{itemize} 
+%	
+%	Compared to the previous plug-ins, Optimo demands larger initial investments for the production of the program. Whereas less experienced users might find it more difficult to use, more experienced ones might adjust the algorithm to their needs.%, which directly results from the finer-grain control of Optimo. 
+%	In practice, instead of providing a default template, Optimo fosters the constant arrangement of the algorithm's nodes everytime a new optimization process is to be applied, which can quickly become monotonous and tiresome. Moreover, Optimo does not have a explicit \ac{GUI} editor, instead being directly integrated in the Dynamo environment in the form of nodes.
+%	
+%	% Visual
+%	Regarding the visual mechanisms, it does not support feedback mechanisms during the optimization run, presenting only a small side-by-side view of the initial design variation and the optimal designs, thus allowing the user to visualize and compare the results of the optimization process. Finally, it is still unclear whether Optimo creates log files. 
 	
 	%\todo{DISCUSS WALLACEI?}
 	
@@ -663,20 +662,20 @@
 		\centering
 		\resizebox{\textwidth}{!}{%
 			\begin{tabular}{cl|c|c|c|c|c|c|}
-				\cline{3-8}
-				\multicolumn{1}{l}{} &  & Galapagos & Goat & Silvereye & Opossum & Octopus & Optimo \\ \hline
-				\multicolumn{1}{|c|}{\multirow{4}{*}{Optimization Algorithms}} & Objectives & S & S & S & S & M & M \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Search & G & GL & G & G & G & G \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Classes & Meta & All & Meta & Model & Meta & Meta \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Algorithms & 2 & 5 & 1 & 2 & 2 & 1 \\ \hline
-				\multicolumn{1}{|c|}{\multirow{4}{*}{Interactivity and Visualization}} & Results & M & S & M & S & M & M \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Graphical Feedback & +++ & - & - & + & +++ & - \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Real-time Interactivity & - & - & - & - & + & - \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Traceability (e.g., logs) & + & - & + & ++ & ++ & ? \\ \hline
-				\multicolumn{1}{|c}{Intelligibility of Results} &  & + & - & - & - & + & + \\ \hline
-				\multicolumn{1}{|c|}{\multirow{3}{*}{GUI Experience}} & Ease of Use & +++ & +++ & +++ & +++ & ++ & - \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Intuitive/Organized & ++ & +++ & +++ & +++ & + & + \\ \cline{2-8} 
-				\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++ & ++ \\ \hline
+				\cline{3-7}
+				\multicolumn{1}{l}{} &  & Galapagos & Goat & Silvereye & Opossum & Octopus \\ \hline
+				\multicolumn{1}{|c|}{\multirow{4}{*}{Optimization Algorithms}} & Objectives & S & S & S & S & M \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Search & G & GL & G & G & G \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Classes & Meta & All & Meta & Model & Meta \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Algorithms & 2 & 5 & 1 & 2 & 2 \\ \hline
+				\multicolumn{1}{|c|}{\multirow{4}{*}{Interactivity and Visualization}} & Results & M & S & M & S & M \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Graphical Feedback & +++ & - & - & + & +++ \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Real-time Interactivity & - & - & - & - & + \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Traceability (e.g., logs) & + & - & + & ++ & ++ \\ \hline
+				\multicolumn{1}{|c}{Intelligibility of Results} &  & + & - & - & - & + \\ \hline
+				\multicolumn{1}{|c|}{\multirow{3}{*}{GUI Experience}} & Ease of Use & +++ & +++ & +++ & +++ & ++ \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Intuitive/Organized & ++ & +++ & +++ & +++ & + \\ \cline{2-7} 
+				\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++\\ \hline
 			\end{tabular}%
 		}
 		\caption[Comparison between the analysed optimization plug-ins]{A comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
@@ -689,7 +688,7 @@
 	
 	Regarding the third aspect, there are no mechanism explicitly designed to enhance the comprehension of the optimization results in any of the analysed tools. However, the existence of visualization mechanisms like Galapagos and Octopus, do enable a better understanding of the the results. This understanding can be further improved by enabling the direct materialization of such solutions in the corresponding 3D model, so that the user may draw conclusions by comparing different solutions. Despite the absence of visual mechanisms in Octopus, it exhibits the best solutions next to the initial solution, thus allowing the user to compare them and better understand them.
 	
-	Finally, regarding user experience, all plug-ins are straightforward to use, except for Octopus and Optimo. Both plug-ins require the user to elaborate the program. However, the former requires a single component to be added, whereas the latter requires the definition of the solver using the provided nodes.
+	Finally, regarding user experience, all plug-ins are straightforward to use, except for Octopus. This plug-in requires the user to elaborate the program. However, the former requires a single component to be added, whereas the latter requires the definition of the solver using the provided nodes.
 	
 	%One of the key differences between Goat and Galapagos is the number and diversity of the algorithms available. Whilst Galapagos supports two global metaheuristics algorithms, Goat supports five distinct algorithms: one metaheuristic, two direct-search, and two model-based algorithms, called CRS2, DIRECT, SUBPLEX, COBYLA, and BOBYQA, respectively. 
 	
@@ -697,7 +696,6 @@
 	
 	
 	%Octopus enables the simultaneous search for more than one objective, producing a set of possible optimal solutions that ideally represent the real trade-offs between each objective. In order to search for the Pareto-optimal solutions, Octopus provides two main evolutionary algorithms: \ac{SPEA2} and \ac{HypE}. On the one hand, due to their population-based nature, evolutionary algorithms are able to approximate the Pareto Front in a single run~\cite{Zhou2011}. On the other hand, these algorithms have been reported to yield promising results on numerous test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}.
-	
 	
 	% #############################################################################
 	\section{Problems to Address}

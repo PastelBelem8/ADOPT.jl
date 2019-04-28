@@ -437,7 +437,7 @@
 	Despite considering the diversity and accuracy aspects of Pareto fronts, \ac{IGD} is still Pareto non-compliant and has been shown to behave erroneously under certain conditions. Conversely, \ac{HV} is the only metric that exhibits the Pareto-compliance property. However, its usage is often impractical in problems where the number of objectives is greater than ten, due to its exponential growth with the number of objectives \cite{Ishibuchi2005GDIGD}.
 	
 	\subsubsection{Binary Indicators}
-	In situations where the original Pareto-optimal set is not available, the binary indicators provide a way to compare approximation sets with respect to all aspects. Among the most frequently used indicators, we emphasize \cite{Zitzler2003Metrics,Li2017Rmetrics}:
+	In situations where the original Pareto-optimal set is not available, binary indicators provide a way to compare approximation sets. Among the most frequently used indicators, we emphasize \cite{Zitzler2003Metrics,Li2017Rmetrics}:
 	\begin{itemize}
 		% \item \textbf{Two set coverage} (or $C$) yields the number of solutions in one approximation set that are dominated by at least one of the solutions of the other approximation set. A value of $1$ suggests that the second approximation set is completely dominated by some solutions in the first one, whereas a value of $0$ represents the situation when none of the solutions of the second approximation set is covered by the first approximation set.
 		
@@ -450,7 +450,8 @@
 			\item \textbf{$R3$} computes the expected mean relative difference in the utilities of both approximation sets.
 		\end{itemize}
 	\end{itemize}
-	When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets. While the former indicator enables informed comparisons among two different approximation sets, by providing a measure of their relative difference, the latter incorporates utility functions, allowing the user to introduce a preference over the objectives and, consequently, to influence the optimality of each set. 
+
+	Although binary indicators are useful for comparing different approximation sets and their relations. While the former particularizes these relations to be defined as the relative difference among two approximation sets, the latter incorporates utility functions predefined by users to introduce preferences over the different objectives and, consequently, to influence the quality of each set. 
 	
 	% When comparing the usefulness of binary indicators, these usually aim at comparing different approximation sets and not necessarily the quality of the sets. This is the case of the two set coverage indicator, which allows to compare the existing Pareto-dominance relation between two sets, but does not allow to infer any other information (e.g., how worse one set is regarding the other). Moreover, this indicator becomes erroneous when the two sets are incomparable, i.e., neither dominates the other~\cite{Zitzler2003Metrics}. In contrast to the two set coverage indicator, the epsilon family indicators enable more informed comparison among two different approximation sets, as it provides a measure of the relative difference between the two sets. Finally, because the R-metrics incorporate utility functions, the user is able to introduce a preference over the objectives, thus influencing the optimality of each set. 
 	
@@ -476,7 +477,6 @@
 	\label{subsec:galapagos}
 	% General description of Galapagos, intuition
 	Galapagos is a generic plug-in, implemented on top of Grasshopper, for the application of metaheuristics algorithms by non-programmers. 
-	
 	% Optimization Algorithms
 	Particularly popular amongst architects for its \ac{GA} \cite{Wortmann2017ADO}, Galapagos also provides another global metaheuristic solver, called simulated annealing. 
 	
@@ -497,7 +497,7 @@
 	\end{itemize}
 	
 	Overall, these views provide visual feedback about the course of the optimization run and highlight the best solutions found up to that generation. In the end, the user is able to navigate through generations and re-instantiate these solutions in the corresponding \ac{CAD} tool, and, consequently, better understand the obtained results. Moreover, the ranked list of results allows the user to select the one he appraises the most amongst multiple optimal solutions found by the solver. Unfortunately, Galapagos lacks logging mechanisms, which causes the information about the optimization, that is enclosed within these views, to be lost as soon as the \ac{GUI} is closed. 
-	\begin{figure*}[htbp]
+	\begin{figure*}[]
 		\centering
 		\subfigure[]{%
 			\label{fig:galapagosoptions}%
@@ -519,7 +519,6 @@
 	\subsection{Goat}
 	% General description, intuition
 	Goat is a generic optimization plug-in, implemented on top of Grasshopper, designed to enable non-programmers to solve numerous problems.
-	
 	Unlike Galapagos, Goat interfaces the NLopt mathematical optimization library to provide single-objective algorithms from all the derivative-free classes mentioned earlier (see \cref{sec:dfo}), including one global direct search (DIRECT), one local direct search (Subplex), one global metaheuristic (CRS2), and two local model-based algorithms (COBYLA and BOBYQA). 
 	
 	Goat is strongly influenced by Galapagos, also requiring a user program in Grasshopper containing the definition of the problem. The user drags the Goat's component to the program connecting it to the design parameters and the objective function, which, like Galapagos, must be provided as sliders and number components, respectively.
@@ -540,9 +539,7 @@
 	
 	% ----------------- [SILVEREYE] ------------------
 	\subsection{Silvereye}
-	Silvereye is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. 
-	
-	Silvereye interfaces a C\# implementation of a global single-objective \ac{PSO} algorithm. \todo{Tens de desenvolver um bocadinho mais isto, esta frase está muita pobre (BF)}
+	Silvereye is a generic optimization plug-in, implemented on top of Grasshopper, developed under the same design principles as Galapagos to enable non-experts to solve complex optimization problems. Unlike Goat which interfaces with a well-known optimization library, Silvereye exposes C\# implementation of a global single-objective \ac{PSO} algorithm, as described in \cite{Cichocka2017SILVEREYE}. 
 	
 	Similarly to the previous tools, Silvereye also requires the definition of the problem in Grasshopper, and that the variables and the objective function are represented by sliders and number components, respectively. Thus, it does not require any additional effort in order to be used.
 	
@@ -568,9 +565,7 @@
 	
 	%------------------ OPOSSUM ----------------------
 	\subsection{Opossum}
-	Opossum (OPtimizatiOn Solver with SUrrogate Models) is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems.
-	
-	Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global RBF algorithm. 
+	Opossum (OPtimizatiOn Solver with SUrrogate Models) is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems. Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global RBF algorithm. 
 	
 	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper program. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper program and connect it with the variables and the objective function components.
 	

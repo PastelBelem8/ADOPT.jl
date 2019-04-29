@@ -16,7 +16,6 @@ A very summarized explanation will be provided for the optimization algorithms s
 \item \textbf{Stratified Monte Carlo Sampling}~\cite{Giunta2003DOE} yields a more uniform sampling of the design space. Each dimension of the design space is subdivided into bins of equal probability and, then, a sample is randomly selected from each bin. Provides better coverage of the design space and allows the user to select the number of bins to create in each dimension. However, the number of generatesd samples scales exponentially with the number of dimensions.
 
 \item \textbf{Latin Hypercube Sampling} (LHS)~\cite{Giunta2003DOE} provides a better distribution of the generated samples by subdividing each dimension in equally sized bins. The generated samples are randomly placed in different bins, so that when observing the one-dimensional projections of the samples and bins, there is only one sample in each bin. The number of samples scales linearly with the number of dimensions.
-
 \end{itemize}
 
 \section{Direct-Search Algorithms}

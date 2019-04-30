@@ -7,8 +7,6 @@
 % The following line allows to ref this chapter
 \label{chap:architecture}
 
-\todo{Review - Emphasize the focus on time-consuming evaluation functions}
-
 This dissertation focuses on optimization algorithms that are able to more efficiently handle a set of problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a general-purpose framework to enable the application of different types of optimization algorithms, both for \ac{SOO} and \ac{MOO} problems. The concretization of such framework requires: (1) the definition of an abstraction layer that enables the modeling of optimization problems, (2) a wide variety of optimization algorithms to address different optimization problems, (3) a set of performance indicators to provide the user with a measure of the algorithms' quality when testing multiple algorithms, and (4) visual representations of the obtained results to provide more comprehensive feedback over the optimization results. \Cref{fig:solution} shows the  solution's different components and its external connections.
 
 \begin{figure}[htbp]
@@ -65,9 +63,9 @@ As described in \cref{chap:back}, the definition of an optimization process is c
 \section{Optimization Algorithms}
 \label{sec:optalgos}
 
-Optimization algorithms represent a crucial part in an optimization process and, consequently, in the developed solution. In order to study different optimization algorithms and to test their suitability for specific optimization problems~\cite{Wolpert1997NFLT}, a large set of distinct and representative optimization algorithms should be provided. In addition to diversity, our solution also provides the users with the flexibility to configure the different parameters associated to the optimization algorithms, commonly known as hyperparameters. By fine-tuning the values of these hyperparameters for a specific problem, the performance of the corresponding optimization process can be drastically improved. 
+Optimization algorithms represent a crucial part in an optimization process and, consequently, in the developed solution. In order to evaluate different optimization algorithms and to test their suitability for specific optimization problems~\cite{Wolpert1997NFLT}, a large set of distinct and representative optimization algorithms should be provided. In addition to diversity, our solution also provides the users with the flexibility to configure the different parameters associated to the optimization algorithms, commonly known as hyperparameters. By fine-tuning the values of these hyperparameters for a specific problem, the performance of the corresponding optimization process can be drastically improved. 
 
-Another important requirement is that at least a subset of the provided algorithms must be tailored to address optimization problems that incorporate time-consuming evaluation functions.%, and for which information is difficult to obtain. 
+Another important requirement is that at least a subset of the provided algorithms must be tailored to address optimization problems incorporating time-consuming evaluation functions.%, and for which information is difficult to obtain. 
 To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} open-source derivative-free optimization libraries. After a thorough analysis of different optimization libraries, the final solution presents a total of 36 algorithms from 4 different libraries, listed in \cref{table:algorithms}. 
 
 \begin{table}[]

@@ -1,3 +1,7 @@
+Capitulo 1.2. Dissertation Goals
+
+A primeira frase já fala de time-consuming optimization. Não sei mto bem como salientar mais... 
+
 Capitulo 2.1.2. DOE 
 1- Falo de designs mas não se percebe o que significa design neste contexto. Vale a pena alterar? (page 16)
 
@@ -37,3 +41,9 @@ page 39 -> Metaheuristic -- isto não esclarece o que é.
 page 43 -> "isto não garante globalidade."
 page 46 -> Transição p/ performance indicators.
 page 47 -> 2 parágrafos antes de Unary Indicators.
+
+
+
+
+Conclusion
+-> Adicionei um parágrafo.

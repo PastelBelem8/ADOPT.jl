@@ -8,21 +8,18 @@
 % The following line allows to ref this chapter
 \label{chap:implement}
 
-\todo{Review - Emphasize the focus on time-consuming evaluation functions}
-
 In the previous chapter, we discussed the architecture of the proposed solution, a general-purpose optimization framework that is applicable to a wide variety of optimization problems. 
 
-From the beginning, we set out to address optimization problems involving costly evaluation functions that may take up to several minutes, hours, or even days to complete. Therefore, during the development of the proposed framework, we focused on problems exhibiting these properties. Note, however, that the framework can be easily extended to include other algorithms (e.g., derivative-based), as it has been previously discussed in \cref{sec:optimizationalgorithms}. 
+From the beginning, we set out to address optimization problems involving simulation-based evaluation functions that are remarkably expensive. Therefore, during the development of the proposed framework, we focused on providing algorithms to more efficiently handle problems exhibiting these properties. Note, however, that the framework can be easily extended to include other algorithms (e.g., derivative-based), as it has been previously discussed in \cref{sec:optimizationalgorithms}. 
 
-Motivated by the large impact of the building sector in the world's sustainability and economy, this dissertation aims at applying the proposed framework to address building design optimization, thus attempting to reduce buildings' costs and ecological footprint. Despite the existence of multiple optimization tools in architecture (see~\cref{sec:optimizationtools}), these are often limited and do not provide adequate algorithms, nor mechanisms to enable the efficient optimization of problems with time-consuming evaluations (see~\cref{sec:problemsaddress}).
+Motivated by the large impact of the building sector in the world's sustainability and economy, this dissertation aims at applying the proposed framework to address building design optimization, thus attempting to reduce buildings' costs and ecological footprint. Despite the existence of multiple optimization tools in architecture, as discussed in \cref{sec:optimizationtools}, these are often limited and do not provide adequate algorithms, nor mechanisms to enable the efficient optimization of such time-consuming problems.
 
 In this chapter, we describe how the general-purpose framework proposed in this dissertation can be applied to address architectural design optimization. 
 
 \section{Algorithmic Optimization}
-
 In \cref{ssec:ad,ssec:aa}, we discussed how the architectural design paradigm has incrementally grown to develop the mechanisms to quickly (1) update a design, (2) generate the corresponding analytical model, and (3) automatically evaluate the design in an analytical tool.% and collect its results. 
 
-These mechanisms laid down the foundations for automated optimization processes. By extending the Algorithmic Design (AD) and Algorithmic Analysis (AA) approaches to include optimization mechanisms, we are able to apply automatic optimization processes that aim to improve (or even optimize) designs' performance. 
+These mechanisms laid down the foundations for automated optimization processes. By extending the Algorithmic Design (\ac{AD}) and Algorithmic Analysis (\ac{AA}) approaches to include optimization mechanisms, we are able to apply automatic optimization processes that aim to improve (or even optimize) designs' performance. 
 
 \Cref{fig:algorithmicoptimization} illustrates a possible approach for introducing automated optimization processes in the architectural worfklow. In this approach, we introduce an optimizer component that is responsible for searching the design space and generating new values for the design's parameters. These values are then communicated to the \ac{AD} tool, which generates the analytical models and evaluates them in the corresponding analytical tools. After being evaluated, the analytical tools communicate the evaluations' results to the \ac{AD} tool, which, in turn, forwards them to the optimizer. Based on these results, the optimizer generates another set of values for the design's parameters and this process is repeated until a stopping criterium (e.g., evaluations or time limit, solution's quality) is met. The communications between each component are encoded within the \ac{AD} tool, therefore incurring no additional efforts for the programmer.
  
@@ -92,9 +89,9 @@ Finally, visualization and processing mechanisms can also be useful not only to 
 
 \section{Summary}
 
-In this section, we explored the application of a general purpose optimization framework to \ac{BPO} problems, which typically incorporate expensive simulation-based evaluation functions. Also, we described how the framework can be coupled with existing algorithmic-based approaches to promote the automation of optimization processes, an approach we named \ac{AO}.
+In this section, we explored the application of a general purpose optimization framework to \ac{BPO} problems, which frequently incorporate expensive simulation-based evaluation functions, ranging from a couple of seconds to a few days, depending on both the analysis domain and the design's complexity. Also, we described how the framework can be coupled with existing algorithmic-based approaches to promote the automation of optimization processes, an approach we named \ac{AO}.
 
-To address the abnormal time-complexity associated with \ac{BPO} problems, we provide the users with the ability to follow different optimization approaches (e.g., \ac{SOO}, design of experiments, \textit{a priori} preference articulation, Pareto-based), as well as with different optimization algorithms. These include model-based algorithms that significantly reduce the overall optimization time by using fast surrogate models for evaluation. %Moreover, our framework provides both global and local algorithms, thus providing the flexibility for obtaining either more or less precise solutions. 
+To address the abnormal time-complexity associated with \ac{BPO} problems, we provide the users with the ability to follow different optimization approaches (e.g., \ac{SOO}, design of experiments, \textit{a priori} preference articulation, Pareto-based), as well as with optimization algorithms specially tailored for addressing these problems more efficiently. These include model-based algorithms that significantly reduce the overall optimization time by using fast surrogate models for evaluation. %Moreover, our framework provides both global and local algorithms, thus providing the flexibility for obtaining either more or less precise solutions. 
 %We aim at reducing the abnormal time-complexity of \ac{BPO} by providing model-based algorithms. 
 
 To address the low feedback of the optimization process, we provided a set of files that keep track of every evaluated solution, hence enabling the user to freely access that information and use it for posterior optimization processes. Moreover, this information is enriched by providing integrated visualization features, which enable the view of the 3D model associated with an evaluated design solution. As a result, this promotes quicker and more informed decisions regarding the building design's practice.

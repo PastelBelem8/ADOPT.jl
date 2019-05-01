@@ -209,9 +209,9 @@
 	
 	Optimization processes are comprised by two parts: the first one, previously described, focuses on the modeling of the problem; the second one involves exploring different values for the set of variables defined in the model with the aim of finding more efficient solutions. This exploration part is achieved by means of optimization algorithms, which will be the focus of this section. 
 	
-	Optimization algorithms search for the optimal solutions in the solution space. Each algorithm implements different techniques to enhance its search process in the solution space. This variety yields algorithms capable of addressing some type of problems more efficiently than others~\cite{Wolpert1997NFLT}.
+	Optimization algorithms search for the optimal solutions in the solution space. Each algorithm implements different techniques to enhance its search process in the solution space. This variety yields algorithms capable of addressing some type of problems more efficiently than others \cite{Wolpert1997NFLT}.
 	
-	In order to identify which algorithms are more appropriate for specific optimization problems, it is necessary to measure their quality. Whereas this is rather straightforward for \ac{SOO} algorithms, the same does not happen for \ac{MOO} algorithms, as it will be discussed in \Cref{ssec:performance}.
+	In order to identify which algorithms are more appropriate for specific optimization problems, it is necessary to measure their quality. Whereas this is rather straightforward for \ac{SOO} algorithms, the same does not happen for \ac{MOO} algorithms, as it will be discussed in \cref{ssec:performance}.
 	
 	\subsection{Algorithm Classification}	
 	One important classification regards the strategies used to search for optimal solutions, particularly, the search aims of that strategy. Depending on the extent of the search, algorithms can be classified as \textbf{global} or \textbf{local}. Local optimization algorithms strive to find a locally optimal solution, i.e., for which the value is better than all the other points in its vicinity. Moreover, local algorithms are usually highly sensitive to the starting point of the search and they tend to focus on smaller regions of the solution space. In contrast, global optimization algorithms strive to find globally optimal solutions, i.e., the best of all the locally optimal solutions. Global optimization algorithms explore larger regions of the solution space and frequently yield less precise results than the local ones.
@@ -311,7 +311,7 @@
 	
 	Two relevant local model-based implementations are the Constrained Optimization BY Linear Approximation (COBYLA) algorithm~\cite{Powell1994COBYLA}, and the Bound Optimization BY Quadratic Approximation (BOBYQA) algorithm~\cite{Powell2009BOBYQA}, that rely on the construction of simple, partial models of the objective function~\cite{Koziel2011}. The former uses the concept of a simplex to iteratively generate linear approximations of the objective function, whereas the latter generates quadratic approximations instead. 
 	
-	One relevant global model-based algorithm uses \acp{RBF} to create a global approximation of the objective function, as represented in \cref{eq:rbf} \cite{Forrester2009SBO}. This approximation is the weighted sum of $N$ radial basis functions $\phi_i: \mathbb{R}^+ \to \mathbb{R}$, each associated with a different center $x_i$, and weighted by an appropriate coefficient $w_i$. These weights are then estimated based on the interpolation of data and are iteratively updated to successively improve the approximation. Loosely speaking, radial basis functions are (1) radial functions whose value depends on the distance of a point $x$ to a given center $x_i$, and (2) basis functions, i.e., functions that can be linearly combined to produce the set of continuous functions in the function space. Examples of commonly used basis functions are the linear ($\phi(r) = r$), the cubic ($\phi(r) = r^3$), and the thin plate spline ($\phi(r) = r^2 ln r$), among others.
+	One relevant global model-based algorithm uses \acp{RBF} to create a global approximation of the objective function, as represented in \cref{eq:rbf} \cite{Forrester2009SBO}. This approximation is the weighted sum of $N$ radial basis functions $\phi_i: \mathbb{R}^+ \to \mathbb{R}$, each associated with a different center $x_i$, and weighted by an appropriate coefficient $w_i$. These weights are then estimated based on the interpolation of data and are iteratively updated to successively improve the approximation. Loosely speaking, radial basis functions are (1) radial functions whose value depends on the distance of a point $x$ to a given center $x_i$, and (2) basis functions, i.e., functions that can be linearly combined to produce the set of continuous functions in the function space. Examples of commonly used basis functions are the linear ($\phi(r) = r$), the cubic ($\phi(r) = r^3$), and the thin plate spline ($\phi(r) = r^2 \ln r$), among others.
 	\begin{equation}\label{eq:rbf}
 		\hat{f}(x) = \sum_{i=1}^{N}w_i\phi_i(\left\lVert x-x_i \right\rVert)
 	\end{equation}
@@ -335,7 +335,7 @@
 				\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline	
 				\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline	
 				\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline	
-				\multicolumn{1}{|r|}{Number of solutions} & 1 & More than 1 & 1 \\ \hline	
+				\multicolumn{1}{|r|}{Number of solutions} & 1 & \textgreater 1 & 1 \\ \hline	
 				\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline	
 				\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline	
 				\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline	
@@ -645,26 +645,27 @@
 	
 	\Cref{table:pluginscompare} shows a comparison between the optimization plug-ins analysed in this chapter at the light of four aspects: (1) the optimization algorithms; (2) the interaction and visualization mechanisms; (3) the comprehension of results; and (4) the user experience.
 	
-	\begin{table}[htbp]
+	\begin{table}[htbp]		
 		\centering
-		\resizebox{\textwidth}{!}{%
-			\begin{tabular}{cl|c|c|c|c|c|c|}
-				\cline{3-7}
-				\multicolumn{1}{l}{} &  & Galapagos & Goat & Silvereye & Opossum & Octopus \\ \hline
-				\multicolumn{1}{|c|}{\multirow{4}{*}{Optimization Algorithms}} & Objectives & S & S & S & S & M \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Search & G & GL & G & G & G \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Classes & Meta & All & Meta & Model & Meta \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Algorithms & 2 & 5 & 1 & 2 & 2 \\ \hline
-				\multicolumn{1}{|c|}{\multirow{4}{*}{Interactivity and Visualization}} & Results & M & S & M & S & M \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Graphical Feedback & +++ & - & - & + & +++ \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Real-time Interactivity & - & - & - & - & + \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Traceability (e.g., logs) & + & - & + & ++ & ++ \\ \hline
-				\multicolumn{1}{|c}{Intelligibility of Results} &  & + & - & - & - & + \\ \hline
-				\multicolumn{1}{|c|}{\multirow{3}{*}{GUI Experience}} & Ease of Use & +++ & +++ & +++ & +++ & ++ \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Intuitive/Organized & ++ & +++ & +++ & +++ & + \\ \cline{2-7} 
-				\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++\\ \hline
-			\end{tabular}%
-		}
+		\includegraphics[width=\textwidth]{Images/Background/pluginscomparison_serif.pdf}
+%		\resizebox{\textwidth}{!}{%
+%			\begin{tabular}{cl|c|c|c|c|c|c|}
+%				\cline{3-7}
+%				\multicolumn{1}{l}{} &  & Galapagos & Goat & Silvereye & Opossum & Octopus \\ \hline
+%				\multicolumn{1}{|c|}{\multirow{4}{*}{Optimization Algorithms}} & Objectives & S & S & S & S & M \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Search & G & GL & G & G & G \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Classes & Meta & All & Meta & Model & Meta \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Algorithms & 2 & 5 & 1 & 2 & 2 \\ \hline
+%				\multicolumn{1}{|c|}{\multirow{4}{*}{Interactivity and Visualization}} & Results & M & S & M & S & M \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Graphical Feedback & +++ & - & - & + & +++ \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Real-time Interactivity & - & - & - & - & + \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Traceability (e.g., logs) & + & - & + & ++ & ++ \\ \hline
+%				\multicolumn{1}{|c}{Intelligibility of Results} &  & + & - & - & - & + \\ \hline
+%				\multicolumn{1}{|c|}{\multirow{3}{*}{GUI Experience}} & Ease of Use & +++ & +++ & +++ & +++ & ++ \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Intuitive/Organized & ++ & +++ & +++ & +++ & + \\ \cline{2-7} 
+%				\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++\\ \hline
+%			\end{tabular}%
+%		}
 		\caption[Comparison between the analysed optimization plug-ins]{A comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
 		\label{table:pluginscompare}
 	\end{table}

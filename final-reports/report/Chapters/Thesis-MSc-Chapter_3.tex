@@ -20,7 +20,6 @@ This dissertation focuses on optimization algorithms that are able to more effic
 
 With the aforementioned framework, users are able to address optimization problems involving time-intensive objective functions, for which the functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype of such framework. This chapter describes the main components of the framework and also the main requirements that guided to its implementation. 
 
-
 %\section{Programming Language}
 %\todo{Não dar tanto detalhe? Parecer que é uma escolha secundária.}
 %One of the first concerns when developing the framework was the programming language to use. The currently implemented framework uses two programming languages, which were chosen based on the available optimization libraries, the domain of the solution, and the performance of each programming language.
@@ -70,13 +69,14 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 
 \begin{table}[]
 	\centering
+	%\includegraphics[width=0.365\textwidth]{./tables_and_code/algorithms.pdf}
 	\begin{tabular}{cccll}
 		\rowcolor[HTML]{EFEFEF} 
 		\textbf{Class} & \textbf{Objectives} & \textbf{Global} & \textbf{Algorithm} & \textbf{Library} \\ \hline
-		& Both & G & Full-factorial & None \\
-		& Both & G & Latin Hypercube & None \\
-		& Both & G & Random & None \\
-		\multirow{-4}{*}{Sampling} & Both & G & Stratified Random & None \\ \hline
+		& SM & G & Full-factorial & None \\
+		& SM & G & Latin Hypercube & None \\
+		& SM & G & Random & None \\
+		\multirow{-4}{*}{Sampling} & SM & G & Stratified Random & None \\ \hline
 		& S & G & CRS2 & NLopt \\
 		& M & G & CMA-ES & Platypus \\
 		& S & G & ESCH & NLopt \\
@@ -101,13 +101,13 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 		\multirow{-5}{*}{Direct search} & S & L & Subplex & NLopt \\ \hline
 		& S & L & BOBYQA & NLopt \\
 		& S & L & COBYLA & NLopt \\
-		& Both & G & Decision Tree & Scikit-learn \\
-		& Both & G & GP & Scikit-learn \\
-		& Both & G & Linear & Scikit-learn \\
-		& Both & G & MLP & Scikit-learn \\
-		& Both & G & Random Forest & Scikit-learn \\
-		& Both & G & RBF-Cubic & pySOT \\
-		& Both & G & RBF-Linear & pySOT \\
+		& SM & G & Decision Tree & Scikit-learn \\
+		& SM & G & GP & Scikit-learn \\
+		& SM & G & Linear & Scikit-learn \\
+		& SM & G & MLP & Scikit-learn \\
+		& SM & G & Random Forest & Scikit-learn \\
+		& SM & G & RBF-Cubic & pySOT \\
+		& SM & G & RBF-Linear & pySOT \\
 		\multirow{-10}{*}{Model-based} & S & G & SVR & Scikit-learn
 	\end{tabular}
 	\caption[Solution's list of supported algorithms]{List of the currently available algorithms in the implemented solution, discriminated by class, number of objectives, aim of the search, and the optimization library implementing it. Note: L - Local, G - Global, M - Multi, S - Single.}

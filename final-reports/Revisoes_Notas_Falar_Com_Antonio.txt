@@ -1,3 +1,13 @@
 Capitulo 1.2. Dissertation Goals
 
 A primeira frase já fala de time-consuming optimization. Não sei mto bem como salientar mais... 
+
+
+Capitulo 2.1. Problem Classification
+Page 27 - Definição de objective function.
+
+Capitulo 2.2. Algorithms Classification
+Page 23 - Secção Algorithms Classification
+Page 24 - Sampling algorithms 
+Page 25 -
+Page 28 - Simulated Annealing - definition of hill climbing algorithm

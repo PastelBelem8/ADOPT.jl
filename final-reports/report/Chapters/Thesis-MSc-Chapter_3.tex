@@ -70,6 +70,8 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 \begin{table}[]
 	\centering
 	%\includegraphics[width=0.365\textwidth]{./tables_and_code/algorithms.pdf}
+	\caption[List of the algorithms currently supported by the solution]{List of the currently available algorithms in the implemented solution, discriminated by class, number of objectives, aim of the search, and the optimization library implementing it. L - Local, G - Global, M - Multi, S - Single.}
+	\label{table:algorithms}
 	\begin{tabular}{cccll}
 		\rowcolor[HTML]{EFEFEF} 
 		\textbf{Class} & \textbf{Objectives} & \textbf{Global} & \textbf{Algorithm} & \textbf{Library} \\ \hline
@@ -102,7 +104,7 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 		& S & L & BOBYQA & NLopt \\
 		& S & L & COBYLA & NLopt \\
 		& SM & G & Decision Tree & Scikit-learn \\
-		& SM & G & GP & Scikit-learn \\
+		& SM & G & GPR & Scikit-learn \\
 		& SM & G & Linear & Scikit-learn \\
 		& SM & G & MLP & Scikit-learn \\
 		& SM & G & Random Forest & Scikit-learn \\
@@ -110,8 +112,6 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 		& SM & G & RBF-Linear & pySOT \\
 		\multirow{-10}{*}{Model-based} & S & G & SVR & Scikit-learn
 	\end{tabular}
-	\caption[Solution's list of supported algorithms]{List of the currently available algorithms in the implemented solution, discriminated by class, number of objectives, aim of the search, and the optimization library implementing it. Note: L - Local, G - Global, M - Multi, S - Single.}
-	\label{table:algorithms}
 \end{table}
 
 To implement sampling algorithms, the framework makes use of the implementation language arrays and random primitives, requiring no additional libraries. Secondly, by integrating the NLopt library\footnote{A special thank you to Guilherme Ilunga who contributed to this integration.}, we were able to expose 10 \ac{SOO} algorithms from the three derivative-free optimization classes. Moreover, this library has already been used in Goat, an architectural design optimization tool, which has been applied in some architectural studies as well~\cite{Wortmann2017ADO}. Thirdly, the Platypus library was chosen from a set of \ac{MOO} libraries, that included Platypus, jMetal, MOEAFramework, Paradiseo, and PaGMO. The Platypus library was the final choice due to the variety and quality of the \ac{MOO} algorithms provided, the ease of integration, and the cleanness and readability of its \ac{API}. Finally, the last integrated library was Scikit-learn, which provides the basis algorithms for constructing more complex model-based algorithms, both for \ac{SOO} and \ac{MOO} problems.

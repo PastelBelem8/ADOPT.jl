@@ -1,5 +1,7 @@
-Capitulo 1.2. Dissertation Goals
+Abstract 
+Parece-me fraco as conclusões finais...
 
+Capitulo 1.2. Dissertation Goals
 A primeira frase já fala de time-consuming optimization. Não sei mto bem como salientar mais... 
 
 
@@ -11,3 +13,17 @@ Page 23 - Secção Algorithms Classification
 Page 24 - Sampling algorithms 
 Page 25 -
 Page 28 - Simulated Annealing - definition of hill climbing algorithm
+
+Capitulo 2.2.6. Comparison 
+- Add Sampling algorithms à tabela 
+- Add Sampling algorithms ao texto
+
+
+# Self
+- Resolver COBYLA e BOBYQA. Definição está estranha. De certeza que é um SIMPLEX? (https://en.wikipedia.org/wiki/COBYLA, https://en.wikipedia.org/wiki/BOBYQA)
+- Ver bibliografia
+
+- Fazer extended abstract
+
+
+algorithms_comparison.PNG

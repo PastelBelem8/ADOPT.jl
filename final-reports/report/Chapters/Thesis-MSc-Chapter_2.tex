@@ -158,33 +158,30 @@ In the mathematical field of optimization, the creation of the model representin
 	On the one hand, in terms of manual intervention, the experimental approach confers higher levels of control at the cost of constant manual intervention (e.g., number of variations to generate, number of iterations to run sampling methods, choice of optimal solutions). The same does not happen with other approaches for which intervention is residual or even inexistent.	
 	
 	On the other hand, with higher control levels, the user gains more insight about the optimization process. Concretely, when following an experimental approach, the user is provided with all the information about all the solutions that were evaluated during the optimization process, whereas in the other approaches the user is only provided with the optimal solutions. The availability of information has a direct impact in the ability to comprehend the optimization results.
-	
-	% Please add the following required packages to your document preamble:
-	% \usepackage{multirow}
-	% \usepackage{graphicx}
 	\begin{table}[]
 		\centering
-		\resizebox{\textwidth}{!}{%
-			\begin{tabular}{l|l|l|l|l|}
-				\cline{2-5}
-				& \begin{tabular}[c]{@{}l@{}}Experimental \end{tabular} & \begin{tabular}[c]{@{}l@{}}Single-objective \\ optimization\end{tabular} & \begin{tabular}[c]{@{}l@{}}A priori preference \\ articulation\end{tabular} & \begin{tabular}[c]{@{}l@{}}Pareto-based \\ optimization\end{tabular} \\ \hline
-				\multicolumn{1}{|l|}{Fundamentals} & Sampling & \begin{tabular}[c]{@{}l@{}}Maximization / \\ minimization\end{tabular} & Preferences & Pareto dominance \\ \hline
-				\multicolumn{1}{|l|}{Manual intervention} & Constant & None & \begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a priori)\end{tabular} & \begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a posteriori)\end{tabular} \\ \hline
-				\multicolumn{1}{|l|}{Optimal solutions} & Any & Maximum / Minimum & Utility-based & Pareto optimal \\ \hline
-				\multicolumn{1}{|l|}{Quality solutions} & Unknown & 1 & 1 & \textgreater 1 \\ \hline
-				\multicolumn{1}{|l|}{Information provided} & Evaluated solutions & Best solution & Best solution & Optimal solutions \\ \hline
-				\multicolumn{1}{|l|}{Time complexity} & + & ++ & +++ & +++++ \\ \hline
-				\multicolumn{1}{|l|}{Configurations} & All & Nothing & Preferences & Nothing \\ \hline
-				\multicolumn{1}{|l|}{Ease of use} & +++ & +++ & ++ & + \\ \hline
-				\multicolumn{1}{|l|}{Ease of comprehension} & Easy & Difficult & Difficult & Accessible \\ \hline
-				\multicolumn{1}{|l|}{Support in architecture} & +++ & ++ & ++ & + \\ \hline
-				\multicolumn{1}{|l|}{Main advantages} & Full control & Time complexity & \begin{tabular}[c]{@{}l@{}}Search guided towards \\ a single objective\end{tabular} & \begin{tabular}[c]{@{}l@{}}Obtain different \\ trade-offs\end{tabular} \\ \hline
-				\multicolumn{1}{|l|}{\multirow{2}{*}{Main Disadvantages}} & Manual intervention & \multirow{2}{*}{Lack of information} & \multirow{2}{*}{Lack of information} & Time complexity \\
-				\multicolumn{1}{|l|}{} & No optima guarantees &  &  & Result representation \\ \hline
-			\end{tabular}%
-		}
-		\caption{Comparison between different optimization approaches}
 		\label{table:optimization-approaches}
+		\caption{Comparison between different optimization approaches.}
+		\includegraphics[width=1\textwidth]{tables_and_code/approaches_comparison.PNG}
+%		\resizebox{\textwidth}{!}{%
+%			\begin{tabular}{l|l|l|l|l|}
+%				\cline{2-5}
+%				& \begin{tabular}[c]{@{}l@{}}Experimental \end{tabular} & \begin{tabular}[c]{@{}l@{}}Single-objective \\ optimization\end{tabular} & \begin{tabular}[c]{@{}l@{}}A priori preference \\ articulation\end{tabular} & \begin{tabular}[c]{@{}l@{}}Pareto-based \\ optimization\end{tabular} \\ \hline
+%				\multicolumn{1}{|l|}{Fundamentals} & Sampling & \begin{tabular}[c]{@{}l@{}}Maximization / \\ minimization\end{tabular} & Preferences & Pareto dominance \\ \hline
+%				\multicolumn{1}{|l|}{Manual intervention} & Constant & None & \begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a priori)\end{tabular} & \begin{tabular}[c]{@{}l@{}}Preferences definition \\ (a posteriori)\end{tabular} \\ \hline
+%				\multicolumn{1}{|l|}{Optimal solutions} & Any & Maximum / Minimum & Utility-based & Pareto optimal \\ \hline
+%				\multicolumn{1}{|l|}{Quality solutions} & Unknown & 1 & 1 & \textgreater 1 \\ \hline
+%				\multicolumn{1}{|l|}{Information provided} & Evaluated solutions & Best solution & Best solution & Optimal solutions \\ \hline
+%				\multicolumn{1}{|l|}{Time complexity} & + & ++ & +++ & +++++ \\ \hline
+%				\multicolumn{1}{|l|}{Configurations} & All & Nothing & Preferences & Nothing \\ \hline
+%				\multicolumn{1}{|l|}{Ease of use} & +++ & +++ & ++ & + \\ \hline
+%				\multicolumn{1}{|l|}{Ease of comprehension} & Easy & Difficult & Difficult & Accessible \\ \hline
+%				\multicolumn{1}{|l|}{Support in architecture} & +++ & ++ & ++ & + \\ \hline
+%				\multicolumn{1}{|l|}{Main advantages} & Full control & Time complexity & \begin{tabular}[c]{@{}l@{}}Search guided towards \\ a single objective\end{tabular} & \begin{tabular}[c]{@{}l@{}}Obtain different \\ trade-offs\end{tabular} \\ \hline
+%				\multicolumn{1}{|l|}{\multirow{2}{*}{Main Disadvantages}} & Manual intervention & \multirow{2}{*}{Lack of information} & \multirow{2}{*}{Lack of information} & Time complexity \\
+%				\multicolumn{1}{|l|}{} & No optima guarantees &  &  & Result representation \\ \hline
+%			\end{tabular}%
+%		}	
 	\end{table}
 	
 	The automation of optimization processes prompts the need for automatically evaluating the quality of solutions, thus requiring some optimality concepts: (1) depending on whether it is a maximization or a minimization problem, the \ac{SOO} approach considers the best solution to be the one presenting the largest or smallest value, respectively; (2) the \textit{a priori} preference of articulations approach applies a similar criteria, but it first entails the definition of a utility function to reduce a \ac{MOO} to a \ac{SOO} problem; and (3) the Pareto-based optimization approach is based on Pareto optimality, leaving the final decision about the optimal solutions to the user.
@@ -224,7 +221,7 @@ In the mathematical field of optimization, the creation of the model representin
 		\label{fig:optALGOclassification}
 	\end{figure}
 	
-	A second classification differentiates \textbf{deterministic} and \textbf{stochastic} algorithms depending on the determinism of the algorithms' outcomes. Given the same starting point and the same configuration, deterministic algorithms systematically apply the same sequence of steps and, as a consequence, they always return the same result. In contrast, stochastic algorithms include some form of randomness within their description and, therefore, often yield different results for the same starting point and algorithm's configuration.
+	A second classification differentiates \textbf{deterministic} and \textbf{stochastic} algorithms depending on the determinism of the algorithms' outcomes. Given the same starting point and configuration, deterministic algorithms systematically apply the same sequence of steps and, as a consequence, they always return the same result. In contrast, stochastic algorithms include some form of randomness within their description and, therefore, often yield different results for the same starting point and algorithm's configuration.
 		
 	The third, and final, distinction is between \textbf{derivative-based} and \textbf{derivative-free} algorithms, which differ in the type of information used during the search. Derivative-based (or gradient-based) algorithms explore information from the derivatives of objective functions to guide the search. % Consequently, they solve problems explicitly defined through mathematical forms very efficiently, as the derivatives' information is easily available. 
 	However when the objective function's analytical form is unknown and the derivatives are unavailable, these algorithms cannot be applied. Alternatively, finite-difference methods could be applied to approximate the derivatives, but these require several extra function evaluations, which becomes impractical for problems involving expensive objective functions. In these cases, it becomes necessary to resort to derivative-free algorithms, which, instead of exploiting information about derivatives, treat the objective functions as \textit{black-boxes} and use the result of previously evaluated solutions to guide the search~\cite{Rios2013}.
@@ -313,7 +310,7 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	Nowadays, the existing plethora of techniques applicable to the generation of surrogate models range from trust-region methods to \ac{ML} techniques. These techniques can be used to create (1) local surrogates, i.e., models where the approximation to the objective function is built around a certain point, and (2) global surrogates, i.e, models where the approximation is generated from all the obtained points. Whilst the former relies on the construction of simple, partial models of the objective function, the latter relies on the creation of a full model, which requires balancing the need for improving the model's accuracy by exploring broader regions in the solution space with the need for improving the objective function's value by exploiting promising regions~\cite{Koziel2011}. This balance is determined by a strategy that selects the next promising solutions to evaluate. 
 	
-	Undoubtedly, the best feature of model-based algorithms is the reduction in the total optimization time. This is particularly relevant in the context of \ac{BPO}, which involves time-consuming simulations. However, the lower availability and the lack of necessary technical knowledge to implement or incorporate these algorithms into optimization processes are still obstacles to a broader adoption of this approach. Notwithstanding the existence of different studies involving \ac{ML} techniques for the creation of full surrogate models~\cite{Koziel2011, Forrester2009SBO}, such as neural networks, support vector machines, \textit{\ac{RBF}}, and \textit{\ac{RF}, among others, only a few have actually been applied in the context of architecture. This scenario is even more self-evident when we shift from the single- to the multi-objective optimization context.
+	Undoubtedly, the best feature of model-based algorithms is the reduction in the total optimization time. This is particularly relevant in the context of \ac{BPO}, which involves time-consuming simulations. However, the lower availability and the lack of necessary technical knowledge to implement or incorporate these algorithms into optimization processes are still obstacles to a broader adoption of this approach. Notwithstanding the existence of different studies involving \ac{ML} techniques for the creation of full surrogate models~\cite{Koziel2011, Forrester2009SBO}, such as \ac{MLP}, \ac{SVR}, \textit{\ac{RBF}}, and \textit{\ac{RF}}, among others, only a few have actually been applied in the context of architecture. This scenario is even more self-evident when we shift from the single- to the multi-objective optimization context.
 	
 	% It works by iteratively approximating the actual constrained optimization problem with linear programming problems. During an iteration, an approximating linear programming problem is solved to obtain a candidate for the optimal solution. The candidate solution is evaluated using the original objective and constraint functions, yielding a new data point in the optimization space. This information is used to improve the approximating linear programming problem used for the next iteration of the algorithm. When the solution cannot be improved anymore, the step size is reduced, refining the search. When the step size becomes sufficiently small, the algorithm finishes.
 	
@@ -330,45 +327,51 @@ In the mathematical field of optimization, the creation of the model representin
 	% ----------- 
 	\subsection{Comparison}
 	\label{ssec:comparisondfo}
+	This section considers the applicability of the optimization algorithms discussed previously in the architectural practice and, in particular, in the optimization of building's performance. When reflecting upon each category of algorithms, both the diversity of architectural problems and the time complexity of the corresponding objective functions must be considered.
 	
-	This section compares the different classes of derivative-free optimization algorithms mentioned in this chapter. \Cref{table:compare-dfo-algos} presents a summarized view of the main properties of these classes and, in the following paragraphs we compare them regarding their applicability in architecture. 
-
-	The multidisciplinary aspect of building design raises distinct problems, ranging from the well-behaved with simple, unimodal, convex functions, to the ill-behaved with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. In addition to problem's diversity, the time complexity associated with function evaluations also becomes an important factor to consider.
+	Inevitably, the same building design description might yield different problem descriptions according to the performance aspects being considered. This multidisciplinary aspect of building design raises distinct problems, ranging from the well-behaved with simple, unimodal, convex functions, to the ill-behaved with irregular, multimodal objective functions~\cite{Wortmann2017ADO}. Particularly, in architectural design, some algorithms might explore certain design descriptions more effectively than others%, e.g., because the objective functions describing the lighting and structural behavior of a certain design may have completely different properties
+	\cite{Wortmann2017GABESTCHOICE, Fang2017}. This idea resembles the one captured in Wolpert's \ac{NFLT} for optimization, stating that for any algorithm, better performance over one class of problems is offset by worse performance over another class~\cite{Wolpert1997NFLT}. 
+	
+	Another important aspect to consider when pondering the different algorithms is the number of objective function evaluations, as it directly influences the complexity of optimization processes. In the case of building design, this is particularly relevant, because the objective functions are typically derived from expensive simulation-based functions.
+	
+	When dealing with time-consuming evaluations, this impact is even more evident evidenced when each evaluation represents a time-consuming task. In the case of building design, objective functions rely on costly simulation-based objective functions that are frequently used in building design problems to assess a design's performance. 	
+	
+	\Cref{table:compare-dfo-algos} presents a summarized view of the main properties of the algorithms previously discussed. Regarding the different algorithms categories, it is interesting to see that both sampling and metaheuristics algorithms are (1) inherently simple, (2) easy to implement, (3) widely applicable to different domains, and, more importantly, (4) available in the most popular \ac{AD} tools. Surprisingly, sampling algorithms are not that widely used in practice due to their lack of convergence guarantees and due to their unguided search strategies. In fact, metaheuristics represent the most popular class of algorithms and has been extensively applied in practice and research \cite{Wortmann2017ADO}. 
+	
+	Conversely, direct-search and model-based algorithms are more difficult to use, implement, and less flexible, which represents a limitation towards their application in architectural domains. Moreover, the lack of ready-to-use tools involving algorithms from these categories is also limiting their application in architectural contexts. In fact, the existing non-metaheuristic tools are usually available as programming libraries, instead of being integrated in popular \ac{AD} tools. As a result, to use the optimization algorithms, architects often need some programming knowledge to integrate them. However, since architects typically lack this knowledge, they tend to opt for ready-to-use tools. Given this facts, it is not surprising that most of the existing building design optimization literature ends up focusing on the application of algorithms from the metaheuristics category \cite{Evins2013,Nguyen2014,Hamdy2016}. 
+	
 		\begin{table}[]	
 		\centering	
-		\resizebox{\textwidth}{!}{%	
-			\begin{tabular}{r|c|c|c|}	
-				\cline{2-4}	
-				& Direct search & Metaheuristic & Model-based \\ \hline	
-				\multicolumn{1}{|r|}{Main Mechanism / Strategy} & \begin{tabular}[c]{@{}c@{}}Sequential evaluation of \\ candidate designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Combine and randomly modify \\ previous known best designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Optimize a secondary model, \\ instead of the expensive one\end{tabular} \\ \hline	
-				\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline	
-				\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline	
-				\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline	
-				\multicolumn{1}{|r|}{Number of solutions} & 1 & \textgreater 1 & 1 \\ \hline	
-				\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline	
-				\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline	
-				\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline	
-				\multicolumn{1}{|r|}{Support in architecture} & + & +++ & + \\ \hline	
-				\multicolumn{1}{|r|}{\multirow{2}{*}{Main advantages}} & Deterministic & Applicable to any domain & Time complexity decrease \\	
-				\multicolumn{1}{|r|}{} & Convergence rate & Flexible & Convergence rate \\ \hline	
-				\multicolumn{1}{|r|}{\multirow{2}{*}{Main disadvantages}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} & Low convergence rate & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} \\	
-				\multicolumn{1}{|r|}{} &  & No convergence guarantees &  \\ \hline	
-			\end{tabular}%	
-		}	
 		\caption{Comparison between the derivative-free algorithms' classes.}	
+		\includegraphics[width=1\textwidth]{tables_and_code/algorithms_comparison.PNG}
+%		\resizebox{\textwidth}{!}{%	
+%			\begin{tabular}{r|c|c|c|}	
+%				\cline{2-4}	
+%				& Direct search & Metaheuristic & Model-based \\ \hline	
+%				\multicolumn{1}{|r|}{Main Mechanism / Strategy} & \begin{tabular}[c]{@{}c@{}}Sequential evaluation of \\ candidate designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Combine and randomly modify \\ previous known best designs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Optimize a secondary model, \\ instead of the expensive one\end{tabular} \\ \hline	
+%				\multicolumn{1}{|r|}{Deterministic} & Yes & No & Yes \\ \hline	
+%				\multicolumn{1}{|r|}{Convergence guarantees} & Yes & No & Sometimes \\ \hline	
+%				\multicolumn{1}{|r|}{Convergence rate (evals)} & Early (100-300) & Late (typically \textgreater{}1000) & Early (100-300) \\ \hline	
+%				\multicolumn{1}{|r|}{Number of solutions} & 1 & \textgreater 1 & 1 \\ \hline	
+%				\multicolumn{1}{|r|}{Applicability to MOO} & Extremely rare & Very frequent & Unusual \\ \hline	
+%				\multicolumn{1}{|r|}{Ease of use} & + & ++ & + \\ \hline	
+%				\multicolumn{1}{|r|}{Ease of implementation} & + & +++ & + \\ \hline	
+%				\multicolumn{1}{|r|}{Support in architecture} & + & +++ & + \\ \hline	
+%				\multicolumn{1}{|r|}{\multirow{2}{*}{Main advantages}} & Deterministic & Applicable to any domain & Time complexity decrease \\	
+%				\multicolumn{1}{|r|}{} & Convergence rate & Flexible & Convergence rate \\ \hline	
+%				\multicolumn{1}{|r|}{\multirow{2}{*}{Main disadvantages}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} & Low convergence rate & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Time complexity grows exponentially \\ with the number of parameters\end{tabular}} \\	
+%				\multicolumn{1}{|r|}{} &  & No convergence guarantees &  \\ \hline	
+%			\end{tabular}%	
+%		}	
 		\label{table:compare-dfo-algos}	
 	\end{table}
-
-	Another problem emerges from the fact that a specific optimization algorithm may perform well for some problems and have bad performance in other problems~\cite{Wortmann2017GABESTCHOICE, Fang2017}. This idea resembles the one captured in Wolpert's \ac{NFLT} for optimization, stating that for any algorithm, better
-	performance over one class of problems is offset by worse performance over another class~\cite{Wolpert1997NFLT}. Because of the distinct nature of architectural design problems, the arguments applied in architecture are not necessarily applicable to other fields, like science and engineering. 
 	
-	Inevitably, the same building design description might yield different problem descriptions according to the performance aspects being considered. Some algorithms might explore certain descriptions more effectively than others, e.g., because the objective functions describing the lighting and structural behavior of a certain design may have completely different properties. In an attempt to exploit this fact, \ac{BPO} practitioners should dedicate a small amount of their total time budget to test various algorithms and different setup parameters, before finally settling for an optimization algorithm~\cite{Hamdy2016}.	
+	% Because of the distinct nature of architectural design problems, the arguments applied in architecture are not necessarily applicable to other fields, like science and engineering. 
+	% In an attempt to exploit this fact, \ac{BPO} practitioners should dedicate a small amount of their total time budget to test various algorithms and different setup parameters, before finally settling for an optimization algorithm~\cite{Hamdy2016}.	
 	
-	Regarding the different algorithms categories, it is interesting to see the metaheuristics' popularity among researchers and practitioners. The main reasons behind the idolization of the metaheuristics are their (1) inherent simplicity, (2) ease of implementation, (3) wide applicability to different domains, and, more importantly, (4) immediate availability in the most popular \ac{AD} tools \cite{Wortmann2017ADO}. Unfortunately, that is not the case for other categories of algorithms, which is a limitation towards their application in architectural domains. Moreover, the lack of easy-to-use tools involving algorithms from other categories is also limiting their application in architectural contexts. In fact, the existing non-metaheuristic tools are usually available as programming libraries, instead of being integrated in popular \ac{AD} tools. As a result, to use the optimization algorithms, architects often need some programming knowledge to integrate them. However, since architects typically lack this knowledge, they tend to opt for ready-to-use tools. Given this facts, it is not surprising that most of the existing building design optimization literature ends up focusing on the application of algorithms from the metaheuristics category \cite{Evins2013,Nguyen2014,Hamdy2016}. 
+	However, in the light of the \ac{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools providing algorithms with different properties. Particularly, plug-ins like Goat and Opossum enable the usage of algorithms from both direct-search and model-based classes. These tools offer optimization algorithms from the NLopt and RBFOpt frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper, a visual programming environment that enables the parametric generation and performance evaluation of building designs for different values of the parameters. For the past years, few works have compared the algorithms existing in Goat and Opossum with the ones available in other metaheuristic optimization tools (e.g., Galapagos, Octopus).
 	
-	However, in the light of the \ac{NFLT}, the need for more short-term efficient optimization approaches fostered the development of tools presenting algorithms with different properties. Particularly, plug-ins like Goat and Opossum enable the usage of algorithms from both direct search and model-based classes. These tools offer optimization algorithms from the NLopt and RBFOpt frameworks, respectively, providing friendly, ready-to-use interfaces within Grasshopper, a visual programming environment that enables the parametric generation and performance evaluation of building designs for different values of the parameters. For the past years, few works have compared the different algorithms existing in Goat and Opossum with the ones available in other metaheuristic optimization tools (e.g., Galapagos, Octopus, Silvereye).
-	
-	Although the results may vary, in general, direct-search and model-based algorithms seem to be more effective than the metaheuristics ones in initial stages of the optimization process \cite{Wortmann2017,Wortmann2017GABESTCHOICE}. However, recently, some metaheuristics algorithms have been shown to perform consistently well in some optimization problems \cite{Waibel2018}. One can explore these performance fluctuations to find the most effective optimization algorithm for a specific problem. Indeed, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different methods for a fixed number of evaluations or a fixed amount of time\cite{Hamdy2016,Wortmann2016BBO}. 
+	Although the results may vary, in general, direct-search and model-based algorithms seem to be more effective than the metaheuristics ones in early stages of the optimization process \cite{Wortmann2017,Wortmann2017GABESTCHOICE}. More recently, some metaheuristics algorithms have been shown to perform consistently well in some optimization problems \cite{Waibel2018}. One can explore these performance fluctuations to find the most effective optimization algorithm for a specific problem. Indeed, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different methods for a fixed number of evaluations or a fixed amount of time\cite{Hamdy2016, Wortmann2016BBO}. 
 		
 	%\todo{Transição brusca}
 	%Optimization is a useful tool to address both single and multi-objective problems. In architecture, most optimization applications focus on single-objective problems and cover the three different derivative-free algorithms classes. However, the same does not happen with multi-objective problems, with only one of the classes being extensively applied to \ac{MOO} building design: the metaheuristics~\cite{Hamdy2016}. The main reason behind metaheuristics popularity is their broader adaptability to both varying degrees of complexity and to different problem domains~\cite{BlumRoli2003Metaheuristics}.
@@ -417,7 +420,7 @@ In the mathematical field of optimization, the creation of the model representin
 		
 	\end{itemize}
 	
-	While these indicators are more robust, alone, they will not necessarily identify sets having Pareto optimal solutions, as they prioritize sets where solutions are spaced evenly apart or that cover broader regions of the objective space~\cite{Veldhuizen1999GD}. Moreover, because most of them assume that the Pareto front will be continuous, they may behave erroneously when facing problems with disconnected Pareto fronts. %The diversity metric attempts to alleviate these limitations by comparing the nondominated solutions of the approximation set with those of the reference set \cite{Deb2002DM}.
+	While these indicators are more robust, alone, they will not necessarily identify sets having Pareto optimal solutions, as they prioritize sets where solutions are spaced evenly apart or cover broader regions of the objective space~\cite{Veldhuizen1999GD}. Moreover, because most of them assume that the Pareto front will be continuous, they may behave erroneously when facing problems with disconnected Pareto fronts. %The diversity metric attempts to alleviate these limitations by comparing the nondominated solutions of the approximation set with those of the reference set \cite{Deb2002DM}.
 	
 	% || Accuracy ||
 	The previous metrics are not good indicators of how close the approximation sets really are to the reference set. To obtain a measure of the convergence of the results, one should consider accuracy indicators, such as~\cite{Veldhuizen1999GD}:
@@ -492,10 +495,10 @@ In the mathematical field of optimization, the creation of the model representin
 	In addition to not requiring any integration efforts or any programming-related knowledge to setup and use its capabilities, Galapagos also provides a visually rich experience, by providing different runtime graphical views of the optimization process. Galapagos supports different views depending on the optimization solver being used (see \cref{fig:galapagosviewsa} and \cref{fig:galapagosviewsb}):
 	\begin{itemize}
 		\item a fitness graph that either represents the distribution of fitness values in the population discriminated by generations. Exhibited for both solvers;
-		\item a similarity representation graph that represents solutions that are genetically similar to each other, and marks solutions that contribute to the creation of the next generation with black dots, whilst non-contributors are marked with a red cross. Exhibited for the \textit{\ac{GA}} solver;
+		\item a similarity representation graph that represents solutions that are similar to each other, and marks solutions that contribute to the creation of the next generation with black dots, whilst non-contributors are marked with a red cross. Exhibited for the \textit{\ac{GA}} solver;
 		\item a vertical parallel coordinates graph, where each vertical line corresponds to a parameter, and solutions are represented as line segments connecting different parameters' values. Exhibited for the \textit{\ac{GA}} solver;
 		\item ranked list of the best solutions found. Exhibited for both solvers;
-		\item a temperature graph, representing the temperature decrease rate of the simulated annealing process with each time step. Exhibited for the simulated annealing solver.
+		\item a temperature graph, representing the temperature decrease rate of the \textit{Simulated Annealing} process with each time step. Exhibited for the \textit{Simulated Annealing} solver.
 	\end{itemize}
 	
 	Overall, these views provide visual feedback about the course of the optimization run and highlight the best solutions found up to that generation. In the end, the user is able to navigate through generations and re-instantiate these solutions in the corresponding \ac{CAD} tool, and, consequently, better understand the obtained results. Moreover, the ranked list of results allows the user to select the one he appraises the most amongst multiple optimal solutions found by the solver. Unfortunately, Galapagos lacks logging mechanisms, which causes the information about the optimization, that is enclosed within these views, to be lost as soon as the \ac{GUI} is closed. 
@@ -513,7 +516,7 @@ In the mathematical field of optimization, the creation of the model representin
 			\label{fig:galapagosviewsb}%
 			\includegraphics[width=0.345\textwidth]{Images/Background/Galapagos/galapagos-sa-results-2.PNG}}%
 		
-		\caption[Galapagos GUI]{ Three views of the Galapagos' \ac{GUI}: (a) Solvers configuration menu (b) Graphical views for the \textit{\ac{GA}} solver (c) Graphical views for the \textit{Simulated Annealing} solver}
+		\caption[Galapagos GUI]{Three views of the Galapagos' \ac{GUI}: (a) Solver's configuration menu (b) Graphical views for the \textit{\ac{GA}} solver (c) Graphical views for the \textit{Simulated Annealing} solver}
 		\label{fig:galapagos}
 	\end{figure*}
 	
@@ -521,9 +524,9 @@ In the mathematical field of optimization, the creation of the model representin
 	\subsection{Goat}
 	% General description, intuition
 	Goat is a generic optimization plug-in, implemented on top of Grasshopper, designed to enable non-programmers to solve numerous problems.
-	Unlike Galapagos, Goat interfaces the NLopt mathematical optimization library to provide single-objective algorithms from all the derivative-free classes mentioned earlier, including one global direct search (\textit{DIRECT}), one local direct search (\textit{SUBPLEX}), one global metaheuristic (\textit{\ac{CRS2}}), and two local model-based algorithms (\textit{\ac{COBYLA}} and \textit{\ac{BOBYQA}}). 
+	Unlike Galapagos, Goat interfaces the NLopt mathematical optimization library to provide single-objective algorithms from all the derivative-free classes mentioned earlier, including one global direct-search (\textit{DIRECT}), one local direct-search (\textit{SUBPLEX}), one global metaheuristic (\textit{CRS2}), and two local model-based algorithms (\textit{\ac{COBYLA}} and \textit{\ac{BOBYQA}}). 
 	
-	Goat is strongly influenced by Galapagos, also requiring a user program in Grasshopper containing the definition of the problem. The user drags the Goat's component to the program connecting it to the design parameters and the objective function, which, like Galapagos, must be provided as sliders and number components, respectively.
+	Goat is strongly influenced by Galapagos, also requiring a user program in Grasshopper containing the definition of the problem. The user drags the Goat's component to the program, connecting it to the design parameters and the objective function, which, like Galapagos, must be provided as sliders and number components, respectively.
 	
 	Goat's \ac{GUI} is displayed after double-clicking the Goat's component. This interface comprises a single menu, which is simple and straightforward to use. Like Galapagos, Goat is also distributed in a ready-to-use format with all the extra configuration values filled by default. As a result, non-expert programmers can easily explore this tool to address complex problems. Unfortunately, Goat provides no options for a more experienced user to configure the algorithms, except to configure the initial point of the search.
 	
@@ -567,7 +570,7 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	%------------------ OPOSSUM ----------------------
 	\subsection{Opossum}
-	Opossum (OPtimizatiOn Solver with SUrrogate Models) is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems. Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global RBF algorithm. 
+	Opossum (OPtimizatiOn Solver with SUrrogate Models) is a generic plug-in, developed on top of Grasshopper, that explores Galapagos' ideas to confer non-programmers an easy way to tackle a wide variety of optimization problems. Opossum interfaces with the model-based RBFOpt library, presenting two single-objective variants of the global \ac{RBF} algorithm. 
 	
 	In terms of usability, Opossum also resembles Galapagos, only requiring the definition of the problem in a Grasshopper program. To use the Opossum's solvers, the user must drag the Opossum's component to the Grasshopper program and connect it with the variables and the objective function components.
 	
@@ -589,9 +592,7 @@ In the mathematical field of optimization, the creation of the model representin
 	% ------------- [ Octopus ] -----------------
 	\subsection{Octopus}
 	
-	Octopus is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. 
-	
-	Octopus exposes two global metaheuristics algorithms to search for Pareto-optimal solutions: \ac{SPEA2} and Hypervolume Estimation Algorithm (HypE) algorithms. These algorithms have been reported to yield promising results on numerous \ac{MOO} test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}. 
+	Octopus is a generic plug-in, developed on top of Grasshopper, that allows non-programmers to address a wide variety of \ac{MOO} problems. Octopus exposes two global metaheuristics algorithms to search for Pareto-optimal solutions: \textit{\ac{SPEA2}} and \textit{HypE} algorithms. These algorithms have been reported to yield promising results on numerous \ac{MOO} test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}. 
 	
 	Even though Octopus was originally designed exclusively for optimization purposes, more recently, it focus has grown to include other \ac{ML} utilities, like supervised and clustering mechanisms. In fact, whereas previous Galapagos-based plug-ins focused exclusively on optimization, Octopus covers multiple functionalities implemented as Grasshopper components (see \cref{fig:octopus1}).
 	
@@ -602,16 +603,16 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	Octopus provides good support in terms of graphical feedback, providing three distinct views of the optimization problem (see views 1, 8, and 10 in \cref{fig:octopus2}), namely:
 	\begin{itemize}
-		\item Solutions' Objective Space graph, which illustrates the distribution in the objective space of the solutions obtained during the optimization run. This graph also exhibits the approximated Pareto front that is currently known by the algorithm;
+		\item Solutions' objective space graph, which illustrates the distribution in the objective space of the solutions obtained during the optimization run. This graph also exhibits the approximated Pareto front that is currently known by the algorithm;
 		\item Horizontal parallel coordinates graph, which serves the same purpose of the vertical parallel coordinates graph and that provides a view over the different design solutions that have been tested;
 		\item Objective convergence graphs (one for each objective dimension), showing the upper- and lower-bounds of the Pareto front (dark gray) and the elite (light gray) of the number of history generations.
 	\end{itemize} 
 	
-	Octopus is capable of solving problems with up to five objective dimensions, using the three spatial dimensions, color, and size to represent them. However, the readability of these graphs becomes more difficult with more than three dimensions. In addition to the strong visual mechanisms, Octopus provides mechanisms to interact and instantiate each one of the solutions in the corresponding \ac{CAD} tool, which not only gives confidence to the user about the results, but also allows him to better understand them. Optionally, Octopus makes it possible to disable the real-time visualization of the optimization process with the aim of reducing the associated overhead.
+	Octopus is capable of solving problems with up to five objective dimensions, using the three spatial dimensions, color, and size to represent them. However, the readability of these graphs becomes more difficult with more than three dimensions. In addition to the strong visual mechanisms, Octopus provides mechanisms to interact and instantiate each one of the solutions in the corresponding \ac{CAD} tool, which not only gives confidence about the results, but also allows the user to better understand them. Optionally, Octopus makes it possible to disable the real-time visualization of the optimization process with the aim of reducing the associated overhead.
 	
 	One other important feature of Octopus is the ability to create logs with the information about the evaluated solutions discriminated by generation. The only setback is that it does not allow to create a single file simultaneously containing the information about the design parameters and the objectives. 
 	
-	\begin{figure*}[htbp]
+	\begin{figure*}[h!]
 		\centering
 		\subfigure[]{%
 			\label{fig:octopus1}%
@@ -654,8 +655,11 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	\Cref{table:pluginscompare} shows a comparison between the optimization plug-ins analysed in this chapter at the light of four aspects: (1) the optimization algorithms; (2) the interaction and visualization mechanisms; (3) the comprehension of results; and (4) the user experience.
 	
-	\begin{table}[htbp]		
+	\begin{table}[h!]	
+		\label{table:pluginscompare}	
 		\centering
+		\caption[Comparison between the analysed optimization plug-ins]{Comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
+
 		\includegraphics[width=\textwidth]{Images/Background/pluginscomparison_serif.pdf}
 %		\resizebox{\textwidth}{!}{%
 %			\begin{tabular}{cl|c|c|c|c|c|c|}
@@ -675,8 +679,6 @@ In the mathematical field of optimization, the creation of the model representin
 %				\multicolumn{1}{|c|}{} & Flexible (e.g., fine-tune) & + & - & + & +++ & ++\\ \hline
 %			\end{tabular}%
 %		}
-		\caption[Comparison between the analysed optimization plug-ins]{A comparison between the analysed optimization plug-ins. S - single, M - multi, G - Global, L - Local.}
-		\label{table:pluginscompare}
 	\end{table}
 	
 	Taking into account the first aspect, we can observe that most optimization tools focus on single-objective and global optimization. Regarding the diversity of the algorithms, most plug-ins provide either one or two options, with the exception of Goat which provides five different algorithms from different derivative-free classes. Apart from Goat and Opossum, all other plug-ins support exclusively metaheuristics algorithms.
@@ -689,7 +691,7 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	%One of the key differences between Goat and Galapagos is the number and diversity of the algorithms available. Whilst Galapagos supports two global metaheuristics algorithms, Goat supports five distinct algorithms: one metaheuristic, two direct-search, and two model-based algorithms, called CRS2, DIRECT, SUBPLEX, COBYLA, and BOBYQA, respectively. 
 	
-	One of the main advantages of Goat is the algorithms' diversity. By providing algorithms with different characteristics and strategies, architects can test the suitability of each algorithm to their problem and, thus, select the most effective. The right choice may result in large optimization gains, especially when complex and time-consuming simulations are necessary~\cite{Wortmann2016BBO}. For this reason, and due to the uniqueness of each \ac{BPO}, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different algorithms for a fixed number of evaluations or a fixed amount of time~\cite{Hamdy2016,Wortmann2016BBO}. Moreover, the distinction between global and optimal algorithms is also critical when striving for accurate and precise optimal solutions. Most global optimization algorithms invest most of their effort searching for the truly optimal solution across large regions of the search space and rarely focusing on promising regions. Consequently, they might return a not so precise global optimum. To overcome this lack of precision and accuracy, one should apply a local optimization algorithm and provide the globally imprecise optimum as input.
+	One of the main advantages of Goat is its algorithms' diversity. By providing algorithms with different characteristics, architects can test the suitability of each algorithm to their problem and, thus, select the most effective. The right choice may result in large optimization gains, especially when complex and time-consuming simulations are necessary~\cite{Wortmann2016BBO}. For this reason, and due to the uniqueness of each \ac{BPO}, several authors suggest that the selection of the optimization algorithm should be based on the results of several tests with different algorithms for a fixed number of evaluations or a fixed amount of time~\cite{Hamdy2016,Wortmann2016BBO}. Moreover, the distinction between global and optimal algorithms is also critical when striving for accurate and precise optimal solutions. Most global optimization algorithms invest most of their effort searching for the truly optimal solution across large regions of the search space and rarely focusing on promising regions. Consequently, they might return a not so precise global optimum. To overcome this lack of precision and accuracy, one should apply a local optimization algorithm and provide the globally imprecise optimum as input.
 	
 	
 	%Octopus enables the simultaneous search for more than one objective, producing a set of possible optimal solutions that ideally represent the real trade-offs between each objective. In order to search for the Pareto-optimal solutions, Octopus provides two main evolutionary algorithms: \ac{SPEA2} and \ac{HypE}. On the one hand, due to their population-based nature, evolutionary algorithms are able to approximate the Pareto Front in a single run~\cite{Zhou2011}. On the other hand, these algorithms have been reported to yield promising results on numerous test problems~\cite{Zitzler2001SPEA2,Zitzler2011HypE}.
@@ -702,7 +704,7 @@ In the mathematical field of optimization, the creation of the model representin
 	% Scalablity, portability, code legibility
 	several optimization tools integrated in the architectural design workflow have been proposed throughout the years, as discussed in \cref{sec:optimizationtools}. In general, these tools are easy to learn and use, in part because they provide  visual programming languages. However, the visual programming paradigm often leads to scalability and program legibility issues, hence impacting the way users interact with these tools. 
 	
-	The textual paradigm does not face these scalability issues. Most currently existing textual \ac{AD} tools do not support optimization, but already provide the mechanisms to create automated optimization processes.
+	While the textual paradigm does not face these scalability issues, most currently existing textual \ac{AD} tools do not support optimization. Nevertheless, they already provide the mechanisms to create automated optimization processes.
 	
 	% Single-Objective
 	An important point to consider is that, in contrast to the multi-objective view of most \ac{BPO} problems, where architects aim to optimize multiple aspects simultaneously, most of the currently available optimization tools focus on \ac{SOO}. The usage of these tools to address \ac{MOO} often requires the simplification of the corresponding \ac{MOO} problem either by relaxing the objectives or by assigning preferences to each objective, as discussed in \cref{ssec:preferencesarticulation}.
@@ -717,7 +719,7 @@ In the mathematical field of optimization, the creation of the model representin
 	Also, in terms of the optimization algorithms, most tools adopt metaheuristics ones. While these algorithms are flexible and applicable to several domains, they lack convergence guarantees, often requiring several hundreds or thousands of evaluations to reach good results. Especially for simulation-based problems with time-consuming evaluations, this becomes a large obstacle. In the \ac{MOO} context, the situation becomes even more difficult, as the number of evaluations is multiplied by, at least, the number of objectives. This problem can be partially reduced by using model-based algorithms, where a secondary and faster model is used for evaluation, but very few tools explore this approach.
 	
 	% Visualization
-	Regarding visualization, most tools do not provide enough visual information about the optimization state or about the results themselves. In particular, most of them generate poorly formatted files with insufficient information, thus impeding any trace back to the process and even hindering the comprehension of the results (e.g., associate the design parameters' configurations with the corresponding performance values). Even if users take advantage of external tools to produce visualization mechanisms based on the information exported from the optimization plug-ins, these are often only available in the end of the optimization run.
+	Regarding visualization, most tools do not provide enough visual information about the optimization state or the results themselves. In particular, most of them generate poorly formatted files with insufficient information, thus impeding any trace back to the process and even hindering the comprehension of the results (e.g., associate the design parameters' configurations with the corresponding performance values). Optionally, users can produce visualization mechanisms using external tools to explore the information exported by optimization plug-ins, but this is only available in the end of the optimization run.
 	
 	At last, most tools do not offer the possibility for interacting with them, nor do they provide means to pause and resume optimization runs. This is an inconvenience because it prevents users from adding the knowledge they have learned during the optimization run.% users would ideally extract information from good visualization mechanisms that they could add to the process to make it more efficient.
 	

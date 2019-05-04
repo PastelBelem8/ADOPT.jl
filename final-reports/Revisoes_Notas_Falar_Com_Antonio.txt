@@ -5,25 +5,15 @@ Capitulo 1.2. Dissertation Goals
 A primeira frase já fala de time-consuming optimization. Não sei mto bem como salientar mais... 
 
 
-Capitulo 2.1. Problem Classification
-Page 27 - Definição de objective function.
-
-Capitulo 2.2. Algorithms Classification
-Page 23 - Secção Algorithms Classification
-Page 24 - Sampling algorithms 
-Page 25 -
-Page 28 - Simulated Annealing - definition of hill climbing algorithm
-
-Capitulo 2.2.6. Comparison 
-- Add Sampling algorithms à tabela 
-- Add Sampling algorithms ao texto
-
-
 # Self
 - Resolver COBYLA e BOBYQA. Definição está estranha. De certeza que é um SIMPLEX? (https://en.wikipedia.org/wiki/COBYLA, https://en.wikipedia.org/wiki/BOBYQA)
 - Ver bibliografia
+- Anexos - Tabelas c/ parâmetros
+- Acronyms surrogate-based modeling >> surrogate-based optimization
 
 - Fazer extended abstract
 
 
-algorithms_comparison.PNG
+
+
+Computationally heavy evaluation functions. (main goals)

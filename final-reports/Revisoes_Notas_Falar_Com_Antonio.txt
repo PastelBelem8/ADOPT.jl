@@ -7,13 +7,16 @@ A primeira frase já fala de time-consuming optimization. Não sei mto bem como sa
 
 # Self
 - Resolver COBYLA e BOBYQA. Definição está estranha. De certeza que é um SIMPLEX? (https://en.wikipedia.org/wiki/COBYLA, https://en.wikipedia.org/wiki/BOBYQA)
-- Ver bibliografia
 - Anexos - Tabelas c/ parâmetros
-- Acronyms surrogate-based modeling >> surrogate-based optimization
-
 - Fazer extended abstract
 
 
-
-
 Computationally heavy evaluation functions. (main goals)
+
+Titles
+> Optimization in Simulation-Based Architectural Problems
+> Optimization of Complex Design Problems
+> Design Optimization/The Architectural Case
+> Simulation-Based Design Optimization
+> Optimization of Computationally-Demanding Objective Functions.
+> Optimization of Computationally-Complex Objective Functions.

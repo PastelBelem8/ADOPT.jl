@@ -122,10 +122,6 @@
 \listoffigures
 %\cleardoublepage
 % -----------------------------------------------------------------------------
-\begingroup 
-    \let\clearpage\relax
-    \let\cleardoublepage\relax
-    \let\cleardoublepage\relax
 % List of Tables
 \pdfbookmark[1]{List of Tables}{lot}
 \listoftables
@@ -145,15 +141,19 @@
 % Listings
 % If not used, comments the lines!
 % Requires packages listings
+
 \pdfbookmark[1]{Listings}{lol}
 \lstlistoflistings
+\clearpage
+\thispagestyle{empty}
 
 \pdfbookmark[1]{List of Libraries}{lol}
 \begin{listingtools}
 	\input{./Chapters/Thesis-MSc-LibrariesListing.tex}
 \end{listingtools}
+\clearpage
+\thispagestyle{empty}
 
-\endgroup
 % % List of acronyms
 \pdfbookmark[1]{Acronyms}{loac}
 \chapter*{\tlangAcronyms}

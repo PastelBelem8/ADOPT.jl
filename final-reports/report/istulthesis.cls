@@ -434,7 +434,7 @@
 }{
 	\clearpage
 	\thispagestyle{empty}
-	\cleardoublepage
+	%\cleardoublepage
 }
 
 % The Contributions

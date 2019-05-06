@@ -1,17 +1,14 @@
-Abstract 
-Parece-me fraco as conclusões finais...
-
-Capitulo 1.2. Dissertation Goals
-A primeira frase já fala de time-consuming optimization. Não sei mto bem como salientar mais... 
-
+António:
 
 # Self
 - Resolver COBYLA e BOBYQA. Definição está estranha. De certeza que é um SIMPLEX? (https://en.wikipedia.org/wiki/COBYLA, https://en.wikipedia.org/wiki/BOBYQA)
-- Anexos - Tabelas c/ parâmetros
+- COBYLA é um simplex. BOBYQA not so sure..
+- Secção antes de BPO - Building Performance Simulation
 - Fazer extended abstract
+- Declaração de segurança
+- Introduction to chapter 2 - Background 
+- SOO - "Particularly, in the case of building design, ..."
 
-
-Computationally heavy evaluation functions. (main goals)
 
 Titles
 > Optimization in Simulation-Based Architectural Problems

@@ -26,7 +26,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Document preamble
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %% Builds upon the graphics  package, providing a key-value interface
 %% for optional arguments to the \includegraphics command that go far
 %% beyone what the graphics package offers.
@@ -109,7 +108,8 @@
 \usepackage{csquotes}% Recommended
 %\usepackage[style=authoryear, backend=bibtex, doi=false,isbn=false,url=false,eprint=false,dashed=false,maxcitenames=2, maxbibnames=100]{biblatex}
 %\addbibresource{library.bib}
-
+\usepackage[{english,noabbrev}]{cleveref}
+\usepackage[nolist,nohyperlinks]{acronym}
 %%
 %% Left indent, before and after spacing
 %% (The starred version kills the indentation of the paragraph following the title)
@@ -151,9 +151,91 @@
 \date{May 2019}
 \author{Catarina Belém\\ catarina.belem@tecnico.ulisboa.pt \\ Instituto Superior Técnico, Lisboa, Portugal}
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
+\begin{acronym}[H.264/SVC]
+	% A	--------------------------------------------------------------
+	\acro{AD}{Algorithmic Design}
+	\acro{AA}{Algorithmic Analysis}
+	\acro{AO}{Algorithmic Optimization}
+	\acro{API}{Application Programming Interface}
+	\acro{aPF}{approximated Pareto Front}
+	
+	% B --------------------------------------------------------------
+	\acro{BIM}{Building Information Modeling}
+	\acro{BOBYQA}{Bound Optimization BY Quadratic Approximation}
+	\acro{BPO}{Building Performance Optimization}
+	\acro{BPS}{Building Performance Simulation}
+	
+	% C --------------------------------------------------------------
+	\acro{CAD}{Computer-Aided Design}
+	\acro{COBYLA}{Constrained Optimization BY Linear Approximation}
+	\acro{cPF}{combined Pareto Front}
+	
+	% D --------------------------------------------------------------
+	\acro{DFO}{Derivative-Free Optimization}
+	\acro{DMS}{Direct MultiSearch}
+	\acro{DIRECT}{DIviding RECTangles}
+	
+	% E --------------------------------------------------------------
+	\acro{EA}{Evolutionary Algorithm}	
+	\acro{ER}{Error Ratio}	
+	%\acrodefplural{ES}{Evolution Strategies}
+	\acro{ES}{Evolution Strategy}		
+	
+	% G --------------------------------------------------------------
+	\acro{GA}{Genetic Algorithm}
+	\acro{GD}{Generational Distance}
+	\acro{GPR}{Gaussian Process Regressor}
+	\acro{GUI}{Graphical User Interface}
+	
+	% H --------------------------------------------------------------
+	\acro{HV}{Hypervolume}
+	
+	% I --------------------------------------------------------------
+	\acro{IGD}{Inverted Generational Distance}
+	
+	% L --------------------------------------------------------------
+	
+	% M	--------------------------------------------------------------
+	\acro{ML}{Machine Learning}
+	\acro{MLP}{Multi-Layer Perceptron}
+	\acro{MOEA}{Multi-Objective Evolutionary Algorithm}
+	\acro{MPFE}{Maximum Pareto Front Error}
+	\acro{MOO}{Multi-Objective Optimization}
+	\acro{MOOA}{Multi-Objective Optimization Algorithm}
+	
+	% N --------------------------------------------------------------
+	\acro{NFLT}{No Free Lunch Theorem}		
+	\acro{NMS}{Nelder-Mead Simplex}
+	\acro{NSGA-II}{Non-dominated Sorting Genetic Algorithm II}
+	
+	% O --------------------------------------------------------------	
+	\acro{ONVG}{Overall Non-dominated Vector Generation}
+	\acro{ONVGR}{Overall Non-dominated Vector Generation Ratio}
+	
+	
+	% P --------------------------------------------------------------
+	\acro{PBD}{Performance-Based Design}
+	\acro{PRAXIS}{Principal Axis}
+	\acro{PSO}{Particle-Swarm Optimization}
+	
+	% R	--------------------------------------------------------------
+	\acro{RBF}{Radial Basis Function}	
+	\acro{RF}{Random Forest}	
+	
+	% S	--------------------------------------------------------------
+	\acro{sUDI}{spatial Useful Daylight Illumination}
+	\acro{SPEA2}{Strength Pareto Evolutionary Algorithm 2}
+	\acro{SOO}{Single-Objective Optimization}
+	\acro{SVR}{Support Vector Regression}
+	% T	--------------------------------------------------------------
+	\acro{tPF}{true Pareto Front}
+	
+\end{acronym}
 % Begin one column section for title and abstract
 %
 % http://www.faqs.org/faqs/de-tex-faq/part5/
@@ -186,7 +268,7 @@
 %\bibliographystyle{alpha}
 
 % External bibliography database file in the BibTeX format (ExtendedAbstract_ref_db.bib)
-\bibliography{references}
+\bibliography{../report/Thesis-MSc-Bibliography}
 
 \end{document}
 

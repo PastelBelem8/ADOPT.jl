@@ -1,5 +1,4 @@
 António:
-
 2.3.6. Parte dos algoritmos, não sei se é necessário dizer aquilo tudo...
 4.2. - Mudar de Summary para Final Considerations? 
 

@@ -1,13 +1,18 @@
 António:
 
+2.3.6. Parte dos algoritmos, não sei se é necessário dizer aquilo tudo...
+4.2. - Mudar de Summary para Final Considerations? 
+
 # Self
 - Resolver COBYLA e BOBYQA. Definição está estranha. De certeza que é um SIMPLEX? (https://en.wikipedia.org/wiki/COBYLA, https://en.wikipedia.org/wiki/BOBYQA)
 - COBYLA é um simplex. BOBYQA not so sure..
 - Secção antes de BPO - Building Performance Simulation
 - Fazer extended abstract
 - Declaração de segurança
-- Introduction to chapter 2 - Background 
 - SOO - "Particularly, in the case of building design, ..."
+- Adicionar uma tabela para o caso da Ericeira 
+- Colocar acros nos algoritmos que aparecem masi do que uma vez.
+- Referencias
 
 
 Titles

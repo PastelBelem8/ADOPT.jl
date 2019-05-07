@@ -7,11 +7,10 @@ António:
 - Fazer extended abstract
 - Falar c/ Gui sobre metaheuristics convergence na parte da comparison. (Atualizar tabela - Algoritmos (tirar print screen no ecrã grande)
 - Adicionar uma tabela para o caso da Ericeira 
-- Declaração de segurança
+- Colocar acros nos algoritmos que aparecem masi do que uma vez.
+- Abstract tem 16 palavras a mais (266)
 - Referencias
 - Secção antes de BPO - Building Performance Simulation
-- Colocar acros nos algoritmos que aparecem masi do que uma vez.
-
 
 Titles
 > Optimization in Simulation-Based Architectural Problems

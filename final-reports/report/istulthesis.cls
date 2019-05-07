@@ -448,7 +448,7 @@
 }{
 	\clearpage
 	\thispagestyle{empty}
-	\cleardoublepage
+	%\cleardoublepage
 }
 
 

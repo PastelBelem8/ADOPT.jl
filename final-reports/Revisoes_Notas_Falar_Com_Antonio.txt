@@ -3,11 +3,10 @@ António:
 
 # Self
 - Fazer extended abstract
-- Falar c/ Gui sobre metaheuristics convergence na parte da comparison. (Deixar p/ discussão...)
+- Traduzir abstract
 - Adicionar uma tabela para o caso da Ericeira 
 - Colocar acros nos algoritmos que aparecem masi do que uma vez.
 - Referencias
-- Secção antes de BPO - Building Performance Simulation
 
 Titles
 > Optimization in Simulation-Based Architectural Problems

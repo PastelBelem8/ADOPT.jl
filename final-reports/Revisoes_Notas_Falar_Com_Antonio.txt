@@ -1,13 +1,11 @@
 António:
-2.3.6. Parte dos algoritmos, não sei se é necessário dizer aquilo tudo...
 4.2. - Mudar de Summary para Final Considerations? 
 
 # Self
 - Fazer extended abstract
-- Falar c/ Gui sobre metaheuristics convergence na parte da comparison. (Atualizar tabela - Algoritmos (tirar print screen no ecrã grande)
+- Falar c/ Gui sobre metaheuristics convergence na parte da comparison. (Deixar p/ discussão...)
 - Adicionar uma tabela para o caso da Ericeira 
 - Colocar acros nos algoritmos que aparecem masi do que uma vez.
-- Abstract tem 16 palavras a mais (266)
 - Referencias
 - Secção antes de BPO - Building Performance Simulation
 

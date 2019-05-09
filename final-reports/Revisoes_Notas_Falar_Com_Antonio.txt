@@ -1,16 +1,6 @@
-António:
-4.2. - Mudar de Summary para Final Considerations? 
 
 # Self
 - Fazer extended abstract
-- Adicionar uma tabela para o caso da Ericeira 
-- Colocar acros nos algoritmos que aparecem masi do que uma vez.
 - Referencias
-
-Titles
-> Optimization in Simulation-Based Architectural Problems
-> Optimization of Complex Design Problems
-> Design Optimization/The Architectural Case
-> Simulation-Based Design Optimization
-> Optimization of Computationally-Demanding Objective Functions.
-> Optimization of Computationally-Complex Objective Functions.
+- Aumentar qualidade das imagens
+- Colocar acros nos algoritmos que aparecem masi do que uma vez.

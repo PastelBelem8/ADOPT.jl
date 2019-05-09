@@ -3,7 +3,6 @@ António:
 
 # Self
 - Fazer extended abstract
-- Traduzir abstract
 - Adicionar uma tabela para o caso da Ericeira 
 - Colocar acros nos algoritmos que aparecem masi do que uma vez.
 - Referencias

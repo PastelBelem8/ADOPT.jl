@@ -3,14 +3,15 @@
 
 Through times, the architectural design paradigm has incrementally grown to develop the mechanisms to quickly (1) update a design, (2) generate the corresponding analytical model, and (3) automatically evaluate the design in an analytical tool. These mechanisms laid down the foundations for automated optimization processes. In fact, by extending the \ac{AD} and \ac{AA} approaches to include optimization mechanisms, we are able to apply automatic optimization processes that aim to improve (or even optimize) designs' performance. 
 
-\Cref{fig:algorithmicoptimization} illustrates a possible approach for introducing automated optimization processes in the architectural worfklow. In this approach, we introduce an optimizer component that is responsible for searching the design space and generating new values for the design's parameters. These values are then communicated to the \ac{AD} tool, which generates the analytical models and evaluates them in the corresponding analytical tools. After being evaluated, the analytical tools communicate the evaluations' results to the \ac{AD} tool, which, in turn, forwards them to the optimizer. Based on these results, the optimizer generates another set of values for the design's parameters and this process is repeated until a stopping criterion (e.g., evaluations or time limit, solution's quality) is met. The communications between each component are encoded within the \ac{AD} tool, therefore incurring no additional efforts for the architect.
+%\Cref{fig:algorithmicoptimization} illustrates a possible approach for introducing automated optimization processes in the architectural worfklow. 
+In this approach, we introduce an optimizer component that is responsible for searching the design space and generating new values for the design's parameters. These values are then communicated to the \ac{AD} tool, which generates the analytical models and evaluates them in the corresponding analytical tools. After being evaluated, the analytical tools communicate the evaluations' results to the \ac{AD} tool, which, in turn, forwards them to the optimizer. Based on these results, the optimizer generates another set of values for the design's parameters and this process is repeated until a stopping criterion (e.g., evaluations or time limit, solution's quality) is met. The communications between each component are encoded within the \ac{AD} tool, therefore incurring no additional efforts for the architect.
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=\columnwidth]{../report/Images/Solution/algorithmic_optimization.png}
-	\caption{Algorithmic Optimization workflow. In this workflow, the architect only interacts with an \ac{AD} tool to create the initial design, to specify the analysis tools, and to specify the optimization parameters.}
-	\label{fig:algorithmicoptimization}
-\end{figure}
+%\begin{figure}[htbp]
+%	\centering
+%	\includegraphics[width=\columnwidth]{../report/Images/Solution/algorithmic_optimization.png}
+%	\caption{Algorithmic Optimization workflow. In this workflow, the architect only interacts with an \ac{AD} tool to create the initial design, to specify the analysis tools, and to specify the optimization parameters.}
+%	\label{fig:algorithmicoptimization}
+%\end{figure}
 
 In order to benefit from the \ac{AO} approach, we combine the optimization framework developed in this dissertation with an \ac{AD} tool to facilitate the resolution of a wide variety of \ac{BPO} problems. To this end, architects are required to: (1) create the \ac{AD} model reflecting their design's intents; (2) select the performance aspects to optimize and, thus, the analysis tools to be used (e.g., lighting, thermal, structural, costs), and, finally, (3) select, if necessary, the parameters of the optimization process (e.g., algorithm, algorithm's parameters).
 

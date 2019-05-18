@@ -8,19 +8,14 @@
 %% ------------------------------------------------------------------
 %% 								URLs 
 %% ------------------------------------------------------------------
-@incollection{AMPL,
+@inbook{AMPL,
 	author = {Fourer, R. and Gay, D. M. and Kernighan, B.},
 	chapter = {AMPL: A Mathematical Programming Language},
-	title = {Algorithms and Model Formulations in Mathematical Programming},
+	title = {{Algorithms and Model Formulations in Mathematical Programming (Wallace, S. W. (ed.))}},
 	editor = {Wallace, Stein W.},
 	year = {1989},
-	isbn = {0-387-50842-2},
 	pages = {150-151},
-	numpages = {2},
-	url = {http://dl.acm.org/citation.cfm?id=107479.107491},
-	acmid = {107491},
-	publisher = {Springer-Verlag},
-	address = {Berlin, Heidelberg},
+	publisher = {Springer-Verlag}
 } 
 
 @misc{MerriamWebster2017OptimizationDefinition,
@@ -81,7 +76,7 @@
 	author = {Asl, Mohammad and Stoupine, A and Zarrinmehr, Saied and Yan, Wei},
 	year = {2015},
 	pages = {673-682},
-	title = {Optimo: A BIM-based Multi-objective Optimization Tool utilizing Visual Programming for High Performance Building Design},
+	title = {{Optimo: A BIM-based Multi-objective Optimization Tool Utilizing Visual Programming for High Performance Building Design}},
 	booktitle = {Proceedings of the Education and Research in Computer Aided Architectural Design in Europe Conference}
 }
 
@@ -97,21 +92,25 @@ Optimization Libraries
 %% ------------------------------------------------------------------
 
 % RBFOPT
-@article{RBFOPT,
+@inproceedings{RBFOPT,
 	author = {Costa, Alberto and Nannicini, Giacomo},
-	journal = {Mathematical Programming Computation},
-	title = {{RBFOpt : An Open-source Library for Black-Box Optimization with Costly Function Evaluations}},
-	volume={10},
-	number  = {1},
-	year = {2018}}
+	booktitle = {Mathematical Programming Computation},
+	title = {{RBFOpt : An Open-Source Library for Black-Box Optimization with Costly Function Evaluations}},
+	volume = {10},
+	issue  = {4},
+	year = {2018},
+	pages = {597-629},
+	publisher = {Springer}
+}
 
-@article{scikit-learn,
+@inproceedings{scikit-learn,
 	title={{Scikit-learn: Machine Learning in Python}},
 	author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V. and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P. and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
-	journal={Journal of Machine Learning Research},
+	booktitle={Journal of Machine Learning Research},
 	volume={12},
 	pages={2825-2830},
-	year={2011}
+	year={2011},
+	publisher = {Microtome Publishing}
 }
 
 @misc{platypus,
@@ -133,19 +132,16 @@ Optimization Libraries
 @inproceedings{Knowles1999, 
 	author={J. {Knowles} and D. {Corne}}, 
 	booktitle={Proceedings of the 1999 Congress on Evolutionary Computation}, 
-	title={The Pareto Archived Evolution Strategy: A New Baseline Algorithm for Pareto Multiobjective Optimisation}, 
+	title={{The Pareto Archived Evolution Strategy: A New Baseline Algorithm for Pareto Multiobjective Optimisation}}, 
 	year={1999}, 
-	volume={1}, 
-	number={}, 
 	pages={98-105}
 }
 
 @inproceedings{Corne2001,
-	author = {Corne, David W. and Jerram, Nick R. and Knowles, Joshua D. and Oates, Martin J.},
-	booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference},
+	author = {Corne, D. and Jerram, N. and Knowles, J. and Oates, M.},
+	title = {{PESA-II: Region-Based Selection in Evolutionary Multiobjective Optimization}},
+	booktitle = {{Proceedings of the Genetic and Evolutionary Computation Conference}},
 	pages = {399-404},
-	title = {PESA-II: Region-based Selection in Evolutionary Multiobjective Optimization},
-	volume = {91},
 	year = {2001}
 }
 
@@ -153,24 +149,24 @@ Optimization Libraries
 	author = {Kukkonen, Saku and Lampinen, J},
 	year = {2005},
 	pages = {443-450},
-	title = {GDE3: The Third Evolution Step of Generalized Differential Evolution},
-	volume = {1},
-	isbn = {0-7803-9363-5},
-	booktitle = {Proceedings of the IEEE Congress on Evolutionary Computation},
+	title = {{GDE3: The Third Evolution Step of Generalized Differential Evolution}},
+	booktitle = {Proceedings of the IEEE Congress on Evolutionary Computation}
 }
 
 @inproceedings{DunningHuchetteLubin2017,
 	author = {Iain {Dunning} and Joey {Huchette} and Miles {Lubin}},
-	title = {JuMP: A Modeling Language for Mathematical Optimization},
-	booktitle = {Proceedings of the Society for Industrial and Applied Mathematics Review},
-	volume = {59},
-	number = {2},
+	title = {{JuMP: A Modeling Language for Mathematical Optimization}},
+	booktitle = {SIAM Review},
 	pages = {295-320},
-	year = {2017}
+	year = {2017},
+	volume = {59},
+	issue = {2},
+	publisher = {Society for Industrial and Applied Mathematics}
 }
 
+
 %% ------------------------------------------------------------------
-Images
+%Images
 %% ------------------------------------------------------------------
 
 % London City Hall
@@ -190,46 +186,44 @@ Images
 	note = {{[Online; accessed 28-April-2019]}}
 }
 
+%[FIX ME] apaguei por ser conferencia:
+%	editor = {Carlos M. Fonseca and Peter J. Fleming and Eckart Zitzler and Kalyanmoy Deb and Lothar Thiele},
+%	series = {Lecture Notes in Computer Science},
+%	address = {Berlin},
+%	publisher = {Springer}
 @inproceedings{PISA2003,
 	author = {Stefan {Bleuler} and Marco {Laumanns} and Lothar {Thiele} and Eckart {Zitzler}},
-	title = {PISA - A Platform and Programming Language Independent Interface for Search Algorithms},
+	title = {{PISA - A Platform and Programming Language Independent Interface for Search Algorithms}},
 	booktitle = {Proceedings of the 2nd International Conference on Evolutionary Multi-Criterion Optimization},
 	pages = {494-508},
-	year = 2003,
-	editor = {Carlos M. Fonseca and Peter J. Fleming and Eckart Zitzler and Kalyanmoy Deb and Lothar Thiele},
-	series = {Lecture Notes in Computer Science},
-	address = {Berlin},
-	publisher = {Springer}
+	year = {2003}
 }
+
 %% ------------------------------------------------------------------
 %% 								Books 
 %% ------------------------------------------------------------------
+%[FIX ME] 	edition   = {1st}, isbn      = {9780387308142}
 @book{Tille2006,
 	author    = {Till{\'{e}}, Yves}, 
 	title     = {Sampling Algorithms},
-	publisher = {Springer, New York, NY},
-	year      = {2006},
-	edition   = {1st},
-	isbn      = {9780387308142}
+	publisher = {Springer},
+	year      = {2006}
 }
 
-% Brownlee
+% Brownlee [FIX ME] apaguei edition = {1st}, e url = {http://www.cleveralgorithms.com},
 @book{Brownlee2011,
 	author = {Brownlee, Jason},
-	isbn = {9781446785065},
-	publisher={LuLu.com},
 	title = {{Clever Algorithms: Nature-Inspired Programming Recipes}},
-	url = {http://www.cleveralgorithms.com},
-	edition = {1st},
+	isbn = {9781446785065},
+	publisher ={{LuLu}},
 	year = {2011}
 }
 
-% Brent
+% Brentb
 @book{Brent1973,
 	author = {Brent, R. P.},
-	title = {Algorithms for Minimization Without Derivatives},
-	publisher={Prentice-Hall},
-	isbn = {0130223352},
+	title = {{Algorithms for Minimization Without Derivatives}},
+	publisher ={Prentice-Hall},
 	year = {1973}
 }
 
@@ -241,15 +235,13 @@ Images
 	publisher = {Society for Industrial and Applied Mathematics},
 	year = {2009}}
 
-% Glover
+% Glover [FIX ME] 	isbn = {9788578110796}, volume = {57}, edition = {1st},
 @book{Glover2003Metaheuristics,
 	author = {Glover, Fred and Kochenberger, Gary A.},
 	title = {{Handbook of Metaheuristics}},
 	publisher = {Springer US},
-	isbn = {9788578110796},
-	volume = {57},
-	edition = {1st},
-	year = {2003}}
+	year = {2003}
+}
 
 % Goldberg
 @book{Golberg1989,
@@ -273,63 +265,48 @@ Images
 % Kestelier 
 @book{Kestelier2013,
 	author = {De Kestelier, Xavier and Peters, Brady},
-	journal = {IEEE Transactions on Evolutionary Computation},
-	pages = {8-16},
 	title = {{Computation Works: The Building of Algorithmic Thought}},
 	year = {2013},
 	publisher = {{John Wiley {\&} Sons}}
-	}
+}
 
 % Koziel 
 @book{Koziel2011,
 	author = {Koziel, Slawomir and Yang, Xin-She},
-	isbn = {9783642175565},
-	pages = {85-100},
-	title = {{Computational optimization, methods and algorithms}},
-	publisher = {Springer-Verlag Berlin Heidelberg},
-	volume = {356},
+	title = {{Computational Optimization, Methods and Algorithms}},
+	publisher = {Springer},
 	year = {2011}}
 
 % Law 
 @book{Law1991,
-	author = {Law, Averill M and Kelton, W. David},
-	booktitle = {McGrawHill New York L{\~{O}}Ecuyer P Giroux N Glynn PW},
-	doi = {10.1145/1667072.1667074},
-	isbn = {0070592926},
-	title = {{Simulation modeling and analysis}},
-	volume = {2},
-	year = {1991}}
-
-% Malkawi-Kolarevic
-@book{Malkawi2005,
-	author = {Malkawi, Ali and Kolarevic, Branko},
-	isbn = {0415700833},
-	issue = {1},
-	title = {{Performative Architecture: Beyond Instrumentality}},
-	volume = {60},
-	year = {2005},
-	publisher = {Spon Press},
-	edition = {1st}
+	author = {Law, A. M. and Kelton, W. D.},
+	title = {{Simulation Modeling and Analysis}},
+	year = {1991},
+	publisher = {McGraw-Hill International Editions}
 }
 
-% Nocedal-Wright
+% Malkawi-Kolarevicb [FIX ME] edition = {1st}, volume = {60}, issue = {1}, isbn = {0415700833},
+@book{Malkawi2005,
+	author = {Malkawi, Ali and Kolarevic, Branko},
+	title = {{Performative Architecture: Beyond Instrumentality}},
+	year = {2005},
+	publisher = {Spon Press}
+}
+
+% Nocedal-Wright [FIX ME] 	isbn = {0387987932}, edition = {2nd},
 @book{Nocedal2011NumericalOptimization,
 	author = {Nocedal, Jorge and Wright, Stephen},
-	isbn = {0387987932},
-	edition = {2nd},
-	title = {{Numerical optimization}},
-	publisher = {Springer-Verlag New York},
-	year = {2006}}
+	title = {{Numerical Optimization}},
+	publisher = {Springer},
+	year = {2006}
+}
 
-% Saltelli
+% Saltelli [FIX ME] isbn = {9780470725184}
 @book{Saltelli2007,
 	author = {Saltelli, Andrea and Ratto, Marco and Andres, Terry and Campolongo, Francesca and Cariboni, Jessica and Gatelli, Debora and Saisana, Michaela and Tarantola, Stefano},
-	booktitle = {Global Sensitivity Analysis. The Primer},
-	isbn = {9780470725184},
-	pages = {237-275},
 	title = {Global Sensitivity Analysis. The Primer},
-	publisher={{John Wiley and Sons}},
-	year = {2008}
+	publisher={{John Wiley {\&} Sons}},
+	year = {2007}
 }
 
 %% ------------------------------------------------------------------
@@ -347,11 +324,10 @@ Images
 	isbn = {0262111705}
 } 
 
-% Caetano
+% Caetano [FIX ME] apaguei 	volume = {1},
 @inproceedings{Caetano2018,
-	author = {Caetano, In{\^{e}}s and Ilunga, Guilherme and Bel{\'{e}}m, Catarina and Aguiar, Rita and Feist, Sofia and Bastos, Francisco and Leit{\~{a}}o, Ant{\'{o}}nio},
+	author = {Caetano, I. and Ilunga, G. and Bel{é}m, C. and Aguiar, R. and Feist, S. and Bastos, F. and Leit{ã}o, A.},
 	booktitle = {Proceedings of the 23rd International Conference of the Association for Computer-Aided Architectural Design Research in Asia},
-	volume = {1},
 	pages = {111-120},
 	title = {{Case Studies on the Integration of Algorithmic Design Processes in Traditional Design Workflows}},
 	year = {2018}
@@ -360,27 +336,27 @@ Images
 % Heidjen
 @inproceedings{Heijden2015,
 	author = {Heijden, Ramon Van Der and Levelle, Evan and Riese, Martin},
-	booktitle = {Proceedings of the 35th Annual Conference of the Association for Computer Aided Design in Architecture},
+	booktitle = {{Proceedings of the 35th Annual Conference of the Association for Computer Aided Design in Architecture}},
 	pages = {417-430},
-	title = {{Parametric Building Information Generation For Design and Construction}},
+	title = {{Parametric Building Information Generation for Design and Construction}},
 	year = {2015}
 }
 
-@article{Gablonsky2001,
-	author = {Gablonsky, J. M. and Kelley, C. T.},
-	journal = {Journal of Global Optimization},
-	number = {1},
+@inproceedings{Gablonsky2001,
+	author = {Gablonsky, J. and Kelley, C.},
+	booktitle = {Journal of Global Optimization},
 	pages = {27-37},
-	title = {{A Locally-Biased form of the DIRECT Algorithm}},
+	title = {{A Locally-Biased Form of the DIRECT Algorithm}},
 	volume = {21},
 	issue = {1},
-	year = {2001}
+	year = {2001},
+	publisher = {Springer}
 }
 
 % Aguiar
 @inproceedings{Aguiar2017,
-	author = {Aguiar, Rita and Cardoso, Carmo and Leit{\~{a}}o, Ant{\'{o}}nio},
-	title = {{Algorithmic Design and Analysis Fusing Disclines}},
+	author = {Aguiar, Rita and Cardoso, Carmo and Leit{ã}o, A.},
+	title = {{Algorithmic Design and Analysis Fusing Disciplines}},
 	booktitle = {Proceedings of the 37th Annual Conference of the Association for Computer Aided Design in Architecture},
 	year = {2017},
 	pages = {28-37}
@@ -389,121 +365,123 @@ Images
 % Ashour
 @mastersthesis{Ashour2015CreativelyMOO,
 	author       = {Ashour, Yassin}, 
-	title        = {Optimizing Creatively in Multi-Objective Optimization},
+	title        = {{Optimizing Creatively in Multi-Objective Optimization}},
 	school       = {Faculty of Graduate Studies, University of Calgary},
-	year         = 2015,
+	year         = {2015},
 	month        = 4
 }
 
 % Attia
-@article{Attia2013,
+@inproceedings{Attia2013,
 	author = {Attia, Shady and Hamdy, Mohamed and Brien, William O and Carlucci, Salvatore},
-	journal = {Energy {\&} Buildings},
+	title = {{Assessing Gaps and Needs for Integrating Building Performance Optimization Tools in Net Zero Energy Buildings Design}},
+	booktitle = {Energy {\&} Buildings},
 	pages = {110-124},
-	publisher = {Elsevier B.V.},
-	title = {{Assessing gaps and needs for integrating building performance optimization tools in net zero energy buildings design}},
+	publisher = {Elsevier},
 	volume = {60},
-	year = {2013}
+	year = {2013},
+	issue = {5}
 }
 
-% Belem
+% Belem [FIX ME] apaguei volume = {2},
 @inproceedings{Belem2018optimizeddesign,
-	author = {Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio},
+	author = {Bel{é}m, Catarina and Leit{ã}o, A.},
 	booktitle = {Proceedings of the 36th International Education and Research in Computer Aided Architectural Design in Europe Conference},
 	pages = {559-568},
-	title = {{From Design to Optimized Design: An algorithmic-based Approach}},
-	volume = {2},
+	title = {{From Design to Optimized Design: An Algorithmic-Based Approach}},
 	year = {2018}
 }
 
+%[FIX ME] apaguei 	volume = {1}
 @inproceedings{Belem2019MOO,
-	author = {Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio},
+	author = {Bel{é}m, Catarina and Leit{ã}o, A.},
 	booktitle = {Proceedings of the 24th International Conference of the Association for Computer-Aided Architectural Design Research in Asia},
-	title = {Conflicting Goals in Architecture: A study on Multi-Objective Optimization},
+	title = {{Conflicting Goals in Architecture: A study on Multi-Objective Optimization}},
 	year = {2019},
-	pages = {453-462},
-	volume = {1}
+	pages = {453-462}
 }
 
 @inproceedings{IP2019MOO,
-	author = {Pereira, In{\^{e}}s and Bel{\'{e}}m, Catarina and Leit{\~{a}}o, Ant{\'{o}}nio},
+	author = {Pereira, I. and Bel{é}m, C. and Leit{ã}o, A.},
 	booktitle = {Proceedings of the 37th International Education and Research in Computer Aided Architectural Design in Europe Conference},
-	number = {1},
 	title = {{Optimizing Exhibition Spaces: A Multi-Objective Approach}},
 	year = {2019},
 	note = {(to appear)}
 }
 
 % Blum 
-@article{BlumRoli2003Metaheuristics,
+%[FIX ME] podes poder a abrv no publisher ACM
+@inproceedings{BlumRoli2003Metaheuristics,
 	author = {Blum, C. and Roli, A.},
-	journal = {Association for Computing Machinery Computing Surveys},
-	volume = {3},
-	issue = {3},
-	pages = {268-308},
-	title = {{Metaheuristics in combinatorial optimization: Overview and Conceptual Comparison}},
+	title = {{Metaheuristics in Combinatorial Optimization: Overview and Conceptual Comparison}},
+	booktitle = {{Association for Computing Machinery Computing Surveys}},
+	publisher = {{Association for Computing Machinery}},
 	volume = {35},
-	year = {2003}
+	pages = {268-308},
+	year = {2003},
+	issue = {3},
 }
 
 % Branco 
 @inproceedings{Branco2017AD,
-	author = {Castelo Branco, Renata and Leit{\~{a}}o, Antonio Menezes},
+	author = {Castelo Branco, Renata and Leit{ã}o, Antonio},
 	isbn = {9789491207129},
-	booktitle = {Proceedings of the 35th Education and research in Computer Aided Architectural Design in Europe Conference},
+	booktitle = {Proceedings of the 35th Education and Research in Computer Aided Architectural Design in Europe Conference},
 	pages = {729-738},
-	title = {{Integrated Algorithmic Design: A Single-script Approach for Multiple Design Tasks}},
-	year = {2017}}
+	title = {{Integrated Algorithmic Design: A Single-Script Approach for Multiple Design Tasks}},
+	year = {2017}
+}
 
 % Cichocka 
 @inproceedings{Cichocka2017SURVEY,
 	author = {Cichocka, Judyta M. and Browne, Will N. and Rodriguez, Edgar},
+	title = {{Optimization in the Architectural Practice}},
 	isbn = {9789881902689},
 	booktitle = {Proceedings of the 22nd International Conference of the Association for Computer-Aided Architectural Design Research in Asia},
 	pages = {387-397},
-	title = {{Optimization in the architectural practice}},
-	year = {2017}}
+	year = {2017}
+}
 
+%[FIX ME] apaguei volume = {724},
 @inproceedings{Cichocka2017SILVEREYE,
 	author = {Cichocka, Judyta M and Migalska, Agata and Browne, Will N and Rodriguez, Edgar},
-	isbn = {978-981-10-5196-8},
-	pages = {151-169},
-	booktitle = {Proceedings of the International Conference on Computer-Aided Architectural Design Futures},
 	title = {{SILVEREYE – The Implementation of Particle Swarm Optimization Algorithm in a Design Optimization Tool}},
-	volume = {724},
+	isbn = {978-981-10-5196-8},
+	booktitle = {Proceedings of the International Conference on Computer-Aided Architectural Design Futures},
+	pages = {151-169},
 	year = {2017}
 }
 
 % Custódio
-@article{Custodio2010,
-	author = {Cust{\'{o}}dio, A L and Madeira, J F A and Vaz, A I F and Vicente, L N},
-	journal = {Society for Industrial and Applied Mathematics},
+@inproceedings{Custodio2010,
+	author = {Cust{ó}dio, A. and Madeira, J. and Vaz, A. and Vicente, L.},
+	booktitle = {{SIAM Journal on Optimization}},
 	issue = {3},
 	pages = {1109-1140},
 	title = {{Direct MultiSearch for Multiobjective Optimization}},
 	volume = {21},
-	year = {2010}
+	year = {2011},
+	publisher = {Society for Industrial and Applied Mathematics}
 }
 
-@article{Custodio2018,
-	author = {Cust{\'{o}}dio, A L and Madeira, J F A},
-	journal = {Journal of Global Optimization},
+@inproceedings{Custodio2018,
+	author = {Cust{ó}dio, A. and Madeira, J.},
+	booktitle = {Journal of Global Optimization},
 	issue = {2},
 	pages = {323-345},
-	title = {{MultiGLODS : Global and Local Multiobjective Optimization using Direct Search}},
+	title = {{MultiGLODS : Global and Local Multiobjective Optimization Using Direct Search}},
 	volume = {72},
-	year = {2018}
+	year = {2018},
+	publisher = {Springer}
 }
 
 
-% Deb
-@article{Deb2002,
+% Deb [FIX ME] apaguei 	volume = {6},
+@inproceedings{Deb2002,
 	author = {Deb, Kalyanmoy and Agrawal, Samir and Pratap, Amrit and Meyarivan, Tanaka},
-	journal = {International Conference on Parallel Problem Solving from Nature},
-	number = {2},
-	pages = {182-197},
 	title = {{A Fast Elitist Non-dominated Sorting Genetic Algorithm for Multi-objective Optimization: NSGA-II}},
-	volume = {6},
+	booktitle = {Proceedings of the International Conference on Parallel Problem Solving from Nature},
+	pages = {182-197},
 	year = {2000}
 }
 
@@ -515,65 +493,61 @@ Images
 	note = {KanGAL Report No. 2002004}
 }
 
-@article{Deb2003EpsMOEA,
+%[FIX ME] apaguei 	publisher = {Springer-Verlag}, por ser conferencia
+@inproceedings{Deb2003EpsMOEA,
 	author = {Deb, Kalyanmoy and Mohan, Manikanth and Mishra, Shikhar},
-	title = {Towards a Quick Computation of Well-spread Pareto-optimal Solutions},
-	journal = {International Conference on Evolutionary Multi-Criterion Optimization},
+	title = {{Towards a Quick Computation of Well-Spread Pareto-Optimal Solutions}},
+	booktitle = {Proceedings of the International Conference on Evolutionary Multi-Criterion Optimization},
 	year = {2003},
-	pages = {222-236},
-	publisher = {Springer-Verlag},
-	address = {Berlin, Heidelberg},
+	pages = {222-236}
 }
 
 % Diaz 
-@article{Diaz-Manriquez2016,
-	author = {D{\'{i}}az-Manr{\'{i}}quez, Alan and Toscano, Gregorio and Barron-Zambrano, Jose Hugo and Tello-Leal, Edgar},
-	journal = {Computational Intelligence and Neuroscience},
+@inproceedings{Diaz-Manriquez2016,
+	author = {D{í}az-Manr{í}quez, Alan and Toscano, Gregorio and Barron-Zambrano, Jose Hugo and Tello-Leal, Edgar},
+	booktitle = {Computational Intelligence and Neuroscience},
 	title = {{A Review of Surrogate Assisted Multiobjective Evolutionary Algorithms}},
 	volume = {2016},
-	year = {2016}
+	issue = {4},
+	year = {2016},
+	publisher = {Hindawi Publishing Corporation},
+	pages = {1-16}
 }
 
-% Durillo
+% Durillo [FIX ME] apaguei 	volume = {5467},
 @inproceedings{Durillo2011SMPSO,
-	author = {Durillo, Juan J. and Garcia-Nieto, Jos{\'{e}} and Nebro, Antonio J. and Coello, Carlos A. Coello and Luna, Francisco and Alba, Enrique},
-	doi = {10.1007/978-3-642-01020-0},
-	isbn = {978-3-642-01019-4},
+	author = {Durillo, J. and Garcia-Nieto, J. and Nebro, Antonio J. and Coello, C. and Luna, F. and Alba, E.},
 	booktitle = {Proceedings of the International Conference on Evolutionary Multi-Criterion Optimization},
 	pages = {495-509},
 	title = {{Multi-Objective Particle Swarm Optimizers: An Experimental Comparison}},
-	volume = {5467},
 	year = {2011}
 }
 
-@article{SMPSO, 
-	author={A. J. {Nebro} and J. J. {Durillo} and J. {Garcia-Nieto} and C. A. {Coello Coello} and F. {Luna} and E. {Alba}}, 
-	journal={IEEE Symposium on Computational Intelligence in Multi-Criteria Decision-Making}, 
-	title={SMPSO: A new PSO-based metaheuristic for multi-objective optimization}, 
-	year={2009}, 
-	pages={66-73}, 
+@inproceedings{SMPSO, 
+	author = {A. {Nebro} and J. {Durillo} and J. {Garcia-Nieto} and C. {Coello Coello} and F. {Luna} and E. {Alba}}, 
+	booktitle = {Proceedings of the IEEE Symposium on Computational Intelligence in Multi-Criteria Decision-Making}, 
+	title = {{SMPSO: A New PSO-based metaheuristic for Multi-Objective Optimization}}, 
+	year = {2009}, 
+	pages = {66-73}
 }
 
-@article{Sierra2005OMOPSO,
-	author={Sierra, Margarita R and Coello Coello, Carlos A.},
-	editor={Coello Coello, Carlos A. and Hern{\'a}ndez Aguirre, Arturo and Zitzler, Eckart},
-	title="Improving PSO-Based Multi-objective Optimization Using Crowding, Mutation and $\epsilon$-Dominance",
-	journal="Evolutionary Multi-Criterion Optimization",
-	year="2005",
-	publisher="Springer Berlin Heidelberg",
-	address="Berlin, Heidelberg",
-	pages="505-519",
-	isbn="978-3-540-31880-4"
+@inproceedings{Sierra2005OMOPSO,
+	author = {Sierra, Margarita R and Coello Coello, Carlos A.},
+	title= {{Improving PSO-Based Multi-objective Optimization Using Crowding, Mutation and $\epsilon$-Dominance}},
+	booktitle = {Proceedings of the International Conference on Evolutionary Multi-Criterion Optimization},
+	year = {2005},
+	pages = {505-519},
 }
 
-@article{Zavala2014,
+@inproceedings{Zavala2014,
 	author = {Zavala, Gustavo R. and Nebro, Antonio J. and Luna, Francisco and {Coello Coello}, Carlos A.},
-	journal = {Structural and Multidisciplinary Optimization},
+	booktitle = {Structural and Multidisciplinary Optimization},
 	issue = {4},
 	title = {{A Survey of Multi-Objective Metaheuristics Applied to Structural Optimization}},
 	volume = {49},
 	year = {2014},
-	pages = {537-558}
+	pages = {537-558},
+	publisher = {Springer}
 }
 
 
@@ -595,13 +569,13 @@ Images
 	year = {2012}
 }
 
-@article{Evins2013,
+@inproceedings{Evins2013,
 	author = {Evins, Ralph},
-	isbn = {13640321},
-	journal = {Renewable and Sustainable Energy Reviews},
+	booktitle = {Renewable and Sustainable Energy Reviews},
 	pages = {230-245},
 	publisher = {Elsevier},
-	title = {A review of computational optimisation methods applied to sustainable building design},
+	title = {{A Review of Computational Optimisation Methods a
+Applied to Sustainable Building Design}},
 	volume = {22},
 	year = {2013}
 }
@@ -609,37 +583,39 @@ Images
 % Fang 
 @phdthesis{Fang2017,
 	author       = {Fang, Yuan}, 
-	title        = {Optimization of Daylighting and Energy Performance Using Parametric Design, Simulation Modeling, and Genetic Algorithms},
-	school       = {Graduate Faculty of North Carolina State University},
+	title        = {{Optimization of Daylighting and Energy Performance Using Parametric Design, Simulation Modeling, and Genetic Algorithms}},
+	school       = {Faculty of North Carolina State University},
 	year         = 2017
 }
 
-% Ferreira
-@article{Ferreira2015GD,
+% Ferreiran [FIX ME] apaguei 	volume = {1},
+@inproceedings{Ferreira2015GD,
 	author = {Ferreira, Bruno and Leit{\~{a}}o, Ant{\'{o}}nio},
-	journal = {33rd Education and research in Computer Aided Architectural Design in Europe Conference},
+	booktitle = {Proceedings of the 33rd Education and research in Computer Aided Architectural Design in Europe Conference},
 	pages = {635-644},
 	title = {{Generative Design for Building Information Modeling}},
-	volume = {1},
-	year = {2015}}
+	year = {2015}
+}
 
 % Forrester 
-@article{Forrester2009SBO,
-	author = {Forrester, Alexander I J and Keane, Andy J.},
-	journal = {Progress in Aerospace Sciences},
+@inproceedings{Forrester2009SBO,
+	author = {Forrester, A.and Keane, A.},
+	booktitle = {Progress in Aerospace Sciences},
 	issue = {1-3},
 	pages = {50-79},
-	title = {Recent Advances in Surrogate-based Optimization},
+	title = {{Recent Advances in Surrogate-Based Optimization}},
 	volume = {45},
-	year = {2009}}
+	year = {2009},
+	publisher = {Elsevier}
+}
 
-% Giunta
+% Giunta [FIX ME] apaguei 	volume = {649},
 @inproceedings{Giunta2003DOE,
-	author = {Giunta, A.A. and Wojtkiewicz, SF and Eldred, M.S.},
+	author = {Giunta, A. and Wojtkiewicz, S. and Eldred, M.},
 	booktitle = {Proceedings of the 41st American Institute of Aeronautics and Astronautics Aerospace Sciences Meeting and Exhibit},
 	title = {{Overview of Modern Design of Experiments Methods for Computational Simulations}},
-	volume = {649},
-	year = {2003}
+	year = {2003},
+	pages ={1 -17}
 }
 
 % Gutmann
@@ -655,24 +631,26 @@ Images
 }
 
 % Hamdy 
-@article{Hamdy2016,
-	author = {Hamdy, Mohamed and Nguyen, Anh-tuan and Hensen, Jan L. M.},
+@inproceedings{Hamdy2016,
+	author = {Hamdy, M. and Nguyen, A. and Hensen, J.},
 	title = {{A Performance Comparison of Multi-objective Optimization Algorithms for Solving Nearly-Zero-Energy-Building Design Problems}},
 	year = {2016},
-	journal = {Energy and Buildings},
+	booktitle = {Energy {\&} Buildings},
 	pages = {57-71},
-	volume = {121}
+	volume = {121},
+	publisher = {Elsevier}
 }
 
 % Hasançebi 
-@article{Hasancebi2009,
-	author = {Hasan{\c{c}}ebi, O. and {\c{C}}arbaş, S. and Doǧan, E. and Erdal, F. and Saka, M. P.},
-	journal = {Computers and Structures},
+@inproceedings{Hasancebi2009,
+	author = {Hasan{\c{c}}ebi, O. and {\c{C}}arbaş, S. and Doǧan, E. and Erdal, F. and Saka, M.},
+	booktitle = {Computers {\&} Structures},
 	issue = {5-6},
 	pages = {284-302},
 	title = {{Performance Evaluation of Metaheuristic Search Techniques in the Optimum Design of Real Size Pin Jointed Structures}},
 	volume = {87},
-	year = {2009}
+	year = {2009},
+	publisher = {Elsevier}
 }
 
 % Hussein 
@@ -690,36 +668,37 @@ Images
 	pages = {110-125},
 	title = {{Modified Distance Calculation in Generational Distance and Inverted Generational Distance}},
 	booktitle = {Proceedings of the International Conference on Evolutionary Multi-Criterion Optimization},
-	volume = {9019},
 	year = {2005}
 }
 
 % Jones 
-@article{Jones1993DIRECT,
-	author = {Jones, D. R. and Perttunen, C. D. and Stuckman, B. E.},
-	journal = {Journal of Optimization Theory and Applications},
+@inproceedings{Jones1993DIRECT,
+	author = {Jones, D. and Perttunen, C. and Stuckman, B.},
+	booktitle = {Journal of Optimization Theory and Applications},
 	issue = {1},
 	pages = {157-181},
 	title = {{Lipschitzian Optimization without the Lipschitz Constant}},
 	volume = {79},
-	year = {1993}
+	year = {1993},
+	publisher = {Springer}
 }
 
 % Kaelo
-@article{Kaelo2006CRS2,
-	author = {Kaelo, P and Ali, M M},
-	journal = {Journal of Optimization Theory and Applications},
+@inproceedings{Kaelo2006CRS2,
+	author = {Kaelo, P. and Ali, M.},
+	booktile = {Journal of Optimization Theory and Applications},
 	issue = {2},
 	pages = {253-264},
-	title = {{Some variants of the Controlled Random Search Algorithm for Global Optimization}},
+	title = {{Some Variants of the Controlled Random Search Algorithm for Global Optimization}},
 	volume = {130},
-	year = {2006}
+	year = {2006},
+	publisher ={Springer}
 }
 
 % Knowles
 @inproceedings{Knowles2002Metrics,
 	author = {Knowles, Joshua and Corne, David},
-	journal = {Proceedings of the 2002 Congress on Evolutionary Computation},
+	booktitle = {Proceedings of the 2002 Congress on Evolutionary Computation},
 	pages = {711-716},
 	title = {{On Metrics for Comparing Nondominated Sets}},
 	year = {2002}
@@ -728,33 +707,45 @@ Images
 % Kolda 
 @inproceedings{Kolda2003,
 	author = {Kolda, T. G. and Lewis, R. M. and Torczon, V.},
-	booktitle = {Proceedings of the Society for Industrial and Applied Mathematics},
+	booktitle = {SIAM Review},
 	issue = {3},
 	pages = {385-482},
 	title = {{Optimization by Direct Search - New Perspectives on Some Classical and Modern Methods}},
 	volume = {45},
-	year = {2003}
+	year = {2003},
+	publisher = {Society for Industrial and Applied Mathematics},
 }
 
 % Leitao 
-@article{Leitao2014GD,
-	author = {Leit{\~{a}}o, Ant{\'{o}}nio and Santos, Lu{\'{i}}s and Fernandes, Rita},
-	journal = {XVII Conference of the Iberoamerican Society of Digital Graphics - SIGraDi: Knowledge-based Design},
-	issue = {7},
+@inproceedings{Leitao2014GD,
+	author = {Leit{ã}o, A. and Santos, L. and Fernandes, R.},
+	booktitle = {Proceedings of the XVII Conference of the Iberoamerican Society of Digital Graphics - SIGraDi: Knowledge-based Design},
 	pages = {235-238},
 	title = {{Pushing the Envelope: Stretching the Limits of Generative Design}},
-	volume = {1},
 	year = {2013}
 }
 
+ 
+@inproceedings{Leitao2012TPL,
+	author = {Leit{ã}o, A. and Santos, L. and Lopes, J.},
+	booktitle = {International Journal of Architectural Computing},
+	pages = {139-162},
+	title = {{Programming Languages For Generative Design: A Comparative Study}},
+	year = {2012},
+	issue = {1},
+	volume = {10},
+	publisher = {SAGE Journals},
+}
+
 % Machairas
-@article{Machairas2014,
+@inproceedings{Machairas2014,
 	author = {Machairas, Vasileios and Tsangrassoulis, Aris and Axarli, Kleo},
-	journal = {Renewable and Sustainable Energy Reviews},
+	booktitle = {Renewable and Sustainable Energy Reviews},
 	pages = {101-112},
 	title = {{Algorithms for Optimization of Building Design: A Review}},
 	volume = {31},
-	year = {2014}
+	year = {2014},
+	publisher = {Elsevier}
 }
 
 % Marler 
@@ -769,56 +760,59 @@ Images
 }
 
 % Nabil
-@article{Nabil2006,
+@inproceedings{Nabil2006,
 	author = {Nabil, Azza and Mardaljevic, John},
-	journal = {Energy and Buildings},
+	booktitle = {Energy {\&} Buildings},
 	pages = {905-913},
 	title = {{Useful Daylight Illuminances: A Replacement for Daylight Factors}},
 	volume = {38},
 	issue = {7},
-	year = {2006}
+	year = {2006},
+	publisher = {Elsevier}
 }
 
 % Nelder-Mead
-@article{Nelder1964,
+@inproceedings{Nelder1964,
 	author = {Nelder, J. and Mead, R.},
-	journal = {The Computer Journal},
-	isbn = {9781605580852},
+	booktitle = {The Computer Journal},
 	pages = {308-313},
 	title = {{A Simplex Method for Function Minimization}},
 	volume = {7},
 	issue = {4},
-	year = {1965}
+	year = {1965},
+	publisher = {Oxford University Press}
 }
 
 % Nguyen
-@article{Nguyen2014,
+@inproceedings{Nguyen2014,
 	author = {Nguyen, Anh-Tuan and Reiter, Sigrid and Rigo, Philippe},
-	isbn = {03062619},
-	journal = {Applied Energy},
+	booktitle = {Applied Energy},
 	pages = {1043-1058},
-	title = {{A Review on Simulation-based Optimization Methods Applied to Building Performance Analysis}},
+	title = {{A Review on Simulation-Based Optimization Methods Applied to Building Performance Analysis}},
 	volume = {113},
-	year = {2014}}
+	year = {2014},
+	publisher = {Elsevier}
+}
 
-@article{Oxman2006PBD,
+@inproceedings{Oxman2006PBD,
 	author = {Oxman, Rivka},
-	journal = {Design Studies},
+	booktitle = {Design Studies},
 	pages = {229-265},
 	title = {{Theory and Design in the First Digital Age}},
 	volume = {27},
 	issue = {3},
-	year = {2006}
+	year = {2006},
+	publisher = {Elsevier}
 }
 
 
-@article{Powell1994COBYLA,
+@inproceedings{Powell1994COBYLA,
 	author = {Powell, M.},
-	journal = {Advances in Optimization and Numerical Analysis},
+	booktitle = {Advances in Optimization and Numerical Analysis},
 	editor = {Gomez, S. and Hennart, J.P},
-	number = {275},
+	volume = {275},
 	pages = {51-67},
-	publisher = {Springer, Dordrecht},
+	publisher = {Springer},
 	title = {{A Direct Search Optimization Method That Models the Objective and Constraint Functions by Linear Interpolation}},
 	year = {1994}
 }
@@ -854,20 +848,21 @@ Images
 }
 
 % Rios 
-@article{Rios2013,
+@inproceedings{Rios2013,
 	author = {Rios, L. M. and Sahinidis, N. V.},
-	journal = {Journal of Global Optimization},
+	booktitle = {Journal of Global Optimization},
 	issue = {3},
 	pages = {1247-1293},
-	title = {{Derivative-free Optimization: A Review of Algorithms and Comparison of Software Implementations}},
+	title = {{Derivative-Free Optimization: A Review of Algorithms and Comparison of Software Implementations}},
 	volume = {56},
-	year = {2013}
+	year = {2013},
+	publisher = {Springer}
 }
 
 % Riquelme
-@article{Riquelme2015,
+@inproceedings{Riquelme2015,
 	author = {Riquelme, Nery and Von Lucken, Christian and Baran, Benjamin},
-	journal = {2015 Latin American Computing Conference},
+	booktitle = {Proceedings of the Latin American Computing Conference},
 	pages = {1-11},
 	title = {{Performance Metrics in Multi-objective Optimization}},
 	year = {2015}
@@ -875,10 +870,10 @@ Images
 
 % Rowan
 @phdthesis{Rowan1990,	
-	author       = {Rowan, T. H.}, 
-	title        = {Functional stability analysis of numerical algorithms},
-	school       = {Faculty of the Graduate School of the University of Texas},
-	year         = 1990
+	author	= {Rowan, T. H.}, 
+	title	= {{Functional Stability Analysis of Numerical Algorithms}},
+	school	= {Faculty of the Graduate School of the University of Texas},
+	year 	= 1990
 }
 
 
@@ -886,40 +881,38 @@ Images
 % Santos
 @phdthesis{Santos2010,
 	author = {Santos, C.},
-	title = {Parallel and Bio-Inspired Computing Applied to Analyze Microwave and Photonic Metamaterial Structures},
+	title = {{Parallel and Bio-Inspired Computing Applied to Analyze Microwave and Photonic Metamaterial Structures}},
 	school = {Faculty of Electrical and Computer Engineering, Campinas University},
 	year = 2010
 }
 
-@article{Runarsson2000, 
+@inproceedings{Runarsson2000, 
 	author={Runarsson, T. P. and Yao, Xin}, 
-	journal={IEEE Transactions on Evolutionary Computation}, 
-	title={Stochastic Ranking for Constrained Evolutionary Optimization}, 
+	booktitle={IEEE Transactions on Evolutionary Computation}, 
+	title={{Stochastic Ranking for Constrained Evolutionary Optimization}}, 
 	year={2000}, 
 	volume={4}, 
 	issue={3}, 
-	pages={284-294}
+	pages={284-294},
+	publisher ={IEEE}
 }
 
 @article{Ho1995RDF,
 	author = {Ho, Tin Kam},
 	title = {Random Decision Forests},
 	journal = {3rd International Conference on Document Analysis and Recognition},
-	year = {1995},
-	
+	year = {1995}
 } 
 
-@article{Hansen2006,
+@inproceedings{Hansen2006,
 	author = {Hansen, Nikolaus},
-	booktitle = {Towards a New Evolutionary Computation. Studies in Fuzziness and Soft Computing},
-	editor = {{Lozano J.A., Larra{\~{n}}aga P., Inza I.}, Bengoetxea E.},
+	booktitle = {{Towards a New Evolutionary Computation. Studies in Fuzziness and Soft Computing}},
 	pages = {75-102},
-	publisher = {Springer, Berlin, Heidelberg},
+	publisher = {Springer},
 	title = {{The CMA Evolution Strategy: A Comparing Review}},
 	volume = {192},
 	year = {2006}
 }
-
 
 % Shannon
 @article{Shannon1948,
@@ -933,12 +926,12 @@ Images
 
 
 % Shi
-@article{Shi2016,
+@inproceedings{Shi2016,
 	author = {Shi, Xing and Tian, Zhichao and Chen, Wenqiang and Si, Binghui and Jin, Xing},
-	journal = {Renewable and Sustainable Energy Reviews},
+	booktitle = {Renewable and Sustainable Energy Reviews},
 	pages = {872-884},
 	publisher = {Elsevier},
-	title = {A Review on Building Energy Efficient Design Optimization From the Perspective of Architects},
+	title = {{A Review on Building Energy Efficient Design Optimization From the Perspective of Architects}},
 	volume = {65},
 	year = {2016}
 }
@@ -963,40 +956,42 @@ Images
 }
 
 % Waibel
-@article{Waibel2018,
+@inproceedings{Waibel2018,
 	author = {Waibel, Christoph and Wortmann, Thomas and Evins, Ralph and Carmeliet, Jan},
-	journal = {Energy and Buildings},
-	title = {Building Energy Optimization: An Extensive Benchmark of Global Search Algorithms},
+	booktitle = {Energy {\&} Buildings},
+	title = {{Building Energy Optimization: An Extensive Benchmark of Global Search Algorithms}},
 	volume = {187},
 	pages = {218-240},
-	year = {2019}
+	year = {2019},
+	publisher = {Elsevier}
 }
 
 % Wortmann 
-@article{Wortmann2015AdvSBO,
+@inproceedings{Wortmann2015AdvSBO,
 	author = {Wortmann, Thomas and Costa, Alberto and Nannicini, Giacomo and Schroepfer, Thomas},
-	journal = {Artificial Intelligence for Engineering Design, Analysis and Manufacturing},
-	title = {Advantages of Surrogate Models for Architectural Design Optimization},
-	year = {2015}
+	booktitle = {Artificial Intelligence for Engineering Design, Analysis and Manufacturing},
+	title = {{Advantages of Surrogate Models for Architectural Design Optimization}},
+	year = {2015},
 	volume = {29},
 	issue = {4},
 	pages = {471-481},
+	publisher = {Cambridge University Press}
 }
 
 @inproceedings{Wortmann2016BBO,
 	author = {Wortmann, Thomas and Nannicini, Giacomo},
 	booktitle = {Proceedings of the 21st International Conference on Computer-Aided Architectural Design Research in Asia},
 	pages = {177-186},
-	title = {Black-Box Optimisation Methods for Architectural Design},
+	title = {{Black-Box Optimisation Methods for Architectural Design}},
 	year = {2016}
 }
 
-@article{Wortmann2017ADO,
+@inproceedings{Wortmann2017ADO,
 	author = {Wortmann, Thomas and Nannicini, Giacomo},
-	journal = {City Networks - Planning for Health and Sustainability},
+	booktitle = {City Networks - Planning for Health and Sustainability},
 	editor = {{Athanasia Karakitsiou, Athanasios Migdalas, Stamatina Th. Rassia}, Panos M. Pardalos},
 	publisher = {Springer},
-	title = {Introduction to Architectural Design Optimization},
+	title = {{Introduction to Architectural Design Optimization}},
 	volume = {128},
 	pages = {259-278},
 	year = {2017}
@@ -1007,7 +1002,7 @@ Images
 	booktitle = {Proceedings of the Symposium on Simulation for Architecture and Urban Design
 	Article},
 	pages = {51-58},
-	title = {Are Genetic Algorithms Really the Best Choice for Building Energy Optimization?},
+	title = {{Are Genetic Algorithms Really the Best Choice for Building Energy Optimization?}},
 	year = {2017}
 }
 
@@ -1015,50 +1010,54 @@ Images
 	author = {Wortmann, Thomas},
 	booktitle = {Proceeding of the 22nd International Conference of the Association for Computer-Aided Architectural Design Research in Asia},
 	pages = {283-292},
-	title = {Opossum: Introducing and Evaluating a Model-based Optimization Tool for Grasshopper},
+	title = {{Opossum: Introducing and Evaluating a Model-based Optimization Tool for Grasshopper}},
 	year = {2017}
 }
 
-@article{Wortmann2017,
+@inproceedings{Wortmann2017,
 	author = {Wortmann, Thomas},
-	journal = {Technology | Architecture + Design},
+	booktitle = {Technology | Architecture + Design},
 	issue = {2},
 	pages = {176-185},
-	title = {Model-based Optimization for Architectural Design: Optimizing Daylight and Glare in Grasshopper},
+	title = {{Model-based Optimization for Architectural Design: Optimizing Daylight and Glare in Grasshopper}},
 	volume = {1},
-	year = {2017}
+	year = {2017},
+	publisher = {Taylor {\&} Francis Group}
 }
 
 % Wolpert 
-@article{Wolpert1997NFLT,
+@inproceedings{Wolpert1997NFLT,
 	author = {Wolpert, D. and Macready, W.},
-	journal = {IEEE Transactions on Evolutionary Computation},
+	booktitle = {IEEE Transactions on Evolutionary Computation},
 	issue = {1},
 	pages = {67-82},
 	title = {{No Free Lunch Theorems for Optimization}},
 	volume = {1},
-	year = {1997}
+	year = {1997},
+	publisher = {IEEE}
 }
 
 % Zapotecas
-@article{Zapotecas-Martinez2016,
+@inproceedings{Zapotecas-Martinez2016,
 	author = {Zapotecas-Mart{\'{i}}nez, Sa{\'{u}}l and Coello Coello, Carlos A.},
-	journal = {Engineering Optimization},
+	booktitle = {Engineering Optimization},
 	issue = {1},
 	pages = {16-38},
-	title = {MONSS: A Multi-objective Nonlinear Simplex Search Approach},
+	title = {{MONSS: A Multi-objective Nonlinear Simplex Search Approach}},
 	volume = {48},
-	year = {2016}
+	year = {2016},
+	publisher = {Taylor {\&} Francis Group}
 }
 
 % Tian
-@article{Tian2013,
+@inproceedings{Tian2013,
 	author = {Tian, Wei},
-	journal = {Renewable and Sustainable Energy Reviews},
-	title = {{A Review of sensitivity analysis methods in building energy analysis}},
+	booktitle = {Renewable and Sustainable Energy Reviews},
+	title = {{A Review of Sensitivity Analysis Methods in Building Energy Analysis}},
 	volume = {20},
 	year = {2013},
-	pages = {411-419}
+	pages = {411-419},
+	publisher = {Elsevier}
 }
 
 % Wang
@@ -1073,12 +1072,12 @@ Images
 }
 
 % Zhou
-@article{Zhou2011,
+@inproceedings{Zhou2011,
 	author = {Zhou, Aimin and Qu, Bo-yang and Li, Hui and Zhao, Shi-zheng and Nagaratnam, Ponnuthurai},
-	journal = {Swarm and Evolutionary Computation},
+	booktitle = {Swarm and Evolutionary Computation},
 	issue = {1},
 	pages = {32-49},
-	publisher = {Elsevier B.V.},
+	publisher = {Elsevier},
 	title = {{Multiobjective Evolutionary Algorithms : A Survey of the State of the Art}},
 	volume = {1},
 	year = {2011}
@@ -1087,63 +1086,68 @@ Images
 % Zitzler
 @phdthesis{Zitzler1999,
 	author = {Zitzler, Eckart},
-	school = {Swiss Federal Institute of Technology (ETH) Zurich. TIK-Schriftenreihe Nr. 30, Diss ETH No. 13398, Shaker Verlag, Aachen, Germany},
+	school = {Swiss Federal Institute of Technology (ETH) Zurich},
 	title = {{Evolutionary Algorithms for Multiobjective Optimization: Methods and Applications}},
 	year = {1999}
 }
 
 @techreport{Zitzler2001SPEA2,
 	author = {Zitzler, Eckart and Laumanns, Marco and Thiele, Lothar},
-	title = {SPEA2: Improving the Strength Pareto Evolutionary Algorithm},
+	title = {{SPEA2: Improving the Strength Pareto Evolutionary Algorithm}},
 	institution  = {Swiss Federal Institute of Technology (ETH) Zurich},
 	year         = 2001,
 	note         = {TIK-Report 103}
 }
 
-@article{Zitzler2011HypE,
+@inproceedings{Zitzler2011HypE,
 	author = {Bader, Johannes and Zitzler, Eckart},
-	journal = {Evolutionary Computation},
-	issue = {1},
+	title = {{HypE: An Algorithm for Fast Hypervolume-Based Many-Objective Optimization}},
+	booktitle = {{Evolutionary Computation}},
+	publisher = {{MIT Press}},
 	pages = {45-76},
-	title = {HypE: An Algorithm for Fast Hypervolume-Based Many-Objective Optimization},
 	volume = {19},
-	year = {2011}
+	year = {2011},
+	issue = {1}
 }
 
-@article{Zitzler2003Metrics,
+@inproceedings{Zitzler2003Metrics,
 	author = {Zitzler, Eckart and Thiele, Lothar and Laumanns, Marco and Fonseca, Carlos M and Grunert, Viviane},
-	journal = {IEEE Transactions on Evolutionary Computation},
+	booktitle = {IEEE Transactions on Evolutionary Computation},
 	issue = {2},
 	pages = {117-132},
 	title = {{Performance Assessment of Multiobjective Optimizers : An Analysis and Review}},
 	volume = {7},
-	year = {2003}
+	year = {2003},
+	publisher = {IEEE}
 }
 
-@article{Zitzler2000m1m3,
+@inproceedings{Zitzler2000m1m3,
 	author = {Zitzler, E. and Deb, K. and Thiele, L.},
-	journal = {Evolutionary computation},
+	booktitle = {Evolutionary Computation},
 	issue = {2},
 	pages = {173-195},
-	title = {Comparison of multiobjective evolutionary algorithms: empirical results},
+	title = {{Comparison of Multiobjective Evolutionary Algorithms: Empirical Results}},
 	volume = {8},
-	year = {2000}
+	year = {2000},
+	publisher = {MIT Press}
 }
 
-@article{Zhang2007MOEAD,
+@inproceedings{Zhang2007MOEAD,
 	author = {Zhang, Qingfu and Li, Hui},
-	journal = {IEEE Transactions on Evolutionary Computation},
+	booktitle = {IEEE Transactions on Evolutionary Computation},
 	issue = {6},
 	pages = {712-731},
 	title = {{MOEA/D: A Multiobjective Evolutionary Algorithm based on Decomposition}},
 	volume = {11},
-	year = {2007}
+	year = {2007},
+	publisher = {IEEE}
 }
 
-@article{Zhang2009TEST,
+
+@techreport{Zhang2009TEST,
 	author = {Zhang, Qingfu and Zhou, Aimin and Zhao, Shizheng and Suganthan, Ponnuthurai Nagaratnam and Liu, Wudong},
-	journal = {Mechanical engineering},
-	title = {Multiobjective Optimization Test Instances for the CEC 2009 Special Session and Competition},
+	title = {{Multiobjective Optimization Test Instances for the CEC 2009 Special Session and Competition}},
+	institution = {University of Essex, Colchester, UK and Nanyang Technological University, Singapore},
 	year = {2009}
 }
 
@@ -1154,30 +1158,34 @@ Images
 	year = {1995}
 }
 
-@article{Li2017Rmetrics,
+@inproceedings{Li2017Rmetrics,
 	author = {Li, Ke and Deb, Kalyanmoy and Yao, Xin},
-	journal = {IEEE Transactions on Evolutionary Computation},
+	booktitle = {IEEE Transactions on Evolutionary Computation},
 	issue = {6},
 	pages = {821-835},
 	title = {{R-Metric: Evaluating the Performance of Preference-Based Evolutionary Multi-Objective Optimization Using Reference Points}},
 	volume = {22},
-	year = {2017}
+	year = {2017},
+	publisher = {IEEE}
 }
 
-@article{Bach2015,
+@inproceedings{Bach2015,
 	author = {Bach, Sebastian and Binder, Alexander and Montavon, Gr{\'{e}}goire and Klauschen, Frederick},
-	journal = {Public Library of Science ONE},
 	title = {{On Pixel-Wise Explanations for Non-Linear Classifier Decisions by Layer-Wise Relevance Propagation}},
+	booktitle = {Public Library of Science ONE},
 	year = {2015},
+	publisher = {Public Library of Science},
 	volume = {10},
+	pages = {1-46},
 	issue = {7}
 }
 
-@article{Tripathy2018,
+@inproceedings{Tripathy2018,
 	pages = {565-588},
-	journal = {Journal of Computational Physics},
+	booktitle = {Journal of Computational Physics},
 	author = {Tripathy, Rohit and Bilionis, Ilias},
-	title = {Deep UQ: Learning deep neural network surrogate models for high dimensional uncertainty quantification},
+	title = {{Deep UQ: Learning Deep Neural Network Surrogate Models for High Dimensional Uncertainty Quantification}},
 	volume = {375},
-	year = {2018}
+	year = {2018},
+	publisher = {Elsevier}
 }

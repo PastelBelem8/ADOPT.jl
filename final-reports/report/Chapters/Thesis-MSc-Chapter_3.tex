@@ -7,7 +7,14 @@
 % The following line allows to ref this chapter
 \label{chap:architecture}
 
-This dissertation focuses on optimization algorithms that are able to more efficiently handle problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a general-purpose framework to enable the application of different types of optimization algorithms, both for \ac{SOO} and \ac{MOO} problems. The creation of such framework requires: (1) the definition of an abstraction layer that enables the modeling of optimization problems, (2) a wide variety of optimization algorithms to address different optimization problems, (3) a set of performance indicators to provide the user with a measure of the algorithms' quality when testing multiple algorithms, and (4) visual representations of the obtained results to provide more comprehensive feedback over the optimization results. \Cref{fig:solution} shows the  solution's different components and its external connections.
+This dissertation focuses on optimization algorithms that are able to more efficiently handle problems involving time-consuming functions. Apart from the theoretical study and literature review, this dissertation proposes a general-purpose framework to enable the application of different types of optimization algorithms, both for \ac{SOO} and \ac{MOO} problems. The creation of such framework requires: 
+\begin{itemize}
+	\item an \textbf{abstraction layer} to facilitate both the modeling of optimization problems and the selection and fine-tune of optimization algorithms,
+	\item multiple \textbf{optimization algorithms} presenting different properties to better address different optimization problems,
+	\item a set of \textbf{performance indicators} to provide the user with a measure of the algorithms' quality when testing multiple algorithms,
+	\item \textbf{visual representations} of the obtained results to provide more comprehensive feedback over the optimization results.
+\end{itemize}
+\Cref{fig:solution} shows the  solution's different components and its external connections.
 
 \begin{figure}[htbp]
 	\centering
@@ -100,7 +107,7 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 		& S & G & DIRECT-L & NLopt \\
 		& S & L & NMS & NLopt \\
 		& S & L & PRAXIS & NLopt \\
-		\multirow{-5}{*}{Direct search} & S & L & Subplex & NLopt \\ \hline
+		\multirow{-5}{*}{Direct search} & S & L & SUBPLEX & NLopt \\ \hline
 		& S & L & BOBYQA & NLopt \\
 		& S & L & COBYLA & NLopt \\
 		& SM & G & Decision Tree & Scikit-learn \\

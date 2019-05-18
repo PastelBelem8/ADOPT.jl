@@ -203,7 +203,7 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	A second classification differentiates \textbf{deterministic} and \textbf{stochastic} algorithms depending on the determinism of the algorithms' outcomes. Given the same starting point and configuration, deterministic algorithms systematically apply the same sequence of steps and, as a consequence, they always return the same result. In contrast, stochastic algorithms include some form of randomness within their description and, therefore, often yield different results for the same starting point and algorithm's configuration.
 		
-	The third, and final, distinction is between \textbf{derivative-based} and \textbf{derivative-free} algorithms, which differ in the type of information used during the search. Derivative-based (or gradient-based) algorithms explore information from the derivatives of objective functions, i.e., the direction and magnitude of the greatest increase of the function, to guide the search. % Consequently, they solve problems explicitly defined through mathematical forms very efficiently, as the derivatives' information is easily available. 
+	The third, and final, distinction is between \textbf{derivative-based} and \textbf{derivative-free} algorithms, which differ in the type of information used during the search. Derivative-based (or gradient-based) algorithms guide the seach by exploring the objective function's derivatives, i.e., the direction and magnitude of the greatest increase of the function. % Consequently, they solve problems explicitly defined through mathematical forms very efficiently, as the derivatives' information is easily available. 
 	However when the objective function's analytical form is unknown and the derivatives are unavailable, these algorithms cannot be applied. Although finite-difference methods could be applied to approximate the derivatives, these require several extra function evaluations, which becomes impractical for problems involving expensive objective functions. In these cases, it becomes necessary to resort to derivative-free algorithms, which, instead of exploiting information about derivatives, treat the objective functions as \textit{black-boxes} and use the result of previously evaluated solutions to guide the search~\cite{Rios2013}.
 	
 	Derivative-free optimization algorithms, commonly known as black-box optimization algorithms within the architectural community \cite{Wortmann2016BBO},
@@ -225,10 +225,10 @@ In the mathematical field of optimization, the creation of the model representin
 	\subsection{Direct-search Algorithms}
 	\label{ssec:direct-search}
 	
-	Although there seems to be no precise definition for direct-search algorithms, these are often identified as algorithms that iteratively: (1) evaluate a sequence of candidate solutions, proposed by a deterministic strategy; and (2) select the best solution obtained up to that time \cite{Conn2009}. Direct-search algorithms are sought as valuable tools to address complex optimization problems, not only because most of them were proved to rely on solid mathematical principles, but also due to their good performance at initial stages of the search process~\cite{Rios2013}. 
+	Although there seems to be no precise definition for direct-search algorithms, these are often identified as algorithms that iteratively: (1) evaluate a sequence of candidate solutions, proposed by a deterministic strategy; and (2) select the best solution obtained up to that moment \cite{Conn2009}. Direct-search algorithms are sought as valuable tools to address complex optimization problems, not only because most of them were proved to rely on solid mathematical principles, but also due to their good performance at initial stages of the search process~\cite{Rios2013}. 
 	
 	% Their slow asymptotic convergence are because they usually using gradient information. Another limitation that is not evident from this example is that the algorithm may be slow to converge if the level sets of f are extremely elongated. This is because the method makes no use of curvature information, the asymptotic rate of convergence will be slow.
-	The main limitations of these algorithms is their performance deterioration with the increase on the number of input variables, and their slow asymptotic convergence rates as they get closer to optimal solutions~\cite{Kolda2003}. Moreover, despite the existence of algorithms and benchmarks comparing SOO direct-search algorithms \cite{Waibel2018}, only recently have these started to appear in the context of MOO \cite{Custodio2010}. 
+	The main limitations of these algorithms are their performance deterioration with an increasing number of input variables, and their slow asymptotic convergence rates as they get closer to optimal solutions~\cite{Kolda2003}. Moreover, despite the existence of algorithms and benchmarks comparing SOO direct-search algorithms \cite{Waibel2018}, only recently have these started to appear in the context of MOO \cite{Custodio2010,Custodio2018}. 
 	
 	Undoubtedly, one of the most relevant direct-search algorithms is the NMS \cite{Nelder1964}. \textit{\ac{NMS}} is a local \ac{SOO} direct-search algorithm that exploits a simplex to guide the search towards a locally optimal solution. The \textit{\ac{NMS}} algorithm envelopes a region of the design space using a simplex, which is a generalization of a triangle to arbitrary dimensions, i.e., a triangle in two dimensions, a tetrahedron in three dimensions, etc. The simplex is then successively modified using operations, like reflection, expansion, contraction, and shrinking, that iteratively replace the simplex's worst vertex values. % http://www.scholarpedia.org/article/Nelder-Mead_algorithm
 	Unlike other direct-search algorithms, \textit{\ac{NMS}} requires no more than two function evaluations per iteration, except when applying the shrinking operation. The initial simplex highly influences the performance of the algorithm: while smaller initial simplices often lead to local searches that converge towards a local optimum, larger initial simplices allow the algorithm to cover a larger extent of the solution space, thus becoming more robust to local optima.
@@ -250,7 +250,7 @@ In the mathematical field of optimization, the creation of the model representin
 	In the original definition, these algorithms were solely based in the interaction between local improvement procedures, called heuristics, and higher-level strategies, called metaheuristics. On the one hand, heuristics are techniques that locate good solutions, but not necessarily the optimal, nor the correct ones, and that often consider the trade-off between precision, quality, and computational effort. On the other hand, a metaheuristic is an algorithmic framework that can be applied to different problems, with few modifications to add problem-specific knowledge, if so desired~\cite{Glover2003Metaheuristics}. Moreover, a metaheuristic is a higher-level strategy that extends the capabilities of heuristics by combining one or more heuristic methods, while being agnostic to each heuristic. The ``meta'' classification of these algorithms results from the fact that they control the heuristics applied in the process.
 	
 	%Throughout time, this class has grown to include any algorithm that includes simple heuristics to locate good solutions in complex design spaces.%, while considering the trade-off between precision, quality, and computational effort of the solutions. 
-	These algorithms often rely on randomization, and biological or physical analogies, to perform robust searches and escape local optima~\cite{Glover2003Metaheuristics}. Additionally, their stochastic nature confers them the ability to effortlessly handle complex and irregular objective functions, to adapt to \ac{MOO} contexts, or to provide domain-specific knowledge through heuristics \cite{Wortmann2017GABESTCHOICE}.
+	These algorithms often rely on randomization, and biological or physical analogies, to perform robust searches and escape local optima~\cite{Glover2003Metaheuristics}. Additionally, their stochastic nature confers them the ability to handle complex and irregular objective functions, to adapt to \ac{MOO} contexts, or to provide domain-specific knowledge through heuristics \cite{Wortmann2017GABESTCHOICE}.
 	
 	Metaheuristics are good optimization algorithms when provided with sufficient amounts of time to do the necessary objective function evaluations \cite{Conn2009}. However, in some contexts, this is not possible. This is the case of \ac{BPO} in the architectural practice, where each evaluation is so time-consuming that the execution of thousands of evaluations rapidly becomes an infeasible scenario. Due to their stochastic nature, limiting the number of evaluations has severe repercussions on their convergence guarantees \cite{Hasancebi2009}.
 	
@@ -469,7 +469,7 @@ In the mathematical field of optimization, the creation of the model representin
 			\label{fig:galapagosviewsb}%
 			\includegraphics[width=0.345\textwidth]{Images/Background/Galapagos/galapagos-sa-results-2.PNG}}%
 		
-		\caption[Galapagos GUI]{Three views of the Galapagos' \ac{GUI}: (a) Solver's configuration menu (b) Graphical views for the \textit{\ac{GA}} solver (c) Graphical views for the \textit{Simulated Annealing} solver}
+		\caption[Galapagos GUI]{Three views of the Galapagos' \ac{GUI}: (a) Solver's configuration menu (b) Graphical views for the \textit{\ac{GA}} solver (c) Graphical views for the \textit{Simulated Annealing} solver.}
 		\label{fig:galapagos}
 	\end{figure*}
 	
@@ -533,7 +533,7 @@ In the mathematical field of optimization, the creation of the model representin
 	\begin{figure}
 		\centering
 		\includegraphics[width=1\textwidth]{Images/Background/Opossum/opossum_1.png}
-		\caption[Opossum GUI]{The three views of Opossum's \ac{GUI}. Image retrieved from~\cite{Wortmann2017Opossum}}
+		\caption[Opossum GUI]{The three views of Opossum's \ac{GUI}. Image retrieved from~\cite{Wortmann2017Opossum}.}
 		\label{fig:opossum}
 	\end{figure}
 	% End Figure -------------------------------------------------------
@@ -568,7 +568,7 @@ In the mathematical field of optimization, the creation of the model representin
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=1\textwidth]{Images/Background/Octopus/octopus-menu.png}
-		\caption[Octopus GUI]{Octopus's \ac{GUI}: (1) Solutions' Objective Space, (2) Solution's context menu, (3) Generation's history slider, (4) Process control options, (5) Algorithm Settings, (6) Display Settings, (7) Statistics, (8) Parallel Coordinates Graph, (9) List of Objectives (10) Convergence graphs per Objective}
+		\caption[Octopus GUI]{Octopus's \ac{GUI}: (1) Solutions' Objective Space, (2) Solution's context menu, (3) Generation's history slider, (4) Process control options, (5) Algorithm Settings, (6) Display Settings, (7) Statistics, (8) Parallel Coordinates Graph, (9) List of Objectives (10) Convergence graphs per Objective.}
 		\label{fig:octopus}
 	\end{figure}
 	
@@ -650,7 +650,7 @@ In the mathematical field of optimization, the creation of the model representin
 	
 	% Taking all the \textit{pros} and \textit{cons} of the analyzed tools into consideration, we identify the predominance of metaheuristics and, particularly, of evolutionary-based algorithms as one of the main drawbacks of currently existing architectural optimization tools \cite{Evins2013,Nguyen2014}, especially when considering \ac{MOO}. Due to the limitations associated with this class of algorithms and the time complexity of typical \ac{BPO} processes, the incorrect use of these algorithms might lead to slow optimization processes. Additionally, there seems to be a generalized lack of standard approach to optimization. As a result, architects tend to adopt the most easily available algorithm for every design.%, which in this case is the Galapagos' \ac{GA}. Moreover, given the difficulties and limitations of \ac{MOO}, most \ac{BPO} practitioners opt for \ac{SOO} tools. 
 		
-	This dissertation aims to bridge the identified gaps. To this end, we propose a framework supporting a wide variety of optimization algorithms, and providing post-processing and visual features to better support the interpretation of the optimization's results. In the next chapter, we present our solution.	
+	This dissertation aims to bridge the identified gaps. To this end, we propose a framework supporting not only a wide variety of optimization algorithms from different optimization categories, but also the post-processing and visual features that better support the interpretation of the optimization's results. Furthermore, to facilitate its usage, the framework should provide an easy-to-use and intuitive \ac{API}. In the next chapter, we present our solution.	
 	
 	% This dissertation addresses the time complexity of problems involving costly evaluation functions, especially when considering \ac{MOO}. In the next chapter, we present our solution.
 	%In the next chapter, we describe the architecture of our solution and explain how each component achieves the features highlighted in this section.

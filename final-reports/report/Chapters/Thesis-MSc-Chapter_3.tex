@@ -21,7 +21,7 @@ This dissertation focuses on optimization algorithms that are able to more effic
 	%\includegraphics[width=\textwidth]{./Images/Solution/solution_architecture_2.PNG}
 	%\caption{Architecture of the solution.}
 	\includegraphics[width=\textwidth]{./Images/Solution/ComponentModel3.png}
-	\caption{Components diagram of the solution.}
+	\caption[Components diagram of the solution]{Components diagram of the solution.}
 	\label{fig:solution}
 \end{figure}
 
@@ -50,7 +50,7 @@ Notwithstanding their benefits, the abstraction layer provided in this dissertat
 
 Nevertheless, influenced by existing optimization modeling languages, the abstraction layer's operations remove the complexity associated to most modeling languages and allow users to incrementally combine them in order to model more complex optimization problems. Moreover, the abstraction layer is designed to enable the execution of any of the optimization approaches discussed in~\cref{sec:optimizationproblems}, ranging from \ac{SOO} to \ac{MOO} approaches, passing through the experimental approach.
 
-\begin{lstlisting}[caption={Simple example of the framework's API being used in a script written in the Julia programming language.},label=juliaCode]
+\begin{lstlisting}[caption={Simple example of the framework's API being used in a script written in the Julia programming language},label=juliaCode]
 # Analytical Objective Functions
 f1(x) = x^2
 f2(x) = (x - 2)^2

@@ -36,7 +36,7 @@ Even though the provided example presents a textual-based \ac{AO} approach, the 
 
 One important aspect that results from this combination is the fact that architects are able to use different optimization algorithms and, consequently, to select an optimization algorithm that better suits their problems. To bridge the gap between the lack of knowledge or experience and the suitability of optimization algorithms for each problem, the optimization framework also provides automated testing mechanisms. These mechanisms enable the sequential execution of multiple optimization algorithms for a specified amount of evaluations, as well as each algorithm's performance measures. This feature is particularly important in the architectural context~\cite{Wortmann2016BBO,Hamdy2016}, as it promotes more informed decisions towards the selection of more appropriate optimization algorithms.
 
-\begin{lstlisting}[caption={BPO example of the framework's API using the Khepri AD tool.},label=BPOjuliaCode]	
+\begin{lstlisting}[caption={BPO example of the framework's API using the Khepri AD tool},label=BPOjuliaCode]	
 building_with_skylight(height, width, length, material) = let
 	# Create the design using Khepri's primitives
 	...
@@ -44,8 +44,8 @@ end
 
 # Analytical-based criterium
 cost(height, width, length, material) = let
-	p1 = scale(width, 1.5) * scale(length, 6.5) * 185,
-	p2 = (scale(width, 1.5) + scale(length, 6.5)) * 2 * height * 80
+	p1 = width * length * 185,
+	p2 = (width + length) * 2 * height * 80
 	p1 + p2
 end
 

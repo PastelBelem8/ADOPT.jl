@@ -2,6 +2,7 @@ module MscThesis
 using Dates
 using Random
 
+using DelimitedFiles
 using Distances
 using Statistics
 using LinearAlgebra
@@ -64,7 +65,7 @@ Pareto.is_nondominated(solutions::Vector{Solution}) =
 
 # Benchmarks
 include("./Benchmark.jl")
-# include("./indicators/Indicators.jl")
+include("./indicators/Indicators.jl")
 
 #= ---------------------------------------------------------------------- #
     Solvers

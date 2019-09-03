@@ -1,6 +1,8 @@
 # Dependencies (for reading)
 using DelimitedFiles
 
+import Base: read
+
 "Get unique name based on the current datetime"
 get_unique_string() = Dates.format(Dates.now(), "yyyymmddHHMMSS")
 

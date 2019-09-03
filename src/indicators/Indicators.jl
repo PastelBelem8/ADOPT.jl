@@ -56,7 +56,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     end
 
     # Write PF to temp file
-    tempFile = create_temporary_file("$(MscThesis.QHV_TEMP_DIR)", ".in")
+    tempFile = "$(MscThesis.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
 
     # Write Input File
     qhv_input_text = mapslices(dumpQHV, A, dims=1)
@@ -65,7 +65,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     end
 
     # QHV assumes maximization problem
-    1 - runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
+    runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -122,10 +122,17 @@ spacing as proposed in [4] by specifying by using [`Δ`](@ref) or
 """
 spacing(A::AbstractMatrix) =
     let nsols = size(A, 2)
+        var(as) = let
+           s, a_avg = 0, mean(as)
+           for a in as
+               s += (a_avg - a)^2
+           end
+           sqrt(s / (length(as)-1))
+       end
         if nsols == 1 return -1; end
         min_ds = [ minimum_distance(A[:, j], A[:,1:nsols.!=j], Distances.cityblock)
                         for j in 1:nsols]
-        Statistics.var(min_ds)
+        var(min_ds)
     end
 
 """
@@ -236,8 +243,6 @@ The generational distance (GD) score favours sets with one vector close to
 are not closer on average than the first one [2]. Unlike the
 [`hypervolumeIndicator`](@ref), GD is very cheap to compute.
 """
-# TODO - Complement description of GD. There are several disadvantages
-#        associated to the GD Indicator that should be accounted for. [2], [3]
 generationalDistance(T::AbstractMatrix, A::AbstractMatrix) =
     let nsols = size(A, 2)
         squared_min_dists = [minimum_distance(A[:, j], T)^2

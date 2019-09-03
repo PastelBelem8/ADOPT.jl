@@ -1,5 +1,6 @@
 module Sampling
 
+using DelimitedFiles
 using Random
 
 # Macros ---------------------------------------------------------------------
@@ -130,8 +131,6 @@ get_existing(sampling_f; kwargs...) =
     end
 
 exists(f) = f ∈ (boxbehnken, kfactorial, latinHypercube, randomMC, stratifiedMC)
-
-
 
 # ------------------------------------------------------------------------
 # Creation Routines

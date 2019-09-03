@@ -354,7 +354,10 @@ check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Functio
 apply(c::Constraint, args...) = func(c)(args...)
 
 "Evaluates the value of constraint"
-evaluate(c::Constraint, args...) = operator(c)(apply(c, args...), 0) ? 0 : apply(c, args...)
+evaluate(c::Constraint, args...) = let
+    result = apply(c, args...)
+    operator(c)(result, 0) ? 0 : result
+end
 
 "Evaluates the value of the constraint relative to 0"
 issatisfied(c::Constraint, c_value) = operator(c)(c_value, 0)
@@ -470,7 +473,7 @@ isSolution(s::Any)::Bool = false
 check_arguments(::Type{Solution}, vars::Vector{T}, objs::Vector, constrs::Vector{Real},
                 constraint_violation::Real, feasible::Bool, evaluated::Bool) where{T<:Real} =
     if length(vars) < 1
-        throw(DomainError("invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
+        throw(DomainError("SOLUTION: invalid number of variables $(length(vars)). A solution must be composed by at least one variable."))
     # elseif constraint_violation != 0 && all(constrs)
     #     throw(DomainError("invalid value for constraint_violation $(constraint_violation). To have constraint violation it is necessary that one of the constraints is not satisfied."))
     end
@@ -586,22 +589,30 @@ evaluate(model::Model, vars::Vector, transformation::Function=flatten) =
 
 evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=flatten) = let
     start_time = time();
-    objs_values, objs_time = @profile objs (o) -> evaluate(o, vars)
-    objs_values = objs_values |> transformation
+    eval_objectives() = let
+        objs_values, objs_time = @profile objs (o) -> evaluate(o, vars)
+        transformation(objs_values), objs_time
+    end
 
-    if isempty(cnstrs)
-        write_result("evaluate", time()-start_time, objs_time, vars, objs_values)
-        Solution(vars, objs_values)
-    else
+    if !isempty(cnstrs)
+        println("===== CONSTRAINED ====")
         cnstrs_values, cnstrs_time = @profile cnstrs (c) -> evaluate(c, vars)
 
         # Compute penalty
         cnstrs_penalty = penalty(cnstrs, cnstrs_values)
         feasible = iszero(cnstrs_penalty)
-
+        println(">>> Variables: $(vars) \n>>>is_feasible: $(feasible)")
+        objs_values, objs_time = feasible ? eval_objectives() : (zeros(length(objs)), -1 * ones(length(objs)))
         write_result("evaluate", time()-start_time, cnstrs_time, objs_time, vars,
                     cnstrs_values, cnstrs_penalty, feasible, objs_values)
+        println(">>> Written! <<<<< ")
+
         Solution(vars, objs_values, cnstrs_values, cnstrs_penalty, feasible, true)
+    else
+        println("===== UNCONSTRAINED ====")
+        objs_values, objs_times = eval_objectives()
+        write_result("evaluate", time()-start_time, objs_time, vars, objs_values)
+        Solution(vars, objs_values)
     end
 end
 

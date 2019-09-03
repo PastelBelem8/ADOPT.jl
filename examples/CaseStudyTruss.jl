@@ -203,64 +203,52 @@ end
 
 sampling_solver() = let
   params = Dict(:sampling_function => randomMC,
-                :nsamples => nevals_mtsolver)
+                :nsamples => 1000)
   SamplingSolver(;algorithm_params=params, max_eval=nevals_mtsolver, nondominated_only=true)
 end
 
 # Meta Solver
-meta_solver(metamodel, solver, X, y) = let
-  params = Dict(:X => X, :y => y)
+meta_solver(metamodel, solver) = let
+  params = Dict(:sampling_function => latinHypercube,
+                :nbins => 100,
+                :nsamples => 100)
   surrogate = Surrogate(  metamodel, objectives=objs, creation_f=sk_fit!,
                           update_f=sk_fit!, evaluation_f=sk_predict)
   MetaSolver(solver; surrogates=[surrogate], max_eval=225, sampling_params=params, nondominated_only=true)
 end
 
 # Test 1 - GPR
-gpr_1 = (X, y) -> meta_solver(GaussianProcessRegressor(), pso_solver(), X, y)
-gpr_2 = (X, y) -> meta_solver(GaussianProcessRegressor(), ea_solver(), X, y)
-gpr_3 = (X, y) -> meta_solver(GaussianProcessRegressor(), sampling_solver(), X, y)
+gpr_1 = () -> meta_solver(GaussianProcessRegressor(), pso_solver())
+gpr_2 = () -> meta_solver(GaussianProcessRegressor(), ea_solver())
+gpr_3 = () -> meta_solver(GaussianProcessRegressor(), sampling_solver())
 # Test 2 - Random Forest
-random_forest_1 = (X, y) -> meta_solver(RandomForestRegressor(), pso_solver(), X, y)
-random_forest_2 = (X, y) -> meta_solver(RandomForestRegressor(), ea_solver(), X, y)
-random_forest_3 = (X, y) -> meta_solver(RandomForestRegressor(), sampling_solver(), X, y)
+random_forest_1 = () -> meta_solver(RandomForestRegressor(), pso_solver())
+random_forest_2 = () -> meta_solver(RandomForestRegressor(), ea_solver())
+random_forest_3 = () -> meta_solver(RandomForestRegressor(), sampling_solver())
 
 # Test 3 - SVR
-mlp_1 = (X, y) -> meta_solver(MLPRegressor(), pso_solver(), X, y)
-mlp_2 = (X, y) -> meta_solver(MLPRegressor(), ea_solver(), X, y)
-mlp_3 = (X, y) -> meta_solver(MLPRegressor(), sampling_solver(), X, y)
-
-using DelimitedFiles
-readdata(filename) = let
-  data = readdlm(filename, ',', Float64, '\n'; header=false)
-  data[:,1:6]', data[:, 7:8]'
-end
-
-X1, y1 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample1.csv")
-X2, y2 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample2.csv")
-X3, y3 = readdata("$(@__DIR__)/CaseStudyTruss/truss_sample3.csv")
+mlp_1 = () -> meta_solver(MLPRegressor(), pso_solver())
+mlp_2 = () -> meta_solver(MLPRegressor(), ea_solver())
+mlp_3 = () -> meta_solver(MLPRegressor(), sampling_solver())
 
 # Depois de testar estes tres e ver se há diferença entre os tres, logo se ve se faz sentido fazer tantos testes, destes...
-# Main.MscThesis.solvers_benchmark(nruns=3,
-#                                  Xs=[X1, X2, X3],
-#                                  ys=[y1, y2, y3],
-#                                  solvers=[gpr_1,
+# Main.MscThesis.solvers_benchmark(;bname="GPR",
+#                                   nruns=3,
+#                                   solvers=[gpr_1,
 #                                           gpr_2,
 #                                           gpr_3],
-#                                  problem=problem,
+#                                       problem=problem,
 #                                  max_evals=maxevals)
 
-# Main.MscThesis.solvers_benchmark(nruns=3,
-#                                  Xs=[X1, X2, X3],
-#                                  ys=[y1, y2, y3],
+# Main.MscThesis.solvers_benchmark(;bname="RF", nruns=3,
 #                                  solvers=[random_forest_1,
 #                                           random_forest_2,
 #                                           random_forest_3],
 #                                  problem=problem,
 #                                  max_evals=maxevals)
 
-Main.MscThesis.solvers_benchmark(nruns=3,
-                                 Xs=[X1, X2, X3],
-                                 ys=[y1, y2, y3],
+Main.MscThesis.solvers_benchmark(;bname="MLP",
+                                 nruns=3,
                                  solvers=[mlp_1,
                                           mlp_2,
                                           mlp_3
@@ -271,8 +259,6 @@ Main.MscThesis.solvers_benchmark(nruns=3,
 # Fica a faltar
 # 1. Outros testes (random_forest, svr) - difernetes variantes dependem dos testes de GPR
 # 2. 2x surrogates - 2 objs
-
-
 
 # Step 1. Define the algorithms to be run:
 #   2 tests: 1x surrogate - 2 objs

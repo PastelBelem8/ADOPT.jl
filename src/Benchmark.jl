@@ -71,7 +71,7 @@ benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals=100) = let
 end
 
 # Especially designed for Robot Case study. Cuz I need each solver to be created all over again, to prevent it from storing
-solvers_benchmark(;bname="benchmark", nruns, Xs, ys, solvers, problem, max_evals=100) = let
+solvers_benchmark(;bname="benchmark", nruns, solvers, problem, max_evals=100) = let
     BENCHMARK_ID = "$(results_dir())/$(bname)-$(get_unique_string())"
 
     alg_ids = 1:length(solvers)
@@ -84,7 +84,7 @@ solvers_benchmark(;bname="benchmark", nruns, Xs, ys, solvers, problem, max_evals
             for run in 1:nruns
                 try
                     @info "[$(now())][benchmark] Starting run $(run) (out of $(nruns))."
-                    solve(solvers[id](Xs[run], ys[run]), Dict(), problem, max_evals, true)
+                    solve(solvers[id](), Dict(), problem, max_evals, true)
                 catch e
                     @error "[$(now())][benchmark] Error $(sprint(show, e))\nCheck error.log file for more information.."
                     log_error("$(BENCHMARK_ID)/error.log", e) end

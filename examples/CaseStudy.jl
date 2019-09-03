@@ -1,4 +1,5 @@
 using Main.MscThesis
+using Main.MscThesis.Platypus
 # -------------------------------------------------------------------------
 # Step 1. Define the problem(s)
 # -------------------------------------------------------------------------
@@ -38,7 +39,10 @@ binhkorn_c2(x) = (x[1] - 8)^2 + (x[2] - 3)^2 - 7.7 # >= 0
 binhkorn_cnstrs = [Constraint(binhkorn_c1, <=), Constraint(binhkorn_c2, >=)]
 
 binhkorn = Model(binhkorn_vars, binhkorn_objs, binhkorn_cnstrs)
-
+maxevals = 200
+nparticles = 10
+EAs_params = Dict(:population_size => nparticles)
+benchmark(nruns=1, algorithms=[(NSGAII, EAs_params)], problem=binhkorn, max_evals=maxevals)
 # -------------------------------------------------------------------------
 # Evolutionary Solver
 # -------------------------------------------------------------------------

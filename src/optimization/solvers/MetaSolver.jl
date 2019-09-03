@@ -279,6 +279,7 @@ initial_data(meta_solver::MetaSolver, model::Model) = let
         create_samples(; nvars=nvariables(model), evaluate=evaluation_f,
                         unscalers=unscalers(model), sampling_params(meta_solver)...)
     end
+    println("n samples: $(size(X))")
     y_objs, y_constrs = size(y, 1) == nobjs ? (y, Real[]) : (y[1:nobjs,:], y[nobjs+1:end,:])
     X, y_objs, y_constrs
     end

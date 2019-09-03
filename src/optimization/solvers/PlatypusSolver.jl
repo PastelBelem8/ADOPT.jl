@@ -10,7 +10,6 @@ platypus_fitness(objs, cnstrs) =
     (vars...) -> let  sol = evaluate(vars..., objs, cnstrs)
                       os, cs = objectives(sol), constraints(sol)
                       isempty(cs) ? os : (os, cs)
-
                   end
 
 "Converts the Model into a Platypus Problem"

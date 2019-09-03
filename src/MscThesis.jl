@@ -41,6 +41,9 @@ catch e
 end
 
 # Optimization Internals
+
+# This maps how much a solution is penalized by default
+ϵ = Parameter(0.1)
 include("./optimization/Optimization.jl")
 include("./optimization/Pareto.jl")
 

@@ -353,10 +353,13 @@ check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Functio
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
-"Evaluates the value of constraint"
+"Evaluates the value of constraint. ϵ is the default penalization term"
 evaluate(c::Constraint, args...) = let
     result = apply(c, args...)
-    operator(c)(result, 0) ? 0 : result
+    # Test for negative (if > or >= we must subtract ϵ so that when compared
+    # to 0 constraint will still be violated)
+    sign = operator(c)(1, 0) ? -1 : 1
+    operator(c)(result, 0) ? 0 : result + sign * ϵ()
 end
 
 "Evaluates the value of the constraint relative to 0"
@@ -535,12 +538,19 @@ struct Model <: AbstractModel
 
     Model(nvars::Int, nobjs::Int, nconstrs::Int=0) =
         begin   check_arguments(Model, nvars, nobjs, nconstrs)
-                new(Vector{AbstractVariable}(undef, nvars), Vector{AbstractObjective}(undef, nobjs), Vector{Constraint}(undef, nconstrs))
+                new(
+                  Vector{AbstractVariable}(undef, nvars),
+                  Vector{AbstractObjective}(undef, nobjs),
+                  Vector{Constraint}(undef, nconstrs))
         end
-    Model(vars::Vector{T}, objs::Vector{Y}, constrs::Vector{Constraint}=Vector{Constraint}()) where{T<:AbstractVariable, Y<:AbstractObjective} =
-        begin   check_arguments(Model, vars, objs, constrs)
-                new(vars, objs, constrs)
-        end
+    Model(
+      vars::Vector{T},
+      objs::Vector{Y},
+      constrs::Vector{Constraint}=Vector{Constraint}()
+      ) where{T<:AbstractVariable, Y<:AbstractObjective} = begin
+        check_arguments(Model, vars, objs, constrs)
+        new(vars, objs, constrs)
+    end
 end
 # Selectors
 nobjectives(m::Model) =
@@ -577,7 +587,11 @@ check_arguments(::Type{Model}, nvars::Int, nobjs::Int, nconstrs::Int) =
             throw(DomainError(err("constraints", nconstrs, 0)))
         end
     end
-check_arguments(t::Type{Model}, vars::Vector{T}, objs::Vector{Y}, constrs::Vector{Constraint}) where{T<:AbstractVariable, Y<:AbstractObjective} =
+check_arguments(
+  t::Type{Model},
+  vars::Vector{T},
+  objs::Vector{Y},
+  constrs::Vector{Constraint}) where{T<:AbstractVariable, Y<:AbstractObjective} =
     check_arguments(t, length(vars), length(objs), length(constrs))
 
 evaluate(model::Model, s::Solution) = evaluate(model, variables(s))
@@ -605,7 +619,6 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
         objs_values, objs_time = feasible ? eval_objectives() : (zeros(length(objs)), -1 * ones(length(objs)))
         write_result("evaluate", time()-start_time, cnstrs_time, objs_time, vars,
                     cnstrs_values, cnstrs_penalty, feasible, objs_values)
-        println(">>> Written! <<<<< ")
 
         Solution(vars, objs_values, cnstrs_values, cnstrs_penalty, feasible, true)
     else

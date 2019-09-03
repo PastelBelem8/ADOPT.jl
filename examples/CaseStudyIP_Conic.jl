@@ -12,6 +12,7 @@ rectangular_cost_function(x) = let
 end
 
 # x = [nskylights, max_dist, center_y, radius_m, radius_M, material]
+
 conic_cost_function(x; height=1.5) = let
     nskylights = x[1]
     radius_m = scale(x[4], 0.2)
@@ -19,7 +20,7 @@ conic_cost_function(x; height=1.5) = let
     println("conic cost function: $x")
     s = √(√(height) + √(radius_M - radius_m))
     p1 = π * (radius_M + radius_m) * s * 80
-    p2 = π * √radius_m * 185
+    p2 = π * √(radius_m) * 185
     (p1 + p2) * nskylights
 end
 
@@ -46,8 +47,8 @@ let nskylights = IntVariable(2, 8)
     material = IntVariable(0, 2)
     vars = [nskylights, max_dist, center_y, radius_m, radius_M, material]
     objs = [Objective(conic_cost_function, :MIN),
-            Objective(conic_cost_function, :MIN)]
-            # Objective((x) -> -1 * daylight_function(x), :MIN)]
+            # Objective(conic_cost_function, :MIN)]
+            Objective((x) -> -1 * daylight_function(x), :MIN)]
     # Constraint 1: Aims at preventing the bottom skylight from crossing the wall.
     # expression: center_y >= radius_M
     constraint_1(x) = (scale(x[3], 0.44, 0.01) - 0.14) - scale(x[5], 0.3) # >= 0
@@ -68,10 +69,14 @@ let nskylights = IntVariable(2, 8)
     maxevals = 200
     nparticles = 10
     EAs_params = Dict(:population_size => nparticles)
-  benchmark(nruns=3, algorithms=[(NSGAII, EAs_params)], problem=model, max_evals=maxevals)
+  benchmark(nruns=1, algorithms=[(NSGAII, EAs_params)], problem=model, max_evals=maxevals)
 end
 
 #=
+
+a = [4, 1899, 107, 1, 0, 2]
+conic_cost_function(a)
+scale(a[5], 0.3) - scale(a[4], 0.2)
 constraint_1(x) = (scale(x[3], 0.44, 0.01) - 0.14) - scale(x[5], 0.3) # >= 0
 constraint_2(x) = (x[1] - 1) * (scale(x[5], 0.3) * 2) - scale(x[2], 0.14, 0.01) # <= 0
 constraint_3(x) = scale(x[5], 0.3) - scale(x[4], 0.2) # > 0
@@ -80,11 +85,19 @@ constrs = [ Constraint(constraint_1, >=),
             Constraint(constraint_2, <=),
             Constraint(constraint_3, >),
             Constraint(constraint_4, <=)]
-x = [2, 542, 54, 1, 1, 1] # [2, 639, 69, 2, 1, 0]
-
+objs = [Objective(conic_cost_function, :MIN),
+        Objective(conic_cost_function, :MIN)]
+x = a # [2, 542, 54, 1, 1, 1] # [2, 639, 69, 2, 1, 0]
+scale(a[5], 0.3)
+scale(a[4], 0.2)
+scale(a[5], 0.3) - scale(a[4], 0.2)
 println("===== CONSTRAINED ====")
 cnstrs_values = map(c -> evaluate(c, x), constrs)
-
+objs_values = map(o -> evaluate(o, x), objs)
+eval_objectives() = let
+    objs_values, objs_time = Main.MscThesis.@profile objs (o) -> evaluate(o, x)
+    objs_values), objs_time
+end
 # Compute penalty
 cnstrs_penalty = Main.MscThesis.penalty(constrs, cnstrs_values)
 feasible = iszero(cnstrs_penalty)

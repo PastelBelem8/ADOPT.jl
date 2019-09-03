@@ -3,7 +3,5 @@
 
 # Extended Abstract
 - Remover Refs
-- Vender melhor o peixe na framework de otimização
 - rever Model-based
 
-- Reduzir texto.

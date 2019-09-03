@@ -25,7 +25,7 @@ This dissertation focuses on optimization algorithms that are able to more effic
 	\label{fig:solution}
 \end{figure}
 
-With the aforementioned framework, users can address optimization problems involving time-intensive objective functions, for which the functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype of such framework. This chapter describes the main components of the framework and also the main requirements that guided to its implementation. 
+With the aforementioned framework, users can address optimization problems involving time-intensive objective functions, for which the functions' analytical forms are unavailable. In order to verify its executability and suitability for conducting multiple optimization processes, we developed a prototype of such framework. This chapter describes the main components of the framework and also the main requirements that guided its implementation. 
 
 %\section{Programming Language}
 %\todo{Não dar tanto detalhe? Parecer que é uma escolha secundária.}
@@ -95,7 +95,7 @@ To address this requirement, we reviewed the most reputed \ac{SOO} and \ac{MOO} 
 		& M & G & GDE3 & Platypus \\
 		& M & G & IBEA & Platypus \\
 		& S & G & ISRES & NLopt \\
-		& M & G & MOEAD/D & Platypus \\
+		& M & G & MOEA/D & Platypus \\
 		& M & G & NSGA-II & Platypus \\
 		& M & G & NSGA-III & Platypus \\
 		& M & G & PAES & Platypus \\
@@ -136,7 +136,7 @@ In the architectural context, where architects often lack knowledge about optimi
 
 %  Why do we want visual and post-processing mechanisms ?  Why is it important? 
 Often disregarded by optimization tools, the possibility to choose one of the top $n$ performing solutions is highly advantageous. %On the one hand, it allows users to examine the solutions and to choose the one that better fits their needs. 
-As an example, consider the optimization of a specific aspect of a building design. It is often the case that the solution returned by the optimization algorithm is not the preferred solution, either because of more subjective opinions or, in some cases, because the best solution for that aspect might negatively impact other aspects which are not being considered (e.g., increasing the daylight illuminance often has repercussions on the thermal conditions and on the energy consumptions of a building). One other use case is the ability to examine different equally optimal solutions, particularly useful when handling multi-modal problems, for which there can be distinct solutions that yield the same optimal value. Unfortunately, many optimization tools only provide the user with one solution. On the other hand, sometimes close to optimal solutions suit the user intentions better. By providing both optimal and close to optimal solutions, users get a better understanding of optimization results, which can help them make more informed decisions. 
+As an example, consider the optimization of a specific aspect of a building design. It is often the case that the solution returned by the optimization algorithm is not the preferred solution, either because of more subjective opinions or, in some cases, because the best solution for that aspect might negatively impact other aspects which are not being considered (e.g., increasing the daylight illuminance often has repercussions on the thermal conditions and on the energy consumption of a building). One other use case is the ability to examine different equally optimal solutions, particularly useful when handling multi-modal problems, for which there can be distinct solutions that yield the same optimal value. Unfortunately, many optimization tools only provide the user with one solution. On the other hand, sometimes close to optimal solutions suit the user intentions better. By providing both optimal and close to optimal solutions, users get a better understanding of optimization results, which can help them make more informed decisions. 
 
 % How does our solution improves this?
 The framework developed in this dissertation uses data processing and visualization libraries, including, Pandas, Scikit-learn, Matplotlib, Seaborn, and Plotly to produce post-processing and visualization scripts that can be interpreted and manipulated by users to enrich the information obtained from optimization processes. By providing a simple way of visualizing the results in different layouts (e.g., statistics, distribution, correlations, parallel coordinate graphs, Pareto front, convergence graphs) and for post-processing them (e.g., outliers removal, interpolation of results), users are able to better understand the optimization process. 

@@ -1,4 +1,4 @@
-module MscThesis
+module ADOPT
 using Dates
 using Random
 

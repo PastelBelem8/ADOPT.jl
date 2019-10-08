@@ -1,0 +1,40 @@
+\section{Introduction}
+\label{sec:intro}
+	
+	Since the creation of the digital computer, architecture adopted computer science tools and techniques to change its own practices. This lead to the dissemination of digital modelling tools, which simplified the design of highly complex buildings. However, these days, it is not enough to have a well-designed building, it is also necessary to ensure a good performance at various level (e.g., thermal comfort, lighting, structural), among others. This motivated the appearance of \ac{PBD} - an approach which seeks for more efficient design solutions by considering the design's performance, possibly measured by computational tools. 
+	
+	These tools, known as simulation-based analysis tools, take a specialized model of a design (designated analytical model) and estimate its performance regarding the intended criteria. Using these tools, architects can validate whether their design satisfies the efficiency requirements and, ultimately, optimize the design by iteratively remodeling it in order to obtain variations, assessing their performance, and selecting the better ones, a process known as \ac{BPO}.
+	
+	However, this process has several problems: (1) the manual generation of the multiple design variants required by optimization processes comprises a tiresome and difficult task; (2) hand-made analytical models might be a more faithful representation of the original model but they require a considerable amount of effort to create; (3) despite the existence of tools that attempt to convert a 3D model into its corresponding analytical models, this conversion is frequently fragile and can cause loss of information or errors; (4) ideally, the analysis' results would afterwards be used to guide changes in the original design, but this requires additional time and effort to implement, as also does redoing the analysis to confirm the improvements. This explains why performance analysis is typically postponed to the later stages of the design process, only to verify if the performance meets the standard requirements. Unfortunately, by following such process, it becomes difficult to optimize a design, which, nowadays, has become important for ensuring the design of efficient and sustainable buildings.
+	
+	In order to fully support optimization processes, several changes should be implemented in the design process. First, we need to be able to quickly change a design and, almost simultaneously, produce its corresponding analytical model. Secondly, we need to automate the performance analysis and to use it as the function to optimize.
+	
+	% \ac{BPO} treats the results produced by simulation tools as the functions to optimize and, consequently, provides an estimate of a design's performance even when analytical solutions are difficult or impossible to derive \cite{Kolda2003}. In these cases, the function to optimize (called objective function) is derived from the simulations' results and its domain corresponds to the range of acceptable designs specified by the architects.
+	
+	% However, \ac{BPO} requires the evaluation of different design variations, which if done manually, implies spending a large amount of time with the application of changes to the design. Moreover, even though digital modeling tools facilitated design changes, when compared to paper-based approaches, they still present obstacles when modeling complex geometry.
+	
+	\subsection{Algorithmic Design}
+	% Intro and Definition of AD
+	To simplify and speedup the implementation of changes to a design, one can use parametric models. These models have parameters representing degrees of freedom in the design, which the architect is willing to manipulate in the search for a better performing design. A particularly good approach to produce parametric models is through \ac{AD} \cite{Terzidis2006}. Here, instead of directly creating a 3D model in a digital modeling tool, the architect creates a program that can be executed with different values of its parameters to produce the corresponding 3D models. This considerably improves the implementation of design changes, allowing a broader exploration of the design space.
+	
+	% Motivation for AA
+	Even though \ac{AD} enables the automatic generation of multiple design solutions, the implementation of automatic optimization processes still requires their automatic evaluation.
+	
+	\subsection{Algorithmic Analysis}
+	% Intro and Definition of AA
+	Similarly to \ac{AD}, in \ac{AA} \cite{Aguiar2017}, one uses an algorithm to automatically produce analytical models, instead of creating them by hand or relying on fragile conversion tools. The novelty is that this algorithm is the same that is used for \ac{AD}, but configured differently, so as to match the requirements of the analysis tools being used. For example, for lighting analysis tools, a building might be represented by its surfaces, while for structural analysis tools, it might be represented by a graph of nodes and edges. In either case, the same algorithm is capable of generating different models for different types of analysis.
+	
+	Moreover, \ac{AA} is also concerned with the automation of the whole analysis process. In practice, this means that not only is the generation of the analytical model automated, but so is the setup of the analysis tool and the collection of its results.
+	
+	\subsection{Algorithmic Optimization}
+	With the ability to quickly update a design, to generate the corresponding analytical model, and, finally, to automatically evaluate the design in an analytical tool, it becomes possible to implement automated optimization processes, which we name \ac{AO}.
+	
+	\ac{AO} treats the results produced by an analysis tool as the function to optimize (called objective function). 
+	
+	\subsection{Research Goals}
+	% The emergence of \ac{AD} approaches together with the growing consciousness of both the benefits and limitations of optimizing building designs, led to the development of ready-to-use optimization toolsets (e.g., Galapagos and Opossum).
+	 
+	Optimization is rarely sought in architecture, mainly due to (1) the difficulties in defining the optimization problem, (2) the need for expertise to select and fine-tune the optimization algorithms, (3) the complexity of the existing optimization tools, and (4) the long computation time of the optimization process \cite{Attia2013}. Moreover, the application of algorithms to architectural optimization problems is still insufficiently explored and often leads architects towards the simplest available algorithm, which rarely is the most adequate option, often resulting in unacceptable optimization times and less efficient designs.
+
+	Therefore, founded on the \acp{NFLT}, which state that no algorithm can consistently perform better than all others on all problems, the main goal of this dissertation is to identify the most efficient algorithms for different \ac{BPO} problems that involve computationally heavy objective functions. Moreover, this dissertation aims to encapsulate these algorithms in an optimization framework that simplifies their application and, thus, promotes design optimization in architecture. Finally, we evaluate the proposed framework in different real architectural problems, including the optimization of lighting and structural aspects of buildings. 
+	

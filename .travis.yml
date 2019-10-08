@@ -1,9 +1,30 @@
-# Documentation: http://docs.travis-ci.com/user/languages/julia/
+# Documentation
+# (adopted from http://docs.travis-ci.com/user/languages/julia/)
 language: julia
 julia:
   - 1.0
   - nightly
-  
+
 matrix:
   allow_failures:
     - julia: nightly
+
+notifications:
+  email: false
+
+# Consta installation
+# (adapted from https://github.com/astrofrog/example-travis-conda/blob/master/.travis.yml)
+# before_install:
+#
+#   # Here we just install Miniconda, which you shouldn't have to change.
+#   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+#   - chmod +x miniconda.sh
+#   - ./miniconda.sh -b
+#   - export PATH=/home/travis/miniconda2/bin:$PATH
+#   - conda update --yes conda
+#
+install:
+#   # - conda install --yes -c conda-forge platypus-opt
+#   - conda create -n conda_jl python conda
+#   - export CONDA_JL_HOME="/home/travis/miniconda2/envs/conda_jl"
+  - julia -e 'ENV["PYTHON"]=""; using Pkg; Pkg.build("PyCall")'

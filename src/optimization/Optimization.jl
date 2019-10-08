@@ -615,8 +615,29 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
         # Compute penalty
         cnstrs_penalty = penalty(cnstrs, cnstrs_values)
         feasible = iszero(cnstrs_penalty)
-        println(">>> Variables: $(vars) \n>>>is_feasible: $(feasible)")
-        objs_values, objs_time = feasible ? eval_objectives() : (zeros(length(objs)), -1 * ones(length(objs)))
+        println(">>> Variables: $(vars) \n>>> is_feasible: $(feasible)")
+
+        # TODO - Make this dependent on a  user parameter
+        # Problem: Up to now, I am only concerned with hard-constrained optimization
+        # problems. This means, I want to minimize the number of unfeasible solutions.
+        # In a previous solution, I checked whether the solution was feasible and
+        # if so, I would evaluate the objective functions. If not, I would assign
+        # the objective-vector 0. However, this is not the solution, as depending
+        # whether I'm dealing with a minimization objective, this may be considered
+        # optimal, leading the algorithm to focus on that region of the solution space.
+        # ----------------------------------------------------------------------------
+        if feasible
+            objs_values, objs_time = eval_objectives()
+        # That being said, the following code decides depending on the objective sense
+        # if these values should be as larger or as smaller as possible.
+        else
+            type_int = typeof(1)
+            objs_values = map(o -> sense(o) == :MIN ? typemax(type_int) : typemin(type_int) , objs)
+            print(objs_values)
+            objs_time = -1 * ones(length(objs))
+        end
+
+        # Note: To create a more realistic case, whenever we are facing an unfeasible
         write_result("evaluate", time()-start_time, cnstrs_time, objs_time, vars,
                     cnstrs_values, cnstrs_penalty, feasible, objs_values)
 

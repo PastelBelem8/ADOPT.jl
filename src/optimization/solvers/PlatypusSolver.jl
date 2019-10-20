@@ -97,13 +97,28 @@ function convert(::Type{Platypus.CompoundVariator}, params::Dict{Symbol, T}) whe
   mk_conv(v) = (v) -> isa(v, Dict) ? convert(supertype(v[:name]), v) : v
 
   for (k, v) in variator_args
-    args[k] = [mkconv(vi) for vi in v]
+    args[k] = [mk_conv(vi) for vi in v]
   end
   variator(;args...)
 end
 
+# Generators
+convert(::Type{Platypus.InjectedPopulation}, params::Dict{Symbol, T}) where{T} =
+let generator = params[:name],
+    initial_solutions = params[:solutions],
+    problem = convert(Platypus.Problem, params[:problem]),
+
+    platypus_solutions = [Platypus.Solution(problem) for _ in initial_solutions],
+    initial_solutions = map((s, v) -> Platypus.set_variables(s, v),
+        platypus_solutions,
+        initial_solutions
+    )
+    generator(initial_solutions)
+end
+
 function convert_params(params::Dict{Symbol, T}) where{T}
   if (generator_params = get(params, :generator, nothing)) != nothing
+    print(generator_params)
     params[:generator] = convert(generator_params[:name], generator_params)
   end
   if (variator_params = get(params, :variator, nothing)) != nothing
@@ -277,14 +292,14 @@ solve_it(solver::PlatypusSolver, model::Model) = begin
 
     problem = convert(Platypus.Problem, model)
     algorithm_type = get_algorithm(solver)
-    extra_params = get_algorithm_params(solver)
+    params = get_algorithm_params(solver)
     evals = get_max_evaluations(solver)
     nondominated = get_nondominated_only(solver)
 
     # Filter by the fields that are acceptable for the specified algorithm_type
-    params = union( Platypus.mandatory_params(algorithm_type),
-                    Platypus.optional_params(algorithm_type))
-    extra_params = convert_params(extra_params)
+    # params = union( Platypus.mandatory_params(algorithm_type),
+    #                 Platypus.optional_params(algorithm_type))
+    extra_params = convert_params(params)
 
     # Create the algorithm and solve it
     algorithm = algorithm_type(problem; extra_params...)

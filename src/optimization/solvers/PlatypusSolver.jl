@@ -116,19 +116,20 @@ let generator = params[:name],
     generator(initial_solutions)
 end
 
-function convert_params(params::Dict{Symbol, T}) where{T}
-  if (generator_params = get(params, :generator, nothing)) != nothing
-    print(generator_params)
-    params[:generator] = convert(generator_params[:name], generator_params)
-  end
-  if (variator_params = get(params, :variator, nothing)) != nothing
-    params[:variator] = convert(supertype(variator_params[:name]), variator_params)
-  end
-  if (selector_params = get(params, :selector, nothing)) != nothing
-    params[:selector] = convert(selector_params[:name], selector_params)
-  end
+convert_params(params::Dict{Symbol, T}) where{T} =
+let converted_params = copy(params)
+    if (generator_params = get(converted_params, :generator, nothing)) != nothing
+        print(generator_params)
+        converted_params[:generator] = convert(generator_params[:name], generator_params)
+    end
+    if (variator_params = get(converted_params, :variator, nothing)) != nothing
+        converted_params[:variator] = convert(supertype(variator_params[:name]), variator_params)
+    end
+    if (selector_params = get(converted_params, :selector, nothing)) != nothing
+        converted_params[:selector] = convert(selector_params[:name], selector_params)
+    end
 
-  params
+    converted_params
 end
 
 #= ----------------------------------------------------------------------- #

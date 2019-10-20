@@ -135,10 +135,10 @@ function set_variables(solution::Solution, vars; toEncode::Bool=true)
     types = solution.pyo.problem.types
     encoded_vars = Vector()
     for i in 1:size(vars, 1)
-      var = isa(vars[i], AbstractArray) ? vars[i] : vars[i,:] # HACK - Depending on the algorithm used and n_particles, the variables are represented differently (E.g.: EAs vs PSOs)
+      var = vars[i]
       encoded_vars = vcat(encoded_vars, types[i].encode(var))
-      vars = encoded_vars
     end
+    vars = encoded_vars
   end
   solution.pyo.variables = vars
   solution

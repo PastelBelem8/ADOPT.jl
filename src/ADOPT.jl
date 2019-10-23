@@ -69,7 +69,8 @@ Pareto.is_nondominated(solutions::Vector{Solution}) =
 # Benchmarks
 include("./Benchmark.jl")
 include("./indicators/Indicators.jl")
-
+include("./indicators/CumulativeIndicators.jl")
+export Hypervolume
 #= ---------------------------------------------------------------------- #
     Solvers
 # ---------------------------------------------------------------------- =#

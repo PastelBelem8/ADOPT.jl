@@ -633,13 +633,12 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
         else
             type_int = typeof(1)
             objs_values = map(o -> sense(o) == :MIN ? typemax(type_int) : typemin(type_int) , objs)
-            print(objs_values)
             objs_time = -1 * ones(length(objs))
         end
 
         # Note: To create a more realistic case, whenever we are facing an unfeasible
         write_result("evaluate", time()-start_time, cnstrs_time, objs_time, vars,
-                    cnstrs_values, cnstrs_penalty, feasible, objs_values)
+                    cnstrs_values, cnstrs_penalty, feasible ? "TRUE" : "FALSE", objs_values)
 
         Solution(vars, objs_values, cnstrs_values, cnstrs_penalty, feasible, true)
     else

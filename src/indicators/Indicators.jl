@@ -51,12 +51,12 @@ cache-hits.
 """
 hypervolumeIndicator(A::AbstractMatrix) = let
     ndims = size(A, 1)
-    if 1 > ndims || ndims > MscThesis.QHV_MAX_DIM
-        throw(DomainError("hypervolume indicator is not available for dimensions > $(MscThesis.QHV_MAX_DIM)."))
+    if 1 > ndims || ndims > ADOPT.QHV_MAX_DIM
+        throw(DomainError("hypervolume indicator is not available for dimensions > $(ADOPT.QHV_MAX_DIM)."))
     end
 
     # Write PF to temp file
-    tempFile = "$(MscThesis.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
+    tempFile = "$(ADOPT.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
 
     # Write Input File
     qhv_input_text = mapslices(dumpQHV, A, dims=1)
@@ -65,7 +65,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     end
 
     # QHV assumes maximization problem
-    runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
+    runWSL(ADOPT.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -73,6 +73,38 @@ dumpQHV(a::AbstractVector) =
         for v in a res *= "$v " end
         res
     end
+
+
+"""This matrix is m x n, where m is the number of objectives and n the number of
+samples."""
+hypervolume(A, senses, mins, maxs) =
+let n_dims = size(A, 1),
+    mins = copy(mins),
+    maxs = copy(maxs),
+    A_matrix = copy(A)
+    # Step 1. Transform to maximization
+    for (i, sense) in enumerate(senses)
+        if sense in (:MIN, :MINIMIZE)
+            A_matrix[i,:] = A[i,:] .* -1
+            mins[i], maxs[i] = maxs[i] .* -1, mins[i] .* -1
+        end
+    end
+
+    # Step 2. Scale (to ensure they lie in the positive)
+    unit_scale = (a, min, max) -> (a .- min) ./ (max - min)
+    for i in 1:n_dims
+        A_matrix[i,:] = unit_scale(A_matrix[i,:], mins[i], maxs[i])
+    end
+    if size(A) != size(A_matrix)
+        throw(DimensionMismatch("Something went wrong during scalarization. Dimensions mismatch: $(size(A)) vs $(size(A_matrix))"))
+    elseif any(A_matrix .> 1)
+        throw(DomainError("Found values above 1 after scaling: $A_matrix"))
+    end
+
+    #  Step 3. Call hypervolume
+    hypervolumeIndicator(A_matrix)
+end
+
 
 """
     onvg(A) -> s
@@ -457,7 +489,7 @@ R3(T::AbstractMatrix, A::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}
         Rmetric(A, T, u, p, λ)
     end
 
-export  onvg, onvgr, spacing, spread, maximumSpread, hypervolumeIndicator,
+export  onvg, onvgr, spacing, spread, maximumSpread, hypervolume,
         errorRatio, maxPFError, GD, IGD, d1r, M1,
         coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3
 

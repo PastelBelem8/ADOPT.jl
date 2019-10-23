@@ -75,37 +75,6 @@ dumpQHV(a::AbstractVector) =
     end
 
 
-"""This matrix is m x n, where m is the number of objectives and n the number of
-samples."""
-hypervolume(A, senses, mins, maxs) =
-let n_dims = size(A, 1),
-    mins = copy(mins),
-    maxs = copy(maxs),
-    A_matrix = copy(A)
-    # Step 1. Transform to maximization
-    for (i, sense) in enumerate(senses)
-        if sense in (:MIN, :MINIMIZE)
-            A_matrix[i,:] = A[i,:] .* -1
-            mins[i], maxs[i] = maxs[i] .* -1, mins[i] .* -1
-        end
-    end
-
-    # Step 2. Scale (to ensure they lie in the positive)
-    unit_scale = (a, min, max) -> (a .- min) ./ (max - min)
-    for i in 1:n_dims
-        A_matrix[i,:] = unit_scale(A_matrix[i,:], mins[i], maxs[i])
-    end
-    if size(A) != size(A_matrix)
-        throw(DimensionMismatch("Something went wrong during scalarization. Dimensions mismatch: $(size(A)) vs $(size(A_matrix))"))
-    elseif any(A_matrix .> 1)
-        throw(DomainError("Found values above 1 after scaling: $A_matrix"))
-    end
-
-    #  Step 3. Call hypervolume
-    hypervolumeIndicator(A_matrix)
-end
-
-
 """
     onvg(A) -> s
     overallNDvectorgeneration(A) -> s

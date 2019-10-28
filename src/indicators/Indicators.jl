@@ -51,12 +51,12 @@ cache-hits.
 """
 hypervolumeIndicator(A::AbstractMatrix) = let
     ndims = size(A, 1)
-    if 1 > ndims || ndims > MscThesis.QHV_MAX_DIM
-        throw(DomainError("hypervolume indicator is not available for dimensions > $(MscThesis.QHV_MAX_DIM)."))
+    if 1 > ndims || ndims > ADOPT.QHV_MAX_DIM
+        throw(DomainError("hypervolume indicator is not available for dimensions > $(ADOPT.QHV_MAX_DIM)."))
     end
 
     # Write PF to temp file
-    tempFile = "$(MscThesis.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
+    tempFile = "$(ADOPT.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
 
     # Write Input File
     qhv_input_text = mapslices(dumpQHV, A, dims=1)
@@ -65,7 +65,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     end
 
     # QHV assumes maximization problem
-    runWSL(MscThesis.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
+    runWSL(ADOPT.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
 end
 
 dumpQHV(a::AbstractVector) =
@@ -73,6 +73,7 @@ dumpQHV(a::AbstractVector) =
         for v in a res *= "$v " end
         res
     end
+
 
 """
     onvg(A) -> s
@@ -457,7 +458,7 @@ R3(T::AbstractMatrix, A::AbstractMatrix, u::Vector{Function}, p::Vector{Float64}
         Rmetric(A, T, u, p, λ)
     end
 
-export  onvg, onvgr, spacing, spread, maximumSpread, hypervolumeIndicator,
+export  onvg, onvgr, spacing, spread, maximumSpread, hypervolume,
         errorRatio, maxPFError, GD, IGD, d1r, M1,
         coverage, epsilonIndicator, additiveEpsilonIndicator, R1, R2, R3
 

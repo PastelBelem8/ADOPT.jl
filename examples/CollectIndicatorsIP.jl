@@ -1,5 +1,5 @@
-using Main.MscThesis
-using Main.MscThesis.Pareto
+using Main.ADOPT
+using Main.ADOPT.Pareto
 
 using Dates
 using DelimitedFiles
@@ -54,7 +54,8 @@ read_pf(file, objs=objs_cols, has_header=has_header) = begin
 end
 
 create_pareto_result(filename::String; objs=objs_cols, header=has_header) =
-    let create_pareto_front(y) = if isempty(y) return; else
+    let create_pareto_front(y) =
+        if isempty(y) return; else
             let pf = Pareto.ParetoResult(1, size(y, 2))
                 push!(pf, ones(1, size(y, 1)), y')
                 pf

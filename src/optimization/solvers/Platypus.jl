@@ -130,6 +130,21 @@ end
                 feasible::Bool,
                 evaluated::Bool)
 
+function set_variables(solution::Solution, vars; toEncode::Bool=true)
+  if toEncode
+    types = solution.pyo.problem.types
+    encoded_vars = Vector()
+    for i in 1:size(vars, 1)
+      var = vars[i]
+      encoded_vars = vcat(encoded_vars, types[i].encode(var))
+    end
+    vars = encoded_vars
+  end
+  solution.pyo.variables = vars
+  solution
+end
+
+
 function get_variables(solution::Solution; toDecode::Bool=true)
   vars = solution.pyo.variables
   if toDecode
@@ -188,7 +203,7 @@ export CMAES, EpsMOEA, EpsNSGAII, GDE3, IBEA, MOEAD, NSGAII, NSGAIII,
 @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,CMAES], offspring_size::Int)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3,SPEA2,MOEAD,NSGAIII,IBEA,PAES,PESA2,PSO,OMOPSO,SMPSO,CMAES], generator)
 # @pytypes_setters([GeneticAlgorithm,NSGAII,EpsMOEA, NSGAIII], selector)
-# @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3,SPEA2,MOEAD,NSGAIII,IBEA,PAES,PESA2], generator)
+@pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy,NSGAII,EpsMOEA,GDE3,SPEA2,MOEAD,NSGAIII,IBEA,PAES,PESA2], generator)
 # @pytypes_setters([GeneticAlgorithm,EvolutionaryStrategy, IBEA], comparator)
 # @pytypes_setters([GeneticAlgorithm,SPEA2, PSO, OMOPSO,SMPSO], dominance)
 # @pytypes_setters([NSGAII], archive)
@@ -198,6 +213,9 @@ export CMAES, EpsMOEA, EpsNSGAII, GDE3, IBEA, MOEAD, NSGAII, NSGAIII,
 # Generators
 @pytype RandomGenerator
 export RandomGenerator
+
+@pytype InjectedPopulation
+export InjectedPopulation
 
 # Selectors
 @pytype TournamentSelector

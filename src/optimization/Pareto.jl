@@ -17,13 +17,16 @@ specifying filtering functions, such as [`all`](@ref) and [`any`](@ref), it is
 possible to determine if `v0` is a Weak Pareto Optimum (WPO) or if it just
 dominates another vector in `V`.
 """
-weakly_dominates(v0::AbstractVector, v1::AbstractVector) =
-    isempty(v1) ? true : all(v0 .≤ v1) && any(v0 .< v1)
-weakly_dominates(v0::AbstractVector, V::AbstractMatrix, f::Function=identity) =
-    isempty(V) ? true : f([weakly_dominates(v0, V[:, j]) for j in 1:ncols(V)])
+weakly_dominates(v0::AbstractVector, v1::AbstractVector, signs=nothing) =
+let v0 = (isnothing(v0) && v0) || v0 .* signs,
+    v1 = (isnothing(v1) && v1) || v1 .* signs
 
-weakly_dominates(V::AbstractMatrix, v0::AbstractVector, f::Function=identity) =
-    isempty(V) ? false : f([weakly_dominates(V[:, j], v0) for j in 1:ncols(V)])
+    isempty(v1) ? true : all(v0 .≤ v1) && any(v0 .< v1)
+end
+weakly_dominates(v0::AbstractVector, V::AbstractMatrix, signs=nothing, f::Function=identity) =
+    isempty(V) ? true : f([weakly_dominates(v0, V[:, j], signs) for j in 1:ncols(V)])
+weakly_dominates(V::AbstractMatrix, v0::AbstractVector, signs=nothing, f::Function=identity) =
+    isempty(V) ? false : f([weakly_dominates(V[:, j], v0, signs) for j in 1:ncols(V)])
 
 """
     strongly_dominates(v0, v1)
@@ -32,7 +35,12 @@ Determines if `v0` strongly dominates by `v1`. When considering Pareto efficienc
     a vector `v0` is said to strongly dominate `v1` if it is possible to improve
     all the objectives of `v1`.
 """
-strongly_dominates(v0::AbstractVector, v1::AbstractVector) = all(v0 .< v1)
+strongly_dominates(v0::AbstractVector, v1::AbstractVector, signs=nothing) =
+let v0 = (isnothing(v0) && v0) || v0 .* signs,
+    v1 = (isnothing(v1) && v1) || v1 .* signs
+
+    all((v0 .* signs) .< (v1 .* signs))
+end
 
 """
     is_nondominated(v, V)
@@ -57,7 +65,7 @@ true
 
 ```
 """
-is_nondominated(v::AbstractVector, V::AbstractMatrix) = !weakly_dominates(V, v, any)
+is_nondominated(v::AbstractVector, V::AbstractMatrix, signs=nothing) = !weakly_dominates(V, v, signs, any)
 is_pareto_optimal = is_nondominated
 
 # Overriden methods
@@ -70,8 +78,10 @@ mutable struct ParetoResult
     nondominated_variables::AbstractMatrix
     nondominated_objectives::AbstractMatrix
 
+    signs::Vector
+
     function ParetoResult(dvars::AbstractMatrix, dobjs::AbstractMatrix,
-                 ndvars::AbstractMatrix, ndobjs::AbstractMatrix)
+                 ndvars::AbstractMatrix, ndobjs::AbstractMatrix, senses::Vector{Symbol}=nothing)
         if !(isempty(dvars) && isempty(ndvars)) && (isempty(dobjs) || isempty(ndobjs))
             throw(DomainError("not possible to create Pareto Result with variables but with no objectives"))
         elseif size(dvars, 1) != size(ndvars, 1)
@@ -83,23 +93,26 @@ mutable struct ParetoResult
         elseif size(ndobjs, 2) != size(ndvars, 2)
             throw(DimensionMismatch("the number of points is not the same in `ndobjs` and `ndvars`"))
         end
-        new(dvars, dobjs, ndvars, ndobjs)
+
+        signs = isnothing(senses) ? ones(nobjs) : map(s -> s in (:MIN, :MINIMIZE) ? 1 : -1, senses)
+        new(dvars, dobjs, ndvars, ndobjs, signs)
     end
 end
 
 # Constructors
-ParetoResult(dvars::AbstractVector, dobjs, ndvars::AbstractVector, ndobjs) =
-    ParetoResult(reshape(dvars, (length(dvars)), 1), dobjs, reshape(ndvars, (length(ndvars)), 1), ndobjs)
-ParetoResult(dvars, dobjs::AbstractVector, ndvars, ndobjs::AbstractVector) =
-    ParetoResult(dvars, reshape(dobjs, (length(dobjs)), 1), ndvars, reshape(ndobjs, (length(ndobjs)), 1))
-ParetoResult(dvars::AbstractVector, dobjs::AbstractVector, ndvars::AbstractVector, ndobjs::AbstractVector) =
-    ParetoResult(dvars, reshape(dobjs, (length(dobjs)), 1), ndvars, reshape(ndobjs, (length(ndobjs)), 1))
-ParetoResult(vars_dims::Int, objs_dims::Int) =
+ParetoResult(dvars::AbstractVector, dobjs, ndvars::AbstractVector, ndobjs, senses=nothing) =
+    ParetoResult(reshape(dvars, (length(dvars)), 1), dobjs, reshape(ndvars, (length(ndvars)), 1), ndobjs, is_nd, senses)
+ParetoResult(dvars, dobjs::AbstractVector, ndvars, ndobjs::AbstractVector, senses=nothing) =
+    ParetoResult(dvars, reshape(dobjs, (length(dobjs)), 1), ndvars, reshape(ndobjs, (length(ndobjs)), 1), senses)
+ParetoResult(dvars::AbstractVector, dobjs::AbstractVector, ndvars::AbstractVector, ndobjs::AbstractVector, senses=nothing) =
+    ParetoResult(dvars, reshape(dobjs, (length(dobjs)), 1), ndvars, reshape(ndobjs, (length(ndobjs)), 1), senses)
+ParetoResult(vars_dims::Int, objs_dims::Int, senses=nothing) =
     vars_dims > 0 && objs_dims > 0 ?
         ParetoResult(Array{Float64}(undef, vars_dims, 0),
                      Array{Float64}(undef, objs_dims, 0),
                      Array{Float64}(undef, vars_dims, 0),
-                     Array{Float64}(undef, objs_dims, 0)) :
+                     Array{Float64}(undef, objs_dims, 0),
+                     senses) :
         throw(DomainError("`vars_dims` and `objs_dims` must be positive integers"))
 
 # Selectors
@@ -144,9 +157,10 @@ push_nondominated!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector)
     pd.nondominated_objectives = [pd.nondominated_objectives objs];
 end
 
-Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominance::Function=weakly_dominates) =
-    let nondominated_vars = nondominated_variables(pd);
-        nondominated_objs = nondominated_objectives(pd);
+Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, is_nondominated::Function=is_nondominated, dominance::Function=weakly_dominates) =
+    let nondominated_vars = nondominated_variables(pd)
+        nondominated_objs = nondominated_objectives(pd)
+        signs = pd.signs
 
         if length(vars) != nrows(nondominated_vars)
             throw(DimensionMismatch("`vars` does not have the same dimension as `ndvars`: $(length(vars))!= $(nrows(nondominated_vars))"))
@@ -154,8 +168,8 @@ Base.push!(pd::ParetoResult, vars::AbstractVector, objs::AbstractVector, dominan
             throw(DimensionMismatch("`objs` does not have the same dimension as `ndobjs`: $(length(objs))!= $(nrows(nondominated_objs))"))
         end
 
-        if is_nondominated(objs, nondominated_objs)
-            dominated = dominance(objs, nondominated_objs);
+        if is_nondominated(objs, nondominated_objs, signs)
+            dominated = dominance(objs, nondominated_objs, signs);
             dominated = filter(i-> dominated[i], 1:length(dominated))
 
             if !isempty(dominated) && !isempty(nondominated_objs)

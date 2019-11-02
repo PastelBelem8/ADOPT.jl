@@ -136,7 +136,7 @@ function set_variables(solution::Solution, vars; toEncode::Bool=true)
     encoded_vars = Vector()
     for i in 1:size(vars, 1)
       var = vars[i]
-      encoded_vars = vcat(encoded_vars, types[i].encode(var))
+      encoded_vars = vcat(encoded_vars, [types[i].encode(var)])
     end
     vars = encoded_vars
   end

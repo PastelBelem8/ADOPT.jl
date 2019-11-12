@@ -5,10 +5,22 @@ using MacroTools
 
 const scikitlearn = PyNULL()
 
-function __init__()
-    copy!(scikitlearn, pyimport_conda("sklearn", "scikit-learn"))
-    version = VersionNumber(scikitlearn.__version__)
-    @info("Your Python's scikit-learn has version $version.")
+# function __init__()
+#     copy!(scikitlearn, pyimport_conda("sklearn", "scikit-learn"))
+#     version = VersionNumber(scikitlearn.__version__)
+#     @info("Your Python's scikit-learn has version $version.")
+# end
+import_already_warned = false
+function import_sklearn()
+    global import_already_warned
+    mod = PyCall.pyimport_conda("sklearn", "scikit-learn")
+    version = VersionNumber(mod.__version__)
+    min_version = v"0.18.0"
+    if version < min_version && !import_already_warned
+        @warn("Your Python's scikit-learn has version $version. We recommend updating to $min_version or higher for best compatibility with ScikitLearn.jl.")
+        import_already_warned = true
+    end
+    return mod
 end
 
 #  ------------------------- Configurations -------------------------
@@ -120,6 +132,8 @@ macro sk_import(expr)
     # 2. Create the code to be expanded
     mod_string = "sklearn.$mod"
     quote
+        # Make sure that sklearn is installed.
+        $ScikitLearnModels.import_sklearn()
         mod_obj = pyimport($mod_string)
         $([:(const $(esc(w)) = mod_obj.$(w)) for w in members]...)
         $([:(export $(esc(w))) for w in members]...)

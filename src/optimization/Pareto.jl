@@ -18,8 +18,8 @@ possible to determine if `v0` is a Weak Pareto Optimum (WPO) or if it just
 dominates another vector in `V`.
 """
 weakly_dominates(v0::AbstractVector, v1::AbstractVector, signs=nothing) =
-let v0 = (isnothing(v0) && v0) || v0 .* signs,
-    v1 = (isnothing(v1) && v1) || v1 .* signs
+let v0 = isnothing(signs) ? v0 : v0 .* signs,
+    v1 = isnothing(signs) ? v1 : v1 .* signs
 
     isempty(v1) ? true : all(v0 .≤ v1) && any(v0 .< v1)
 end
@@ -36,10 +36,10 @@ Determines if `v0` strongly dominates by `v1`. When considering Pareto efficienc
     all the objectives of `v1`.
 """
 strongly_dominates(v0::AbstractVector, v1::AbstractVector, signs=nothing) =
-let v0 = (isnothing(v0) && v0) || v0 .* signs,
-    v1 = (isnothing(v1) && v1) || v1 .* signs
+let v0 = isnothing(v0) ? v0 : v0 .* signs,
+    v1 = isnothing(v1) ? v1 : v1 .* signs
 
-    all((v0 .* signs) .< (v1 .* signs))
+    all(v0 .< v1)
 end
 
 """

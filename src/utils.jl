@@ -126,7 +126,7 @@ export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 function runWSL(executable, args...)
     # @info "Running WSL command. Using file $(args)."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
-    res = chomp(Base.read(`wsl ./$executable $args`, String))
+    res = chomp(Base.read(`wsl $(@__DIR__)/$executable $args`, String))
     res = parse(Float64, res)
 end
 

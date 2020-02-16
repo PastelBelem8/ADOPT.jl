@@ -241,7 +241,15 @@ check_arguments(::Type{MetaSolver}, surrogates, nvars, nobjs, sampling_params, m
 @inline original_objectives(s::MetaSolver) = flatten(map(true_objectives, surrogates(s)))
 
 @inline sampling_params(s::MetaSolver) = s.sampling_params
-@inline sampling_data(s::MetaSolver) = (s.sampling_params[:X], s.sampling_params[:y])
+@inline sampling_data(s::MetaSolver) = let
+    X = s.sampling_params[:X]
+    y = s.sampling_params[:y]
+
+    if haskey(s.sampling_params, :cs)
+        y = vcat(y,  s.sampling_params[:cs])
+    end
+    (X, y)
+end
 
 @inline nondominated_only(s::MetaSolver) =  s.nondominated_only
 
@@ -279,7 +287,7 @@ initial_data(meta_solver::MetaSolver, model::Model) = let
         create_samples(; nvars=nvariables(model), evaluate=evaluation_f,
                         unscalers=unscalers(model), sampling_params(meta_solver)...)
     end
-    println("n samples: $(size(X))")
+    println("Size X: $(size(X)), Size y + cs: $(size(y))")
     y_objs, y_constrs = size(y, 1) == nobjs ? (y, Real[]) : (y[1:nobjs,:], y[nobjs+1:end,:])
     X, y_objs, y_constrs
     end

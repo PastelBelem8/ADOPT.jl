@@ -9,6 +9,7 @@ import Base: convert
 platypus_fitness(objs, cnstrs) =
     (vars...) -> let  sol = evaluate(vars..., objs, cnstrs)
                       os, cs = objectives(sol), constraints(sol)
+                      print(os)
                       isempty(cs) ? os : (os, cs)
                   end
 

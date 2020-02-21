@@ -9,7 +9,6 @@ import Base: convert
 platypus_fitness(objs, cnstrs) =
     (vars...) -> let  sol = evaluate(vars..., objs, cnstrs)
                       os, cs = objectives(sol), constraints(sol)
-                      print(os)
                       isempty(cs) ? os : (os, cs)
                   end
 
@@ -120,7 +119,6 @@ end
 convert_params(params::Dict{Symbol, T}) where{T} =
 let converted_params = copy(params)
     if (generator_params = get(converted_params, :generator, nothing)) != nothing
-        print(generator_params)
         converted_params[:generator] = convert(generator_params[:name], generator_params)
     end
     if (variator_params = get(converted_params, :variator, nothing)) != nothing

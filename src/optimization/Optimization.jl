@@ -632,8 +632,9 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
         # if these values should be as larger or as smaller as possible.
         else
             type_int = typeof(1)
-            objs_values = map(o -> sense(o) == :MIN ? typemax(type_int) : typemin(type_int) , objs)
-            objs_time = -1 * ones(length(objs))
+            objs_senses = flatten(map(sense, objs))
+            objs_values = map(s -> s == :MIN ? typemax(type_int) : typemin(type_int), objs_senses)
+            objs_time = -1 * ones(length(objs_values))
         end
 
         # Note: To create a more realistic case, whenever we are facing an unfeasible

@@ -353,41 +353,20 @@ check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Functio
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
-"Evaluates the value of constraint. ϵ is the default penalization term"
-evaluate(c::Constraint, args...) = let
-    result = apply(c, args...)
-    # Test for negative (if > or >= we must subtract ϵ so that when compared
-    # to 0 constraint will still be violated)
-    sign = operator(c)(1, 0) ? -1 : 1
-    operator(c)(result, 0) ? 0 : result + sign * ϵ()
-end
-
 "Evaluates the value of the constraint relative to 0"
 issatisfied(c::Constraint, c_value) = operator(c)(c_value, 0)
-
-# "Evaluates the magnitude of the constraint violation. It is meant to be used for penalty constraints"
-# evaluate_penalty(c::Constraint, args...)::Real =
-#     begin
-#         if Symbol(operator(c)) == :(!=)
-#             throw(MethodError("penalty constraint for symbol $(operator(c)) is not defined"))
-#         end
-#         issatisfied(c, args...) ? 0 : abs(apply(c, args...)) * coefficient(c)
-#     end
-# evaluate_penalty(Cs::Vector{Constraint}, args...)::Real =
-#     sum([evaluate_penalty(c, args...) for c in Cs])
 
 penalty(cs::Vector{Constraint}, cs_values) = let
     unsatisfied = map((c, cval) -> !issatisfied(c, cval), cs, cs_values)
     cs_unsatisfied = cs[unsatisfied]
 
-    if isempty(cs_unsatisfied) 0 else
-        # TODO - There is no default behavior to classify the penalty for != constraints
-        if :(!=) in map(operator, cs_unsatisfied)
-            throw(MethodError("penalty constraint for symbol $(operator(c)) is not defined"))
-        end
+    if isempty(cs_unsatisfied)
+        0
+    else
+        cs_values_unsatisfied = cs_values[unsatisfied]
 
         cs_unsatisfied_coeffs = map(coefficient, cs_unsatisfied)
-        cs_unsatisfied_values = map(abs, cs_values[unsatisfied])
+        cs_unsatisfied_values = map(cval -> abs(cval) + abs(ϵ()), cs_values_unsatisfied)
 
         sum(cs_unsatisfied_coeffs .* cs_unsatisfied_values)
     end
@@ -610,7 +589,7 @@ evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=fl
 
     if !isempty(cnstrs)
         println("===== CONSTRAINED ====")
-        cnstrs_values, cnstrs_time = @profile cnstrs (c) -> evaluate(c, vars)
+        cnstrs_values, cnstrs_time = @profile cnstrs (c) -> apply(c, vars)
 
         # Compute penalty
         cnstrs_penalty = penalty(cnstrs, cnstrs_values)

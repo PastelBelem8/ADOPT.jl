@@ -1,6 +1,0 @@
-OptimTestProblems associate all the logic and all the functions to the
-OptimizationProblem, while creating a data structure for holding
-constraint-related information, which is also associated to the
-OptimizationProblem itself. There are however a few fields left to explain in
-the data structure holding constraints information, namely the lc and uc
-attributes.

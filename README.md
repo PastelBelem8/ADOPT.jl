@@ -1,23 +1,85 @@
 # Algorithmic Design OPTimization (ADOPT)
 
+ADOPT is a Julia optimization tool that interfaces with multiple Python frameworks,
+including Derivative-Free Optimization ones (e.g., _platypus_ and _nlopt_), and
+also data science ones (e.g., _scikit-learn_) to support the resolution of both
+Single- and Multi-objective Optimization problems.
 
 
+## 1. 30 Seconds to ADOPT
 
-*Disclaimer*
-This is the result of a work in progress optimization tool that is currently
-being maintained by the [Algorithmic Design and Analysis (ADA) group](https://algorithmicdesign.github.io/).  
+## 1.1. Quick Start
+Consider the following example, whose goal is to minimize two analytical functions
+`f1` and `f2`, which only depends on a single continuous variable, whose values
+may range in the interval $[-10, 10]$.
+```julia
+using ADOPT
+# Analytical Objective Functions
+f1(x) = x^2
+f2(x) = (x-2)^2
 
-## 30 Seconds to ADOPT
+let var1 = RealVariable(-10, 10),
+    obj1 = Objective(f1, :MIN),
+    obj2 = Objective(f2, :MIN),
+    model = Model([var1], [obj1, obj2])
+  solve(NSGAII, model, max_evals=100)
+end
+```
 
-This experiment must be run in a Julia environment (with Julia 1.1.0).
+## 1.2. Quick
 
+```julia
+using ADOPT
+using ADOPT.Platypus
+using ADOPT.Sampling
+using ADOPT.ScikitLearnModels
+
+# Schaffer function nº 1 (Unconstrained)
+schaffer1_vars = [RealVariable(-10, 10)]
+
+schaffer1_f1(x) = x[1]^2
+schaffer1_f2(x) = (x[1] - 2)^2
+schaffer1_objs = [Objective(schaffer1_f1), Objective(schaffer1_f2)]
+schaffer1 = Model(schaffer1_vars, schaffer1_objs)
+
+# Experiment two Algorithms
+algorithms_to_test = [
+    (NSGAII,),  # default params
+    (NSGAII, Dict(:population_size => 15)), (randomMC, Dict(:nsamples=> 500))
+]
+
+benchmark(
+    # Run 3 times the optimization algorithm
+    nruns = 3,
+    # Vector of algorithms to test
+    algorithms = algorithms_to_test,
+    # problem to solve
+    problem = schaffer1,
+    # maximum number of function evaluations to make for each objective function
+    max_evals = 100)
+
+
+# Test 2. Use Solvers and Algorithms
+ADOPT.ScikitLearnModels.@sk_import gaussian_process: (GaussianProcessRegressor,)
+
+surrogate = Surrogate(  GaussianProcessRegressor(),
+                        objectives=schaffer1_objs,
+                        creation_f=sk_fit!,
+                        update_f=sk_fit!,
+                        evaluation_f=sk_predict)
+
+meta_params = Dict(:sampling_function => randomMC, :nsamples => 30)
+optimiser2 = ADOPT.PlatypusSolver(NSGAII, max_eval=500, algorithm_params=Dict(:population_size => 50), nondominated_only=true)
+solver = ADOPT.MetaSolver(optimiser2; surrogates=[surrogate], max_eval=200, sampling_params=meta_params, nondominated_only=true)
+benchmark(nruns=1, algorithms=[solver, (NSGAII,), (NSGAII, Dict(:population_size => 15)), (randomMC, Dict(:nsamples=> 500))], problem=schaffer1, max_evals=100)
+
+```
 
 ## 2. Getting Started
+This experiment must be run in a Julia environment (with Julia 1.1.0).
 
-In its current version, ADOPT depends on Julia 1.+ and a few Python libraries, particularly:
-- [Platypus](https://github.com/Project-Platypus/Platypus)
-- [Sklearn](https://scikit-learn.org/stable/)
-
+ADOPT is a
+Julia optimization tool that
 
 ### 2.1. Installing the Pre-requisites
 
@@ -40,8 +102,8 @@ $ python --version
 
 ADOPT makes use of two different Python libraries: *sklearn* and *platypus*. In order to
 work, you have to install both libraries. If you already have both frameworks installed
-in your Python environment and would like to re-use them then consider [2.1.1. Re-use existing Python frameworks](https://github.com/PastelBelem8/ADOPT.jl/#2.1.1.Re-useexistingPythonframeworks), else just skip
-to [2.2. Installing ADOPT](https://github.com/PastelBelem8/ADOPT.jl/###2.2.InstallingAdopt).
+in your Python environment and would like to re-use them then consider [2.1.1. Re-use existing Python frameworks](https://github.com/PastelBelem8/ADOPT.jl/#211-re-use-existing-python-frameworks), else just skip
+to [2.2. Installing ADOPT](https://github.com/PastelBelem8/ADOPT.jl/#22-installing-adopt).
 
 #### 2.1.1. Re-use existing Python frameworks
 
@@ -60,7 +122,7 @@ julia> using Pkg
 julia> Pkd.add("PyCall")
 ```
 
-#### 2. Installing ADOPT
+### 2.2. Installing ADOPT
 
 To install ADOPT, open up a Julia terminal, enter the `pkg` mode by typing _]_
 in the Julia terminal, and execute the following instructions:
@@ -80,4 +142,9 @@ julia> using ADOPT
 
 - @PastelBelem8
 - @ines-pereira
--
+
+
+*Disclaimer*
+
+This is the result of a work in progress optimization tool that is currently
+being maintained by the [Algorithmic Design and Analysis (ADA) group](https://algorithmicdesign.github.io/).  

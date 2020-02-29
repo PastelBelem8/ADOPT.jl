@@ -495,7 +495,7 @@ Base.convert(::Type{Solution}, x, y, cs::Vector{Constraint}, cs_values) = let
     constraints = convert(typeof_constraints(Solution), cs_values)
     constraint_violation = penalty(cs, cs_values)
 
-    feasible = constraint_violation != 0
+    feasible = constraint_violation == 0
     Solution(variables, objectives, constraints, constraint_violation, feasible, true)
 end
 

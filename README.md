@@ -1,9 +1,23 @@
 # Algorithmic Design OPTimization (ADOPT)
 
+| **Package Status** | **Build Status**  |
+|:------------------:|:-----------------:|
+| [![License](https://img.shields.io/badge/license-GNU-brightgreen.svg?style=flat)](LICENSE.md) [![Documentation Status](https://img.shields.io/badge/docs-missing-red.svg)]() | [![Build Status](https://travis-ci.com/PastelBelem8/ADOPT.jl.svg?token=tFNrx3GDmxzsVPAGpUzX&branch=master)](https://travis-ci.com/PastelBelem8/ADOPT.jl) |
+
 ADOPT is a Julia optimization tool that interfaces with multiple Python frameworks,
 including Derivative-Free Optimization ones (e.g., _platypus_ and _nlopt_), and
 also data science ones (e.g., _scikit-learn_) to support the resolution of both
-Single- and Multi-objective Optimization problems.
+Single- and Multi-objective Optimization problems. Particularly, we aim to
+improve the efficiency of optimization problems involving time-consuming objective functions,
+hence we provide a vast subset of Machine Learning models to be combined with other
+techniques and, hopefully, provide the means to increase convergence times.
+
+This is relevant for Architectural Design Optimization, which depends on time-intensive simulations (e.g. minutes, hours or even days to complete a single simulation).
+
+**Note**
+We're currently working towards the implementation of direct-search methods for Pareto-based Optimization,
+integration of the existing Python framework for Single-Objective Optimization and Single-Objective Optimization w/ preference
+articulation.
 
 
 ## 1. 30 Seconds to ADOPT

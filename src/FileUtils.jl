@@ -48,3 +48,15 @@ failsafe_mkdir(method, dir) =
     catch
         @warn "[$(now())][failsafe_mkdir][$method] Could not create $(dir). Ignoring..."
     end
+
+create_temp_dir(dir) = let
+    path = dir()
+    try
+        mkdir(path);
+        @info "[$(now())] Creating directory $path"
+    catch e
+        if isa(e, SystemError)
+            @info "[$(now())] Directory $path could not be created"
+        end
+    end
+end

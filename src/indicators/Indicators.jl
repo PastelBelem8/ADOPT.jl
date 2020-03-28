@@ -54,9 +54,10 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     if 1 > ndims || ndims > ADOPT.QHV_MAX_DIM
         throw(DomainError("hypervolume indicator is not available for dimensions > $(ADOPT.QHV_MAX_DIM)."))
     end
-
+    # QHV assumes maximization problem
+    create_temp_dir(ADOPT.QHV_TEMP_DIR)
     # Write PF to temp file
-    tempFile = "$(ADOPT.QHV_TEMP_DIR)/" * get_unique_string() * ".in"
+    tempFile = "$(ADOPT.QHV_TEMP_DIR)/QHV_$(get_unique_string()).in"
 
     # Write Input File
     qhv_input_text = mapslices(dumpQHV, A, dims=1)
@@ -64,8 +65,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
             write(io, "#\n"); writedlm(io, A', ' '); write(io, "#\n")
     end
 
-    # QHV assumes maximization problem
-    runWSL(ADOPT.QHV_EXECUTABLE * "$ndims", tempFile) # FIXME - Use DOCKER Image
+    runWSL(ADOPT.QHV_EXECUTABLE * "$ndims", tempFile)
 end
 
 dumpQHV(a::AbstractVector) =

@@ -115,9 +115,8 @@ export  makeWSLcompatible,
 # Folders
 DEPENDENCY_DIR = "deps"
 TEMP_DIR = tempdir()
-# Indicators
-# -----------------
-QHV_TEMP_DIR = mktempdir(TEMP_DIR)
+
+QHV_TEMP_DIR = "$(TEMP_DIR)/ADOPT_jl"
 QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
 QHV_MAX_DIM = 15
 
@@ -126,7 +125,9 @@ export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 function runWSL(executable, args...)
     # @info "Running WSL command. Using file $(args)."
     args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
-    res = chomp(Base.read(`wsl $(@__DIR__)$executable $args`, String))
+    cmd = Sys.iswindows() ? "wsl " : ""
+    print("Executing 'run WSL': $(@__DIR__)")
+    res = chomp(Base.read(`$(cmd)$(@__DIR__)/$executable $args`, String))
     res = parse(Float64, res)
 end
 

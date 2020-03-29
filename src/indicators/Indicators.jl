@@ -57,7 +57,7 @@ hypervolumeIndicator(A::AbstractMatrix) = let
     # QHV assumes maximization problem
     create_temp_dir(ADOPT.QHV_TEMP_DIR)
     # Write PF to temp file
-    tempFile = "$(ADOPT.QHV_TEMP_DIR)/QHV_$(get_unique_string()).in"
+    tempFile = "$(ADOPT.QHV_TEMP_DIR())/QHV_$(get_unique_string()).in"
 
     # Write Input File
     qhv_input_text = mapslices(dumpQHV, A, dims=1)

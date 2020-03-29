@@ -116,7 +116,7 @@ export  makeWSLcompatible,
 DEPENDENCY_DIR = "deps"
 TEMP_DIR = tempdir()
 
-QHV_TEMP_DIR = "$(TEMP_DIR)/ADOPT_jl"
+QHV_TEMP_DIR = Parameter("$(TEMP_DIR)/ADOPT_jl")
 QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
 QHV_MAX_DIM = 15
 

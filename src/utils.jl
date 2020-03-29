@@ -116,18 +116,19 @@ export  makeWSLcompatible,
 DEPENDENCY_DIR = "deps"
 TEMP_DIR = tempdir()
 
-QHV_TEMP_DIR = Parameter("$(TEMP_DIR)/ADOPT_jl")
+QHV_TEMP_DIR = Parameter("$(TEMP_DIR)ADOPT_jl")
 QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
 QHV_MAX_DIM = 15
 
 export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 
-runWSL(executable, args...) = begin
-    executable = makeUnixCompatible(executable)
-    args = join([makeUnixCompatible(arg) for arg in args], " ", " ")
-    cmd = Sys.iswindows() ? "wsl " : ""
-    print("Executing 'run WSL': $(@__DIR__)")
-    res = chomp(Base.read(`$(cmd)$(@__DIR__)/$executable $args`, String))
+runWSL(executable, args...) = let
+    executable = "$(@__DIR__)/$executable"
+    args = [executable, args...]
+    args = [makeUnixCompatible(arg) for arg in args]
+    cmd = Sys.iswindows() ? `wsl` : ``
+    println("Executing 'run WSL': $(@__DIR__)")
+    res = chomp(Base.read(`$(cmd) $args`, String))
     res = parse(Float64, res)
 end
 

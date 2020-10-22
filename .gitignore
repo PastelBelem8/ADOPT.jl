@@ -5,3 +5,6 @@ deps/deps.jl
 deps/build.log
 results/*/*
 Manifest.*
+
+# MacOS
+**/.DS_Store

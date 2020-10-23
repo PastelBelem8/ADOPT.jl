@@ -1,35 +1,31 @@
 # Imports --------------------------------------------------------------
 import Base: show, ==, values
 
-# ----------------------------------------------------------------------
-# Auxiliar routines
-# ----------------------------------------------------------------------
-# Routines to abstract and to the make code more readable/cleaner
 "Throws an error if the arguments of a certain type `T` are invalid."
 function check_arguments(args...) end
 
-# ---------------------------------------------------------------------
-# Variables
-# ---------------------------------------------------------------------
 """
-
     AbstractVariable
 
-All variables share the same main behavior, however some discrete
-variables require additional fields. For example a variable composed
-of specific numbers is considered a discrete variable, yet its values
-must be specified in order to be manipulated.
+Represents a variable (or unknown) in an optimization problem formulation.
 
-Each variable is either a discrete variable (Int, Set), and, in that case, it might
-be comprised of a set of numbers or a range of sequential numbers or it
-might be a continuous variable (Real).
+Variables have different properties and behaviors, some of which is
+shared across them. This abstract type allows to unify their behaviors
+through a unique API.
+
+A variable may be discrete or continuous depending on the values it
+takes. A discrete variable spans a finite number of values whereas
+a continuous variable spans an infinite number of values.
+
+Currently supported variables are Int and Set (discrete variables) and
+also Continuous (continuous variable).
 
 See also: [`IntVariable`](@ref), [`RealVariable`](@ref), [`SetVariable`](@ref)
 """
 abstract type AbstractVariable end
 
-"Creates and exports variable structure subtype of the `AbstractVariable` type based on the provided fields"
-macro defvariable(name, fields...)
+"Create `AbstractVariable` subtype with provided `name` and `fields`."
+macro variable(name, fields...)
     name_str = string(name)
     name_sym = Symbol(name_str)
 
@@ -60,56 +56,50 @@ macro defvariable(name, fields...)
     end
 end
 
-# Avoid parameterizing methods
-Categorical = Union{Int64, Float64, Number}
-CategoricalVector = Union{Vector{Int64}, Vector{Float64}, Vector{Real}}
+# Type Alias
+Cat = Union{Int64, Float64, Number}
+CatVector = Union{Vector{Int64}, Vector{Float64}, Vector{Real}}
 
-# Argument Validations
 check_arguments(lb::Real, ub::Real, ival::Real) =
-    begin
-        if lb > ub
-            throw(DomainError("lower bound must be less than or equal to the upper bound: $lb ⩽ $ub"))
-        elseif lb > ival || ival > ub
-            throw(DomainError("the initial value must be within the lower and upper bounds: $lb ⩽ $ival ⩽ $ub"))
-        end
+    if lb > ub
+        throw(DomainError("Invalid bound values: lower_bound ($lb) > upper_bound ($ub)"))
+    elseif lb > ival || ival > ub
+        throw(DomainError("Invalid initial value: ($ival) ∉ [$lb, $ub]"))
     end
-check_arguments(lb::Categorical, ub::Categorical, ival::Categorical, values::CategoricalVector) =
+check_arguments(lb::Cat, ub::Cat, ival::Cat, values::CatVector) =
     begin
         if length(values) < 1
-            throw(DomainError("invalid variable definition with no values"))
+            throw(DomainError("No values specified"))
         elseif lb ∉ values
-            throw(DomainError("the lower bound with value $lb is not within the specified values: $values"))
+            throw(DomainError("Invalid lower bound value: $lb ∉ $values"))
         elseif ub ∉ values
-            throw(DomainError("the upper bound with value $ub is not within the specified values: $values"))
+            throw(DomainError("Invalid upper bound values: $ub ∉ $values"))
         elseif ival ∉ values
-            throw(DomainError("the initial value with value $ival is not in the specified values: $values"))
+            throw(DomainError("Invalid initial value: $ival ∉ $values"))
         end
         invoke(check_arguments, Tuple{Real, Real, Real}, lb, ub, ival)
     end
 
 # Variable Definitions
-@defvariable IntVariable  lower_bound::Int upper_bound::Int initial_value::Int
-@defvariable RealVariable lower_bound::Real upper_bound::Real initial_value::Real
-@defvariable SetVariable  lower_bound::Categorical upper_bound::Categorical initial_value::Categorical values::CategoricalVector
+@variable IntVariable lower_bound::Int upper_bound::Int initial_value::Int
+@variable RealVariable lower_bound::Real upper_bound::Real initial_value::Real
+@variable SetVariable lower_bound::Cat upper_bound::Cat initial_value::Cat values::CatVector
 
 # Additional Constructors (w/ optional fields)
-IntVariable(lbound::Int, ubound::Int) =
-    IntVariable(lbound, ubound, floor(Int, (ubound - lbound) / 2) + lbound)
-RealVariable(lbound::Real, ubound::Real) =
-    RealVariable(lbound, ubound, (ubound - lbound) / 2 + lbound)
-
-SetVariable(init_value::Categorical, values::CategoricalVector) =
-    length(values) > 0 ?
-        SetVariable(minimum(values), maximum(values), init_value, values) :
-        throw(DomainError("invalid variable definition with no values"))
-SetVariable(values::CategoricalVector)=
-    length(values) > 0 ? SetVariable(values[1], values) : throw(DomainError("invalid variable definition with no values"))
+IntVariable(lb::Int, ub::Int) = IntVariable(lb, ub, floor(Int, (ub - lb) / 2) + lb)
+RealVariable(lb::Real, ub::Real) = RealVariable(lb, ub, (ub - lb) / 2 + lb)
+SetVariable(ival::Cat, values::CatVector) =
+    length(values) > 0 ? SetVariable(minimum(values), maximum(values), ival, values) :
+    throw(DomainError("No values specified"))
+SetVariable(values::CatVector) =
+    length(values) > 0 ? SetVariable(values[1], values) :
+    throw(DomainError("No values specified"))
 
 # Selectors
 lower_bound(var::AbstractVariable) = var.lower_bound
 upper_bound(var::AbstractVariable) = var.upper_bound
 initial_value(var::AbstractVariable) = var.initial_value
-values(var::AbstractVariable) = throw(MethodError("Undefined for abstract variables"))
+values(var::AbstractVariable) = throw(MethodError("Undefined"))
 values(var::SetVariable) = var.values
 
 # Comparators
@@ -119,7 +109,7 @@ values(var::SetVariable) = var.values
     upper_bound(i1) == upper_bound(i2) &&
     initial_value(i1) == initial_value(i2)
 ==(i1::SetVariable, i2::SetVariable) =
-    invoke(==, Tuple{AbstractVariable, AbstractVariable}, i1, i2) && values(i1) == values(i2)
+    invoke(==, Tuple{AbstractVariable,AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
 # Unscalers
 unscale(var::T, values::AbstractArray{Y}, old_min, old_max) where{T<:AbstractVariable,Y<:Number} =

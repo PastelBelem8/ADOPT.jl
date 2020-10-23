@@ -112,18 +112,25 @@ values(var::SetVariable) = var.values
     invoke(==, Tuple{AbstractVariable,AbstractVariable}, i1, i2) && values(i1) == values(i2)
 
 # Unscalers
-unscale(var::T, values::AbstractArray{Y}, old_min, old_max) where{T<:AbstractVariable,Y<:Number} =
-        [unscale(var, value, old_min, old_max) for value in values]
+"""
+    unscale(v::AbstractVariable, val, omin, omax)
 
-unscale(var::RealVariable, value::Real, old_min, old_max) =
-    unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
+Unscale `val` from `[omin, omax]` to the original variable's scale.
+"""
+unscale(var, vals, omin, omax) =
+    [unscale(var, val, omin, omax) for val in vals]
 
-unscale(var::IntVariable, value::Number, old_min, old_max) =
-    round(Int, unscale(value, lower_bound(var), upper_bound(var), old_min, old_max))
+unscale(var::RealVariable, val::Real, omin, omax) =
+    unscale(val, lower_bound(var), upper_bound(var), omin, omax)
 
-unscale(var::SetVariable, value::Number, old_min, old_max) = let
-    nval = unscale(value, lower_bound(var), upper_bound(var), old_min, old_max)
-    var.values[round(Int64, nval)]
+unscale(var::IntVariable, val::Number, omin, omax) =
+    round(Int, unscale(val, lower_bound(var), upper_bound(var), omin, omax))
+
+unscale(var::SetVariable, val::Number, omin, omax) =
+    let vals = values(var),
+        uns_val = unscale(val, lower_bound(var), upper_bound(var), omin, omax),
+        diff = map((v) -> abs(v - uns_val), vals)
+        vals[argmin(diff)]
     end
 
 # Export functions

@@ -54,6 +54,13 @@ using Test
             @test !ADOPT.isIntVariable(nothing)
             @test !ADOPT.isIntVariable(Vector{Int}())
         end
+
+        @testset "Unscaling Tests" begin
+            @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), 0.5, 0, 1) == 10
+            @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [0, 5, 10, 15, 20]
+            @test ADOPT.unscale(ADOPT.IntVariable(-10, 10), [-10, -5, 10], -10, 10) == [-10, -5, 10]
+            @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), 0.33, 0, 1) == 7
+        end
     end
 
     @testset "RealVariable Tests" begin
@@ -108,6 +115,13 @@ using Test
             @test !ADOPT.isRealVariable(ADOPT.SetVariable([0]))
             @test !ADOPT.isRealVariable(nothing)
             @test !ADOPT.isRealVariable(Vector{Real}())
+        end
+
+        @testset "Unscaling Tests" begin
+            @test ADOPT.unscale(ADOPT.RealVariable(0, 20.0), 0.5, 0, 1) == 10
+            @test ADOPT.unscale(ADOPT.RealVariable(0, 20.0), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [0, 5, 10, 15, 20]
+            @test ADOPT.unscale(ADOPT.RealVariable(-10.5, 10), [-10, -5, 10], -10, 10) == [-10.5, -5.375, 10.0]
+            @test ADOPT.unscale(ADOPT.RealVariable(0, 20, 10), 0.33, 0, 1) == 0.33 * 20
         end
     end
 
@@ -196,6 +210,14 @@ using Test
             @test !ADOPT.isSetVariable(nothing)
             @test !ADOPT.isSetVariable(Vector{Int64}())
             @test !ADOPT.isSetVariable(Vector{Float64}())
+        end
+
+        @testset "Unscaling Tests" begin
+
+            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), 0.5, 0, 1) == 5
+            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [1, 3, 5, 8, 10]
+            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [-10, -5, 9], -10, 10) == [1, 3, 10]
+            @test ADOPT.unscale(ADOPT.SetVariable(collect(0:10)), 0.33, 0, 1) == 3
         end
     end
 end

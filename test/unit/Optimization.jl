@@ -294,7 +294,7 @@ end
         @test ADOPT.sense(o2) == :MAX
         @test ADOPT.direction(o2) == 1
 
-        @test ADOPT.directions([o1, o2]) == [-1, 1]
+        @test ADOPT.direction([o1, o2]) == [-1, 1]
     end
 
     @testset "Predicates Tests" begin

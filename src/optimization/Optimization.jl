@@ -133,62 +133,65 @@ unscale(var::SetVariable, val::Number, omin, omax) =
         vals[argmin(diff)]
     end
 
-# Export functions
 export lower_bound, upper_bound, initial_value, values, ==, unscale
 
-# ---------------------------------------------------------------------
-# Objectives
-# ---------------------------------------------------------------------
+"""
+    AbstractObjective
+
+Represents an objective function in an optimization problem formulation.
+
+While a problem formulation typically comprises different objective
+functions, in most practical settings we may (for performance
+constraints) resort to a _shared objective_. SharedObjectives differ
+from the common `Objective` in the number of outputs returned.
+Mathematically, one can think of an `Objective` as a mapping
+𝒳 → 𝒴, where 𝒳 ∈ ℝᴰ and 𝒴 ∈ ℝ. Conversely, a `SharedObjective`
+represents a mapping 𝒰 → 𝒱, where 𝒰 ∈ ℝᴰ and 𝒱 ∈ ℝᴺ.
+
+# Fields:
+- `func::Function`: the actual function(s) to execute.
+- `coefficient::Real=1`: the importance weight(s) of the objective.
+- `sense::Symbol`: the direction/sense of the function. Supported
+    values are {:MIN, ::MAX}.
+
+See also: [`Objective`](@ref), [`SharedObjective`](@ref)
+"""
 abstract type AbstractObjective end
 
 # Selectors
 func(o::AbstractObjective) = o.func
 
-# Predicates
-isAbstractObjective(::T) where{T<:AbstractObjective} = true
-isAbstractObjective(::Any) = false
-
-isminimization(o::AbstractObjective, comp) = comp(:MIN, sense(o))
-
 """
     Objective(λ, n, :MIN)
     Objective(λ, n, :MAX)
 
-The objective is a type that encloses a function, an objective function,
-to be used in a optimization problem.
+Define an objective function whose result is unidimensional.
 
 For flexibility and extension purposes the objective also possesses a
-coefficiet (or a weight) associated, which can be used to articulate
-preferences of multiple objectives. An example of such approach is the
-Single Objective weighted sum approach to Multi-Objective problems, where
-each objective is assigned a coefficient and then the linear combination of
-the multiple objectives is the *function* to be optimized.
-
-# Arguments
-- `func::Function`: the function to be computed
-- `coefficient::Real`: the weight representing the importance of the objective
-function
-- `sense::Symbol`: the direction/sense of the objective function, which can
-either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
+coefficient (or a weight) associated, which can be used to articulate
+preferences for multiple objectives. This can be useful for
+scalarization (_i.e._, a single objective weighted sum approach),
+where each objective is assigned a weight and the linear combination of
+multiple objectives is the `function` to be optimized.
 """
 struct Objective <: AbstractObjective
     func::Function
     coefficient::Real
     sense::Symbol
 
-    Objective(f::Function, coefficient::Real=1, sense::Symbol=:MIN) =
-        begin   check_arguments(Objective, f, coefficient, sense)
-                new(f, coefficient, sense)
-        end
+    Objective(f::Function, coeff::Real = 1, sense::Symbol = :MIN) = begin
+        check_arguments(Objective, f, coeff, sense)
+        new(f, coeff, sense)
+    end
 end
 
 # Constructor
 Objective(f::Function, sense::Symbol) = Objective(f, 1, sense)
 
 # Argument Validations
-check_arguments(::Type{Objective}, f::Function, coefficient::Real, sense::Symbol) =
+check_arguments(::Type{Objective}, f::Function, coef::Real, sense::Symbol) =
     if !(sense in (:MIN, :MAX))
-        throw(DomainError("unrecognized sense $sense. Valid values are {MIN, MAX}"))
+        throw(DomainError("Invalid optimization goal: $sense ∉ {:MIN, :MAX}"))
     end
 
 # Selectors
@@ -196,13 +199,13 @@ coefficient(o::Objective) = o.coefficient
 sense(o::Objective) = o.sense
 
 direction(o::Objective) = o.sense == :MIN ? -1 : 1
-directions(v::Vector) = [direction(o) for o in v]
+direction(os::Vector{T}) where {T <: AbstractObjective} = map(direction, os)
 
 # Predicate
 isObjective(::Objective)::Bool = true
 isObjective(::Any)::Bool = false
 
-isminimization(o::Objective) = invoke(isminimization, Tuple{AbstractObjective, Function}, o, ==)
+isminimization(o::Objective) = :MIN == sense(o)
 
 # Comparators
 ==(o1::Objective, o2::Objective) =
@@ -211,10 +214,10 @@ isminimization(o::Objective) = invoke(isminimization, Tuple{AbstractObjective, F
 # Application
 nobjectives(::Objective) = 1
 
-"Applies the objective's function to provided arguments"
+"Apply the objective to provided arguments."
 apply(o::T, args...) where {T <: AbstractObjective} = func(o)(args...)
 
-"Evaluates the true value of the objective"
+"Compute the true value of the objective."
 evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
 
 """
@@ -286,7 +289,7 @@ direction(o::SharedObjective, i::Union{Int,Colon}=(:)) =
     let direction(sense) = sense == :MIN ? -1 : 1
         map(direction, sense(o, i))
     end
-directions(v::Vector{SharedObjective}) = [direction(o) for o in v]
+direction(vs::Vector{SharedObjective}) = [direction(o) for o in os]
 
 # Predicates
 isSharedObjective(::SharedObjective) = true
@@ -309,7 +312,7 @@ evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)'
 
 export AbstractObjective, Objective, SharedObjective
 export nobjectives, objectives, coefficient, coefficients, sense, senses,
-        direction, directions, isminimization, apply, evaluate
+        direction, isminimization, apply, evaluate
 # ---------------------------------------------------------------------
 # Constraints
 # ---------------------------------------------------------------------

@@ -146,7 +146,7 @@ constraints) resort to a _shared objective_. SharedObjectives differ
 from the common `Objective` in the number of outputs returned.
 Mathematically, one can think of an `Objective` as a mapping
 𝒳 → 𝒴, where 𝒳 ∈ ℝᴰ and 𝒴 ∈ ℝ. Conversely, a `SharedObjective`
-represents a mapping 𝒰 → 𝒱, where 𝒰 ∈ ℝᴰ and 𝒱 ∈ ℝᴺ.
+represents a mapping 𝒰 → 𝒱, where 𝒰 ∈ ℝᴰ and 𝒱 ∈ ℝ.
 
 # Fields:
 - `func::Function`: the actual function(s) to execute.
@@ -173,6 +173,8 @@ preferences for multiple objectives. This can be useful for
 scalarization (_i.e._, a single objective weighted sum approach),
 where each objective is assigned a weight and the linear combination of
 multiple objectives is the `function` to be optimized.
+
+See Also: [`SharedObjective`](@ref)
 """
 struct Objective <: AbstractObjective
     func::Function
@@ -199,7 +201,7 @@ coefficient(o::Objective) = o.coefficient
 sense(o::Objective) = o.sense
 
 direction(o::Objective) = o.sense == :MIN ? -1 : 1
-direction(os::Vector{T}) where {T <: AbstractObjective} = map(direction, os)
+direction(os::Vector{T}) where {T <: AbstractObjective} = vcat(map(direction, os)...)
 
 # Predicate
 isObjective(::Objective)::Bool = true
@@ -223,23 +225,33 @@ evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
 """
     SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])
 
-The shared objective is a that encloses multiple objective functions in a
-single function. This avoids evaluating multiple the same function multiple
-times, which is extremely useful in the case of simulation-based optimization
-problems, where simulations are time-consuming and often simulatenously
-produce multiple outputs that can be used as objective functions.
+Encloses multiple output dimensions in a single function.
 
+In the context of optimization, a shared objective allow us to
+simultaneously obtain multiple values for the optimization problem
+through a simple function call.  This is an abstraction, proven to
+be extremely useful in the case of simulation-based optimization,
+where evaluations (or simulations) are time-consuming and often
+produce distinct outputs that can be used as objective functions.
 
-# Arguments
-- `nobjectives::Int`: the number of objectives represented by this structure
-- `func::Function`: the function to be computed
-- `coefficients::Vector{Real}`: the weight representing the importance of the objective
-functions
-- `senses::Vector{Symbol}`: the senses of the objective functions, which can
-either be to minimize (sense=:MIN) or to maximize (sense=:MAX)
+Naturally, this abstraction requires additional information when
+compared to a simple `Objective`, namely, the total number of
+objectives considered in this _aggregate_ objective and their
+corresponding coefficients and senses (or directions).
+
+# Fields
+- `n::Int8`: the dimensions of the output, i.e., number of objectives.
+- `func::Function`: the function to be computed.
+- `coefficients::Vector{Number}: the importance weight(s) of the objectives.
+    By default each objective is assigned equal importance of 1.
+- `senses::Vector{Symbol}`: the direction/sense of the objectives. Supported
+    values are {:MIN, ::MAX}. By default, each objective is assumed to be a
+    minimization problem.
+
+See Also: [`Objective`](@ref)
 """
 struct SharedObjective <: AbstractObjective
-    nobjectives::Int
+    n::Int
     func::Function
     coefficients::Vector{Real}
     senses::Vector{Symbol}
@@ -249,14 +261,10 @@ struct SharedObjective <: AbstractObjective
                 new(length(coefficients), f, coefficients, senses)
         end
 end
-
-# Constructors
 SharedObjective(f::Function, nobjs::Int) =
-    SharedObjective(f, [1 for _ in 1:objs], [:MIN for _ in 1:nobjs])
-
+    SharedObjective(f, [1 for _ in 1:nobjs], [:MIN for _ in 1:nobjs])
 SharedObjective(f::Function, coefficients::Vector{T}) where{T<:Real} =
     SharedObjective(f, coefficients, [:MIN for _ in 1:length(coefficients)])
-
 SharedObjective(f::Function, senses::Vector{Symbol}) =
     SharedObjective(f, [1 for _ in 1:length(senses)], senses)
 
@@ -264,32 +272,30 @@ SharedObjective(f::Function, senses::Vector{Symbol}) =
 check_arguments(::Type{SharedObjective}, coefficients, senses) =
     let valid_sense(sense) = sense in (:MIN, :MAX)
         if length(coefficients) != length(senses)
-            throw(DimensionMismatch("`coefficients` and `senses` should have the same dimension"))
+            throw(DimensionMismatch("`coefficients` and `senses` differ in size."))
         elseif isempty(filter(valid_sense, senses))
-            throw(DomainError("unrecognized sense in `senses`. Valid values are {MIN, MAX}"))
+            throw(DomainError("Invalid value in `senses` ∉ {:MIN, :MAX}."))
         end
     end
 
 # Selectors
-nobjectives(o::SharedObjective) = o.nobjectives
+nobjectives(o::SharedObjective) = o.n
 
-coefficient(o::SharedObjective, i::Union{Int,Colon}=(:)) =
-    let coeffs = coefficients(o)
-        i == (:) || 0 < i < length(coeffs) ? coeffs[i] : throw(BoundsError(coeffs, i))
-    end
+coefficient(o::SharedObjective, i=(:)) = coefficients(o)[i]
 coefficients(o::SharedObjective) = o.coefficients
 
-sense(o::SharedObjective, i::Union{Int,Colon}=(:)) =
-    let snses = senses(o)
-        i == (:) || 0 < i < length(snses) ? snses[i] : throw(BoundsError(snses, i))
-    end
+sense(o::SharedObjective, i=(:)) = senses(o)[i]
 senses(o::SharedObjective) = o.senses
 
-direction(o::SharedObjective, i::Union{Int,Colon}=(:)) =
-    let direction(sense) = sense == :MIN ? -1 : 1
-        map(direction, sense(o, i))
+direction(o::SharedObjective, i = (:)) =
+    let senses = sense(o, i), get_dir = s -> s == :MIN ? -1 : 1
+        if i isa Int
+            get_dir(senses)
+        else
+            # flatten the vector of vectors into a single vector :)
+            map(get_dir, senses)
+        end
     end
-direction(vs::Vector{SharedObjective}) = [direction(o) for o in os]
 
 # Predicates
 isSharedObjective(::SharedObjective) = true

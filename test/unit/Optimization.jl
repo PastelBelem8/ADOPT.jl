@@ -333,6 +333,138 @@ end
     end
 end
 
+@testset "SharedObjective Tests" begin
+    @testset "Constructors Tests" begin
+        # Success
+        @test begin
+            g = x -> (1, 2)
+            o = ADOPT.SharedObjective(g, [1, 4], [:MIN, :MIN])
+
+            o.n == 2 &&
+                isa(o.func, Function) &&
+                o.func == g &&
+                o.coefficients == [1, 4] &&
+                o.senses == [:MIN, :MIN]
+        end
+
+        @test begin
+            g = x -> (1, 2)
+            o = ADOPT.SharedObjective(g, 2)
+
+            o.n == 2 &&
+                isa(o.func, Function) &&
+                o.func == g &&
+                o.coefficients == Real[1, 1] &&
+                o.senses == [:MIN, :MIN]
+        end
+
+        @test begin
+            g = x -> (1, 2)
+            coeffs = Real[1, 2, 3]
+            o = ADOPT.SharedObjective(g, coeffs)
+
+            o.n == length(coeffs) &&
+                isa(o.func, Function) &&
+                o.func == g &&
+                o.coefficients == coeffs &&
+                o.senses == [:MIN, :MIN, :MIN]
+        end
+
+        @test begin
+            senses = [:MIN, :MIN, :MIN]
+            o = ADOPT.SharedObjective(identity, senses)
+
+            o.n == length(senses) &&
+                isa(o.func, Function) &&
+                o.func == identity &&
+                o.coefficients == Real[1,1,1] &&
+                o.senses == senses
+        end
+
+        # Method Errors
+        @test_throws MethodError ADOPT.SharedObjective()
+        @test_throws MethodError ADOPT.SharedObjective(0)
+        @test_throws MethodError ADOPT.SharedObjective(identity, identity)
+        @test_throws MethodError ADOPT.SharedObjective(identity, 0, :MINIMIZE)
+        @test_throws MethodError ADOPT.SharedObjective(identity, 0, :MAXIMIZE)
+        @test_throws MethodError ADOPT.SharedObjective(identity, :MINIMIZE)
+        @test_throws MethodError ADOPT.SharedObjective(identity, :MAXIMIZE)
+
+        @test_throws DimensionMismatch ADOPT.SharedObjective(identity, [1, 1], [:MIN])
+        @test_throws DomainError ADOPT.SharedObjective(identity, Symbol[])
+    end
+
+    @testset "Selectors Tests" begin
+        g = x -> (1, 2)
+        o1 = ADOPT.SharedObjective(g, [1, 4], [:MIN, :MAX])
+        @test ADOPT.coefficient(o1) == [1, 4]
+        @test ADOPT.coefficient(o1, 1) == 1
+        @test ADOPT.coefficient(o1, :) == [1, 4]
+        @test ADOPT.coefficient(o1, 1:2) == ADOPT.coefficients(o1)
+
+        @test ADOPT.func(o1) != nothing
+        @test ADOPT.func(o1) == g
+        @test ADOPT.func(o1)(0) == (1, 2)
+
+        @test ADOPT.sense(o1) == [:MIN, :MAX]
+        @test ADOPT.sense(o1, 1) == :MIN
+        @test ADOPT.sense(o1, :) == [:MIN, :MAX]
+        @test ADOPT.sense(o1, 1:2) == ADOPT.senses(o1)
+
+        @test ADOPT.direction(o1) == [-1, 1]
+        @test ADOPT.direction(o1, 1) == -1
+        @test ADOPT.direction(o1, :) == [-1, 1]
+        @test ADOPT.direction(o1, 1:2) == ADOPT.direction(o1)
+
+        o2 = ADOPT.SharedObjective(g, [1.75, 0.25], [:MIN, :MAX])
+        @test ADOPT.coefficient(o2) == [1.75, 0.25]
+        @test ADOPT.func(o2) != nothing
+        @test ADOPT.func(o2) == g
+        @test ADOPT.func(o2)(0) == (1, 2)
+        @test ADOPT.sense(o2) == [:MIN, :MAX]
+        @test ADOPT.direction(o2) == [-1, 1]
+
+        o3 = ADOPT.Objective(identity)
+        @test ADOPT.direction([o1, o3, o2]) == [-1, 1, -1, -1, 1]
+    end
+
+    @testset "Predicates Tests" begin
+        o1 = ADOPT.SharedObjective(identity, 1, :MIN)
+        o2 = ADOPT.SharedObjective(exp, 1, :MAX)
+
+        @test !ADOPT.isObjective(o1)
+        @test ADOPT.isObjective(o2)
+        @test !ADOPT.isObjective(2)
+        @test !ADOPT.isObjective(Vector{Real}())
+        @test !ADOPT.isObjective(nothing)
+        @test !ADOPT.isObjective(ADOPT.IntVariable(0, 1))
+
+        @test ADOPT.isminimization(o1)
+        @test !ADOPT.isminimization(o2)
+
+        @test o1 != o2
+        @test o1 == ADOPT.SharedObjective(identity, 1, :MIN)
+    end
+
+    @testset "Evaluation Tests" begin
+        o = ADOPT.SharedObjective(x -> x^2, 3)
+        # Success
+        @test ADOPT.apply(o, 2) == 4
+        @test ADOPT.apply(o, -1) == 1
+
+        @test ADOPT.evaluate(o, 2) == 4 * 3
+        @test ADOPT.evaluate(o, -1) == 1 * 3
+
+        # Method Errors
+        @test_throws MethodError ADOPT.apply(o, 2, 3)
+        @test_throws MethodError ADOPT.apply(o)
+
+        @test_throws MethodError ADOPT.evaluate(o, 2, 3)
+        @test_throws MethodError ADOPT.evaluate(o)
+    end
+end
+
+
 @testset "Constraints Tests" begin
     @testset "Constructors Tests" begin
         # Success

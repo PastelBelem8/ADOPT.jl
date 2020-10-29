@@ -392,6 +392,7 @@ end
 
         @test_throws DimensionMismatch ADOPT.SharedObjective(identity, [1, 1], [:MIN])
         @test_throws DomainError ADOPT.SharedObjective(identity, Symbol[])
+        @test_throws DomainError ADOPT.SharedObjective(identity, 1)
     end
 
     @testset "Selectors Tests" begin
@@ -429,21 +430,26 @@ end
     end
 
     @testset "Predicates Tests" begin
-        o1 = ADOPT.SharedObjective(identity, 1, :MIN)
-        o2 = ADOPT.SharedObjective(exp, 1, :MAX)
+        f = x -> (-x, 2*x)
+        o1 = ADOPT.SharedObjective(f, [1, 4], [:MIN, :MAX])
+        o2 = ADOPT.Objective(exp, :MIN)
 
-        @test !ADOPT.isObjective(o1)
-        @test ADOPT.isObjective(o2)
-        @test !ADOPT.isObjective(2)
-        @test !ADOPT.isObjective(Vector{Real}())
-        @test !ADOPT.isObjective(nothing)
-        @test !ADOPT.isObjective(ADOPT.IntVariable(0, 1))
+        @test !ADOPT.isObjective(o1) && ADOPT.isObjective(o2)
+        @test ADOPT.isSharedObjective(o1) && !ADOPT.isSharedObjective(o2)
+        @test !ADOPT.isSharedObjective(2)
+        @test !ADOPT.isSharedObjective(Vector{Real}())
+        @test !ADOPT.isSharedObjective(nothing)
+        @test !ADOPT.isSharedObjective(ADOPT.IntVariable(0, 1))
 
-        @test ADOPT.isminimization(o1)
-        @test !ADOPT.isminimization(o2)
+        @test !ADOPT.isminimization(o1)
+        @test ADOPT.isminimization(o2)
+        @test ADOPT.isminimization(ADOPT.SharedObjective(f, [:MIN, :MIN]))
+        @test !ADOPT.isminimization(ADOPT.SharedObjective(f, [:MAX, :MAX]))
 
-        @test o1 != o2
-        @test o1 == ADOPT.SharedObjective(identity, 1, :MIN)
+        # Comparators
+        @test o1 == ADOPT.SharedObjective(f, [1, 4], [:MIN, :MAX])
+        @test o1 != ADOPT.SharedObjective(f, [1, 4], [:MAX, :MIN])
+        @test o1 != ADOPT.SharedObjective(f, [4, 1], [:MIN, :MAX])
     end
 
     @testset "Evaluation Tests" begin

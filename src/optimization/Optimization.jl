@@ -161,6 +161,9 @@ abstract type AbstractObjective end
 # Selectors
 func(o::AbstractObjective) = o.func
 
+# Predicates
+isminimization(s::Symbol) = :MIN == s
+
 """
     Objective(λ, n, :MIN)
     Objective(λ, n, :MAX)
@@ -207,7 +210,7 @@ direction(os::Vector{T}) where {T <: AbstractObjective} = vcat(map(direction, o
 isObjective(::Objective)::Bool = true
 isObjective(::Any)::Bool = false
 
-isminimization(o::Objective) = :MIN == sense(o)
+isminimization(o::Objective) = isminimization(sense(o))
 
 # Comparators
 ==(o1::Objective, o2::Objective) =
@@ -275,6 +278,8 @@ check_arguments(::Type{SharedObjective}, coefficients, senses) =
             throw(DimensionMismatch("`coefficients` and `senses` differ in size."))
         elseif isempty(filter(valid_sense, senses))
             throw(DomainError("Invalid value in `senses` ∉ {:MIN, :MAX}."))
+        elseif length(coefficients) < 2
+            throw(DomainError("Invalid definition 1 objective: use `Objective` instead."))
         end
     end
 
@@ -301,10 +306,7 @@ direction(o::SharedObjective, i = (:)) =
 isSharedObjective(::SharedObjective) = true
 isSharedObjective(::Any) = false
 
-isminimization(o::SharedObjective) =
-    invoke(isminimization, Tuple{AbstractObjective, Function}, o, in)
-
-# Application
+isminimization(o::SharedObjective) = all(map(isminimization, sense(o)))
 
 "Evaluates the true value of the objective"
 evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)'

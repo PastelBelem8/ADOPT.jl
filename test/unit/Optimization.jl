@@ -453,13 +453,14 @@ end
     end
 
     @testset "Evaluation Tests" begin
-        o = ADOPT.SharedObjective(x -> x^2, 3)
+        o = ADOPT.SharedObjective(x -> (x^2, -(x^2)), [1, 2], [:MIN, :MAX])
         # Success
-        @test ADOPT.apply(o, 2) == 4
-        @test ADOPT.apply(o, -1) == 1
+        @test ADOPT.apply(o, 2) == (4, -4)
+        @test ADOPT.apply(o, -1) == (1, -1)
+        # @test ADOPT.apply(o, 2, 3) == (4, -4)
 
-        @test ADOPT.evaluate(o, 2) == 4 * 3
-        @test ADOPT.evaluate(o, -1) == 1 * 3
+        @test ADOPT.evaluate(o, 2) == -4
+        @test ADOPT.evaluate(o, -1) == -1
 
         # Method Errors
         @test_throws MethodError ADOPT.apply(o, 2, 3)

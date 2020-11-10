@@ -120,13 +120,13 @@ Unscale `val` from `[omin, omax]` to the original variable's scale.
 unscale(var, vals, omin, omax) =
     [unscale(var, val, omin, omax) for val in vals]
 
-unscale(var::RealVariable, val::Real, omin, omax) =
+unscale(var::RealVariable, val::Real, omin::Number, omax::Number) =
     unscale(val, lower_bound(var), upper_bound(var), omin, omax)
 
-unscale(var::IntVariable, val::Number, omin, omax) =
+unscale(var::IntVariable, val::Number, omin::Number, omax::Number) =
     round(Int, unscale(val, lower_bound(var), upper_bound(var), omin, omax))
 
-unscale(var::SetVariable, val::Number, omin, omax) =
+unscale(var::SetVariable, val::Number, omin::Number, omax::Number) =
     let vals = values(var),
         uns_val = unscale(val, lower_bound(var), upper_bound(var), omin, omax),
         diff = map((v) -> abs(v - uns_val), vals)
@@ -163,6 +163,19 @@ func(o::AbstractObjective) = o.func
 
 # Predicates
 isminimization(s::Symbol) = :MIN == s
+
+# Comparators
+==(o1::T, o2::T) where {T <: AbstractObjective} =
+    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
+    sense(o1) == sense(o2)
+
+# Application
+"Apply the objective to provided arguments."
+apply(o::T, args...) where {T <: AbstractObjective} = func(o)(args...)
+
+"Compute the true value of the objective."
+evaluate(o::T, args...) where {T <: AbstractObjective} =
+    coefficient(o) .* apply(o, args...)
 
 """
     Objective(λ, n, :MIN)
@@ -212,18 +225,8 @@ isObjective(::Any)::Bool = false
 
 isminimization(o::Objective) = isminimization(sense(o))
 
-# Comparators
-==(o1::Objective, o2::Objective) =
-    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) && sense(o1) == sense(o2)
-
 # Application
 nobjectives(::Objective) = 1
-
-"Apply the objective to provided arguments."
-apply(o::T, args...) where {T <: AbstractObjective} = func(o)(args...)
-
-"Compute the true value of the objective."
-evaluate(o::Objective, args...) = coefficient(o) .* apply(o, args...)
 
 """
     SharedObjective(λ, [n1, n2, ...], [:MIN, :MAX, ...])
@@ -302,25 +305,20 @@ direction(o::SharedObjective, i = (:)) =
         end
     end
 
+
 # Predicates
 isSharedObjective(::SharedObjective) = true
 isSharedObjective(::Any) = false
 
 isminimization(o::SharedObjective) = all(map(isminimization, sense(o)))
-
-"Evaluates the true value of the objective"
-evaluate(o::SharedObjective, args...) = apply(o, args...) .* coefficients(o)'
-
-# Comparators
-==(o1::SharedObjective, o2::SharedObjective) =
-    func(o1) == func(o2) && coefficient(o1) == coefficient(o2) &&
-    sense(o1) == sense(o2)
-
 ==(o1::SharedObjective, o2::Objective) = ==(o1::Objective, o2::SharedObjective) = false
+
+evaluate(o::SharedObjective, args...) = sum(coefficient(o) .* collect(apply(o, args...)))
 
 export AbstractObjective, Objective, SharedObjective
 export nobjectives, objectives, coefficient, coefficients, sense, senses,
         direction, isminimization, apply, evaluate
+
 # ---------------------------------------------------------------------
 # Constraints
 # ---------------------------------------------------------------------

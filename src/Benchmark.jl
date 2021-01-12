@@ -55,15 +55,16 @@ benchmark(;bname="benchmark", nruns, algorithms, problem, max_evals=100) = let
     init_benchmark(BENCHMARK_ID, plan);
 
     for id in alg_ids
-        @info "[$(now())][benchmark] Starting $nruns for algorithm $(algs[id]) (with id $id) with params: $(algs_params[id])."
+        @info "[$(now())-$(myid())][benchmark] Starting $nruns for algorithm $(algs[id]) (with id $id) with params: $(algs_params[id])."
         with(results_dir, "$(BENCHMARK_ID)/$(id)") do
             failsafe_mkdir("benchmark", results_dir())
+            @info "[$(now())-$(myid())][benchmark] Starting $(nruns) runs."
             for run in 1:nruns
                 try
-                    @info "[$(now())][benchmark] Starting run $(run) (out of $(nruns))."
+                    @info "[$(now())-$(myid())][benchmark] Starting run $(run) (out of $(nruns))."
                     solve(algs[id], algs_params[id], problem, max_evals, true)
                 catch e
-                    @error "[$(now())][benchmark] Error $(sprint(show, e))\nCheck error.log file for more information.."
+                    @error "[$(now())-$(myid())][benchmark] Error $(sprint(show, e))\nCheck error.log file for more information.."
                     log_error("$(BENCHMARK_ID)/error.log", e) end
             end
         end

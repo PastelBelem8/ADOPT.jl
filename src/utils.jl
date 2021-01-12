@@ -115,24 +115,22 @@ export  makeWSLcompatible,
 # Folders
 DEPENDENCY_DIR = "deps"
 TEMP_DIR = tempdir()
-
-QHV_TEMP_DIR = Parameter("$(TEMP_DIR)ADOPT_jl")
+# Indicators
+# -----------------
+QHV_TEMP_DIR = mktempdir(TEMP_DIR)
 QHV_EXECUTABLE = "$DEPENDENCY_DIR/QHV/d"
 QHV_MAX_DIM = 15
 
 export QHV_EXECUTABLE, QHV_TEMP_DIR, QHV_MAX_DIM
 
-runWSL(executable, args...) = let
-    executable = "$(@__DIR__)/$executable"
-    args = [executable, args...]
-    args = [makeUnixCompatible(arg) for arg in args]
-    cmd = Sys.iswindows() ? `wsl` : ``
-    println("Executing 'run WSL': $(@__DIR__)")
-    res = chomp(Base.read(`$(cmd) $args`, String))
+function runWSL(executable, args...)
+    # @info "Running WSL command. Using file $(args)."
+    args = join([makeWSLcompatible(arg) for arg in args], " ", " ")
+    res = chomp(Base.read(`wsl $(@__DIR__)$executable $args`, String))
     res = parse(Float64, res)
 end
 
-makeUnixCompatible(filepath) =
+makeWSLcompatible(filepath) =
     replace(filepath, "\\" => "/") |> x -> replace(x, r"(\w+)?:" => lowercase) |> x ->
     replace(x, r"(\w+)?:" => s"/mnt/\1")
 

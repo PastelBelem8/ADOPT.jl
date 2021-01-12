@@ -144,7 +144,7 @@ end
 #  ------------------------- Sklearn Operations -------------------------
 using LinearAlgebra
 # FIXME - Hack to make this work. !! PLEASE DO NOT MIMICK! THIS IS AWFUL! :(
-PyObject(x::LinearAlgebra.Adjoint) = PyObject(copy(x))
+# PyObject(x::LinearAlgebra.Adjoint) = PyObject(copy(x))
 PyObject(x::Transpose) = PyObject(copy(x))
 
 # FIXME I did it to allow the conversion of the format used in the MscThesis (nfeatures x nsamples)

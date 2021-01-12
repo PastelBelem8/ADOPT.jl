@@ -1,10 +1,11 @@
 # Dependencies (for reading)
 using DelimitedFiles
-
+using Base.Threads: threadid
+using Distributed: myid
 import Base: read
 
 "Get unique name based on the current datetime"
-get_unique_string() = Dates.format(Dates.now(), "yyyymmddHHMMSS")
+get_unique_string() = Dates.format(Dates.now(), "yyyymmddHHMMSS")*"-$(myid())-$(threadid())"
 
 # Configurations
 # File-specific configurations
@@ -48,15 +49,3 @@ failsafe_mkdir(method, dir) =
     catch
         @warn "[$(now())][failsafe_mkdir][$method] Could not create $(dir). Ignoring..."
     end
-
-create_temp_dir(dir) = let
-    path = dir()
-    try
-        mkdir(path);
-        @info "[$(now())] Creating directory $path"
-    catch e
-        if isa(e, SystemError)
-            @info "[$(now())] Directory $path could not be created"
-        end
-    end
-end

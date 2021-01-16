@@ -37,7 +37,6 @@ macro variable(name, fields...)
 
     # Methods
     constructor_name = esc(name_sym)
-    predicate_name = esc(Symbol("is", name_str))
 
     quote
         export $(name_sym)
@@ -49,10 +48,6 @@ macro variable(name, fields...)
                 new($(fields_names...))
             end
         end
-
-        $(predicate_name)(v::$(name_sym))::Bool = true
-        $(predicate_name)(v::Any)::Bool = false
-
     end
 end
 
@@ -219,10 +214,6 @@ sense(o::Objective) = o.sense
 direction(o::Objective) = o.sense == :MIN ? -1 : 1
 direction(os::Vector{T}) where {T <: AbstractObjective} = vcat(map(direction, os)...)
 
-# Predicate
-isObjective(::Objective)::Bool = true
-isObjective(::Any)::Bool = false
-
 isminimization(o::Objective) = isminimization(sense(o))
 
 # Application
@@ -305,11 +296,6 @@ direction(o::SharedObjective, i = (:)) =
         end
     end
 
-
-# Predicates
-isSharedObjective(::SharedObjective) = true
-isSharedObjective(::Any) = false
-
 isminimization(o::SharedObjective) = all(map(isminimization, sense(o)))
 ==(o1::SharedObjective, o2::Objective) = ==(o1::Objective, o2::SharedObjective) = false
 
@@ -341,10 +327,6 @@ coefficient(c::Constraint)::Real = c.coefficient
 func(c::Constraint)::Function = c.func
 operator(c::Constraint)::Function = c.operator
 
-# Predicates
-isConstraint(c::Constraint)::Bool = true
-isConstraint(c::Any)::Bool = false
-
 # Comparators
 ==(o1::Constraint, o2::Constraint) =
     func(o1) == func(o2) && coefficient(o1) == coefficient(o2) && operator(o1) == operator(o2)
@@ -362,7 +344,7 @@ apply(c::Constraint, args...) = func(c)(args...)
 "Evaluates the value of the constraint relative to 0"
 issatisfied(c::Constraint, c_value) = operator(c)(c_value, 0)
 
-penalty(cs::Vector{Constraint}, cs_values) = let
+evaluate(cs::Vector{Constraint}, cs_values) = let
     unsatisfied = map((c, cval) -> !issatisfied(c, cval), cs, cs_values)
     cs_unsatisfied = cs[unsatisfied]
 
@@ -452,9 +434,6 @@ nconstraints(s::Solution) = length(s.constraints)
 # Predicates
 isfeasible(s::Solution) = s.feasible
 isevaluated(s::Solution) = s.evaluated
-
-isSolution(s::Solution)::Bool = true
-isSolution(s::Any)::Bool = false
 
 # Argument Validations
 # TODO - CHANGE THIS
@@ -554,10 +533,6 @@ aggregate_function(model::Model, transformation=flatten) =
                                           transformation([apply(c, x...) for c in constraints(model)])) :
                                ((x...) -> transformation([apply(o, x...) for o in objectives(model)]))
 
-# Predicates
-isModel(c::AbstractModel)::Bool = true
-isModel(c::Any)::Bool = false
-
 ismixedtype(m::AbstractModel)::Bool = length(unique(map(typeof, variables(m)))) > 1
 
 # Argument Validations
@@ -589,7 +564,7 @@ evaluate(model::Model, vars::Vector, transformation::Function=flatten) =
 evaluate(vars::Vector, objs::Vector, cnstrs::Vector, transformation::Function=flatten) = let
     start_time = time();
     eval_objectives() = let
-        objs_values, objs_time = @profile objs (o) -> evaluate(o, vars)
+        objs_values, objs_time = @profile objs (o) -> evaluate(o, vars) # TODO -
         transformation(objs_values), objs_time
     end
 

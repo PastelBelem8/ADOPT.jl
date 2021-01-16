@@ -47,12 +47,12 @@ using Test
         end
 
         @testset "Predicates Tests" begin
-            @test ADOPT.isIntVariable(ADOPT.IntVariable(0, 20, 10))
-            @test ADOPT.isIntVariable(ADOPT.IntVariable(-20, 10))
-            @test !ADOPT.isIntVariable(ADOPT.RealVariable(0, 1))
-            @test !ADOPT.isIntVariable(ADOPT.SetVariable([0]))
-            @test !ADOPT.isIntVariable(nothing)
-            @test !ADOPT.isIntVariable(Vector{Int}())
+            @test ADOPT.IntVariable(0, 20, 10) isa ADOPT.IntVariable
+            @test ADOPT.IntVariable(-20, 10) isa ADOPT.IntVariable
+            @test !(ADOPT.RealVariable(0, 1) isa ADOPT.IntVariable)
+            @test !(ADOPT.SetVariable([0]) isa ADOPT.IntVariable)
+            @test !(nothing isa ADOPT.IntVariable)
+            @test !(Vector{Int}() isa ADOPT.IntVariable)
         end
 
         @testset "Unscaling Tests" begin
@@ -108,13 +108,13 @@ using Test
         end
 
         @testset "Predicates Tests" begin
-            @test ADOPT.isRealVariable(ADOPT.RealVariable(0.0, 20.1, 10.0))
-            @test ADOPT.isRealVariable(ADOPT.RealVariable(-20.0, 10.0))
-            @test ADOPT.isRealVariable(ADOPT.RealVariable(-20, 10))
-            @test !ADOPT.isRealVariable(ADOPT.IntVariable(0, 1))
-            @test !ADOPT.isRealVariable(ADOPT.SetVariable([0]))
-            @test !ADOPT.isRealVariable(nothing)
-            @test !ADOPT.isRealVariable(Vector{Real}())
+            @test ADOPT.RealVariable(0.0, 20.1, 10.0) isa ADOPT.RealVariable
+            @test ADOPT.RealVariable(-20.0, 10.0) isa ADOPT.RealVariable
+            @test ADOPT.RealVariable(-20, 10) isa ADOPT.RealVariable
+            @test !(ADOPT.IntVariable(0, 1) isa ADOPT.RealVariable)
+            @test !(ADOPT.SetVariable([0]) isa ADOPT.RealVariable)
+            @test !(nothing isa ADOPT.RealVariable)
+            @test !(Vector{Real}() isa ADOPT.RealVariable)
         end
 
         @testset "Unscaling Tests" begin
@@ -202,18 +202,17 @@ using Test
         end
 
         @testset "Predicates Tests" begin
-            @test ADOPT.isSetVariable(ADOPT.SetVariable(2, collect(1:5)))
-            @test ADOPT.isSetVariable(ADOPT.SetVariable(1, 5, 2, collect(1:5)))
-            @test !ADOPT.isSetVariable(ADOPT.IntVariable(-20, 10))
-            @test !ADOPT.isSetVariable(ADOPT.RealVariable(0, 1))
-            @test !ADOPT.isSetVariable(ADOPT.RealVariable(0.0, 1.0))
-            @test !ADOPT.isSetVariable(nothing)
-            @test !ADOPT.isSetVariable(Vector{Int64}())
-            @test !ADOPT.isSetVariable(Vector{Float64}())
+            @test ADOPT.SetVariable(2, collect(1:5)) isa ADOPT.SetVariable
+            @test ADOPT.SetVariable(1, 5, 2, collect(1:5)) isa ADOPT.SetVariable
+            @test !(ADOPT.IntVariable(-20, 10) isa ADOPT.SetVariable)
+            @test !(ADOPT.RealVariable(0, 1) isa ADOPT.SetVariable)
+            @test !(ADOPT.RealVariable(0.0, 1.0) isa ADOPT.SetVariable)
+            @test !(nothing isa ADOPT.SetVariable)
+            @test !(Vector{Int64}() isa ADOPT.SetVariable)
+            @test !(Vector{Float64}() isa ADOPT.SetVariable)
         end
 
         @testset "Unscaling Tests" begin
-
             @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), 0.5, 0, 1) == 5
             @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [1, 3, 5, 8, 10]
             @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [-10, -5, 9], -10, 10) == [1, 3, 10]
@@ -301,12 +300,12 @@ end
         o1 = ADOPT.Objective(identity, 1, :MIN)
         o2 = ADOPT.Objective(exp, 1, :MAX)
 
-        @test ADOPT.isObjective(o1)
-        @test ADOPT.isObjective(o2)
-        @test !ADOPT.isObjective(2)
-        @test !ADOPT.isObjective(Vector{Real}())
-        @test !ADOPT.isObjective(nothing)
-        @test !ADOPT.isObjective(ADOPT.IntVariable(0, 1))
+        @test o1 isa ADOPT.Objective
+        @test o2 isa ADOPT.Objective
+        @test !(2 isa ADOPT.Objective)
+        @test !(Vector{Real}() isa ADOPT.Objective)
+        @test !(nothing isa ADOPT.Objective)
+        @test !(ADOPT.IntVariable(0, 1) isa ADOPT.Objective)
 
         @test ADOPT.isminimization(o1)
         @test !ADOPT.isminimization(o2)
@@ -434,12 +433,12 @@ end
         o1 = ADOPT.SharedObjective(f, [1, 4], [:MIN, :MAX])
         o2 = ADOPT.Objective(exp, :MIN)
 
-        @test !ADOPT.isObjective(o1) && ADOPT.isObjective(o2)
-        @test ADOPT.isSharedObjective(o1) && !ADOPT.isSharedObjective(o2)
-        @test !ADOPT.isSharedObjective(2)
-        @test !ADOPT.isSharedObjective(Vector{Real}())
-        @test !ADOPT.isSharedObjective(nothing)
-        @test !ADOPT.isSharedObjective(ADOPT.IntVariable(0, 1))
+        @test !(o1 isa ADOPT.Objective) && (o2 isa ADOPT.Objective)
+        @test (o1 isa ADOPT.SharedObjective) && !(o2 isa ADOPT.SharedObjective)
+        @test !(2 isa ADOPT.SharedObjective)
+        @test !(Vector{Real}() isa ADOPT.SharedObjective)
+        @test !(nothing isa ADOPT.SharedObjective)
+        @test !(ADOPT.IntVariable(0, 1) isa ADOPT.SharedObjective)
 
         @test !ADOPT.isminimization(o1)
         @test ADOPT.isminimization(o2)
@@ -569,13 +568,13 @@ end
         c1 = ADOPT.Constraint(identity, 1, ==)
         c2 = ADOPT.Constraint(exp, 1, >=)
 
-        @test ADOPT.isConstraint(c1)
-        @test ADOPT.isConstraint(c2)
-        @test !ADOPT.isConstraint(2)
-        @test !ADOPT.isConstraint(Vector{Real}())
-        @test !ADOPT.isConstraint(nothing)
-        @test !ADOPT.isConstraint(ADOPT.IntVariable(0, 1))
-        @test !ADOPT.isConstraint(ADOPT.Objective(identity))
+        @test c1 isa ADOPT.Constraint
+        @test c2 isa ADOPT.Constraint
+        @test !(2 isa ADOPT.Constraint)
+        @test !(Vector{Real}() isa ADOPT.Constraint)
+        @test !(nothing isa ADOPT.Constraint)
+        @test !(ADOPT.IntVariable(0, 1) isa ADOPT.Constraint)
+        @test !(ADOPT.Objective(identity) isa ADOPT.Constraint)
 
         @test c1 != c2
         @test c1 == ADOPT.Constraint(identity, 1, ==)
@@ -600,15 +599,15 @@ end
         @test ADOPT.issatisfied(c2, -0)
 
         # Penalty Constraint
-        @test ADOPT.evaluate_penalty(c1, 2) == 4 * 3
-        @test ADOPT.evaluate_penalty(c1, -2) == 4 * 3
+        @test ADOPT.evaluate(c1, 2) == 4 * 3
+        @test ADOPT.evaluate(c1, -2) == 4 * 3
 
-        @test ADOPT.evaluate_penalty(c2, 2) == 0
-        @test ADOPT.evaluate_penalty(c2, -1) == 2
-        @test ADOPT.evaluate_penalty(c2, 2) != ADOPT.evaluate_penalty(c2, -2)
+        @test ADOPT.evaluate(c2, 2) == 0
+        @test ADOPT.evaluate(c2, -1) == 2
+        @test ADOPT.evaluate(c2, 2) != ADOPT.evaluate(c2, -2)
         @test begin
             c3 = ADOPT.Constraint(x -> x, 2, ==)
-            ADOPT.evaluate_penalty(c3, 2) == ADOPT.evaluate_penalty(c3, -2)
+            ADOPT.evaluate(c3, 2) == ADOPT.evaluate(c3, -2)
         end
 
         # Method Errors

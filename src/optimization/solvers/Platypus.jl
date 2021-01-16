@@ -49,7 +49,7 @@ end
 
 # Representation
 function Base.show(io::IO, pyv::PlatypusWrapper)
-  s = pyv.pyo[:__str__]()
+  s = pyv.pyo.__str__()
   println(io, s)
 end
 
@@ -171,10 +171,10 @@ end
                 constraints::PyVector)
 @pytype_setters Problem directions "function"
 set_constraints!(o::Platypus.Problem, constraints) =
-  o.pyo.constraints[:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
+  o.pyo.constraints.__setitem__((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), constraints)
 
 set_types!(o::Platypus.Problem, types) =
-  o.pyo.types[:__setitem__]((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), types)
+  o.pyo.types.__setitem__((PyCall.pybuiltin(:slice)(nothing, nothing, nothing)), types)
 
 # Algorithms
 # Single Objective Algorithms
@@ -288,7 +288,7 @@ end
 # -----------------------------------------------------------------------
 "Uses the reflection capabilities of python to parse a function's signature and retrieves its arguments"
 function inspect_signature(pyfunc::Symbol)
-    params = PyDict(PyCall.inspect.signature(Platypus.platypus[pyfunc]).parameters)
+    params = PyDict(PyCall.inspect.signature(Base.getproperty(Platypus.platypus, pyfunc)).parameters)
     res = []
     for (pname, param) in params
       res = vcat((pname, params[pname].default), res)

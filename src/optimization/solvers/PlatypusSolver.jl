@@ -7,7 +7,7 @@ import Base: convert
   Routines that interface the Platypus solver and the Platypus Library (Python)
 # ----------------------------------------------------------------------- =#
 platypus_fitness(objs, cnstrs) =
-    (vars...) -> let  sol = evaluate(vars..., objs, cnstrs)
+    (vars...) -> let  sol = evaluate(vars..., objs, cnstrs) #TODO . shared objective fails here
                       os, cs = objectives(sol), constraints(sol)
                       isempty(cs) ? os : (os, cs)
                   end
@@ -31,7 +31,7 @@ convert(::Type{Platypus.Problem}, m::Model) = let
 
     # 2.3. Convert Objective Function
     objs = objectives(m)
-    Platypus.set_directions!(problem, flatten(directions(objs)))
+    Platypus.set_directions!(problem, flatten(direction(objs)))
     Platypus.set_function!(problem, platypus_fitness(objs, constrs))
 
     problem

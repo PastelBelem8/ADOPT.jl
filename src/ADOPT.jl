@@ -37,7 +37,7 @@ config_file = Parameter("$(results_dir())/default.config")
 # Optimization Internals
 
 # This maps how much a solution is penalized by default
-ϵ = Parameter(0.1)
+ϵ = Parameter(1e-6) # could also use ``eps``
 include("./optimization/Optimization.jl")
 include("./optimization/Pareto.jl")
 

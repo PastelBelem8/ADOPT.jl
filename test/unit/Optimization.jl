@@ -57,8 +57,14 @@ using Test
 
         @testset "Unscaling Tests" begin
             @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), 0.5, 0, 1) == 10
-            @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [0, 5, 10, 15, 20]
-            @test ADOPT.unscale(ADOPT.IntVariable(-10, 10), [-10, -5, 10], -10, 10) == [-10, -5, 10]
+            @test ADOPT.unscale(
+                ADOPT.IntVariable(0, 20, 10),
+                [0, 0.25, 0.5, 0.75, 1],
+                0,
+                1,
+            ) == [0, 5, 10, 15, 20]
+            @test ADOPT.unscale(ADOPT.IntVariable(-10, 10), [-10, -5, 10], -10, 10) ==
+                  [-10, -5, 10]
             @test ADOPT.unscale(ADOPT.IntVariable(0, 20, 10), 0.33, 0, 1) == 7
         end
     end
@@ -119,8 +125,14 @@ using Test
 
         @testset "Unscaling Tests" begin
             @test ADOPT.unscale(ADOPT.RealVariable(0, 20.0), 0.5, 0, 1) == 10
-            @test ADOPT.unscale(ADOPT.RealVariable(0, 20.0), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [0, 5, 10, 15, 20]
-            @test ADOPT.unscale(ADOPT.RealVariable(-10.5, 10), [-10, -5, 10], -10, 10) == [-10.5, -5.375, 10.0]
+            @test ADOPT.unscale(
+                ADOPT.RealVariable(0, 20.0),
+                [0, 0.25, 0.5, 0.75, 1],
+                0,
+                1,
+            ) == [0, 5, 10, 15, 20]
+            @test ADOPT.unscale(ADOPT.RealVariable(-10.5, 10), [-10, -5, 10], -10, 10) ==
+                  [-10.5, -5.375, 10.0]
             @test ADOPT.unscale(ADOPT.RealVariable(0, 20, 10), 0.33, 0, 1) == 0.33 * 20
         end
     end
@@ -214,8 +226,14 @@ using Test
 
         @testset "Unscaling Tests" begin
             @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), 0.5, 0, 1) == 5
-            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [0, 0.25, 0.5, 0.75, 1], 0, 1) == [1, 3, 5, 8, 10]
-            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [-10, -5, 9], -10, 10) == [1, 3, 10]
+            @test ADOPT.unscale(
+                ADOPT.SetVariable(collect(1:10)),
+                [0, 0.25, 0.5, 0.75, 1],
+                0,
+                1,
+            ) == [1, 3, 5, 8, 10]
+            @test ADOPT.unscale(ADOPT.SetVariable(collect(1:10)), [-10, -5, 9], -10, 10) ==
+                  [1, 3, 10]
             @test ADOPT.unscale(ADOPT.SetVariable(collect(0:10)), 0.33, 0, 1) == 3
         end
     end
@@ -376,7 +394,7 @@ end
             o.n == length(senses) &&
                 isa(o.func, Function) &&
                 o.func == identity &&
-                o.coefficients == Real[1,1,1] &&
+                o.coefficients == Real[1, 1, 1] &&
                 o.senses == senses
         end
 
@@ -429,7 +447,7 @@ end
     end
 
     @testset "Predicates Tests" begin
-        f = x -> (-x, 2*x)
+        f = x -> (-x, 2 * x)
         o1 = ADOPT.SharedObjective(f, [1, 4], [:MIN, :MAX])
         o2 = ADOPT.Objective(exp, :MIN)
 
@@ -469,7 +487,6 @@ end
         @test_throws MethodError ADOPT.evaluate(o)
     end
 end
-
 
 @testset "Constraints Tests" begin
     @testset "Constructors Tests" begin
@@ -581,47 +598,88 @@ end
     end
 
     @testset "Evaluation Tests" begin
-        # Success
-        c1 = ADOPT.Constraint(x -> x^2, 3)
-        @test ADOPT.apply(c1, 2) == 4
-        @test ADOPT.apply(c1, -1) == 1
+        TEST_TOL = 1e-8
+        ADOPT.with(ADOPT.ϵ, TEST_TOL) do
+            c1 = ADOPT.Constraint(x -> x^2, 3)
+            @test ADOPT.apply(c1, 2) == 4
+            @test ADOPT.apply(c1, -1) == 1
 
-        # Test 1: Equality
-        @test ADOPT.issatisfied(c1, 0)
-        @test !ADOPT.issatisfied(c1, 2)
-        @test !ADOPT.issatisfied(c1, -1)
+            @test_throws MethodError ADOPT.apply(c1, 2, 3)
+            @test_throws MethodError ADOPT.apply(c1)
 
-        # Test 1: Greater or equal than
-        c2 = ADOPT.Constraint(x -> x, 2, >=)
-        @test ADOPT.issatisfied(c2, 2.0)
-        @test !ADOPT.issatisfied(c2, -1)
-        @test ADOPT.issatisfied(c2, 0)
-        @test ADOPT.issatisfied(c2, -0)
+            # Test 1: Equality
+            @test ADOPT.issatisfied(c1, 0)
+            @test !ADOPT.issatisfied(c1, 2)
+            @test !ADOPT.issatisfied(c1, -1)
 
-        # Penalty Constraint
-        @test ADOPT.evaluate(c1, 2) == 4 * 3
-        @test ADOPT.evaluate(c1, -2) == 4 * 3
+            # Test 1: Greater or equal than
+            c2 = ADOPT.Constraint(identity, 2, >=)
+            @test ADOPT.issatisfied(c2, 2.0)
+            @test !ADOPT.issatisfied(c2, -1)
+            @test ADOPT.issatisfied(c2, 0)
+            @test ADOPT.issatisfied(c2, -0)
 
-        @test ADOPT.evaluate(c2, 2) == 0
-        @test ADOPT.evaluate(c2, -1) == 2
-        @test ADOPT.evaluate(c2, 2) != ADOPT.evaluate(c2, -2)
-        @test begin
-            c3 = ADOPT.Constraint(x -> x, 2, ==)
-            ADOPT.evaluate(c3, 2) == ADOPT.evaluate(c3, -2)
+            @test_throws MethodError ADOPT.issatisfied(c1, 2, 3)
+            @test_throws MethodError ADOPT.issatisfied(c1)
+
+            # Penalty Constraint
+            @test ADOPT.evaluate(c1, 2) - (2 * 3) <= TEST_TOL * 3
+            @test ADOPT.evaluate(c1, -2) - (2 * 3) <= TEST_TOL * 3
+
+            @test ADOPT.evaluate(c2, 2) - 0 <= TEST_TOL
+            @test ADOPT.evaluate(c2, -1) - (1 * 2) <= TEST_TOL * 2
+            @test ADOPT.evaluate(c2, -2) - (2 * 2) <= TEST_TOL * 2
+            @test ADOPT.evaluate(c2, 2) != ADOPT.evaluate(c2, -2)
+            #^NOTE: Since the penalty is evaluated in terms of magnitude
+            # the previous case is considered to be true :)
+            @test ADOPT.evaluate(c2, 2) != ADOPT.evaluate(c2, -3)
+
+            @test begin
+                c3 = ADOPT.Constraint(identity, 2, ==)
+                ADOPT.evaluate(c3, 2) == ADOPT.evaluate(c3, -2)
+            end
+
+            @test begin
+                c4 = ADOPT.Constraint(identity, 2, !=)
+                ADOPT.evaluate(c4, 2) - 4 <= TEST_TOL
+            end
+
+            @test begin
+                constraints_ = [
+                    ADOPT.Constraint(identity, !=),
+                    ADOPT.Constraint(identity, ==),
+                    ADOPT.Constraint(identity, >=),
+                    ADOPT.Constraint(identity, <=),
+                    ADOPT.Constraint(identity, >),
+                    ADOPT.Constraint(identity, <)
+                ]
+                values = [1e-2, 2, 3, 5, -1, -3]
+                expected_penalty = (2 + 5 + 1) + (3 * TEST_TOL) # VIOLATED Constraints
+                ADOPT.evaluate(constraints_, values) - expected_penalty <= TEST_TOL
+            end
+
+            @test begin
+                constraints_ = [
+                    ADOPT.Constraint(identity, !=),
+                    ADOPT.Constraint(identity, ==),
+                    ADOPT.Constraint(identity, >=),
+                    ADOPT.Constraint(identity, <=),
+                    ADOPT.Constraint(identity, >),
+                    ADOPT.Constraint(identity, <),
+                ]
+                values = [0.1, 0, 0, 0, 1, -3]
+                ADOPT.evaluate(constraints_, values) == 0
+            end
+
         end
-
-        # Method Errors
-        @test_throws MethodError ADOPT.apply(c1, 2, 3)
-        @test_throws MethodError ADOPT.apply(c1)
-        @test_throws MethodError ADOPT.evaluate_penalty(
-            ADOPT.Constraint(identity, 2, !=),
-            2,
-        )
-
-        @test_throws MethodError ADOPT.issatisfied(c1, 2, 3)
-        @test_throws MethodError ADOPT.issatisfied(c1)
     end
 end
+
+
+
+
+
+
 
 @testset "Model Tests" begin
     @testset "Constructor Tests" begin

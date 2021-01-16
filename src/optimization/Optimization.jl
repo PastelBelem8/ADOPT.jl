@@ -341,17 +341,23 @@ check_arguments(t::Type{Constraint}, f::Function, coefficient::Real, op::Functio
 "Applies the constraint's function to provided arguments"
 apply(c::Constraint, args...) = func(c)(args...)
 
-"Evaluates the value of the constraint relative to 0"
+"""Determines whether the provided value satisfies the constraint or not."""
 issatisfied(c::Constraint, c_value) = operator(c)(c_value, 0)
+# ^Note: This method will not intentionally compute the value of the constraint.
+# Instead, it assumes the values have been previously computed (i.e., we do
+# not call the ``apply`` method). Due to the nature of our problem, i.e.,
+# black box optimization, we need to decouple the ``apply`` method from the
+# ``evaluate`` method.
 
-evaluate(cs::Vector{Constraint}, cs_values) = let
-    unsatisfied = map((c, cval) -> !issatisfied(c, cval), cs, cs_values)
-    cs_unsatisfied = cs[unsatisfied]
+evaluate(constraint::Constraint, value) = evaluate([constraint], collect(value))
+evaluate(constraints::Vector{Constraint}, values) = let
+    unsatisfied = map((c, v) -> !issatisfied(c, v), constraints, values)
+    cs_unsatisfied = constraints[unsatisfied]
 
     if isempty(cs_unsatisfied)
         0
     else
-        cs_values_unsatisfied = cs_values[unsatisfied]
+        cs_values_unsatisfied = values[unsatisfied]
 
         cs_unsatisfied_coeffs = map(coefficient, cs_unsatisfied)
         cs_unsatisfied_values = map(cval -> abs(cval) + abs(ϵ()), cs_values_unsatisfied)
